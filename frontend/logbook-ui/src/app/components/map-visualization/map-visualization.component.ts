@@ -11,11 +11,10 @@ interface StateStats {
 }
 
 @Component({
-  selector: 'app-map-visualization',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './map-visualization.component.html',
-  styleUrls: ['./map-visualization.component.css']
+    selector: 'app-map-visualization',
+    imports: [CommonModule],
+    templateUrl: './map-visualization.component.html',
+    styleUrls: ['./map-visualization.component.css']
 })
 export class MapVisualizationComponent implements OnInit, OnDestroy {
   stateStats: Map<string, StateStats> = new Map();

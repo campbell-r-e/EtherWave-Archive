@@ -1,15 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Invitation, InvitationRequest, InvitationStatus, ParticipantRole, Log } from '../../../models/log.model';
 import { LogService } from '../../../services/log/log.service';
 
 @Component({
-  selector: 'app-invitations',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './invitations.component.html',
-  styleUrls: ['./invitations.component.css']
+    selector: 'app-invitations',
+    imports: [ReactiveFormsModule],
+    templateUrl: './invitations.component.html',
+    styleUrls: ['./invitations.component.css']
 })
 export class InvitationsComponent implements OnInit {
   pendingInvitations: Invitation[] = [];

@@ -1,163 +1,175 @@
 <div class="card">
   <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
     <h5 class="mb-0">📡 Station Management</h5>
-    <button class="btn btn-sm btn-light" (click)="showAddForm()" *ngIf="!showForm">
-      ➕ Add Station
-    </button>
+    @if (!showForm) {
+      <button class="btn btn-sm btn-light" (click)="showAddForm()">
+        ➕ Add Station
+      </button>
+    }
   </div>
   <div class="card-body">
     <!-- Loading State -->
-    <div *ngIf="loading" class="text-center p-4">
-      <div class="spinner-border" role="status">
-        <span class="visually-hidden">Loading...</span>
+    @if (loading) {
+      <div class="text-center p-4">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
       </div>
-    </div>
+    }
 
     <!-- Add/Edit Form -->
-    <div *ngIf="showForm" class="station-form mb-4">
-      <h6 class="mb-3">{{ editMode ? 'Edit Station' : 'Add New Station' }}</h6>
-
-      <div class="row g-3">
-        <!-- Station Name -->
-        <div class="col-md-6">
-          <label class="form-label">Station Name <span class="text-danger">*</span></label>
-          <input type="text"
-                 class="form-control"
-                 [(ngModel)]="currentStation.name"
-                 placeholder="e.g., Home Station, Field Day 2A">
-        </div>
-
-        <!-- Callsign -->
-        <div class="col-md-6">
-          <label class="form-label">Callsign <span class="text-danger">*</span></label>
-          <input type="text"
-                 class="form-control"
-                 [(ngModel)]="currentStation.callsign"
-                 placeholder="e.g., W1ABC">
-        </div>
-
-        <!-- Grid Square -->
-        <div class="col-md-4">
-          <label class="form-label">Grid Square</label>
-          <input type="text"
-                 class="form-control"
-                 [(ngModel)]="currentStation.gridSquare"
-                 placeholder="e.g., FN31pr">
-        </div>
-
-        <!-- Latitude -->
-        <div class="col-md-4">
-          <label class="form-label">Latitude</label>
-          <input type="number"
-                 class="form-control"
-                 [(ngModel)]="currentStation.latitude"
-                 step="0.000001"
-                 placeholder="e.g., 42.123456">
-        </div>
-
-        <!-- Longitude -->
-        <div class="col-md-4">
-          <label class="form-label">Longitude</label>
-          <input type="number"
-                 class="form-control"
-                 [(ngModel)]="currentStation.longitude"
-                 step="0.000001"
-                 placeholder="e.g., -71.123456">
-        </div>
-
-        <!-- Power -->
-        <div class="col-md-6">
-          <label class="form-label">Power (Watts)</label>
-          <input type="number"
-                 class="form-control"
-                 [(ngModel)]="currentStation.power"
-                 placeholder="e.g., 100">
-        </div>
-
-        <!-- Antenna -->
-        <div class="col-md-6">
-          <label class="form-label">Antenna</label>
-          <input type="text"
-                 class="form-control"
-                 [(ngModel)]="currentStation.antenna"
-                 placeholder="e.g., Dipole, Yagi">
-        </div>
-
-        <!-- Comments -->
-        <div class="col-12">
-          <label class="form-label">Comments</label>
-          <textarea class="form-control"
-                    [(ngModel)]="currentStation.comments"
-                    rows="3"
-                    placeholder="Additional notes..."></textarea>
-        </div>
-
-        <!-- Form Actions -->
-        <div class="col-12">
-          <button class="btn btn-primary me-2" (click)="saveStation()">
-            {{ editMode ? 'Update' : 'Create' }} Station
-          </button>
-          <button class="btn btn-secondary" (click)="cancelForm()">
-            Cancel
-          </button>
+    @if (showForm) {
+      <div class="station-form mb-4">
+        <h6 class="mb-3">{{ editMode ? 'Edit Station' : 'Add New Station' }}</h6>
+        <div class="row g-3">
+          <!-- Station Name -->
+          <div class="col-md-6">
+            <label class="form-label">Station Name <span class="text-danger">*</span></label>
+            <input type="text"
+              class="form-control"
+              [(ngModel)]="currentStation.name"
+              placeholder="e.g., Home Station, Field Day 2A">
+          </div>
+          <!-- Callsign -->
+          <div class="col-md-6">
+            <label class="form-label">Callsign <span class="text-danger">*</span></label>
+            <input type="text"
+              class="form-control"
+              [(ngModel)]="currentStation.callsign"
+              placeholder="e.g., W1ABC">
+          </div>
+          <!-- Grid Square -->
+          <div class="col-md-4">
+            <label class="form-label">Grid Square</label>
+            <input type="text"
+              class="form-control"
+              [(ngModel)]="currentStation.gridSquare"
+              placeholder="e.g., FN31pr">
+          </div>
+          <!-- Latitude -->
+          <div class="col-md-4">
+            <label class="form-label">Latitude</label>
+            <input type="number"
+              class="form-control"
+              [(ngModel)]="currentStation.latitude"
+              step="0.000001"
+              placeholder="e.g., 42.123456">
+          </div>
+          <!-- Longitude -->
+          <div class="col-md-4">
+            <label class="form-label">Longitude</label>
+            <input type="number"
+              class="form-control"
+              [(ngModel)]="currentStation.longitude"
+              step="0.000001"
+              placeholder="e.g., -71.123456">
+          </div>
+          <!-- Power -->
+          <div class="col-md-6">
+            <label class="form-label">Power (Watts)</label>
+            <input type="number"
+              class="form-control"
+              [(ngModel)]="currentStation.power"
+              placeholder="e.g., 100">
+          </div>
+          <!-- Antenna -->
+          <div class="col-md-6">
+            <label class="form-label">Antenna</label>
+            <input type="text"
+              class="form-control"
+              [(ngModel)]="currentStation.antenna"
+              placeholder="e.g., Dipole, Yagi">
+          </div>
+          <!-- Comments -->
+          <div class="col-12">
+            <label class="form-label">Comments</label>
+            <textarea class="form-control"
+              [(ngModel)]="currentStation.comments"
+              rows="3"
+            placeholder="Additional notes..."></textarea>
+          </div>
+          <!-- Form Actions -->
+          <div class="col-12">
+            <button class="btn btn-primary me-2" (click)="saveStation()">
+              {{ editMode ? 'Update' : 'Create' }} Station
+            </button>
+            <button class="btn btn-secondary" (click)="cancelForm()">
+              Cancel
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    }
 
     <!-- No Stations -->
-    <div *ngIf="!loading && !showForm && stations.length === 0" class="text-center p-4 text-muted">
-      <p>No stations configured. Click "Add Station" to create your first station.</p>
-    </div>
+    @if (!loading && !showForm && stations.length === 0) {
+      <div class="text-center p-4 text-muted">
+        <p>No stations configured. Click "Add Station" to create your first station.</p>
+      </div>
+    }
 
     <!-- Station List -->
-    <div *ngIf="!loading && !showForm && stations.length > 0" class="station-list">
-      <div *ngFor="let station of stations" class="station-card">
-        <div class="station-header">
-          <div>
-            <h6 class="station-name">{{ station.name }}</h6>
-            <span class="station-callsign">{{ station.callsign }}</span>
+    @if (!loading && !showForm && stations.length > 0) {
+      <div class="station-list">
+        @for (station of stations; track station) {
+          <div class="station-card">
+            <div class="station-header">
+              <div>
+                <h6 class="station-name">{{ station.name }}</h6>
+                <span class="station-callsign">{{ station.callsign }}</span>
+              </div>
+              <div class="station-actions">
+                <button class="btn btn-sm btn-outline-primary me-2"
+                  (click)="editStation(station)"
+                  title="Edit Station">
+                  ✏️ Edit
+                </button>
+                <button class="btn btn-sm btn-outline-danger"
+                  (click)="deleteStation(station)"
+                  title="Delete Station">
+                  🗑️ Delete
+                </button>
+              </div>
+            </div>
+            <div class="station-details">
+              <div class="row">
+                @if (station.gridSquare) {
+                  <div class="col-md-3">
+                    <small class="text-muted">Grid Square</small>
+                    <div class="fw-bold">{{ station.gridSquare }}</div>
+                  </div>
+                }
+                @if (station.power) {
+                  <div class="col-md-3">
+                    <small class="text-muted">Power</small>
+                    <div class="fw-bold">{{ station.power }}W</div>
+                  </div>
+                }
+                @if (station.antenna) {
+                  <div class="col-md-3">
+                    <small class="text-muted">Antenna</small>
+                    <div class="fw-bold">{{ station.antenna }}</div>
+                  </div>
+                }
+                @if (station.latitude && station.longitude) {
+                  <div class="col-md-3">
+                    <small class="text-muted">Coordinates</small>
+                    <div class="fw-bold small">{{ station.latitude.toFixed(4) }}, {{ station.longitude.toFixed(4) }}</div>
+                  </div>
+                }
+              </div>
+              @if (station.comments) {
+                <div class="row mt-2">
+                  <div class="col-12">
+                    <small class="text-muted">Comments</small>
+                    <div>{{ station.comments }}</div>
+                  </div>
+                </div>
+              }
+            </div>
           </div>
-          <div class="station-actions">
-            <button class="btn btn-sm btn-outline-primary me-2"
-                    (click)="editStation(station)"
-                    title="Edit Station">
-              ✏️ Edit
-            </button>
-            <button class="btn btn-sm btn-outline-danger"
-                    (click)="deleteStation(station)"
-                    title="Delete Station">
-              🗑️ Delete
-            </button>
-          </div>
-        </div>
-
-        <div class="station-details">
-          <div class="row">
-            <div class="col-md-3" *ngIf="station.gridSquare">
-              <small class="text-muted">Grid Square</small>
-              <div class="fw-bold">{{ station.gridSquare }}</div>
-            </div>
-            <div class="col-md-3" *ngIf="station.power">
-              <small class="text-muted">Power</small>
-              <div class="fw-bold">{{ station.power }}W</div>
-            </div>
-            <div class="col-md-3" *ngIf="station.antenna">
-              <small class="text-muted">Antenna</small>
-              <div class="fw-bold">{{ station.antenna }}</div>
-            </div>
-            <div class="col-md-3" *ngIf="station.latitude && station.longitude">
-              <small class="text-muted">Coordinates</small>
-              <div class="fw-bold small">{{ station.latitude.toFixed(4) }}, {{ station.longitude.toFixed(4) }}</div>
-            </div>
-          </div>
-          <div class="row mt-2" *ngIf="station.comments">
-            <div class="col-12">
-              <small class="text-muted">Comments</small>
-              <div>{{ station.comments }}</div>
-            </div>
-          </div>
-        </div>
+        }
       </div>
-    </div>
+    }
   </div>
 </div>

@@ -7,86 +7,101 @@
   </div>
   <div class="card-body">
     <!-- Loading State -->
-    <div *ngIf="loading" class="text-center p-4">
-      <div class="spinner-border" role="status">
-        <span class="visually-hidden">Loading...</span>
+    @if (loading) {
+      <div class="text-center p-4">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
       </div>
-    </div>
+    }
 
     <!-- No Contests -->
-    <div *ngIf="!loading && getDisplayedContests().length === 0" class="text-center p-4 text-muted">
-      <p>{{ showAllContests ? 'No contests available' : 'No active contests at this time' }}</p>
-    </div>
+    @if (!loading && getDisplayedContests().length === 0) {
+      <div class="text-center p-4 text-muted">
+        <p>{{ showAllContests ? 'No contests available' : 'No active contests at this time' }}</p>
+      </div>
+    }
 
     <!-- Selected Contest Display -->
-    <div *ngIf="selectedContest" class="alert alert-info d-flex justify-content-between align-items-center mb-3">
-      <div>
-        <strong>Selected Contest:</strong> {{ selectedContest.contestName }}
-        <span class="ms-2" [class]="getContestBadgeClass(selectedContest)">
-          {{ getContestStatusText(selectedContest) }}
-        </span>
-      </div>
-      <button class="btn btn-sm btn-outline-secondary" (click)="clearSelection()">
-        Clear
-      </button>
-    </div>
-
-    <!-- Contest List -->
-    <div *ngIf="!loading && getDisplayedContests().length > 0" class="contest-list">
-      <div *ngFor="let contest of getDisplayedContests()"
-           class="contest-card"
-           [class.selected]="selectedContest?.id === contest.id"
-           (click)="selectContest(contest)">
-
-        <div class="contest-header">
-          <div>
-            <h6 class="contest-name mb-1">{{ contest.contestName }}</h6>
-            <span class="contest-code text-muted">{{ contest.contestCode }}</span>
-          </div>
-          <span [class]="getContestBadgeClass(contest)">
-            {{ getContestStatusText(contest) }}
-          </span>
-        </div>
-
-        <div class="contest-details">
-          <div class="detail-row">
-            <span class="detail-label">📅 Dates:</span>
-            <span class="detail-value">{{ getContestDateRange(contest) }}</span>
-          </div>
-
-          <div class="detail-row" *ngIf="contest.description">
-            <span class="detail-label">📝 Description:</span>
-            <span class="detail-value">{{ contest.description }}</span>
-          </div>
-
-          <div class="detail-row" *ngIf="contest.rulesConfig">
-            <span class="detail-label">📋 Rules:</span>
-            <span class="detail-value">{{ contest.rulesConfig }}</span>
-          </div>
-        </div>
-
-        <!-- Selection Indicator -->
-        <div *ngIf="selectedContest?.id === contest.id" class="selected-indicator">
-          ✓ Selected
-        </div>
-      </div>
-    </div>
-
-    <!-- Contest Statistics (if selected) -->
-    <div *ngIf="selectedContest" class="mt-3 p-3 bg-light border rounded">
-      <h6 class="text-muted mb-2">Contest Information</h6>
-      <div class="row">
-        <div class="col-md-6">
-          <small class="d-block text-muted">Contest Code</small>
-          <strong>{{ selectedContest.contestCode }}</strong>
-        </div>
-        <div class="col-md-6" *ngIf="selectedContest.startDate">
-          <small class="d-block text-muted">Status</small>
-          <span [class]="getContestBadgeClass(selectedContest)">
+    @if (selectedContest) {
+      <div class="alert alert-info d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <strong>Selected Contest:</strong> {{ selectedContest.contestName }}
+          <span class="ms-2" [class]="getContestBadgeClass(selectedContest)">
             {{ getContestStatusText(selectedContest) }}
           </span>
         </div>
+        <button class="btn btn-sm btn-outline-secondary" (click)="clearSelection()">
+          Clear
+        </button>
       </div>
-    </div>
+    }
+
+    <!-- Contest List -->
+    @if (!loading && getDisplayedContests().length > 0) {
+      <div class="contest-list">
+        @for (contest of getDisplayedContests(); track contest) {
+          <div
+            class="contest-card"
+            [class.selected]="selectedContest?.id === contest.id"
+            (click)="selectContest(contest)">
+            <div class="contest-header">
+              <div>
+                <h6 class="contest-name mb-1">{{ contest.contestName }}</h6>
+                <span class="contest-code text-muted">{{ contest.contestCode }}</span>
+              </div>
+              <span [class]="getContestBadgeClass(contest)">
+                {{ getContestStatusText(contest) }}
+              </span>
+            </div>
+            <div class="contest-details">
+              <div class="detail-row">
+                <span class="detail-label">📅 Dates:</span>
+                <span class="detail-value">{{ getContestDateRange(contest) }}</span>
+              </div>
+              @if (contest.description) {
+                <div class="detail-row">
+                  <span class="detail-label">📝 Description:</span>
+                  <span class="detail-value">{{ contest.description }}</span>
+                </div>
+              }
+              @if (contest.rulesConfig) {
+                <div class="detail-row">
+                  <span class="detail-label">📋 Rules:</span>
+                  <span class="detail-value">{{ contest.rulesConfig }}</span>
+                </div>
+              }
+            </div>
+            <!-- Selection Indicator -->
+            @if (selectedContest?.id === contest.id) {
+              <div class="selected-indicator">
+                ✓ Selected
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Contest Statistics (if selected) -->
+    @if (selectedContest) {
+      <div class="mt-3 p-3 bg-light border rounded">
+        <h6 class="text-muted mb-2">Contest Information</h6>
+        <div class="row">
+          <div class="col-md-6">
+            <small class="d-block text-muted">Contest Code</small>
+            <strong>{{ selectedContest.contestCode }}</strong>
+          </div>
+          @if (selectedContest.startDate) {
+            <div class="col-md-6">
+              <small class="d-block text-muted">Status</small>
+              <span [class]="getContestBadgeClass(selectedContest)">
+                {{ getContestStatusText(selectedContest) }}
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+    }
   </div>
 </div>

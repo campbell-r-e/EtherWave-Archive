@@ -6,11 +6,10 @@ import { interval, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-rig-status',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './rig-status.component.html',
-  styleUrls: ['./rig-status.component.css']
+    selector: 'app-rig-status',
+    imports: [CommonModule],
+    templateUrl: './rig-status.component.html',
+    styleUrls: ['./rig-status.component.css']
 })
 export class RigStatusComponent implements OnInit, OnDestroy {
   rigStatus: RigStatus | null = null;

@@ -1,16 +1,15 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ApiService } from '../../services/api.service';
 import { WebSocketService } from '../../services/websocket.service';
 import { QSO } from '../../models/qso.model';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-qso-list',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './qso-list.component.html',
-  styleUrls: ['./qso-list.component.css']
+    selector: 'app-qso-list',
+    imports: [],
+    templateUrl: './qso-list.component.html',
+    styleUrls: ['./qso-list.component.css']
 })
 export class QsoListComponent implements OnInit, OnDestroy {
   qsos: QSO[] = [];

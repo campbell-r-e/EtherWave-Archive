@@ -1,85 +1,94 @@
 <div class="card">
   <div class="card-header d-flex justify-content-between align-items-center"
-       [class]="getConnectionStatusClass() + ' text-white'">
+    [class]="getConnectionStatusClass() + ' text-white'">
     <h6 class="mb-0">📡 Rig Status</h6>
     <span class="badge bg-light text-dark">
       {{ rigStatus?.connected ? 'Connected' : 'Disconnected' }}
     </span>
   </div>
   <div class="card-body">
-    <div *ngIf="!rigStatus" class="text-center">
-      <div class="spinner-border spinner-border-sm" role="status"></div>
-      <p class="mb-0 mt-2 small">Connecting...</p>
-    </div>
-
-    <div *ngIf="rigStatus && !rigStatus.connected" class="text-center text-muted">
-      <p>⚠️ Rig control service not available</p>
-      <p class="small">{{ rigStatus.error }}</p>
-      <button class="btn btn-sm btn-primary" (click)="checkRigConnection()">
-        🔄 Retry
-      </button>
-    </div>
-
-    <div *ngIf="rigStatus && rigStatus.connected">
-      <!-- Frequency Display -->
-      <div class="mb-3">
-        <label class="small text-muted d-block">Frequency</label>
-        <div class="display-6 text-primary">
-          {{ formatFrequency(rigStatus.frequencyHz) }}
-        </div>
+    @if (!rigStatus) {
+      <div class="text-center">
+        <div class="spinner-border spinner-border-sm" role="status"></div>
+        <p class="mb-0 mt-2 small">Connecting...</p>
       </div>
+    }
 
-      <!-- Mode and Bandwidth -->
-      <div class="row mb-3">
-        <div class="col-6">
-          <label class="small text-muted d-block">Mode</label>
-          <h4 class="mb-0">
-            <span class="badge bg-info">{{ rigStatus.mode || '---' }}</span>
-          </h4>
-        </div>
-        <div class="col-6">
-          <label class="small text-muted d-block">Bandwidth</label>
-          <h4 class="mb-0">{{ rigStatus.bandwidth || '---' }}</h4>
-        </div>
+    @if (rigStatus && !rigStatus.connected) {
+      <div class="text-center text-muted">
+        <p>⚠️ Rig control service not available</p>
+        <p class="small">{{ rigStatus.error }}</p>
+        <button class="btn btn-sm btn-primary" (click)="checkRigConnection()">
+          🔄 Retry
+        </button>
       </div>
+    }
 
-      <!-- PTT Status -->
-      <div class="mb-3">
-        <label class="small text-muted d-block">PTT Status</label>
-        <h4 [class]="getPTTClass()">
-          <span *ngIf="rigStatus.pttActive">🔴 TRANSMITTING</span>
-          <span *ngIf="!rigStatus.pttActive">⚪ Receiving</span>
-        </h4>
-      </div>
-
-      <!-- S-Meter -->
-      <div *ngIf="rigStatus.sMeter !== undefined" class="mb-3">
-        <label class="small text-muted d-block">S-Meter</label>
-        <div class="progress" style="height: 25px;">
-          <div class="progress-bar bg-success"
-               [style.width.%]="((rigStatus.sMeter + 150) / 150) * 100"
-               role="progressbar">
-            {{ rigStatus.sMeter }} dB
+    @if (rigStatus && rigStatus.connected) {
+      <div>
+        <!-- Frequency Display -->
+        <div class="mb-3">
+          <label class="small text-muted d-block">Frequency</label>
+          <div class="display-6 text-primary">
+            {{ formatFrequency(rigStatus.frequencyHz) }}
           </div>
         </div>
+        <!-- Mode and Bandwidth -->
+        <div class="row mb-3">
+          <div class="col-6">
+            <label class="small text-muted d-block">Mode</label>
+            <h4 class="mb-0">
+              <span class="badge bg-info">{{ rigStatus.mode || '---' }}</span>
+            </h4>
+          </div>
+          <div class="col-6">
+            <label class="small text-muted d-block">Bandwidth</label>
+            <h4 class="mb-0">{{ rigStatus.bandwidth || '---' }}</h4>
+          </div>
+        </div>
+        <!-- PTT Status -->
+        <div class="mb-3">
+          <label class="small text-muted d-block">PTT Status</label>
+          <h4 [class]="getPTTClass()">
+            @if (rigStatus.pttActive) {
+              <span>🔴 TRANSMITTING</span>
+            }
+            @if (!rigStatus.pttActive) {
+              <span>⚪ Receiving</span>
+            }
+          </h4>
+        </div>
+        <!-- S-Meter -->
+        @if (rigStatus.sMeter !== undefined) {
+          <div class="mb-3">
+            <label class="small text-muted d-block">S-Meter</label>
+            <div class="progress" style="height: 25px;">
+              <div class="progress-bar bg-success"
+                [style.width.%]="((rigStatus.sMeter + 150) / 150) * 100"
+                role="progressbar">
+                {{ rigStatus.sMeter }} dB
+              </div>
+            </div>
+          </div>
+        }
+        <!-- SWR -->
+        @if (rigStatus.swr) {
+          <div class="mb-3">
+            <label class="small text-muted d-block">SWR</label>
+            <h5 [class.text-success]="rigStatus.swr < 2"
+              [class.text-warning]="rigStatus.swr >= 2 && rigStatus.swr < 3"
+              [class.text-danger]="rigStatus.swr >= 3">
+              {{ rigStatus.swr.toFixed(2) }}:1
+            </h5>
+          </div>
+        }
+        <!-- Last Update -->
+        <div class="text-center mt-3">
+          <small class="text-muted">
+            Last update: {{ rigStatus.timestamp | date:'HH:mm:ss' }}
+          </small>
+        </div>
       </div>
-
-      <!-- SWR -->
-      <div *ngIf="rigStatus.swr" class="mb-3">
-        <label class="small text-muted d-block">SWR</label>
-        <h5 [class.text-success]="rigStatus.swr < 2"
-            [class.text-warning]="rigStatus.swr >= 2 && rigStatus.swr < 3"
-            [class.text-danger]="rigStatus.swr >= 3">
-          {{ rigStatus.swr.toFixed(2) }}:1
-        </h5>
-      </div>
-
-      <!-- Last Update -->
-      <div class="text-center mt-3">
-        <small class="text-muted">
-          Last update: {{ rigStatus.timestamp | date:'HH:mm:ss' }}
-        </small>
-      </div>
-    </div>
+    }
   </div>
 </div>

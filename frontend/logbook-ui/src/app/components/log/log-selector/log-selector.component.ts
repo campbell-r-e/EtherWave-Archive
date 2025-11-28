@@ -1,16 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Log, LogRequest, LogType } from '../../../models/log.model';
 import { LogService } from '../../../services/log/log.service';
 
 @Component({
-  selector: 'app-log-selector',
-  standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule],
-  templateUrl: './log-selector.component.html',
-  styleUrls: ['./log-selector.component.css']
+    selector: 'app-log-selector',
+    imports: [RouterModule, ReactiveFormsModule],
+    templateUrl: './log-selector.component.html',
+    styleUrls: ['./log-selector.component.css']
 })
 export class LogSelectorComponent implements OnInit {
   logs: Log[] = [];

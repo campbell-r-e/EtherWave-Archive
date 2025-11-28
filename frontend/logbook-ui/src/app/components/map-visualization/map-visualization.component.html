@@ -23,10 +23,12 @@
     <div class="mb-4">
       <h6 class="text-muted mb-2">Color Key (QSO Intensity)</h6>
       <div class="d-flex flex-wrap gap-2">
-        <div *ngFor="let legend of getLegendColors()" class="legend-item">
-          <span class="legend-color" [style.background-color]="legend.color"></span>
-          <span class="legend-label">{{ legend.label }}</span>
-        </div>
+        @for (legend of getLegendColors(); track legend) {
+          <div class="legend-item">
+            <span class="legend-color" [style.background-color]="legend.color"></span>
+            <span class="legend-label">{{ legend.label }}</span>
+          </div>
+        }
       </div>
     </div>
 
@@ -38,13 +40,15 @@
       <div class="region-section mb-3">
         <label class="region-label">Northeast</label>
         <div class="state-grid">
-          <div *ngFor="let state of getRegionStates('northeast')"
-               class="state-box"
-               [ngStyle]="getStateStyle(state)"
-               [title]="stateNames[state] + ': ' + getStateCount(state) + ' QSOs'">
-            <div class="state-abbr">{{ state }}</div>
-            <div class="state-count">{{ getStateCount(state) }}</div>
-          </div>
+          @for (state of getRegionStates('northeast'); track state) {
+            <div
+              class="state-box"
+              [ngStyle]="getStateStyle(state)"
+              [title]="stateNames[state] + ': ' + getStateCount(state) + ' QSOs'">
+              <div class="state-abbr">{{ state }}</div>
+              <div class="state-count">{{ getStateCount(state) }}</div>
+            </div>
+          }
         </div>
       </div>
 
@@ -52,13 +56,15 @@
       <div class="region-section mb-3">
         <label class="region-label">Southeast</label>
         <div class="state-grid">
-          <div *ngFor="let state of getRegionStates('southeast')"
-               class="state-box"
-               [ngStyle]="getStateStyle(state)"
-               [title]="stateNames[state] + ': ' + getStateCount(state) + ' QSOs'">
-            <div class="state-abbr">{{ state }}</div>
-            <div class="state-count">{{ getStateCount(state) }}</div>
-          </div>
+          @for (state of getRegionStates('southeast'); track state) {
+            <div
+              class="state-box"
+              [ngStyle]="getStateStyle(state)"
+              [title]="stateNames[state] + ': ' + getStateCount(state) + ' QSOs'">
+              <div class="state-abbr">{{ state }}</div>
+              <div class="state-count">{{ getStateCount(state) }}</div>
+            </div>
+          }
         </div>
       </div>
 
@@ -66,13 +72,15 @@
       <div class="region-section mb-3">
         <label class="region-label">Midwest</label>
         <div class="state-grid">
-          <div *ngFor="let state of getRegionStates('midwest')"
-               class="state-box"
-               [ngStyle]="getStateStyle(state)"
-               [title]="stateNames[state] + ': ' + getStateCount(state) + ' QSOs'">
-            <div class="state-abbr">{{ state }}</div>
-            <div class="state-count">{{ getStateCount(state) }}</div>
-          </div>
+          @for (state of getRegionStates('midwest'); track state) {
+            <div
+              class="state-box"
+              [ngStyle]="getStateStyle(state)"
+              [title]="stateNames[state] + ': ' + getStateCount(state) + ' QSOs'">
+              <div class="state-abbr">{{ state }}</div>
+              <div class="state-count">{{ getStateCount(state) }}</div>
+            </div>
+          }
         </div>
       </div>
 
@@ -80,13 +88,15 @@
       <div class="region-section mb-3">
         <label class="region-label">Southwest</label>
         <div class="state-grid">
-          <div *ngFor="let state of getRegionStates('southwest')"
-               class="state-box"
-               [ngStyle]="getStateStyle(state)"
-               [title]="stateNames[state] + ': ' + getStateCount(state) + ' QSOs'">
-            <div class="state-abbr">{{ state }}</div>
-            <div class="state-count">{{ getStateCount(state) }}</div>
-          </div>
+          @for (state of getRegionStates('southwest'); track state) {
+            <div
+              class="state-box"
+              [ngStyle]="getStateStyle(state)"
+              [title]="stateNames[state] + ': ' + getStateCount(state) + ' QSOs'">
+              <div class="state-abbr">{{ state }}</div>
+              <div class="state-count">{{ getStateCount(state) }}</div>
+            </div>
+          }
         </div>
       </div>
 
@@ -94,13 +104,15 @@
       <div class="region-section mb-3">
         <label class="region-label">West</label>
         <div class="state-grid">
-          <div *ngFor="let state of getRegionStates('west')"
-               class="state-box"
-               [ngStyle]="getStateStyle(state)"
-               [title]="stateNames[state] + ': ' + getStateCount(state) + ' QSOs'">
-            <div class="state-abbr">{{ state }}</div>
-            <div class="state-count">{{ getStateCount(state) }}</div>
-          </div>
+          @for (state of getRegionStates('west'); track state) {
+            <div
+              class="state-box"
+              [ngStyle]="getStateStyle(state)"
+              [title]="stateNames[state] + ': ' + getStateCount(state) + ' QSOs'">
+              <div class="state-abbr">{{ state }}</div>
+              <div class="state-count">{{ getStateCount(state) }}</div>
+            </div>
+          }
         </div>
       </div>
     </div>
@@ -109,13 +121,15 @@
     <div>
       <h6 class="text-muted mb-3">Canadian Provinces/Territories</h6>
       <div class="state-grid">
-        <div *ngFor="let province of canadianProvinces"
-             class="state-box"
-             [ngStyle]="getStateStyle(province)"
-             [title]="stateNames[province] + ': ' + getStateCount(province) + ' QSOs'">
-          <div class="state-abbr">{{ province }}</div>
-          <div class="state-count">{{ getStateCount(province) }}</div>
-        </div>
+        @for (province of canadianProvinces; track province) {
+          <div
+            class="state-box"
+            [ngStyle]="getStateStyle(province)"
+            [title]="stateNames[province] + ': ' + getStateCount(province) + ' QSOs'">
+            <div class="state-abbr">{{ province }}</div>
+            <div class="state-count">{{ getStateCount(province) }}</div>
+          </div>
+        }
       </div>
     </div>
   </div>

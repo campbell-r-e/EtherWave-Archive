@@ -7,12 +7,16 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto">
-        <li class="nav-item" *ngIf="currentUser">
-          <span class="navbar-text text-light me-3">
-            Welcome, <strong>{{ currentUser.username }}</strong>
-            <span *ngIf="currentUser.callsign" class="badge bg-primary ms-2">{{ currentUser.callsign }}</span>
-          </span>
-        </li>
+        @if (currentUser) {
+          <li class="nav-item">
+            <span class="navbar-text text-light me-3">
+              Welcome, <strong>{{ currentUser.username }}</strong>
+              @if (currentUser.callsign) {
+                <span class="badge bg-primary ms-2">{{ currentUser.callsign }}</span>
+              }
+            </span>
+          </li>
+        }
         <li class="nav-item">
           <button class="btn btn-outline-light btn-sm" (click)="logout()">
             Logout
@@ -31,54 +35,55 @@
   <div class="container-fluid py-4">
 
     <!-- No Log Selected Warning -->
-    <div class="row mb-4" *ngIf="!currentLog">
-      <div class="col-12">
-        <div class="alert alert-warning" role="alert">
-          <h4 class="alert-heading">No Log Selected</h4>
-          <p>Please select or create a logbook from the dropdown above to start logging QSOs.</p>
+    @if (!currentLog) {
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="alert alert-warning" role="alert">
+            <h4 class="alert-heading">No Log Selected</h4>
+            <p>Please select or create a logbook from the dropdown above to start logging QSOs.</p>
+          </div>
         </div>
       </div>
-    </div>
+    }
 
     <!-- Dashboard Content (Only show when log is selected) -->
-    <div *ngIf="currentLog">
-      <!-- Row 1: QSO Entry and Rig Status -->
-      <div class="row mb-4">
-        <div class="col-lg-8">
-          <app-qso-entry></app-qso-entry>
+    @if (currentLog) {
+      <div>
+        <!-- Row 1: QSO Entry and Rig Status -->
+        <div class="row mb-4">
+          <div class="col-lg-8">
+            <app-qso-entry></app-qso-entry>
+          </div>
+          <div class="col-lg-4">
+            <app-rig-status></app-rig-status>
+          </div>
         </div>
-        <div class="col-lg-4">
-          <app-rig-status></app-rig-status>
+        <!-- Row 2: Contest Selection and Station Management -->
+        <div class="row mb-4">
+          <div class="col-lg-6">
+            <app-contest-selection></app-contest-selection>
+          </div>
+          <div class="col-lg-6">
+            <app-station-management></app-station-management>
+          </div>
+        </div>
+        <!-- Row 3: QSO List (Full Width) -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <app-qso-list></app-qso-list>
+          </div>
+        </div>
+        <!-- Row 4: Map Visualization and Export -->
+        <div class="row mb-4">
+          <div class="col-lg-8">
+            <app-map-visualization></app-map-visualization>
+          </div>
+          <div class="col-lg-4">
+            <app-export-panel></app-export-panel>
+          </div>
         </div>
       </div>
-
-    <!-- Row 2: Contest Selection and Station Management -->
-    <div class="row mb-4">
-      <div class="col-lg-6">
-        <app-contest-selection></app-contest-selection>
-      </div>
-      <div class="col-lg-6">
-        <app-station-management></app-station-management>
-      </div>
-    </div>
-
-    <!-- Row 3: QSO List (Full Width) -->
-    <div class="row mb-4">
-      <div class="col-12">
-        <app-qso-list></app-qso-list>
-      </div>
-    </div>
-
-      <!-- Row 4: Map Visualization and Export -->
-      <div class="row mb-4">
-        <div class="col-lg-8">
-          <app-map-visualization></app-map-visualization>
-        </div>
-        <div class="col-lg-4">
-          <app-export-panel></app-export-panel>
-        </div>
-      </div>
-    </div>
+    }
     <!-- End Dashboard Content -->
 
   </div>

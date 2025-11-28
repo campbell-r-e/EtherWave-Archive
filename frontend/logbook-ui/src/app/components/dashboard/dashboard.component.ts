@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 import { LogService } from '../../services/log/log.service';
@@ -17,10 +17,8 @@ import { StationManagementComponent } from '../station-management/station-manage
 import { ExportPanelComponent } from '../export-panel/export-panel.component';
 
 @Component({
-  selector: 'app-dashboard',
-  standalone: true,
-  imports: [
-    CommonModule,
+    selector: 'app-dashboard',
+    imports: [
     LogSelectorComponent,
     QsoEntryComponent,
     QsoListComponent,
@@ -29,9 +27,9 @@ import { ExportPanelComponent } from '../export-panel/export-panel.component';
     ContestSelectionComponent,
     StationManagementComponent,
     ExportPanelComponent
-  ],
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+],
+    templateUrl: './dashboard.component.html',
+    styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
   currentUser: User | null = null;

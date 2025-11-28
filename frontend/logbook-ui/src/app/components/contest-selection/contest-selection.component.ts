@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { Contest } from '../../models/station.model';
@@ -7,7 +7,7 @@ import { Contest } from '../../models/station.model';
 @Component({
   selector: 'app-contest-selection',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './contest-selection.component.html',
   styleUrls: ['./contest-selection.component.css']
 })

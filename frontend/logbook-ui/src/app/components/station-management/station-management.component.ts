@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { Station } from '../../models/station.model';
@@ -7,7 +7,7 @@ import { Station } from '../../models/station.model';
 @Component({
   selector: 'app-station-management',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './station-management.component.html',
   styleUrls: ['./station-management.component.css']
 })

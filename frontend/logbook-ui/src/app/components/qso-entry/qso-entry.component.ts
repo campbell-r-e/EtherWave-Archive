@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { QSORequest, QSO } from '../../models/qso.model';
@@ -8,7 +8,7 @@ import { Station, Contest } from '../../models/station.model';
 @Component({
   selector: 'app-qso-entry',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './qso-entry.component.html',
   styleUrls: ['./qso-entry.component.css']
 })

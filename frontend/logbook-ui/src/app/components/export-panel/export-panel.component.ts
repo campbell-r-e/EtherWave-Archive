@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { Contest } from '../../models/station.model';
@@ -7,7 +7,7 @@ import { Contest } from '../../models/station.model';
 @Component({
   selector: 'app-export-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './export-panel.component.html',
   styleUrls: ['./export-panel.component.css']
 })
