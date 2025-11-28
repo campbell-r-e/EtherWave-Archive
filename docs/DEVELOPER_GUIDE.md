@@ -87,7 +87,15 @@ Complete technical guide for developers working on the Ham Radio Contest Logbook
 - Excellent Spring Security integration for authentication
 - Spring Data JPA reduces boilerplate database code
 - Built-in WebSocket support for real-time features
+- Spring Boot Actuator provides production-ready monitoring and health checks
 - Large community and extensive documentation
+
+#### Why Java 21?
+- Latest LTS (Long-Term Support) release with extended support until 2029
+- Virtual threads for improved concurrency (Project Loom)
+- Pattern matching and record patterns for cleaner code
+- Better performance and garbage collection improvements
+- Modern language features while maintaining backward compatibility
 
 #### Why Angular?
 - TypeScript provides type safety for large frontend applications
@@ -109,12 +117,18 @@ Complete technical guide for developers working on the Ham Radio Contest Logbook
 
 ```bash
 # Check versions
-java --version    # Should be 17+
+java --version    # Should be 21+ (LTS)
 node --version    # Should be 18+
 npm --version     # Should be 9+
 git --version     # Should be 2.x
 docker --version  # For rig control (optional)
 ```
+
+**Important**: Java 21 is required. The project uses:
+- Java 21 LTS (latest long-term support version)
+- Spring Boot 3.2.0 (requires Java 17+, optimized for Java 21)
+- Lombok 1.18.34 (Java 21 compatible)
+- Hibernate 6.3 with Java 21 support
 
 ### Backend Setup
 
@@ -261,6 +275,13 @@ com.hamradio.logbook/
 │   ├── ContestService.java
 │   └── AdminInitializationService.java
 │
+├── actuator/                  # Spring Boot Actuator endpoints
+│   ├── /health               # Health check endpoint
+│   ├── /health/liveness      # Liveness probe
+│   ├── /health/readiness     # Readiness probe
+│   ├── /info                 # Application information
+│   └── /metrics              # Application metrics
+│
 ├── util/                      # Utility classes
 │   ├── security/
 │   │   ├── JwtUtil.java
@@ -354,6 +375,82 @@ public InvitationResponse createInvitation(InvitationRequest request, String use
 public InvitationResponse acceptInvitation(Long invitationId, String username);
 public InvitationResponse declineInvitation(Long invitationId, String username);
 public InvitationResponse cancelInvitation(Long invitationId, String username);
+```
+
+---
+
+## Monitoring and Observability
+
+### Spring Boot Actuator
+
+The system includes Spring Boot Actuator for production monitoring and health checks.
+
+**Configured Endpoints**:
+
+```properties
+# application.properties
+management.endpoints.web.exposure.include=health,info,metrics,env,loggers
+management.endpoint.health.show-details=when-authorized
+management.endpoint.health.probes.enabled=true
+management.health.livenessState.enabled=true
+management.health.readinessState.enabled=true
+```
+
+**Health Check Endpoints**:
+
+```bash
+# Main health endpoint
+curl http://localhost:8080/actuator/health
+# Response: {"status":"UP","groups":["liveness","readiness"]}
+
+# Liveness probe - Is the application running?
+curl http://localhost:8080/actuator/health/liveness
+# Response: {"status":"UP"}
+
+# Readiness probe - Can the application handle traffic?
+curl http://localhost:8080/actuator/health/readiness
+# Response: {"status":"UP"}
+
+# Detailed health (requires authentication)
+curl -H "Authorization: Bearer <token>" http://localhost:8080/actuator/health
+# Response includes database status, disk space, etc.
+```
+
+**Metrics Endpoint**:
+
+```bash
+# Get all available metrics
+curl http://localhost:8080/actuator/metrics
+
+# Specific metrics
+curl http://localhost:8080/actuator/metrics/jvm.memory.used
+curl http://localhost:8080/actuator/metrics/http.server.requests
+```
+
+**Docker Health Checks**:
+
+The backend Dockerfile includes health check integration:
+```dockerfile
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:8080/actuator/health/liveness || exit 1
+```
+
+**Kubernetes Probes**:
+
+```yaml
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+    port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 10
 ```
 
 ---

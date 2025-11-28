@@ -1,5 +1,5 @@
 # Multi-stage build for Rig Control Service with Hamlib
-FROM maven:3.9-eclipse-temurin-17 AS build
+FROM maven:3.9-eclipse-temurin-21 AS build
 
 WORKDIR /app
 
@@ -12,11 +12,20 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Runtime stage with Hamlib
-FROM eclipse-temurin:17-jre
+# Using Ubuntu Jammy base image
+FROM eclipse-temurin:21-jre-jammy
 
-# Install Hamlib
+# Install Hamlib from Ubuntu universe repository
 RUN apt-get update && \
-    apt-get install -y hamlib-utils && \
+    apt-get install -y --no-install-recommends \
+        software-properties-common && \
+    add-apt-repository universe && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libhamlib4 \
+        libhamlib-utils && \
+    apt-get remove -y software-properties-common && \
+    apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
