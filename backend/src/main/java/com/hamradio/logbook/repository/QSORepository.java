@@ -89,4 +89,37 @@ public interface QSORepository extends JpaRepository<QSO, Long> {
      */
     @Query("SELECT q FROM QSO q WHERE q.callsign = :callsign AND q.band = :band AND q.mode = :mode AND q.contest = :contest")
     List<QSO> findDuplicates(@Param("callsign") String callsign, @Param("band") String band, @Param("mode") String mode, @Param("contest") Contest contest);
+
+    // ===========================
+    // Log-aware query methods for multi-user support
+    // ===========================
+
+    /**
+     * Find all QSOs for a specific log with pagination
+     */
+    @Query("SELECT q FROM QSO q WHERE q.log.id = :logId ORDER BY q.createdAt DESC")
+    Page<QSO> findByLogId(@Param("logId") Long logId, Pageable pageable);
+
+    /**
+     * Find recent QSOs for a specific log
+     */
+    @Query("SELECT q FROM QSO q WHERE q.log.id = :logId ORDER BY q.createdAt DESC")
+    List<QSO> findRecentByLogId(@Param("logId") Long logId, Pageable pageable);
+
+    /**
+     * Find QSOs by log ID and date range
+     */
+    @Query("SELECT q FROM QSO q WHERE q.log.id = :logId AND q.qsoDate BETWEEN :startDate AND :endDate ORDER BY q.qsoDate DESC, q.timeOn DESC")
+    List<QSO> findByLogIdAndDateRange(@Param("logId") Long logId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    /**
+     * Get distinct states contacted for a specific log
+     */
+    @Query("SELECT DISTINCT q.state FROM QSO q WHERE q.log.id = :logId AND q.state IS NOT NULL AND q.country = 'USA'")
+    List<String> findDistinctStatesByLogId(@Param("logId") Long logId);
+
+    /**
+     * Count QSOs for a specific log
+     */
+    long countByLogId(Long logId);
 }

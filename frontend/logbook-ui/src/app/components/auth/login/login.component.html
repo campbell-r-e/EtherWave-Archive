@@ -1,0 +1,58 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="text-center mb-4">
+      <h2>Ham Radio Logbook</h2>
+      <p class="text-muted">Sign in to your account</p>
+    </div>
+
+    <div *ngIf="error" class="alert alert-danger" role="alert">
+      {{ error }}
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <!-- Username or Email -->
+      <div class="mb-3">
+        <label for="usernameOrEmail" class="form-label">Username or Email</label>
+        <input type="text"
+               id="usernameOrEmail"
+               class="form-control"
+               formControlName="usernameOrEmail"
+               [class.is-invalid]="submitted && f['usernameOrEmail'].errors"
+               placeholder="Enter username or email">
+        <div *ngIf="submitted && f['usernameOrEmail'].errors" class="invalid-feedback">
+          <div *ngIf="f['usernameOrEmail'].errors['required']">Username or email is required</div>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password"
+               id="password"
+               class="form-control"
+               formControlName="password"
+               [class.is-invalid]="submitted && f['password'].errors"
+               placeholder="Enter password">
+        <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
+          <div *ngIf="f['password'].errors['required']">Password is required</div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit"
+              class="btn btn-primary w-100 mb-3"
+              [disabled]="loading">
+        <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+        {{ loading ? 'Signing in...' : 'Sign In' }}
+      </button>
+
+      <!-- Register Link -->
+      <div class="text-center">
+        <p class="mb-0">
+          Don't have an account?
+          <a routerLink="/register" class="text-primary">Register here</a>
+        </p>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,90 @@
+.station-form {
+  background-color: #f8f9fa;
+  border: 2px solid #17a2b8;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+}
+
+.station-list {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.station-card {
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: #fff;
+  transition: box-shadow 0.3s ease;
+}
+
+.station-card:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.station-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 0.75rem;
+}
+
+.station-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #212529;
+  margin-bottom: 0.25rem;
+}
+
+.station-callsign {
+  font-size: 0.9rem;
+  color: #17a2b8;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.station-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.station-details {
+  margin-top: 0.75rem;
+}
+
+.station-details small {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.card {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.form-label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.text-danger {
+  color: #dc3545;
+}
+
+@media (max-width: 768px) {
+  .station-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .station-actions {
+    margin-top: 0.75rem;
+    width: 100%;
+  }
+
+  .station-actions button {
+    flex: 1;
+  }
+}

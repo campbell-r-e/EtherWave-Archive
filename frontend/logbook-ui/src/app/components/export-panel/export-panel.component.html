@@ -1,0 +1,125 @@
+<div class="card">
+  <div class="card-header bg-secondary text-white">
+    <h5 class="mb-0">📤 Export Logbook</h5>
+  </div>
+  <div class="card-body">
+    <p class="text-muted">
+      Export your QSO log in various formats for contest submission or backup purposes.
+    </p>
+
+    <!-- ADIF Export Section -->
+    <div class="export-section mb-4">
+      <div class="export-header">
+        <div>
+          <h6 class="export-title">ADIF Export</h6>
+          <p class="export-description">
+            Amateur Data Interchange Format - Standard format for ham radio logging.
+            Includes all QSOs with complete field data.
+          </p>
+        </div>
+        <button class="btn btn-primary" (click)="exportADIF()">
+          📥 Download ADIF
+        </button>
+      </div>
+
+      <div class="export-features">
+        <div class="feature-item">✓ All QSO records</div>
+        <div class="feature-item">✓ Complete field data</div>
+        <div class="feature-item">✓ Contest information</div>
+        <div class="feature-item">✓ Station details</div>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- Cabrillo Export Section -->
+    <div class="export-section">
+      <div class="export-header">
+        <div>
+          <h6 class="export-title">Cabrillo Export</h6>
+          <p class="export-description">
+            Standard contest log submission format. Select a contest and provide required information.
+          </p>
+        </div>
+        <button class="btn btn-success"
+                (click)="showCabrilloForm()"
+                *ngIf="!showCabrilloOptions">
+          📋 Export Cabrillo
+        </button>
+      </div>
+
+      <!-- Cabrillo Options Form -->
+      <div *ngIf="showCabrilloOptions" class="cabrillo-form mt-3">
+        <div class="alert alert-info">
+          <strong>Contest Log Submission</strong><br>
+          Please fill in the required information for your contest log submission.
+        </div>
+
+        <div class="row g-3">
+          <!-- Contest Selection -->
+          <div class="col-12">
+            <label class="form-label">Select Contest <span class="text-danger">*</span></label>
+            <select class="form-select" [(ngModel)]="selectedContest">
+              <option [ngValue]="null">-- Choose a Contest --</option>
+              <option *ngFor="let contest of contests" [ngValue]="contest.id">
+                {{ contest.name }} ({{ contest.contestCode }})
+              </option>
+            </select>
+          </div>
+
+          <!-- Callsign -->
+          <div class="col-md-6">
+            <label class="form-label">Station Callsign <span class="text-danger">*</span></label>
+            <input type="text"
+                   class="form-control"
+                   [(ngModel)]="cabrilloOptions.callsign"
+                   placeholder="e.g., W1ABC"
+                   style="text-transform: uppercase;">
+          </div>
+
+          <!-- Operators -->
+          <div class="col-md-6">
+            <label class="form-label">Operators (comma-separated)</label>
+            <input type="text"
+                   class="form-control"
+                   [(ngModel)]="cabrilloOptions.operators"
+                   placeholder="e.g., W1ABC, N2XYZ">
+          </div>
+
+          <!-- Category -->
+          <div class="col-12">
+            <label class="form-label">Category</label>
+            <input type="text"
+                   class="form-control"
+                   [(ngModel)]="cabrilloOptions.category"
+                   placeholder="e.g., SINGLE-OP-ASSISTED">
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="col-12">
+            <button class="btn btn-success me-2" (click)="exportCabrillo()">
+              📥 Download Cabrillo
+            </button>
+            <button class="btn btn-secondary" (click)="cancelCabrilloExport()">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cabrillo Features -->
+      <div class="export-features" *ngIf="!showCabrilloOptions">
+        <div class="feature-item">✓ Contest-specific format</div>
+        <div class="feature-item">✓ Official submission ready</div>
+        <div class="feature-item">✓ Validated QSO data</div>
+        <div class="feature-item">✓ Header information</div>
+      </div>
+    </div>
+
+    <!-- Export Notes -->
+    <div class="alert alert-warning mt-4">
+      <strong>Note:</strong> Exports include all QSOs in the database. For contest-specific exports,
+      use the Cabrillo format and select the appropriate contest.
+    </div>
+  </div>
+</div>

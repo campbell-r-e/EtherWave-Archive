@@ -1,0 +1,752 @@
+# Ham Radio Logbook - User Guide
+
+Complete guide for using the Ham Radio Contest Logbook system.
+
+## Table of Contents
+
+1. [Getting Started](#getting-started)
+2. [User Authentication](#user-authentication)
+3. [Log Management](#log-management)
+4. [Logging QSOs](#logging-qsos)
+5. [Rig Control](#rig-control)
+6. [Contest Operations](#contest-operations)
+7. [Multi-User Collaboration](#multi-user-collaboration)
+8. [Export and Import](#export-and-import)
+9. [Maps and Visualization](#maps-and-visualization)
+10. [Troubleshooting](#troubleshooting)
+
+---
+
+## Getting Started
+
+### First Time Access
+
+1. Navigate to the application URL (e.g., `http://localhost:4200`)
+2. Click **Register** to create a new account
+3. Fill in your details:
+   - **Username**: Your unique username
+   - **Email**: Your email address
+   - **Password**: Secure password (min 8 characters)
+   - **Callsign**: Your amateur radio callsign (optional but recommended)
+4. Click **Create Account**
+5. You'll be redirected to the login page
+
+### Logging In
+
+1. Enter your **username** and **password**
+2. Click **Login**
+3. You'll be redirected to the main dashboard
+
+---
+
+## User Authentication
+
+### User Roles
+
+The system has two user types:
+
+- **Regular User**: Can create personal logs, join shared logs, and log QSOs
+- **Admin User**: Has all regular permissions plus system administration access
+
+### Security Features
+
+- **JWT Token Authentication**: Secure, stateless authentication
+- **Password Encryption**: BCrypt hashing for password security
+- **Session Persistence**: Your session remains active until you logout or the token expires (24 hours)
+
+---
+
+## Log Management
+
+### Understanding Logs
+
+A **Log** is a collection of QSOs for a specific purpose:
+
+- **Personal Log**: Your private logbook for general operation
+- **Shared Log**: Multi-operator log for contests or club stations
+
+### Creating a New Log
+
+1. Click the **Log Dropdown** at the top of the dashboard
+2. Click **Create New Log**
+3. Fill in the log details:
+   - **Name**: Descriptive name (e.g., "ARRL Field Day 2024")
+   - **Description**: Optional details
+   - **Type**: Personal or Shared
+   - **Contest** (optional): Select if this is a contest log
+   - **Start/End Dates** (optional): For contest period enforcement
+   - **Public**: Check if you want others to view (read-only)
+4. Click **Create Log**
+
+### Selecting a Log
+
+All QSO operations are log-specific. You must select a log before logging QSOs:
+
+1. Click the **Log Dropdown** at the top
+2. Select the log you want to work with
+3. The log name will display in the dropdown
+4. All dashboard components now operate within this log context
+
+### Log Information Display
+
+The log dropdown shows:
+- **Log Name**
+- **Type Badge**: PERSONAL or SHARED
+- **Your Role Badge**: CREATOR, STATION, or VIEWER
+- **Participant Count**: Number of operators
+- **QSO Count**: Total contacts in the log
+
+### Managing Your Logs
+
+#### Editing a Log
+1. Select the log from the dropdown
+2. Navigate to log settings (if you're the CREATOR)
+3. Update details
+4. Click **Save**
+
+#### Deleting a Log
+1. Select the log from the dropdown
+2. Click the **Delete** icon (trash can) next to the log name
+3. Confirm deletion
+4. **Note**: Only log CREATORs can delete logs
+
+#### Leaving a Shared Log
+1. Select the log you want to leave
+2. Click the **Leave** icon (arrow exit) next to the log name
+3. Confirm you want to leave
+4. **Note**: Log CREATORs cannot leave; they must delete the log instead
+
+### Freezing Logs
+
+Logs can be frozen to prevent further edits:
+
+- **Manual Freeze**: CREATOR can manually freeze a log
+- **Auto-Freeze**: Logs automatically freeze after the contest end date/time
+- **Purpose**: Preserve contest logs for submission, prevent accidental changes
+
+**To freeze a log:**
+1. Navigate to log settings (CREATOR only)
+2. Click **Freeze Log**
+3. Log becomes read-only for all participants
+
+**To unfreeze a log:**
+1. Navigate to log settings (CREATOR only)
+2. Click **Unfreeze Log**
+3. Log becomes editable again (unless past end date)
+
+---
+
+## Logging QSOs
+
+### QSO Entry Form
+
+The QSO entry form is on the main dashboard (left side):
+
+#### Required Fields
+- **Callsign**: Station contacted
+- **Frequency**: In kHz (e.g., 14250.5)
+- **Mode**: Operating mode (SSB, CW, FT8, etc.)
+- **Date**: QSO date
+- **Time On**: Start time (UTC)
+- **RST Sent**: Signal report sent
+- **RST Received**: Signal report received
+
+#### Optional Fields
+- **Time Off**: End time for long QSOs
+- **Band**: Automatically calculated from frequency
+- **Power**: Transmit power in watts
+- **Station**: Select your station configuration
+- **Operator**: Select operator if different from logged-in user
+- **Contest**: Select if contest QSO
+- **Name**: Other station's operator name
+- **QTH**: Other station's location
+- **Grid Square**: Maidenhead grid locator
+- **State/Province**: US state or Canadian province
+- **County**: For state QSO parties
+- **Country**: DXCC entity
+- **Notes**: Any additional comments
+
+#### Contest-Specific Fields
+When a contest is selected, additional fields appear:
+- **Exchange Sent**: Your contest exchange
+- **Exchange Received**: Their contest exchange
+- **Serial Number**: QSO sequence number
+- **Section/Zone/Park**: Depending on contest type
+
+### Creating a QSO
+
+1. Select your active log from the dropdown
+2. Fill in the QSO entry form
+3. Click **Log QSO**
+4. QSO is validated and saved
+5. QSO appears in the QSO list below
+6. Form is cleared for next contact
+
+### Rig Control Integration
+
+If rig control is connected:
+- **Frequency** and **Mode** auto-populate from your radio
+- Click **Get from Rig** to refresh values
+- Real-time updates appear as you tune
+
+### QSO Validation
+
+The system automatically validates QSOs:
+
+- **Green indicator**: Valid QSO
+- **Yellow indicator**: Warnings (e.g., unusual frequency for mode)
+- **Red indicator**: Errors (e.g., invalid exchange for contest)
+- **Validation messages**: Hover over indicator to see details
+
+### Duplicate Detection
+
+For contest logs, the system checks for duplicates:
+- Same callsign, same band, same mode
+- Warning displayed if duplicate detected
+- Contest rules determine if duplicates are allowed
+
+### Editing a QSO
+
+1. Find the QSO in the QSO List
+2. Click the **Edit** icon (pencil)
+3. Modify fields
+4. Click **Update**
+5. **Note**: Only CREATOR and STATION roles can edit
+6. **Note**: Cannot edit QSOs in frozen logs
+
+### Deleting a QSO
+
+1. Find the QSO in the QSO List
+2. Click the **Delete** icon (trash can)
+3. Confirm deletion
+4. **Note**: Only CREATOR and STATION roles can delete
+5. **Note**: Cannot delete QSOs from frozen logs
+
+### QSO List Features
+
+The QSO list displays all QSOs in the current log:
+
+- **Pagination**: 20 QSOs per page (configurable)
+- **Sorting**: Click column headers to sort
+- **Filtering**: Search/filter by callsign, date, band, mode
+- **Recent QSOs**: Live feed of most recent contacts
+- **Export Selection**: Select QSOs for targeted export
+
+---
+
+## Rig Control
+
+### Setting Up Rig Control
+
+Rig control requires the Hamlib rigctld service:
+
+1. **Docker Installation** (Recommended):
+   ```bash
+   docker run -d --name rigctld \
+     --device=/dev/ttyUSB0 \
+     -p 4532:4532 \
+     hamradio/rigctld --model=123 --rig-file=/dev/ttyUSB0
+   ```
+
+2. **Manual Installation**:
+   - Install Hamlib on your system
+   - Run: `rigctld -m 123 -r /dev/ttyUSB0`
+   - Replace `123` with your radio model number
+
+### Rig Status Panel
+
+The **Rig Status** panel (top right) displays:
+- **Connection Status**: Connected or Disconnected
+- **Frequency**: Current VFO frequency
+- **Mode**: Current operating mode
+- **Connection Info**: rigctld host and port
+
+### Using Rig Control
+
+When connected:
+1. **Auto-populate**: Frequency and mode automatically fill in QSO entry form
+2. **Real-time Updates**: As you tune, the form updates
+3. **Quick Log**: Focus on callsign and exchange, rig fills the rest
+
+### Troubleshooting Rig Control
+
+**Not Connecting?**
+- Check rigctld is running: `ps aux | grep rigctld`
+- Verify port is accessible: `telnet localhost 4532`
+- Check radio is powered on and connected
+- Verify USB/serial permissions
+
+**Disconnects Frequently?**
+- Check USB cable quality
+- Verify radio CAT settings match rigctld configuration
+- Check system logs for USB errors
+
+---
+
+## Contest Operations
+
+### Selecting a Contest
+
+1. In the **Contest Selection** panel, browse or search contests
+2. Click on a contest to view details
+3. Click **Select Contest** to activate
+4. Contest-specific fields appear in QSO entry form
+5. QSO validation rules switch to contest rules
+
+### Supported Contests
+
+The system includes validators for:
+- **CQ World Wide DX Contest** (CW and SSB)
+- **ARRL Sweepstakes**
+- **ARRL Field Day**
+- **ARRL 10 Meter Contest**
+- **ARRL DX Contest**
+- **Parks on the Air (POTA)**
+- **Summits on the Air (SOTA)**
+- **State QSO Parties** (various states)
+- And many more...
+
+### Contest-Specific Features
+
+#### ARRL Field Day
+- **Class**: Station class (e.g., 2A, 1B)
+- **Section**: ARRL section
+- **Bonus Points**: Tracked automatically
+
+#### Parks on the Air (POTA)
+- **Park Reference**: Park identifier (e.g., K-0001)
+- **Park Name**: Auto-populated from reference
+- **Park Validation**: Ensures valid park codes
+
+#### CQ WW DX
+- **CQ Zone**: Your CQ zone
+- **Zone Received**: Their CQ zone
+- **Multiplier Tracking**: Countries and zones
+
+### Contest Scoring
+
+Real-time scoring displays:
+- **Total QSOs**: Contact count
+- **Points**: Based on contest rules
+- **Multipliers**: Countries, states, zones, sections
+- **Score**: QSO points × multipliers
+
+### Dupe Checking
+
+Automatic duplicate detection for contests:
+- Highlights duplicate contacts
+- Shows previous QSO details
+- Follows contest-specific dupe rules (some allow dupes on different bands)
+
+---
+
+## Multi-User Collaboration
+
+### Understanding Roles
+
+When you're added to a shared log, you have one of three roles:
+
+#### CREATOR
+- Full control over the log
+- Can edit log settings
+- Can invite/remove participants
+- Can freeze/unfreeze log
+- Can create/edit/delete QSOs
+- Can export log data
+
+#### STATION
+- Can create/edit QSOs
+- Can edit own QSOs only (optional setting)
+- Cannot modify log settings
+- Cannot manage participants
+- Can view all QSOs in the log
+
+#### VIEWER
+- Read-only access
+- Can view all QSOs
+- Can view statistics
+- Cannot create or edit QSOs
+- Cannot modify log settings
+
+### Sending Invitations
+
+To invite someone to your log (CREATOR only):
+
+1. Click **Invitations** button (top right, near log selector)
+2. Click **Send Invitation**
+3. Fill in invitation details:
+   - **Log**: Select which log to invite them to
+   - **Username/Email/Callsign**: Enter their identifier
+   - **Role**: Choose STATION or VIEWER
+   - **Station Callsign** (optional): For multi-op contests
+   - **Message** (optional): Personal note
+4. Click **Send Invitation**
+5. They'll receive the invitation in their account
+
+### Receiving Invitations
+
+When you receive an invitation:
+
+1. Click **Invitations** button (shows badge with count)
+2. View pending invitations in the **Received** tab
+3. Review invitation details:
+   - Log name
+   - Inviter
+   - Proposed role
+   - Message
+4. Click **Accept** or **Decline**
+5. If accepted, log appears in your log list
+
+### Managing Participants
+
+To view/manage log participants (CREATOR only):
+
+1. Select the log
+2. Navigate to **Participants** section
+3. View list of all participants with their roles
+4. **Remove Participant**: Click remove icon next to their name
+5. Removed participants lose access immediately
+
+### Cancelling Invitations
+
+To cancel a sent invitation (CREATOR only):
+
+1. Click **Invitations** button
+2. Switch to **Sent** tab
+3. Find the pending invitation
+4. Click **Cancel**
+5. Invitation is revoked
+
+### Collaborative Logging
+
+In shared logs:
+- **Real-time Updates**: QSOs appear instantly for all users via WebSocket
+- **Dupe Prevention**: System prevents simultaneous duplicate logging
+- **Activity Feed**: See who's logging what in real-time
+- **Station Identification**: Each QSO tagged with logging operator
+
+---
+
+## Export and Import
+
+### Exporting QSOs
+
+The **Export Panel** (bottom right) provides export options:
+
+#### ADIF Export
+1. Select export format: **ADIF**
+2. Choose options:
+   - **All QSOs**: Export entire log
+   - **Date Range**: Export specific period
+   - **Contest Only**: Export contest QSOs
+3. Click **Export**
+4. File downloads: `logname_YYYYMMDD.adi`
+
+**ADIF Uses:**
+- Import into other logging software
+- Submit to LoTW (Logbook of the World)
+- Share with QSL managers
+
+#### Cabrillo Export
+1. Select export format: **Cabrillo**
+2. Fill in required contest info:
+   - **Operator(s)**: Callsign(s)
+   - **Category**: Contest category
+   - **Overlay**: Optional overlay category
+   - **Club**: Club affiliation
+3. Click **Export**
+4. File downloads: `logname_cabrillo.txt`
+
+**Cabrillo Uses:**
+- Submit contest logs to sponsors
+- Official contest scoring
+- Post-contest analysis
+
+### Importing QSOs
+
+To import QSOs from ADIF:
+
+1. Navigate to **Import** section
+2. Click **Choose File**
+3. Select ADIF file (.adi or .adif)
+4. Choose import options:
+   - **Log**: Select destination log
+   - **Validate**: Re-validate all QSOs
+   - **Duplicate Handling**: Skip or merge
+5. Click **Import**
+6. Review import summary:
+   - QSOs imported
+   - Duplicates skipped
+   - Validation errors
+7. Click **Confirm**
+
+---
+
+## Maps and Visualization
+
+### QSO Map
+
+The **Map Visualization** panel shows:
+- **Contacted Stations**: Plotted by grid square or coordinates
+- **Beam Heading**: Lines from your QTH to contact
+- **State/Province Boundaries**: US/Canada outlines
+- **Zoom Controls**: Interactive pan and zoom
+
+### Features
+
+#### State/Province Heatmap
+- Color-coded by QSO count
+- Darker colors = more QSOs
+- Click state to see QSO list
+
+#### Grid Square Overlay
+- Maidenhead grid squares
+- QSO count per grid
+- Highlight rare grids
+
+#### Filters
+- Filter by band
+- Filter by mode
+- Filter by date range
+- Filter by contest
+
+### Statistics Dashboard
+
+View detailed statistics:
+- **Total QSOs**: By log, all-time, or date range
+- **Unique Callsigns**: Worked
+- **Countries**: DXCC entities confirmed
+- **States/Provinces**: WAS progress
+- **Grids**: Grid square count
+- **Bands**: QSO distribution by band
+- **Modes**: QSO distribution by mode
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+#### Cannot Log QSOs
+
+**Problem**: "User does not have permission to add QSOs to this log"
+
+**Solution**:
+- Check your role in the log (must be CREATOR or STATION)
+- Verify log is not frozen
+- Ensure you're logged in
+
+---
+
+#### Log is Frozen
+
+**Problem**: "This log is frozen and cannot be edited"
+
+**Solutions**:
+- If you're the CREATOR, unfreeze the log in settings
+- Check if contest end date has passed (auto-freeze)
+- Contact log creator if you need changes
+
+---
+
+#### Rig Control Not Working
+
+**Problem**: Frequency and mode not auto-filling
+
+**Solutions**:
+1. Check rigctld is running:
+   ```bash
+   ps aux | grep rigctld
+   ```
+
+2. Test rigctld connection:
+   ```bash
+   telnet localhost 4532
+   f  # Should return frequency
+   m  # Should return mode
+   ```
+
+3. Verify configuration in application settings
+
+4. Check radio CAT interface is enabled
+
+5. Restart rigctld service
+
+---
+
+#### Validation Errors
+
+**Problem**: QSO marked as invalid
+
+**Solutions**:
+- Hover over validation indicator to see error message
+- Common issues:
+  - Invalid exchange for contest
+  - Frequency outside band limits
+  - Missing required fields
+  - Invalid grid square format
+- Correct the error and update QSO
+
+---
+
+#### Cannot Accept Invitation
+
+**Problem**: "User is already a participant of this log"
+
+**Solution**:
+- You're already a member; check your log list
+- Someone may have already added you directly
+
+---
+
+#### QSOs Not Appearing
+
+**Problem**: QSOs don't show in list after logging
+
+**Solutions**:
+1. Refresh the page
+2. Check you have the correct log selected
+3. Check date range filter in QSO list
+4. Verify WebSocket connection (look for connection status)
+
+---
+
+### Getting Help
+
+If you encounter issues not covered here:
+
+1. **Check Logs**: Browser console (F12) for frontend errors
+2. **Backend Logs**: Check server logs for detailed errors
+3. **Contact Support**: Open an issue on GitHub with:
+   - Steps to reproduce
+   - Error messages
+   - Browser and OS information
+   - Screenshots if applicable
+
+---
+
+## Best Practices
+
+### For Contest Operators
+
+1. **Create Contest-Specific Log**: One log per contest
+2. **Set Start/End Dates**: Enable auto-freeze after contest
+3. **Select Contest**: Before starting to activate validation
+4. **Use Rig Control**: Speeds up logging significantly
+5. **Check Dupes**: Review dupe warnings before final submission
+6. **Export Cabrillo**: Before contest deadline
+7. **Backup ADIF**: Keep ADIF backup of all contests
+
+### For Multi-Op Stations
+
+1. **Define Roles Clearly**: Assign STATION to operators, VIEWER to observers
+2. **Use Station Callsigns**: For multi-transmitter contests
+3. **Monitor Activity**: Watch real-time feed for coordination
+4. **Freeze After Contest**: Prevent accidental changes
+5. **Review Together**: Use viewer role for post-contest review
+
+### For Personal Logging
+
+1. **Single Personal Log**: Keep all general QSOs in one log
+2. **Separate Contest Logs**: Create new log for each contest
+3. **Regular Exports**: Export ADIF monthly for backup
+4. **Upload to LoTW**: Export and upload to Logbook of the World
+5. **Check QRZ Lookups**: Verify callsign data is accurate
+
+---
+
+## Keyboard Shortcuts
+
+Speed up logging with keyboard shortcuts:
+
+- **Ctrl/Cmd + L**: Focus on callsign field
+- **Ctrl/Cmd + S**: Save current QSO
+- **Ctrl/Cmd + R**: Get from rig
+- **Tab**: Move to next field
+- **Shift + Tab**: Move to previous field
+- **Enter**: Submit QSO (when callsign field focused)
+
+---
+
+## Tips and Tricks
+
+### Rapid Fire Logging
+
+For fast-paced contests:
+1. Connect rig control
+2. Use Tab to move through fields
+3. Let rig fill frequency/mode
+4. Focus on callsign and exchange only
+5. Hit Enter to log and move to next
+
+### Search and Pounce
+
+1. Use rig control to track frequency
+2. Watch dupe checker
+3. Log QSOs as you tune
+4. Review QSO list for needed multipliers
+
+### Running
+
+1. Stay on one frequency
+2. Manual frequency entry
+3. Quick callsign/exchange logging
+4. Monitor QSO rate in statistics
+
+### Pre-Contest Preparation
+
+1. Create log 24 hours before
+2. Configure station and operator
+3. Test rig control
+4. Select contest
+5. Make test QSO to verify
+6. Delete test QSO
+7. Ready to go at contest start!
+
+---
+
+## Frequently Asked Questions
+
+**Q: Can I use this offline?**
+A: Not currently. The system requires network access to the backend server. Future versions may support offline operation with sync.
+
+**Q: How many QSOs can a log hold?**
+A: No hard limit. Tested with 10,000+ QSOs per log without performance issues.
+
+**Q: Can I import my old logs?**
+A: Yes! Export from your old software as ADIF, then import into this system.
+
+**Q: Is my data backed up?**
+A: The database is backed up according to your deployment. Export ADIF regularly for personal backups.
+
+**Q: Can I use multiple radios?**
+A: Yes, each user can run their own rig control container for their radio.
+
+**Q: How do I submit contest logs?**
+A: Export as Cabrillo format and submit to the contest sponsor's website.
+
+**Q: Can viewers see live logging during a contest?**
+A: Yes! Grant VIEWER role to friends/family to watch your contest live.
+
+**Q: How secure is the system?**
+A: JWT authentication, BCrypt password hashing, and permission checks on all operations ensure security.
+
+---
+
+## Glossary
+
+- **ADIF**: Amateur Data Interchange Format - standard for QSO data
+- **Cabrillo**: Contest log submission format
+- **CQ Zone**: CQ Magazine's WAZ zone system (40 zones)
+- **DXCC**: DX Century Club - award for contacting 100 countries
+- **Grid Square**: Maidenhead locator system for geographic coordinates
+- **Hamlib**: Hardware abstraction library for radio control
+- **ITU Zone**: International Telecommunication Union zones (90 zones)
+- **LoTW**: Logbook of the World - ARRL's electronic QSL system
+- **QRZ**: Callsign lookup database (QRZ.com)
+- **QSO**: Two-way radio contact
+- **QTH**: Location/station
+- **rigctld**: Hamlib's radio control daemon
+- **RST**: Readability-Signal-Tone report
+- **UTC**: Coordinated Universal Time (Zulu time)
+- **WebSocket**: Protocol for real-time bidirectional communication

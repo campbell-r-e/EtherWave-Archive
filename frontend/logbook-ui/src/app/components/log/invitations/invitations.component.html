@@ -1,0 +1,282 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Invitations</h2>
+        <button type="button" class="btn btn-primary" (click)="openCreateModal()">
+          <i class="bi bi-plus-circle me-2"></i>Send Invitation
+        </button>
+      </div>
+
+      <!-- Error Alert -->
+      <div class="alert alert-danger" *ngIf="error">
+        {{ error }}
+      </div>
+
+      <!-- Tabs -->
+      <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            [class.active]="activeTab === 'received'"
+            (click)="setActiveTab('received')"
+            style="cursor: pointer;">
+            Received
+            <span class="badge bg-danger ms-2" *ngIf="pendingInvitations.length > 0">
+              {{ pendingInvitations.length }}
+            </span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            [class.active]="activeTab === 'sent'"
+            (click)="setActiveTab('sent')"
+            style="cursor: pointer;">
+            Sent
+          </a>
+        </li>
+      </ul>
+
+      <!-- Received Invitations Tab -->
+      <div *ngIf="activeTab === 'received'">
+        <div *ngIf="pendingInvitations.length === 0 && !loading" class="alert alert-info">
+          You have no pending invitations.
+        </div>
+
+        <div class="list-group">
+          <div
+            *ngFor="let invitation of pendingInvitations"
+            class="list-group-item">
+            <div class="d-flex w-100 justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <h5 class="mb-1">{{ invitation.logName }}</h5>
+                <p class="mb-1">
+                  <strong>From:</strong> {{ invitation.inviterUsername }}
+                  <br>
+                  <strong>Role:</strong>
+                  <span [class]="getRoleBadgeClass(invitation.proposedRole)">
+                    {{ invitation.proposedRole }}
+                  </span>
+                  <br>
+                  <span *ngIf="invitation.stationCallsign">
+                    <strong>Station Callsign:</strong> {{ invitation.stationCallsign }}
+                    <br>
+                  </span>
+                  <span *ngIf="invitation.message">
+                    <strong>Message:</strong> {{ invitation.message }}
+                    <br>
+                  </span>
+                  <small class="text-muted">
+                    Sent: {{ formatDate(invitation.createdAt) }}
+                  </small>
+                  <span *ngIf="invitation.expiresAt">
+                    <br>
+                    <small class="text-muted">
+                      Expires: {{ formatDate(invitation.expiresAt) }}
+                    </small>
+                  </span>
+                </p>
+              </div>
+              <div class="btn-group">
+                <button
+                  type="button"
+                  class="btn btn-success btn-sm"
+                  (click)="acceptInvitation(invitation)"
+                  [disabled]="loading || !invitation.canRespond">
+                  <i class="bi bi-check-circle me-1"></i>Accept
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-danger btn-sm"
+                  (click)="declineInvitation(invitation)"
+                  [disabled]="loading || !invitation.canRespond">
+                  <i class="bi bi-x-circle me-1"></i>Decline
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sent Invitations Tab -->
+      <div *ngIf="activeTab === 'sent'">
+        <div *ngIf="sentInvitations.length === 0 && !loading" class="alert alert-info">
+          You have not sent any invitations.
+        </div>
+
+        <div class="list-group">
+          <div
+            *ngFor="let invitation of sentInvitations"
+            class="list-group-item">
+            <div class="d-flex w-100 justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <h5 class="mb-1">{{ invitation.logName }}</h5>
+                <p class="mb-1">
+                  <strong>To:</strong> {{ invitation.inviteeUsername }}
+                  <span *ngIf="invitation.inviteeCallsign">({{ invitation.inviteeCallsign }})</span>
+                  <br>
+                  <strong>Role:</strong>
+                  <span [class]="getRoleBadgeClass(invitation.proposedRole)">
+                    {{ invitation.proposedRole }}
+                  </span>
+                  <br>
+                  <strong>Status:</strong>
+                  <span [class]="getStatusBadgeClass(invitation.status)">
+                    {{ invitation.status }}
+                  </span>
+                  <br>
+                  <span *ngIf="invitation.stationCallsign">
+                    <strong>Station Callsign:</strong> {{ invitation.stationCallsign }}
+                    <br>
+                  </span>
+                  <span *ngIf="invitation.message">
+                    <strong>Message:</strong> {{ invitation.message }}
+                    <br>
+                  </span>
+                  <small class="text-muted">
+                    Sent: {{ formatDate(invitation.createdAt) }}
+                  </small>
+                  <span *ngIf="invitation.expiresAt">
+                    <br>
+                    <small class="text-muted">
+                      Expires: {{ formatDate(invitation.expiresAt) }}
+                    </small>
+                  </span>
+                </p>
+              </div>
+              <div>
+                <button
+                  *ngIf="invitation.status === InvitationStatus.PENDING"
+                  type="button"
+                  class="btn btn-warning btn-sm"
+                  (click)="cancelInvitation(invitation)"
+                  [disabled]="loading">
+                  <i class="bi bi-x-circle me-1"></i>Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading Spinner -->
+      <div class="text-center mt-3" *ngIf="loading">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create Invitation Modal -->
+<div
+  class="modal fade"
+  [class.show]="showCreateModal"
+  [style.display]="showCreateModal ? 'block' : 'none'"
+  tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Send Invitation</h5>
+        <button type="button" class="btn-close" (click)="closeCreateModal()"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="createInvitationForm">
+          <div class="mb-3">
+            <label for="logId" class="form-label">Log *</label>
+            <select
+              class="form-select"
+              id="logId"
+              formControlName="logId"
+              [class.is-invalid]="createInvitationForm.get('logId')?.invalid && createInvitationForm.get('logId')?.touched">
+              <option value="">Select a log</option>
+              <option *ngFor="let log of logs" [value]="log.id">
+                {{ log.name }} ({{ log.type }})
+              </option>
+            </select>
+            <div class="invalid-feedback">
+              Please select a log
+            </div>
+            <small class="form-text text-muted">
+              You can only send invitations for logs you created
+            </small>
+          </div>
+
+          <div class="mb-3">
+            <label for="inviteeUsername" class="form-label">Username, Email, or Callsign *</label>
+            <input
+              type="text"
+              class="form-control"
+              id="inviteeUsername"
+              formControlName="inviteeUsername"
+              placeholder="Enter username, email, or callsign"
+              [class.is-invalid]="createInvitationForm.get('inviteeUsername')?.invalid && createInvitationForm.get('inviteeUsername')?.touched">
+            <div class="invalid-feedback">
+              Username, email, or callsign is required
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="proposedRole" class="form-label">Role *</label>
+            <select
+              class="form-select"
+              id="proposedRole"
+              formControlName="proposedRole">
+              <option [value]="ParticipantRole.STATION">Station (Can log QSOs)</option>
+              <option [value]="ParticipantRole.VIEWER">Viewer (Read-only)</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="stationCallsign" class="form-label">Station Callsign (Optional)</label>
+            <input
+              type="text"
+              class="form-control"
+              id="stationCallsign"
+              formControlName="stationCallsign"
+              placeholder="e.g., W1ABC"
+              [class.is-invalid]="createInvitationForm.get('stationCallsign')?.invalid && createInvitationForm.get('stationCallsign')?.touched">
+            <div class="invalid-feedback">
+              Station callsign must not exceed 20 characters
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="message" class="form-label">Message (Optional)</label>
+            <textarea
+              class="form-control"
+              id="message"
+              formControlName="message"
+              rows="3"
+              placeholder="Add a personal message..."
+              [class.is-invalid]="createInvitationForm.get('message')?.invalid && createInvitationForm.get('message')?.touched">
+            </textarea>
+            <div class="invalid-feedback">
+              Message must not exceed 500 characters
+            </div>
+          </div>
+        </form>
+
+        <div class="alert alert-danger" *ngIf="error">
+          {{ error }}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeCreateModal()">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="createInvitation()"
+          [disabled]="createInvitationForm.invalid || loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+          Send Invitation
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showCreateModal" *ngIf="showCreateModal"></div>

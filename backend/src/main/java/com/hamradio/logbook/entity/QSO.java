@@ -18,6 +18,7 @@ import java.time.LocalTime;
  */
 @Entity
 @Table(name = "qsos", indexes = {
+    @Index(name = "idx_qso_log", columnList = "log_id"),
     @Index(name = "idx_qso_callsign", columnList = "callsign"),
     @Index(name = "idx_qso_date", columnList = "qso_date"),
     @Index(name = "idx_qso_station", columnList = "station_id"),
@@ -46,6 +47,10 @@ public class QSO {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contest_id")
     private Contest contest;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "log_id", nullable = false)
+    private Log log;
 
     // Core QSO fields
     @Column(nullable = false, length = 20)

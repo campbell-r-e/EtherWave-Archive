@@ -1,0 +1,149 @@
+<div class="register-container">
+  <div class="register-card">
+    <div class="text-center mb-4">
+      <h2>Create Account</h2>
+      <p class="text-muted">Join the Ham Radio Logbook</p>
+    </div>
+
+    <div *ngIf="error" class="alert alert-danger" role="alert">
+      {{ error }}
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div class="row">
+        <!-- Username -->
+        <div class="col-md-6 mb-3">
+          <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+          <input type="text"
+                 id="username"
+                 class="form-control"
+                 formControlName="username"
+                 [class.is-invalid]="submitted && f['username'].errors"
+                 placeholder="username">
+          <div *ngIf="submitted && f['username'].errors" class="invalid-feedback">
+            <div *ngIf="f['username'].errors['required']">Username is required</div>
+            <div *ngIf="f['username'].errors['minlength']">Username must be at least 3 characters</div>
+            <div *ngIf="f['username'].errors['pattern']">Only letters, numbers, underscores, and hyphens allowed</div>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="col-md-6 mb-3">
+          <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+          <input type="email"
+                 id="email"
+                 class="form-control"
+                 formControlName="email"
+                 [class.is-invalid]="submitted && f['email'].errors"
+                 placeholder="email@example.com">
+          <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
+            <div *ngIf="f['email'].errors['required']">Email is required</div>
+            <div *ngIf="f['email'].errors['email']">Please enter a valid email</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <!-- Password -->
+        <div class="col-md-6 mb-3">
+          <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+          <input type="password"
+                 id="password"
+                 class="form-control"
+                 formControlName="password"
+                 [class.is-invalid]="submitted && f['password'].errors"
+                 placeholder="Enter password">
+          <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
+            <div *ngIf="f['password'].errors['required']">Password is required</div>
+            <div *ngIf="f['password'].errors['minlength']">Password must be at least 8 characters</div>
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="col-md-6 mb-3">
+          <label for="confirmPassword" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+          <input type="password"
+                 id="confirmPassword"
+                 class="form-control"
+                 formControlName="confirmPassword"
+                 [class.is-invalid]="submitted && f['confirmPassword'].errors"
+                 placeholder="Confirm password">
+          <div *ngIf="submitted && f['confirmPassword'].errors" class="invalid-feedback">
+            <div *ngIf="f['confirmPassword'].errors['required']">Please confirm your password</div>
+            <div *ngIf="f['confirmPassword'].errors['passwordMismatch']">Passwords do not match</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Optional Fields -->
+      <div class="optional-section">
+        <h6 class="text-muted mb-3">Optional Information</h6>
+
+        <div class="row">
+          <!-- Full Name -->
+          <div class="col-md-6 mb-3">
+            <label for="fullName" class="form-label">Full Name</label>
+            <input type="text"
+                   id="fullName"
+                   class="form-control"
+                   formControlName="fullName"
+                   placeholder="John Doe">
+          </div>
+
+          <!-- Callsign -->
+          <div class="col-md-6 mb-3">
+            <label for="callsign" class="form-label">Callsign</label>
+            <input type="text"
+                   id="callsign"
+                   class="form-control"
+                   formControlName="callsign"
+                   [class.is-invalid]="submitted && f['callsign'].errors"
+                   placeholder="W1ABC"
+                   style="text-transform: uppercase;">
+            <div *ngIf="submitted && f['callsign'].errors" class="invalid-feedback">
+              <div *ngIf="f['callsign'].errors['pattern']">Invalid callsign format</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <!-- Grid Square -->
+          <div class="col-md-6 mb-3">
+            <label for="gridSquare" class="form-label">Grid Square</label>
+            <input type="text"
+                   id="gridSquare"
+                   class="form-control"
+                   formControlName="gridSquare"
+                   placeholder="FN31pr">
+          </div>
+
+          <!-- QRZ API Key -->
+          <div class="col-md-6 mb-3">
+            <label for="qrzApiKey" class="form-label">QRZ API Key</label>
+            <input type="text"
+                   id="qrzApiKey"
+                   class="form-control"
+                   formControlName="qrzApiKey"
+                   placeholder="Your QRZ API key">
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit"
+              class="btn btn-primary w-100 mb-3"
+              [disabled]="loading">
+        <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+        {{ loading ? 'Creating Account...' : 'Register' }}
+      </button>
+
+      <!-- Login Link -->
+      <div class="text-center">
+        <p class="mb-0">
+          Already have an account?
+          <a routerLink="/login" class="text-primary">Sign in here</a>
+        </p>
+      </div>
+    </form>
+  </div>
+</div>

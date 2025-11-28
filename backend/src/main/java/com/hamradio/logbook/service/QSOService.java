@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 /**
  * Service layer for QSO operations
+ * Updated to support multi-user log management with permission checks
  */
 @Service
 @RequiredArgsConstructor
@@ -30,15 +31,32 @@ public class QSOService {
     private final StationRepository stationRepository;
     private final OperatorRepository operatorRepository;
     private final ContestRepository contestRepository;
+    private final LogRepository logRepository;
+    private final UserRepository userRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final QSOValidationService validationService;
+    private final LogService logService;
 
     /**
-     * Create a new QSO
+     * Create a new QSO in a specific log
      */
     @Transactional
-    public QSOResponse createQSO(QSORequest request) {
-        log.info("Creating new QSO for callsign: {}", request.getCallsign());
+    public QSOResponse createQSO(QSORequest request, Long logId, String username) {
+        log.info("Creating new QSO for callsign: {} in log ID: {}", request.getCallsign(), logId);
+
+        // Get user and log
+        User user = getUserByUsername(username);
+        Log qsoLog = getLogByIdOrThrow(logId);
+
+        // Check if user can edit this log
+        if (!logService.canEdit(qsoLog, user)) {
+            throw new SecurityException("User does not have permission to add QSOs to this log");
+        }
+
+        // Check if log is editable
+        if (!qsoLog.isEditable()) {
+            throw new IllegalStateException("This log is frozen and cannot be edited");
+        }
 
         // Fetch related entities
         Station station = stationRepository.findById(request.getStationId())
@@ -58,6 +76,7 @@ public class QSOService {
 
         // Build QSO entity
         QSO qso = QSO.builder()
+                .log(qsoLog)
                 .station(station)
                 .operator(operator)
                 .contest(contest)
@@ -118,21 +137,39 @@ public class QSOService {
     }
 
     /**
-     * Get QSO by ID
+     * Get QSO by ID with permission check
      */
-    public QSOResponse getQSO(Long id) {
+    public QSOResponse getQSO(Long id, String username) {
+        User user = getUserByUsername(username);
         QSO qso = qsoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("QSO not found"));
+
+        // Check if user has access to this log
+        if (!logService.hasAccess(qso.getLog(), user)) {
+            throw new SecurityException("User does not have access to this QSO");
+        }
+
         return toResponse(qso);
     }
 
     /**
-     * Update existing QSO
+     * Update existing QSO with permission check
      */
     @Transactional
-    public QSOResponse updateQSO(Long id, QSORequest request) {
+    public QSOResponse updateQSO(Long id, QSORequest request, String username) {
+        User user = getUserByUsername(username);
         QSO qso = qsoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("QSO not found"));
+
+        // Check if user can edit this log
+        if (!logService.canEdit(qso.getLog(), user)) {
+            throw new SecurityException("User does not have permission to edit QSOs in this log");
+        }
+
+        // Check if log is editable
+        if (!qso.getLog().isEditable()) {
+            throw new IllegalStateException("This log is frozen and cannot be edited");
+        }
 
         // Update fields
         qso.setCallsign(request.getCallsign().toUpperCase());
@@ -174,50 +211,93 @@ public class QSOService {
     }
 
     /**
-     * Delete QSO
+     * Delete QSO with permission check
      */
     @Transactional
-    public void deleteQSO(Long id) {
-        if (!qsoRepository.existsById(id)) {
-            throw new IllegalArgumentException("QSO not found");
+    public void deleteQSO(Long id, String username) {
+        User user = getUserByUsername(username);
+        QSO qso = qsoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("QSO not found"));
+
+        // Check if user can edit this log
+        if (!logService.canEdit(qso.getLog(), user)) {
+            throw new SecurityException("User does not have permission to delete QSOs in this log");
         }
+
+        // Check if log is editable
+        if (!qso.getLog().isEditable()) {
+            throw new IllegalStateException("This log is frozen and cannot be edited");
+        }
+
         qsoRepository.deleteById(id);
     }
 
     /**
-     * Get all QSOs with pagination
+     * Get all QSOs for a specific log with pagination
      */
-    public Page<QSOResponse> getAllQSOs(int page, int size) {
+    public Page<QSOResponse> getAllQSOs(Long logId, int page, int size, String username) {
+        User user = getUserByUsername(username);
+        Log qsoLog = getLogByIdOrThrow(logId);
+
+        // Check if user has access to this log
+        if (!logService.hasAccess(qsoLog, user)) {
+            throw new SecurityException("User does not have access to this log");
+        }
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return qsoRepository.findAll(pageable).map(this::toResponse);
+        return qsoRepository.findByLogId(logId, pageable).map(this::toResponse);
     }
 
     /**
-     * Get recent QSOs (for live feed)
+     * Get recent QSOs for a specific log (for live feed)
      */
-    public List<QSOResponse> getRecentQSOs(int limit) {
+    public List<QSOResponse> getRecentQSOs(Long logId, int limit, String username) {
+        User user = getUserByUsername(username);
+        Log qsoLog = getLogByIdOrThrow(logId);
+
+        // Check if user has access to this log
+        if (!logService.hasAccess(qsoLog, user)) {
+            throw new SecurityException("User does not have access to this log");
+        }
+
         Pageable pageable = PageRequest.of(0, limit);
-        return qsoRepository.findRecent(pageable)
+        return qsoRepository.findRecentByLogId(logId, pageable)
                 .stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Get QSOs by date range
+     * Get QSOs by date range for a specific log
      */
-    public List<QSOResponse> getQSOsByDateRange(LocalDate startDate, LocalDate endDate) {
-        return qsoRepository.findByDateRange(startDate, endDate)
+    public List<QSOResponse> getQSOsByDateRange(Long logId, LocalDate startDate, LocalDate endDate, String username) {
+        User user = getUserByUsername(username);
+        Log qsoLog = getLogByIdOrThrow(logId);
+
+        // Check if user has access to this log
+        if (!logService.hasAccess(qsoLog, user)) {
+            throw new SecurityException("User does not have access to this log");
+        }
+
+        return qsoRepository.findByLogIdAndDateRange(logId, startDate, endDate)
                 .stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Get distinct states contacted (for map visualization)
+     * Get distinct states contacted for a specific log (for map visualization)
      */
-    public List<String> getContactedStates() {
-        return qsoRepository.findDistinctStates();
+    public List<String> getContactedStates(Long logId, String username) {
+        User user = getUserByUsername(username);
+        Log qsoLog = getLogByIdOrThrow(logId);
+
+        // Check if user has access to this log
+        if (!logService.hasAccess(qsoLog, user)) {
+            throw new SecurityException("User does not have access to this log");
+        }
+
+        return qsoRepository.findDistinctStatesByLogId(logId);
     }
 
     /**
@@ -262,5 +342,21 @@ public class QSOService {
                 .createdAt(qso.getCreatedAt())
                 .updatedAt(qso.getUpdatedAt())
                 .build();
+    }
+
+    /**
+     * Helper: Get user by username or throw exception
+     */
+    private User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+    }
+
+    /**
+     * Helper: Get log by ID or throw exception
+     */
+    private Log getLogByIdOrThrow(Long logId) {
+        return logRepository.findById(logId)
+                .orElseThrow(() -> new IllegalArgumentException("Log not found: " + logId));
     }
 }

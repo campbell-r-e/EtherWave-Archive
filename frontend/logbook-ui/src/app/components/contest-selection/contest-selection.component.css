@@ -1,0 +1,107 @@
+.contest-list {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.contest-card {
+  border: 2px solid #dee2e6;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #fff;
+}
+
+.contest-card:hover {
+  border-color: #ffc107;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.contest-card.selected {
+  border-color: #28a745;
+  background-color: #f0f8f4;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.contest-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.contest-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #212529;
+  margin-bottom: 0.25rem;
+}
+
+.contest-code {
+  font-size: 0.875rem;
+  font-family: 'Courier New', monospace;
+}
+
+.contest-details {
+  margin-top: 0.75rem;
+}
+
+.detail-row {
+  display: flex;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.detail-label {
+  font-weight: 600;
+  min-width: 120px;
+  color: #6c757d;
+}
+
+.detail-value {
+  flex: 1;
+  color: #212529;
+}
+
+.selected-indicator {
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  background-color: #28a745;
+  color: white;
+  text-align: center;
+  border-radius: 0.25rem;
+  font-weight: bold;
+}
+
+.card {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.35rem 0.65rem;
+}
+
+@media (max-width: 768px) {
+  .contest-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .contest-header .badge {
+    margin-top: 0.5rem;
+  }
+
+  .detail-row {
+    flex-direction: column;
+  }
+
+  .detail-label {
+    min-width: auto;
+    margin-bottom: 0.25rem;
+  }
+}

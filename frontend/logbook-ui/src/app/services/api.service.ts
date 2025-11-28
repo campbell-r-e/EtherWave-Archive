@@ -45,6 +45,10 @@ export class ApiService {
     return this.http.get<string[]>(`${this.baseUrl}/qsos/states`);
   }
 
+  getStateStatistics(): Observable<{state: string, count: number}[]> {
+    return this.http.get<{state: string, count: number}[]>(`${this.baseUrl}/qsos/states/statistics`);
+  }
+
   // Station endpoints
   getStations(): Observable<Station[]> {
     return this.http.get<Station[]>(`${this.baseUrl}/stations`);
