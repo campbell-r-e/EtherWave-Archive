@@ -1,0 +1,70 @@
+<div class="card">
+  <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">📻 Live QSO Feed</h5>
+    <span class="badge bg-light text-dark">{{ qsos.length }} QSOs</span>
+  </div>
+  <div class="card-body p-0">
+    <div *ngIf="loading" class="text-center p-4">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <div *ngIf="!loading && qsos.length === 0" class="text-center p-4 text-muted">
+      <p>No QSOs logged yet. Start logging contacts!</p>
+    </div>
+
+    <div *ngIf="!loading && qsos.length > 0" class="table-responsive">
+      <table class="table table-hover table-sm mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Time (UTC)</th>
+            <th>Callsign</th>
+            <th>Frequency</th>
+            <th>Mode</th>
+            <th>RST</th>
+            <th>Name</th>
+            <th>State</th>
+            <th>Station</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let qso of qsos"
+              [attr.data-qso-id]="qso.id"
+              [class]="getValidationClass(qso)">
+            <td class="text-nowrap">
+              <small>{{ qso.qsoDate }}</small><br>
+              <strong>{{ qso.timeOn }}</strong>
+            </td>
+            <td>
+              <strong class="text-primary">{{ qso.callsign }}</strong>
+              <span *ngIf="!qso.isValid" class="badge bg-danger ms-1">Invalid</span>
+              <span *ngIf="qso.isValid && qso.validationErrors" class="badge bg-warning ms-1"
+                    [title]="qso.validationErrors">⚠️</span>
+            </td>
+            <td class="text-nowrap">
+              {{ formatFrequency(qso.frequencyKhz) }}
+              <br><small class="text-muted">{{ qso.band }}</small>
+            </td>
+            <td><span class="badge bg-info">{{ qso.mode }}</span></td>
+            <td class="text-nowrap">
+              <small>S: {{ qso.rstSent || '-' }}</small><br>
+              <small>R: {{ qso.rstRcvd || '-' }}</small>
+            </td>
+            <td>{{ qso.name || '-' }}</td>
+            <td>{{ qso.state || '-' }}</td>
+            <td><small>{{ qso.stationName }}</small></td>
+            <td>
+              <button class="btn btn-sm btn-outline-danger"
+                      (click)="deleteQSO(qso)"
+                      title="Delete QSO">
+                🗑️
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

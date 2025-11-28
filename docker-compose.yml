@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database (for development/production)
+  postgres:
+    image: postgres:16-alpine
+    container_name: hamradio-postgres
+    environment:
+      POSTGRES_DB: hamradio_logbook
+      POSTGRES_USER: hamradio
+      POSTGRES_PASSWORD: changeme
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hamradio"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hamradio-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hamradio-backend
+    ports:
+      - "8080:8080"
+    environment:
+      # Database configuration
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/hamradio_logbook
+      SPRING_DATASOURCE_USERNAME: hamradio
+      SPRING_DATASOURCE_PASSWORD: changeme
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+      # QRZ API credentials (optional - set your own)
+      QRZ_USERNAME: ${QRZ_USERNAME:-}
+      QRZ_PASSWORD: ${QRZ_PASSWORD:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - backend_data:/app/data
+    networks:
+      - hamradio-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend (Angular + Nginx)
+  frontend:
+    build:
+      context: ./frontend/logbook-ui
+      dockerfile: Dockerfile
+    container_name: hamradio-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - hamradio-network
+
+  # Rig Control Service (optional - for testing)
+  # Uncomment and configure for your rig
+  # rig-control:
+  #   build:
+  #     context: ./rig-control-service
+  #     dockerfile: Dockerfile
+  #   container_name: hamradio-rig-control-1
+  #   ports:
+  #     - "8081:8081"
+  #     - "4532:4532"
+  #   environment:
+  #     STATION_ID: 1
+  #     STATION_NAME: "Station-1"
+  #     RIGCTLD_HOST: localhost
+  #     RIGCTLD_PORT: 4532
+  #     BACKEND_API_URL: http://backend:8080
+  #   # USB device passthrough (adjust for your radio)
+  #   # Find device: ls -l /dev/tty* | grep USB
+  #   devices:
+  #     - "/dev/ttyUSB0:/dev/ttyUSB0"
+  #   # Privileged mode for serial access (alternatively use device group)
+  #   # privileged: true
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - hamradio-network
+  #   # Start rigctld alongside the service
+  #   command: >
+  #     sh -c "
+  #       rigctld -m 1035 -r /dev/ttyUSB0 -s 38400 -t 4532 &
+  #       java -jar app.jar
+  #     "
+
+networks:
+  hamradio-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  backend_data:

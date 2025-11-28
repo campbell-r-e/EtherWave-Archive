@@ -1,0 +1,25 @@
+{
+  "contestCode": "POTA",
+  "contestName": "Parks on the Air",
+  "description": "Year-round program promoting portable amateur radio operation from parks and protected areas",
+  "validatorClass": "com.hamradio.logbook.validation.POTAValidator",
+  "isActive": true,
+  "rulesConfig": {
+    "required_fields": ["park_ref"],
+    "optional_fields": ["hunter_ref", "park_to_park"],
+    "park_ref_format": "[A-Z]{1,3}-\\d{4,5}",
+    "validation_api": "https://api.pota.app/park/{park_ref}",
+    "scoring": {
+      "activator": {
+        "minimum_qsos": 10,
+        "points_per_qso": 1,
+        "park_to_park_bonus": 1
+      },
+      "hunter": {
+        "points_per_park": 1,
+        "park_to_park_bonus": 1
+      }
+    },
+    "notes": "Activators must make minimum 10 QSOs to qualify for activation. Park-to-park contacts earn bonus points for both operators."
+  }
+}

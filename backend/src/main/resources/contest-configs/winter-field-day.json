@@ -1,0 +1,39 @@
+{
+  "contestCode": "WFD",
+  "contestName": "Winter Field Day",
+  "description": "Annual winter emergency preparedness exercise promoting outdoor winter operations",
+  "validatorClass": "com.hamradio.logbook.validation.WinterFieldDayValidator",
+  "isActive": true,
+  "rulesConfig": {
+    "required_fields": ["class", "section"],
+    "optional_fields": ["indoor_outdoor"],
+    "valid_classes": [
+      "1O", "2O", "3O", "4O", "5O", "6O", "7O", "8O", "9O",
+      "1I", "2I", "3I", "4I", "5I", "6I", "7I", "8I", "9I",
+      "1H", "2H", "3H", "4H", "5H"
+    ],
+    "class_suffixes": {
+      "O": "Outdoor - bonus multiplier x2",
+      "I": "Indoor - standard multiplier x1",
+      "H": "Home - standard multiplier x1"
+    },
+    "scoring": {
+      "phone": 1,
+      "cw": 2,
+      "digital": 2,
+      "outdoor_multiplier": 2,
+      "indoor_multiplier": 1,
+      "home_multiplier": 1
+    },
+    "bonus_points": {
+      "100pct_emergency_power": 200,
+      "media_publicity": 100,
+      "public_location": 100,
+      "public_info_table": 100,
+      "nts_message": 100,
+      "satellite_qso": 100,
+      "youth_operator": 100
+    },
+    "notes": "Outdoor operations receive 2x multiplier on all contacts. Indoor and home operations receive standard 1x multiplier."
+  }
+}

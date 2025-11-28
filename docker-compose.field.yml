@@ -1,0 +1,49 @@
+version: '3.8'
+
+# Field Deployment Configuration
+# Uses SQLite instead of PostgreSQL for portable operations
+# Suitable for Field Day, POTA activations, portable contests
+
+services:
+  # Backend API with SQLite
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hamradio-backend-field
+    ports:
+      - "8080:8080"
+    environment:
+      # SQLite configuration
+      SPRING_DATASOURCE_URL: jdbc:sqlite:/app/data/logbook.db
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.sqlite.JDBC
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.community.dialect.SQLiteDialect
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+      # QRZ API credentials (optional)
+      QRZ_USERNAME: ${QRZ_USERNAME:-}
+      QRZ_PASSWORD: ${QRZ_PASSWORD:-}
+    volumes:
+      # Persist SQLite database on host
+      - ./data:/app/data
+    networks:
+      - hamradio-network
+    restart: unless-stopped
+
+  # Frontend (Angular + Nginx)
+  frontend:
+    build:
+      context: ./frontend/logbook-ui
+      dockerfile: Dockerfile
+    container_name: hamradio-frontend-field
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - hamradio-network
+    restart: unless-stopped
+
+networks:
+  hamradio-network:
+    driver: bridge

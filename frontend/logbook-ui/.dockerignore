@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.angular/
+.git
+.gitignore
+*.md
+Dockerfile
+.dockerignore
+e2e/
+karma.conf.js
+*.spec.ts

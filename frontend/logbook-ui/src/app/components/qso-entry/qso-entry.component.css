@@ -1,0 +1,13 @@
+.form-control-lg {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.btn-link {
+  text-decoration: none;
+  padding: 0.25rem 0;
+}
+
+.btn-link:hover {
+  text-decoration: underline;
+}

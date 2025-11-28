@@ -1,0 +1,202 @@
+<div class="container-fluid mt-4">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">Log QSO</h4>
+        </div>
+        <div class="card-body">
+          <!-- Alert messages -->
+          <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show">
+            {{ successMessage }}
+            <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+          </div>
+          <div *ngIf="errorMessage" class="alert alert-warning alert-dismissible fade show">
+            {{ errorMessage }}
+            <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+          </div>
+
+          <form (ngSubmit)="saveQSO()">
+            <!-- Station and Contest Selection -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Station *</label>
+                <select class="form-select" [(ngModel)]="qso.stationId" name="station" required>
+                  <option [value]="0">Select Station</option>
+                  <option *ngFor="let station of stations" [value]="station.id">
+                    {{ station.stationName }} ({{ station.callsign }})
+                  </option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Contest</label>
+                <select class="form-select" [(ngModel)]="qso.contestId" name="contest" (change)="onContestChange()">
+                  <option [value]="undefined">No Contest</option>
+                  <option *ngFor="let contest of contests" [value]="contest.id">
+                    {{ contest.contestName }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Callsign and Lookup -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Callsign *</label>
+                <div class="input-group">
+                  <input type="text" class="form-control form-control-lg"
+                         [(ngModel)]="qso.callsign" name="callsign"
+                         (blur)="onCallsignChange()"
+                         style="text-transform: uppercase" required>
+                  <button class="btn btn-outline-secondary" type="button"
+                          (click)="onCallsignChange()" [disabled]="lookupInProgress">
+                    <span *ngIf="!lookupInProgress">🔍 Lookup</span>
+                    <span *ngIf="lookupInProgress" class="spinner-border spinner-border-sm"></span>
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Name</label>
+                <input type="text" class="form-control" [(ngModel)]="qso.name" name="name">
+              </div>
+            </div>
+
+            <!-- Frequency and Mode -->
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label class="form-label">Frequency (kHz) *</label>
+                <input type="number" class="form-control"
+                       [(ngModel)]="qso.frequencyKhz" name="frequency"
+                       (change)="onFrequencyChange()" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Mode *</label>
+                <select class="form-select" [(ngModel)]="qso.mode" name="mode" required>
+                  <option value="SSB">SSB</option>
+                  <option value="CW">CW</option>
+                  <option value="FM">FM</option>
+                  <option value="AM">AM</option>
+                  <option value="RTTY">RTTY</option>
+                  <option value="PSK31">PSK31</option>
+                  <option value="FT8">FT8</option>
+                  <option value="FT4">FT4</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Band</label>
+                <input type="text" class="form-control" [(ngModel)]="qso.band" name="band" readonly>
+              </div>
+            </div>
+
+            <!-- Date and Time -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Date *</label>
+                <input type="date" class="form-control" [(ngModel)]="qso.qsoDate" name="qsoDate" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Time (UTC) *</label>
+                <input type="time" class="form-control" [(ngModel)]="qso.timeOn" name="timeOn" step="1" required>
+              </div>
+            </div>
+
+            <!-- RST Reports -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">RST Sent</label>
+                <input type="text" class="form-control" [(ngModel)]="qso.rstSent" name="rstSent">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">RST Received</label>
+                <input type="text" class="form-control" [(ngModel)]="qso.rstRcvd" name="rstRcvd">
+              </div>
+            </div>
+
+            <!-- Location -->
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label class="form-label">State/Province</label>
+                <input type="text" class="form-control" [(ngModel)]="qso.state" name="state">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Grid Square</label>
+                <input type="text" class="form-control" [(ngModel)]="qso.gridSquare" name="gridSquare">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Country</label>
+                <input type="text" class="form-control" [(ngModel)]="qso.country" name="country">
+              </div>
+            </div>
+
+            <!-- Contest-Specific Fields -->
+            <div *ngIf="qso.contestId && Object.keys(contestDataFields).length > 0" class="row mb-3">
+              <div class="col-12">
+                <h6 class="text-muted">Contest Exchange</h6>
+              </div>
+              <div class="col-md-6" *ngIf="contestDataFields.hasOwnProperty('class')">
+                <label class="form-label">Class</label>
+                <input type="text" class="form-control" [(ngModel)]="contestDataFields.class" name="contestClass">
+              </div>
+              <div class="col-md-6" *ngIf="contestDataFields.hasOwnProperty('section')">
+                <label class="form-label">Section</label>
+                <input type="text" class="form-control" [(ngModel)]="contestDataFields.section" name="contestSection">
+              </div>
+              <div class="col-md-12" *ngIf="contestDataFields.hasOwnProperty('park_ref')">
+                <label class="form-label">Park Reference (e.g., K-0817)</label>
+                <input type="text" class="form-control" [(ngModel)]="contestDataFields.park_ref" name="parkRef">
+              </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="row mb-3">
+              <div class="col-12">
+                <label class="form-label">Notes</label>
+                <textarea class="form-control" [(ngModel)]="qso.notes" name="notes" rows="2"></textarea>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <button type="button" class="btn btn-secondary" (click)="resetForm()">Clear</button>
+              <button type="submit" class="btn btn-primary btn-lg" [disabled]="saveInProgress">
+                <span *ngIf="!saveInProgress">💾 Log QSO</span>
+                <span *ngIf="saveInProgress">
+                  <span class="spinner-border spinner-border-sm me-2"></span>Saving...
+                </span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Reference Panel -->
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header bg-info text-white">
+          <h6 class="mb-0">Quick Reference</h6>
+        </div>
+        <div class="card-body">
+          <h6>Common Bands (kHz)</h6>
+          <ul class="list-unstyled small">
+            <li><button class="btn btn-sm btn-link" (click)="qso.frequencyKhz = 1840; onFrequencyChange()">160m: 1800-2000</button></li>
+            <li><button class="btn btn-sm btn-link" (click)="qso.frequencyKhz = 3700; onFrequencyChange()">80m: 3500-4000</button></li>
+            <li><button class="btn btn-sm btn-link" (click)="qso.frequencyKhz = 7200; onFrequencyChange()">40m: 7000-7300</button></li>
+            <li><button class="btn btn-sm btn-link" (click)="qso.frequencyKhz = 14250; onFrequencyChange()">20m: 14000-14350</button></li>
+            <li><button class="btn btn-sm btn-link" (click)="qso.frequencyKhz = 21300; onFrequencyChange()">15m: 21000-21450</button></li>
+            <li><button class="btn btn-sm btn-link" (click)="qso.frequencyKhz = 28500; onFrequencyChange()">10m: 28000-29700</button></li>
+          </ul>
+
+          <div *ngIf="lastSavedQSO" class="mt-3 p-2 bg-light rounded">
+            <h6 class="text-success">✓ Last QSO</h6>
+            <p class="mb-0 small">
+              <strong>{{ lastSavedQSO.callsign }}</strong><br>
+              {{ lastSavedQSO.frequencyKhz }} kHz {{ lastSavedQSO.mode }}<br>
+              {{ lastSavedQSO.qsoDate }} {{ lastSavedQSO.timeOn }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
