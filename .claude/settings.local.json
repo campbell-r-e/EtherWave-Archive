@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:*)",
+      "Bash(mvn clean package:*)",
+      "Bash(java:*)",
+      "Bash(mvn:*)",
+      "Bash(/usr/libexec/java_home:*)",
+      "Bash(export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home)",
+      "Bash(docker-compose build:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker-compose ps:*)",
+      "Bash(docker-compose logs:*)",
+      "Bash(docker-compose stop:*)",
+      "Bash(curl:*)",
+      "Bash(docker-compose:*)",
+      "Bash(export JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-25.jdk/Contents/Home)",
+      "Bash(docker exec:*)",
+      "Bash(docker build:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
