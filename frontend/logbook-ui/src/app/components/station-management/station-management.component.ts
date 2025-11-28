@@ -40,6 +40,7 @@ export class StationManagementComponent implements OnInit {
 
   getEmptyStation(): Station {
     return {
+      stationName: '',
       name: '',
       callsign: '',
       gridSquare: '',

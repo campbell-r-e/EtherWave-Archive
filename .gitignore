@@ -1,0 +1,35 @@
+# === Java / Spring Boot ===
+target/
+*.log
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+/.idea/
+*.iws
+*.ipr
+*.bak
+
+# === Maven ===
+.mvn/
+!/.mvn/wrapper/maven-wrapper.jar
+**/target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# === Node / Angular ===
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.angular/
+
+# === VS Code ===
+.vscode/
+
+

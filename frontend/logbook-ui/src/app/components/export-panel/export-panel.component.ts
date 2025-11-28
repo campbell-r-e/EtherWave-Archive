@@ -77,6 +77,6 @@ export class ExportPanelComponent implements OnInit {
 
   getContestName(contestId: number): string {
     const contest = this.contests.find(c => c.id === contestId);
-    return contest ? contest.name : 'Unknown Contest';
+    return contest ? contest.contestName : 'Unknown Contest';
   }
 }

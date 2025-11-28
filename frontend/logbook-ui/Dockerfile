@@ -9,7 +9,7 @@ RUN npm ci
 
 # Copy source and build for production
 COPY . .
-RUN npm run build --prod
+RUN npm run build
 
 # Runtime stage with nginx
 FROM nginx:alpine

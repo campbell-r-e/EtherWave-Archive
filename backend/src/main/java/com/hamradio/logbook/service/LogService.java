@@ -10,6 +10,7 @@ import com.hamradio.logbook.repository.ContestRepository;
 import com.hamradio.logbook.repository.LogParticipantRepository;
 import com.hamradio.logbook.repository.LogRepository;
 import com.hamradio.logbook.repository.UserRepository;
+import com.hamradio.logbook.repository.QSORepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -94,9 +95,7 @@ public class LogService {
         creatorParticipant.setActive(true);
         logParticipantRepository.save(creatorParticipant);
 
-        log.getParticipants().add(creatorParticipant);
-
-        log.info("Created log '{}' (ID: {}) for user '{}'", log.getName(), log.getId(), username);
+        LogService.log.info("Created log '{}' (ID: {}) for user '{}'", log.getName(), log.getId(), username);
 
         return enrichLogResponse(log, creator);
     }
@@ -133,7 +132,7 @@ public class LogService {
 
         log = logRepository.save(log);
 
-        log.info("Updated log '{}' (ID: {}) by user '{}'", log.getName(), log.getId(), username);
+        LogService.log.info("Updated log '{}' (ID: {}) by user '{}'", log.getName(), log.getId(), username);
 
         return enrichLogResponse(log, user);
     }
@@ -155,7 +154,7 @@ public class LogService {
         log.setActive(false);
         logRepository.save(log);
 
-        log.info("Deleted log '{}' (ID: {}) by user '{}'", log.getName(), log.getId(), username);
+        LogService.log.info("Deleted log '{}' (ID: {}) by user '{}'", log.getName(), log.getId(), username);
     }
 
     /**
@@ -174,7 +173,7 @@ public class LogService {
         log.setEditable(false);
         log = logRepository.save(log);
 
-        log.info("Froze log '{}' (ID: {}) by user '{}'", log.getName(), log.getId(), username);
+        LogService.log.info("Froze log '{}' (ID: {}) by user '{}'", log.getName(), log.getId(), username);
 
         return enrichLogResponse(log, user);
     }
@@ -195,7 +194,7 @@ public class LogService {
         log.setEditable(true);
         log = logRepository.save(log);
 
-        log.info("Unfroze log '{}' (ID: {}) by user '{}'", log.getName(), log.getId(), username);
+        LogService.log.info("Unfroze log '{}' (ID: {}) by user '{}'", log.getName(), log.getId(), username);
 
         return enrichLogResponse(log, user);
     }
@@ -241,8 +240,8 @@ public class LogService {
         participant.setActive(false);
         logParticipantRepository.save(participant);
 
-        log.info("Removed participant '{}' from log '{}' (ID: {})",
-                participant.getUser().getUsername(), log.getName(), log.getId());
+        LogService.log.info("Removed participant '{}' from log '{}' (ID: {})",
+            participant.getUser().getUsername(), log.getName(), log.getId());
     }
 
     /**
@@ -265,7 +264,7 @@ public class LogService {
         participant.setActive(false);
         logParticipantRepository.save(participant);
 
-        log.info("User '{}' left log '{}' (ID: {})", username, log.getName(), log.getId());
+        LogService.log.info("User '{}' left log '{}' (ID: {})", username, log.getName(), log.getId());
     }
 
     /**

@@ -71,8 +71,8 @@ public class InvitationService {
 
         invitation = invitationRepository.save(invitation);
 
-        log.info("Created invitation for user '{}' to join log '{}' (ID: {}) with role {}",
-                invitee.getUsername(), log.getName(), log.getId(), request.getProposedRole());
+        InvitationService.log.info("Created invitation for user '{}' to join log '{}' (ID: {}) with role {}",
+            invitee.getUsername(), log.getName(), log.getId(), request.getProposedRole());
 
         return InvitationResponse.fromInvitation(invitation);
     }

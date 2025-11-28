@@ -21,7 +21,7 @@
     <!-- Selected Contest Display -->
     <div *ngIf="selectedContest" class="alert alert-info d-flex justify-content-between align-items-center mb-3">
       <div>
-        <strong>Selected Contest:</strong> {{ selectedContest.name }}
+        <strong>Selected Contest:</strong> {{ selectedContest.contestName }}
         <span class="ms-2" [class]="getContestBadgeClass(selectedContest)">
           {{ getContestStatusText(selectedContest) }}
         </span>
@@ -40,7 +40,7 @@
 
         <div class="contest-header">
           <div>
-            <h6 class="contest-name mb-1">{{ contest.name }}</h6>
+            <h6 class="contest-name mb-1">{{ contest.contestName }}</h6>
             <span class="contest-code text-muted">{{ contest.contestCode }}</span>
           </div>
           <span [class]="getContestBadgeClass(contest)">
@@ -59,9 +59,9 @@
             <span class="detail-value">{{ contest.description }}</span>
           </div>
 
-          <div class="detail-row" *ngIf="contest.rules">
+          <div class="detail-row" *ngIf="contest.rulesConfig">
             <span class="detail-label">📋 Rules:</span>
-            <span class="detail-value">{{ contest.rules }}</span>
+            <span class="detail-value">{{ contest.rulesConfig }}</span>
           </div>
         </div>
 

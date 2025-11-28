@@ -69,7 +69,8 @@ public class Invitation {
         PENDING,    // Waiting for response
         ACCEPTED,   // User accepted invitation
         DECLINED,   // User declined invitation
-        CANCELLED   // Inviter cancelled invitation
+        CANCELLED,  // Inviter cancelled invitation
+        EXPIRED     // Invitation expired
     }
 
     // Helper methods

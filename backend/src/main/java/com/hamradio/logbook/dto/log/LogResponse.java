@@ -50,7 +50,7 @@ public class LogResponse {
                 .creatorId(log.getCreator().getId())
                 .creatorUsername(log.getCreator().getUsername())
                 .contestId(log.getContest() != null ? log.getContest().getId() : null)
-                .contestName(log.getContest() != null ? log.getContest().getName() : null)
+                .contestName(log.getContest() != null ? log.getContest().getContestName() : null)
                 .startDate(log.getStartDate())
                 .endDate(log.getEndDate())
                 .active(log.getActive())

@@ -12,6 +12,12 @@ export interface Station {
   rigControlPort?: number;
   createdAt?: string;
   updatedAt?: string;
+  // Added for template compatibility
+  name?: string;
+  latitude?: number;
+  longitude?: number;
+  power?: number;
+  comments?: string;
 }
 
 export interface Contest {

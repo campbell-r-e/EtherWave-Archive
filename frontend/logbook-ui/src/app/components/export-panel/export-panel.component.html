@@ -62,7 +62,7 @@
             <select class="form-select" [(ngModel)]="selectedContest">
               <option [ngValue]="null">-- Choose a Contest --</option>
               <option *ngFor="let contest of contests" [ngValue]="contest.id">
-                {{ contest.name }} ({{ contest.contestCode }})
+                {{ contest.contestName }} ({{ contest.contestCode }})
               </option>
             </select>
           </div>

@@ -13,6 +13,7 @@ import { Station, Contest } from '../../models/station.model';
   styleUrls: ['./qso-entry.component.css']
 })
 export class QsoEntryComponent implements OnInit {
+    public Object = Object;
   qso: QSORequest = this.getEmptyQSO();
   stations: Station[] = [];
   contests: Contest[] = [];
