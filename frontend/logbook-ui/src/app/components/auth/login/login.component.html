@@ -1,12 +1,12 @@
 <div class="login-container">
   <div class="login-card">
     <div class="text-center mb-4">
-      <h2>Ham Radio Logbook</h2>
+      <h1>Ham Radio Logbook</h1>
       <p class="text-muted">Sign in to your account</p>
     </div>
 
     @if (error) {
-      <div class="alert alert-danger" role="alert">
+      <div class="alert alert-danger" role="alert" aria-live="polite" aria-atomic="true">
         {{ error }}
       </div>
     }
@@ -51,9 +51,10 @@
       <!-- Submit Button -->
       <button type="submit"
         class="btn btn-primary w-100 mb-3"
-        [disabled]="loading">
+        [disabled]="loading"
+        [attr.aria-busy]="loading">
         @if (loading) {
-          <span class="spinner-border spinner-border-sm me-2"></span>
+          <span class="spinner-border spinner-border-sm me-2" role="status" aria-label="Loading"></span>
         }
         {{ loading ? 'Signing in...' : 'Sign In' }}
       </button>
@@ -62,7 +63,7 @@
       <div class="text-center">
         <p class="mb-0">
           Don't have an account?
-          <a routerLink="/register" class="text-primary">Register here</a>
+          <a routerLink="/register" class="text-primary" aria-label="Register for a new account">Register here</a>
         </p>
       </div>
     </form>

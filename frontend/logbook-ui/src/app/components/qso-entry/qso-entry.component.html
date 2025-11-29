@@ -8,15 +8,15 @@
         <div class="card-body">
           <!-- Alert messages -->
           @if (successMessage) {
-            <div class="alert alert-success alert-dismissible fade show">
+            <div class="alert alert-success alert-dismissible fade show" role="alert" aria-live="polite">
               {{ successMessage }}
-              <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+              <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close success message"></button>
             </div>
           }
           @if (errorMessage) {
-            <div class="alert alert-warning alert-dismissible fade show">
+            <div class="alert alert-warning alert-dismissible fade show" role="alert" aria-live="assertive">
               {{ errorMessage }}
-              <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+              <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close error message"></button>
             </div>
           }
 
@@ -24,8 +24,8 @@
             <!-- Station and Contest Selection -->
             <div class="row mb-3">
               <div class="col-md-6">
-                <label class="form-label">Station *</label>
-                <select class="form-select" [(ngModel)]="qso.stationId" name="station" required>
+                <label for="qso-station" class="form-label">Station <span aria-label="required">*</span></label>
+                <select id="qso-station" class="form-select" [(ngModel)]="qso.stationId" name="station" required aria-required="true">
                   <option [value]="0">Select Station</option>
                   @for (station of stations; track station) {
                     <option [value]="station.id">
@@ -35,8 +35,8 @@
                 </select>
               </div>
               <div class="col-md-6">
-                <label class="form-label">Contest</label>
-                <select class="form-select" [(ngModel)]="qso.contestId" name="contest" (change)="onContestChange()">
+                <label for="qso-contest" class="form-label">Contest</label>
+                <select id="qso-contest" class="form-select" [(ngModel)]="qso.contestId" name="contest" (change)="onContestChange()">
                   <option [value]="undefined">No Contest</option>
                   @for (contest of contests; track contest) {
                     <option [value]="contest.id">
@@ -50,40 +50,41 @@
             <!-- Callsign and Lookup -->
             <div class="row mb-3">
               <div class="col-md-6">
-                <label class="form-label">Callsign *</label>
+                <label for="qso-callsign" class="form-label">Callsign <span aria-label="required">*</span></label>
                 <div class="input-group">
-                  <input type="text" class="form-control form-control-lg"
+                  <input id="qso-callsign" type="text" class="form-control form-control-lg"
                     [(ngModel)]="qso.callsign" name="callsign"
                     (blur)="onCallsignChange()"
-                    style="text-transform: uppercase" required>
+                    style="text-transform: uppercase" required aria-required="true">
                   <button class="btn btn-outline-secondary" type="button"
-                    (click)="onCallsignChange()" [disabled]="lookupInProgress">
+                    (click)="onCallsignChange()" [disabled]="lookupInProgress"
+                    aria-label="Lookup callsign information" [attr.aria-busy]="lookupInProgress">
                     @if (!lookupInProgress) {
-                      <span>🔍 Lookup</span>
+                      <span aria-hidden="true">🔍</span> Lookup
                     }
                     @if (lookupInProgress) {
-                      <span class="spinner-border spinner-border-sm"></span>
+                      <span class="spinner-border spinner-border-sm" role="status" aria-label="Looking up callsign"></span>
                     }
                   </button>
                 </div>
               </div>
               <div class="col-md-6">
-                <label class="form-label">Name</label>
-                <input type="text" class="form-control" [(ngModel)]="qso.name" name="name">
+                <label for="qso-name" class="form-label">Name</label>
+                <input id="qso-name" type="text" class="form-control" [(ngModel)]="qso.name" name="name">
               </div>
             </div>
 
             <!-- Frequency and Mode -->
             <div class="row mb-3">
               <div class="col-md-4">
-                <label class="form-label">Frequency (kHz) *</label>
-                <input type="number" class="form-control"
+                <label for="qso-frequency" class="form-label">Frequency (kHz) <span aria-label="required">*</span></label>
+                <input id="qso-frequency" type="number" class="form-control"
                   [(ngModel)]="qso.frequencyKhz" name="frequency"
-                  (change)="onFrequencyChange()" required>
+                  (change)="onFrequencyChange()" required aria-required="true">
               </div>
               <div class="col-md-4">
-                <label class="form-label">Mode *</label>
-                <select class="form-select" [(ngModel)]="qso.mode" name="mode" required>
+                <label for="qso-mode" class="form-label">Mode <span aria-label="required">*</span></label>
+                <select id="qso-mode" class="form-select" [(ngModel)]="qso.mode" name="mode" required aria-required="true">
                   <option value="SSB">SSB</option>
                   <option value="CW">CW</option>
                   <option value="FM">FM</option>
@@ -95,8 +96,8 @@
                 </select>
               </div>
               <div class="col-md-4">
-                <label class="form-label">Band</label>
-                <input type="text" class="form-control" [(ngModel)]="qso.band" name="band" readonly>
+                <label for="qso-band" class="form-label">Band</label>
+                <input id="qso-band" type="text" class="form-control" [(ngModel)]="qso.band" name="band" readonly aria-readonly="true">
               </div>
             </div>
 
@@ -177,14 +178,14 @@
 
             <!-- Action Buttons -->
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-              <button type="button" class="btn btn-secondary" (click)="resetForm()">Clear</button>
-              <button type="submit" class="btn btn-primary btn-lg" [disabled]="saveInProgress">
+              <button type="button" class="btn btn-secondary" (click)="resetForm()" aria-label="Clear QSO form">Clear</button>
+              <button type="submit" class="btn btn-primary btn-lg" [disabled]="saveInProgress" [attr.aria-busy]="saveInProgress">
                 @if (!saveInProgress) {
-                  <span>💾 Log QSO</span>
+                  <span><span aria-hidden="true">💾</span> Log QSO</span>
                 }
                 @if (saveInProgress) {
                   <span>
-                    <span class="spinner-border spinner-border-sm me-2"></span>Saving...
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-label="Saving QSO"></span>Saving...
                   </span>
                 }
               </button>
