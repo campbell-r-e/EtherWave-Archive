@@ -97,12 +97,16 @@ Complete technical guide for developers working on the Ham Radio Contest Logbook
 - Better performance and garbage collection improvements
 - Modern language features while maintaining backward compatibility
 
-#### Why Angular?
-- TypeScript provides type safety for large frontend applications
-- Standalone components reduce bundle size
-- RxJS enables reactive programming for real-time updates
-- Robust routing and form validation
-- Strong Angular CLI tooling
+#### Why Angular 21?
+- **Latest Framework**: Angular 21.0.1 with cutting-edge features
+- **Standalone Components**: Simpler architecture without NgModules
+- **TypeScript 5.9**: Latest type safety with strict mode enabled
+- **New Control Flow**: Modern `@if`, `@for`, `@switch` syntax (better performance)
+- **Signals**: Fine-grained reactivity for better change detection
+- **RxJS 7.8**: Reactive programming for real-time updates and state management
+- **Enhanced Router**: Improved functional guards and lazy loading
+- **Smaller Bundles**: Better tree-shaking with standalone components
+- **Strong CLI Tooling**: Angular CLI for scaffolding and optimization
 
 #### Why SQLite/PostgreSQL?
 - SQLite: Zero-configuration, perfect for field deployment
@@ -456,6 +460,96 @@ readinessProbe:
 ---
 
 ## Frontend Architecture
+
+### Angular 21 Modern Features
+
+#### Control Flow Syntax (New in Angular 17+)
+
+Angular 21 uses the new control flow syntax for better performance and readability:
+
+**Conditionals** - `@if` instead of `*ngIf`:
+```html
+<!-- Old way (*ngIf) -->
+<div *ngIf="isLoggedIn">Welcome!</div>
+<div *ngIf="error">{{ error }}</div>
+
+<!-- New way (@if) -->
+@if (isLoggedIn) {
+  <div>Welcome!</div>
+}
+@if (error) {
+  <div>{{ error }}</div>
+}
+```
+
+**Loops** - `@for` instead of `*ngFor`:
+```html
+<!-- Old way (*ngFor) -->
+<div *ngFor="let qso of qsos">{{ qso.callsign }}</div>
+
+<!-- New way (@for) -->
+@for (qso of qsos; track qso.id) {
+  <div>{{ qso.callsign }}</div>
+}
+```
+
+**Switch** - `@switch` instead of `*ngSwitch`:
+```html
+<!-- New way (@switch) -->
+@switch (log.type) {
+  @case ('PERSONAL') {
+    <span>Personal Log</span>
+  }
+  @case ('SHARED') {
+    <span>Shared Log</span>
+  }
+  @default {
+    <span>Unknown</span>
+  }
+}
+```
+
+#### Standalone Components
+
+All components use the standalone API (no NgModule needed):
+
+```typescript
+@Component({
+  selector: 'app-login',
+  standalone: true,  // No module required!
+  imports: [ReactiveFormsModule, RouterModule, CommonModule],
+  templateUrl: './login.component.html'
+})
+export class LoginComponent {
+  // Component logic
+}
+```
+
+#### Functional Route Guards
+
+Modern functional guards instead of class-based:
+
+```typescript
+// Old way (class-based)
+export class AuthGuard implements CanActivate {
+  canActivate(): boolean { /* ... */ }
+}
+
+// New way (functional) - used in this project
+export const authGuard: CanActivateFn = (route, state) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  if (authService.isLoggedIn()) {
+    return true;
+  }
+
+  router.navigate(['/login']);
+  return false;
+};
+```
+
+**Note**: This project currently uses class-based guards for compatibility, but can be migrated to functional guards.
 
 ### Project Structure
 

@@ -532,6 +532,86 @@ docker-compose logs backend
 # Look for startup errors
 ```
 
+#### 7. Frontend shows blank page or Angular placeholder
+
+**Problem**: App component template not configured correctly
+
+**Solution**:
+```bash
+# Check app.component.html contains only router-outlet
+cat frontend/logbook-ui/src/app/app.component.html
+# Should contain: <router-outlet></router-outlet>
+
+# If it has default Angular template, replace it:
+echo '<router-outlet></router-outlet>' > frontend/logbook-ui/src/app/app.component.html
+
+# Rebuild frontend
+cd frontend/logbook-ui
+npm run build
+```
+
+#### 8. Frontend routes not working / 404 errors
+
+**Problem**: Nginx not configured to handle Angular routes
+
+**Solution**: Check `frontend/logbook-ui/nginx.conf` has:
+```nginx
+location / {
+    try_files $uri $uri/ /index.html;
+}
+```
+
+#### 9. "Cannot find module '@angular/...'" errors
+
+**Problem**: Node modules not installed or corrupted
+
+**Solution**:
+```bash
+cd frontend/logbook-ui
+rm -rf node_modules package-lock.json .angular
+npm install
+npm run build
+```
+
+#### 10. Frontend build bundle size warnings
+
+**Problem**: Bundle exceeds budget (warning only, not blocking)
+
+**These are warnings only** - the application will still work. To reduce bundle size:
+```bash
+# Enable production optimizations
+npm run build -- --configuration=production
+```
+
+#### 11. "Bootstrap is not defined" or styling missing
+
+**Problem**: Bootstrap CSS not imported
+
+**Solution**:
+```bash
+# Check styles.css has Bootstrap import
+grep -i bootstrap frontend/logbook-ui/src/styles.css
+
+# Should contain:
+# @import "bootstrap/dist/css/bootstrap.min.css";
+
+# If missing, add it:
+echo '@import "bootstrap/dist/css/bootstrap.min.css";' >> frontend/logbook-ui/src/styles.css
+```
+
+#### 12. Angular development server fails to start
+
+**Problem**: Port 4200 already in use
+
+**Solution**:
+```bash
+# Use different port
+ng serve --port 4201
+
+# Or kill process using port 4200
+lsof -ti:4200 | xargs kill -9
+```
+
 ### Getting Help
 
 - Check logs: `docker-compose logs -f`
@@ -539,8 +619,102 @@ docker-compose logs backend
 - Test connectivity: Use `curl` to test endpoints
 - GitHub Issues: https://github.com/campbell-r-e/Hamradiologbook/issues
 
+## Frontend Development
+
+### Running Development Server
+
+```bash
+cd frontend/logbook-ui
+
+# Install dependencies
+npm install
+
+# Start development server (with live reload)
+npm start
+# Or
+ng serve
+
+# Access at http://localhost:4200
+```
+
+### Building for Production
+
+```bash
+# Production build
+npm run build
+
+# Output in dist/logbook-ui/browser
+# Ready to serve with nginx or copy to Docker image
+```
+
+### Frontend Architecture
+
+**Angular 21.0.1 Features Used**:
+- **Standalone Components**: No NgModule needed, cleaner architecture
+- **Control Flow Syntax**: New `@if`, `@for`, `@switch` instead of `*ngIf`, `*ngFor`
+- **TypeScript 5.9**: Latest type safety and features
+- **Signals**: Reactive state management (where applicable)
+
+**Component Structure**:
+```
+src/app/
+├── components/          # All UI components
+│   ├── auth/           # Login, Register
+│   ├── dashboard/      # Main dashboard
+│   ├── log/            # Log selector, invitations
+│   ├── qso-entry/      # QSO entry form
+│   ├── qso-list/       # QSO list display
+│   ├── rig-status/     # Rig control status
+│   └── ...
+├── services/           # Business logic services
+│   ├── auth/           # Authentication service, guards, interceptors
+│   ├── log/            # Log management service
+│   ├── api.service.ts  # HTTP API service
+│   └── websocket.service.ts  # WebSocket communication
+├── models/             # TypeScript interfaces
+├── guards/             # Route guards
+├── app.routes.ts       # Route configuration
+└── app.config.ts       # App configuration
+```
+
+### Common Development Tasks
+
+**Add a new component**:
+```bash
+ng generate component components/my-component --standalone
+```
+
+**Add a new service**:
+```bash
+ng generate service services/my-service
+```
+
+**Run tests**:
+```bash
+npm test
+```
+
+### Environment Configuration
+
+**Development** (`src/environments/environment.ts`):
+```typescript
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:8080/api'  // Points to local backend
+};
+```
+
+**Production** (configured in Docker):
+```typescript
+export const environment = {
+  production: true,
+  apiUrl: '/api'  // Relative URL when behind nginx proxy
+};
+```
+
 ## Next Steps
 
+- **[Rig Control Guide](RIG_CONTROL_GUIDE.md)** - Set up radio control integration
 - **[User Guide](docs/USER_GUIDE.md)** - Learn how to use the system
 - **[Developer Guide](docs/DEVELOPER_GUIDE.md)** - Contribute to development
 - **[API Reference](docs/API_REFERENCE.md)** - Integrate with the API

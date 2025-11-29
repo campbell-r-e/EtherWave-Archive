@@ -4,7 +4,9 @@ A comprehensive, multi-user web-based logbook application for amateur radio oper
 
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.java.net/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![Angular](https://img.shields.io/badge/Angular-17-red.svg)](https://angular.io/)
+[![Angular](https://img.shields.io/badge/Angular-21.0.1-red.svg)](https://angular.io/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
+[![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-purple.svg)](https://getbootstrap.com/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
 ## Table of Contents
@@ -136,15 +138,18 @@ ng serve
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                         Frontend                             │
-│  Angular 17 Standalone Components + Bootstrap 5             │
-│  - Authentication (Login/Register)                           │
+│  Angular 21.0.1 Standalone Components + Bootstrap 5.3       │
+│  - TypeScript 5.9 with strict type checking                 │
+│  - Reactive Forms with validation                           │
+│  - Authentication (Login/Register) with JWT interceptor      │
 │  - Log Management (Selector, Invitations)                    │
-│  - QSO Entry & List                                          │
-│  - Rig Control Status                                        │
-│  - Map Visualization                                         │
+│  - QSO Entry & List with real-time updates                  │
+│  - Rig Control Status (live frequency/mode display)         │
+│  - Map Visualization (Leaflet integration)                   │
 │  - Contest Selection                                         │
 │  - Station/Operator Management                               │
 │  - Export Panel (ADIF/Cabrillo)                              │
+│  - Router with AuthGuard protection                          │
 └─────────────────────────────────────────────────────────────┘
                             ↕ HTTP/WebSocket
 ┌─────────────────────────────────────────────────────────────┐
@@ -182,6 +187,7 @@ ng serve
 Comprehensive documentation is available in the `/docs` folder:
 
 - **[Setup Guide](SETUP.md)** - Detailed installation and configuration
+- **[Rig Control Guide](RIG_CONTROL_GUIDE.md)** - Complete rig control setup and configuration
 - **[User Guide](docs/USER_GUIDE.md)** - How to use the system as an operator
 - **[Developer Guide](docs/DEVELOPER_GUIDE.md)** - Architecture, APIs, and development
 - **[API Reference](docs/API_REFERENCE.md)** - Complete REST API documentation
@@ -203,12 +209,14 @@ Comprehensive documentation is available in the `/docs` folder:
 - **Spring WebSocket** - Real-time communication
 
 ### Frontend
-- **Angular 17** - Frontend framework (standalone components)
-- **TypeScript 5.2** - Type-safe JavaScript
-- **RxJS** - Reactive programming
-- **Bootstrap 5** - UI framework
-- **Bootstrap Icons** - Icon library
-- **Leaflet** - Map visualization
+- **Angular 21.0.1** - Latest Angular framework with standalone components
+- **TypeScript 5.9** - Type-safe JavaScript with strict mode
+- **RxJS 7.8** - Reactive programming and state management
+- **Bootstrap 5.3** - Modern UI framework with responsive design
+- **Leaflet** - Interactive map visualization for QSO plotting
+- **SockJS + STOMP** - WebSocket communication for real-time updates
+- **Angular Router** - Client-side routing with route guards
+- **Reactive Forms** - Form validation and data binding
 
 ### Rig Control
 - **Hamlib 4** - Radio control library
