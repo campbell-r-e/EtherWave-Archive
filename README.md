@@ -5,6 +5,7 @@ A comprehensive, multi-user web-based logbook application for amateur radio oper
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.java.net/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![Angular](https://img.shields.io/badge/Angular-21.0.1-red.svg)](https://angular.io/)
+[![Node.js](https://img.shields.io/badge/Node.js-24-green.svg)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-purple.svg)](https://getbootstrap.com/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -111,7 +112,7 @@ docker-compose -f docker-compose.field.yml up -d
 
 **Prerequisites:**
 - Java 21 or higher
-- Node.js 18 or higher
+- Node.js 24 or higher
 - Maven 3.9+
 - Docker (optional, for rig control)
 
