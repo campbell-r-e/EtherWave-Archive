@@ -15,6 +15,7 @@ A comprehensive, multi-user web-based logbook application for amateur radio oper
 - [Overview](#overview)
 - [Key Features](#key-features)
 - [Quick Start](#quick-start)
+- [Complete Setup Guide](#complete-setup-guide)
 - [System Architecture](#system-architecture)
 - [Documentation](#documentation)
 - [Technology Stack](#technology-stack)
@@ -80,59 +81,88 @@ This system provides amateur radio operators with a modern, feature-rich logging
 
 ## Quick Start
 
-### Using Docker (Recommended)
+**🚀 New to the system? See [QUICKSTART.md](QUICKSTART.md) for a complete beginner's guide!**
 
-**Production Deployment with PostgreSQL:**
+### Using Docker (Recommended - 2 Minutes)
+
+**1. Install Prerequisites:**
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) (Windows/Mac/Linux)
+
+**2. Clone and Start:**
 ```bash
 git clone https://github.com/campbell-r-e/Hamradiologbook.git
 cd Hamradiologbook
-
-# Start all services
 docker-compose up -d
-
-# Check status
-docker-compose ps
-
-# View logs
-docker-compose logs -f backend
 ```
 
-**Field Deployment with SQLite:**
+**3. Wait for services (~1-2 minutes):**
 ```bash
-# For portable/offline operations
+docker-compose ps
+# All services should show "Up" or "Up (healthy)"
+```
+
+**4. Open Browser:**
+- **Frontend**: http://localhost
+- **Backend API**: http://localhost:8080/api
+- **Health Check**: http://localhost:8080/actuator/health
+
+**5. Create Account & Start Logging!**
+- Click "Register here"
+- Create your account
+- Create a logbook
+- Start logging QSOs
+
+### Field Deployment (Portable/Offline)
+
+**For Field Day, portable operations, or offline use:**
+```bash
 docker-compose -f docker-compose.field.yml up -d
 ```
 
-**Access Points:**
-- Frontend: http://localhost
-- Backend API: http://localhost:8080/api
-- Health Check: http://localhost:8080/actuator/health
+**Advantages:**
+- ✅ No PostgreSQL dependency
+- ✅ Single SQLite database file (easy backup)
+- ✅ Perfect for offline operations
+- ✅ Smaller resource footprint
 
 ### Local Development
 
 **Prerequisites:**
-- Java 21 or higher
-- Node.js 24 or higher
-- Maven 3.9+
-- Docker (optional, for rig control)
+- ☕ Java 21 or higher ([Download](https://adoptium.net/))
+- 🟢 Node.js 24 or higher ([Download](https://nodejs.org/))
+- 📦 Maven 3.9+ ([Download](https://maven.apache.org/))
+- 🐳 Docker (optional, for rig control)
 
 **Backend Setup:**
 ```bash
 cd backend
-mvn clean install
-mvn spring-boot:run
+mvn clean install    # Build (first time or after changes)
+mvn spring-boot:run  # Start backend
 ```
+Backend runs at: **http://localhost:8080**
 
-**Frontend Setup:**
+**Frontend Setup:** (in new terminal)
 ```bash
 cd frontend/logbook-ui
-npm install
-ng serve
+npm install          # Install dependencies (first time)
+npm start            # Start dev server
 ```
+Frontend runs at: **http://localhost:4200**
 
-**Access:**
-- Frontend: http://localhost:4200
-- Backend: http://localhost:8080
+**Verify Setup:**
+- ✅ Backend health: http://localhost:8080/actuator/health
+- ✅ Frontend: http://localhost:4200
+- ✅ Create account and start logging
+
+## Complete Setup Guide
+
+For detailed installation and configuration instructions, see:
+
+- **[QUICKSTART.md](QUICKSTART.md)** - 5-minute quick start for beginners
+- **[SETUP.md](SETUP.md)** - Comprehensive setup and configuration guide
+- **[RIG_CONTROL_GUIDE.md](RIG_CONTROL_GUIDE.md)** - Complete rig control setup
+- **[docs/USER_GUIDE.md](docs/USER_GUIDE.md)** - How to use the system
+- **[docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md)** - Development guide
 
 ## System Architecture
 
@@ -185,15 +215,23 @@ ng serve
 
 ## Documentation
 
-Comprehensive documentation is available in the `/docs` folder:
+Comprehensive documentation is available:
 
-- **[Setup Guide](SETUP.md)** - Detailed installation and configuration
-- **[Rig Control Guide](RIG_CONTROL_GUIDE.md)** - Complete rig control setup and configuration
+### Getting Started
+- **[QUICKSTART.md](QUICKSTART.md)** - 5-minute quick start guide (START HERE!)
+- **[SETUP.md](SETUP.md)** - Detailed installation and configuration
+- **[RIG_CONTROL_GUIDE.md](RIG_CONTROL_GUIDE.md)** - Complete rig control setup
+
+### Using the System
 - **[User Guide](docs/USER_GUIDE.md)** - How to use the system as an operator
-- **[Developer Guide](docs/DEVELOPER_GUIDE.md)** - Architecture, APIs, and development
 - **[API Reference](docs/API_REFERENCE.md)** - Complete REST API documentation
+
+### For Developers
+- **[Developer Guide](docs/DEVELOPER_GUIDE.md)** - Architecture, APIs, and development
 - **[Database Schema](docs/DATABASE_SCHEMA.md)** - Entity relationship diagrams
-- **[Docker Deployment](DOCKER_DEPLOYMENT.md)** - Production deployment with Docker
+
+### Deployment
+- **[DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md)** - Production deployment with Docker
 
 ## Technology Stack
 

@@ -23,9 +23,10 @@ Complete setup instructions for developers and system administrators.
 - **Java Development Kit (JDK) 21** - Latest LTS version
   - Download: https://adoptium.net/
   - Verify: `java -version` should show version 21
-- **Node.js 18+** and npm 9+
+- **Node.js 24 or higher** and npm 11+
   - Download: https://nodejs.org/
-  - Verify: `node --version` and `npm --version`
+  - Verify: `node --version` (should show v24.x.x) and `npm --version`
+  - **Important**: Node.js 24 is required for Angular 21 and TypeScript 5.9
 - **Maven 3.9+**
   - Download: https://maven.apache.org/
   - Verify: `mvn --version`
