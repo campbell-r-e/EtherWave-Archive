@@ -32,4 +32,21 @@ yarn-error.log*
 # === VS Code ===
 .vscode/
 
+# === Environment Variables ===
+.env
+.env.local
+.env.*.local
+backend/.env
+backend/.env.local
+*.env
+
+# === Database Files ===
+*.db
+*.sqlite
+*.sqlite3
+logbook.db
+
+# === Docker ===
+docker-compose.override.yml
+
 

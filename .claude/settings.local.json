@@ -25,7 +25,10 @@
       "Bash(ng build:*)",
       "Bash(python3:*)",
       "Bash(lsof:*)",
-      "Bash(xargs kill -9)"
+      "Bash(xargs kill -9)",
+      "Bash(chmod:*)",
+      "Bash(./setup.sh)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmcmVzaHVzZXIiLCJpYXQiOjE3NjQ0NTE5MzgsImV4cCI6MTc2NDUzODMzOH0.jVUu5J5V0bYLBnsRXrBGKI0IQ4YrRK6Ox1i8lCopnODXJ8EXtA0XMJkPMOmcyS0iEff7qf2eIJRANkSZQ3_25g\")"
     ],
     "deny": [],
     "ask": []

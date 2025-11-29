@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { AuthResponse, LoginRequest, RegisterRequest, User, UserRole } from '../../models/auth/user.model';
+import { environment } from '../../../environments/environment';
 
 const TOKEN_KEY = 'auth-token';
 const USER_KEY = 'auth-user';
@@ -10,7 +11,8 @@ const USER_KEY = 'auth-user';
   providedIn: 'root'
 })
 export class AuthService {
-  private baseUrl = '/api/auth';
+  // Use environment-based API URL
+  private baseUrl = environment.production ? '/api/auth' : `${environment.apiUrl}/auth`;
   private currentUserSubject: BehaviorSubject<User | null>;
   public currentUser: Observable<User | null>;
 
