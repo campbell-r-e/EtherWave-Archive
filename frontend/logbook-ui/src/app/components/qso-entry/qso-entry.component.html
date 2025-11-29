@@ -97,7 +97,12 @@
               </div>
               <div class="col-md-4">
                 <label for="qso-band" class="form-label">Band</label>
-                <input id="qso-band" type="text" class="form-control" [(ngModel)]="qso.band" name="band" readonly aria-readonly="true">
+                <select id="qso-band" class="form-select" [(ngModel)]="qso.band" name="band">
+                  <option value="">-- Auto from Freq --</option>
+                  @for (band of availableBands; track band) {
+                    <option [value]="band">{{ band }}</option>
+                  }
+                </select>
               </div>
             </div>
 

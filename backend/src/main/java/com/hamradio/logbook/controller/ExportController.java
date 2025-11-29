@@ -65,9 +65,34 @@ public class ExportController {
     }
 
     /**
-     * Export contest log as Cabrillo
-     * GET /api/export/cabrillo/{contestId}?callsign=W1AW&operators=W1AW&category=SINGLE-OP
+     * Export log as Cabrillo (supports both contest and personal logs)
+     * GET /api/export/cabrillo/log/{logId}?callsign=W1AW&operators=W1AW&category=SINGLE-OP
      */
+    @GetMapping("/cabrillo/log/{logId}")
+    public ResponseEntity<byte[]> exportLogAsCabrillo(
+            @PathVariable Long logId,
+            @RequestParam String callsign,
+            @RequestParam(required = false) String operators,
+            @RequestParam(required = false) String category) {
+
+        byte[] cabrilloData = cabrilloExportService.exportLog(logId, callsign, operators, category);
+
+        String filename = String.format("log_%d_%s.log",
+                logId,
+                LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.TEXT_PLAIN)
+                .body(cabrilloData);
+    }
+
+    /**
+     * Export contest log as Cabrillo (legacy - use /cabrillo/log/{logId} instead)
+     * GET /api/export/cabrillo/{contestId}?callsign=W1AW&operators=W1AW&category=SINGLE-OP
+     * @deprecated Use exportLogAsCabrillo instead
+     */
+    @Deprecated
     @GetMapping("/cabrillo/{contestId}")
     public ResponseEntity<byte[]> exportCabrillo(
             @PathVariable Long contestId,

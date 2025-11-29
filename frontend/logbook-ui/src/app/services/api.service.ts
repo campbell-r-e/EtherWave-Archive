@@ -13,15 +13,18 @@ export class ApiService {
   constructor(private http: HttpClient) {}
 
   // QSO endpoints
-  getQSOs(page: number = 0, size: number = 20): Observable<any> {
+  getQSOs(logId: number, page: number = 0, size: number = 20): Observable<any> {
     const params = new HttpParams()
+      .set('logId', logId.toString())
       .set('page', page.toString())
       .set('size', size.toString());
     return this.http.get<any>(`${this.baseUrl}/qsos`, { params });
   }
 
-  getRecentQSOs(limit: number = 10): Observable<QSO[]> {
-    const params = new HttpParams().set('limit', limit.toString());
+  getRecentQSOs(logId: number, limit: number = 10): Observable<QSO[]> {
+    const params = new HttpParams()
+      .set('logId', logId.toString())
+      .set('limit', limit.toString());
     return this.http.get<QSO[]>(`${this.baseUrl}/qsos/recent`, { params });
   }
 
@@ -29,8 +32,9 @@ export class ApiService {
     return this.http.get<QSO>(`${this.baseUrl}/qsos/${id}`);
   }
 
-  createQSO(qso: QSORequest): Observable<QSO> {
-    return this.http.post<QSO>(`${this.baseUrl}/qsos`, qso);
+  createQSO(qso: QSORequest, logId: number): Observable<QSO> {
+    const params = new HttpParams().set('logId', logId.toString());
+    return this.http.post<QSO>(`${this.baseUrl}/qsos`, qso, { params });
   }
 
   updateQSO(id: number, qso: QSORequest): Observable<QSO> {
@@ -41,8 +45,9 @@ export class ApiService {
     return this.http.delete<void>(`${this.baseUrl}/qsos/${id}`);
   }
 
-  getContactedStates(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.baseUrl}/qsos/states`);
+  getContactedStates(logId: number): Observable<string[]> {
+    const params = new HttpParams().set('logId', logId.toString());
+    return this.http.get<string[]>(`${this.baseUrl}/qsos/states`, { params });
   }
 
   getStateStatistics(): Observable<{state: string, count: number}[]> {
@@ -119,6 +124,20 @@ export class ApiService {
     window.open(`${this.baseUrl}/export/adif`, '_blank');
   }
 
+  /**
+   * Export Cabrillo by log ID (supports both contest and personal logs)
+   */
+  exportCabrilloByLog(logId: number, callsign: string, operators?: string, category?: string): void {
+    let url = `${this.baseUrl}/export/cabrillo/log/${logId}?callsign=${callsign}`;
+    if (operators) url += `&operators=${operators}`;
+    if (category) url += `&category=${category}`;
+    window.open(url, '_blank');
+  }
+
+  /**
+   * Export Cabrillo by contest ID (legacy method)
+   * @deprecated Use exportCabrilloByLog instead
+   */
   exportCabrillo(contestId: number, callsign: string, operators?: string, category?: string): void {
     let url = `${this.baseUrl}/export/cabrillo/${contestId}?callsign=${callsign}`;
     if (operators) url += `&operators=${operators}`;

@@ -28,7 +28,10 @@
       "Bash(xargs kill -9)",
       "Bash(chmod:*)",
       "Bash(./setup.sh)",
-      "Bash(TOKEN=\"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmcmVzaHVzZXIiLCJpYXQiOjE3NjQ0NTE5MzgsImV4cCI6MTc2NDUzODMzOH0.jVUu5J5V0bYLBnsRXrBGKI0IQ4YrRK6Ox1i8lCopnODXJ8EXtA0XMJkPMOmcyS0iEff7qf2eIJRANkSZQ3_25g\")"
+      "Bash(TOKEN=\"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmcmVzaHVzZXIiLCJpYXQiOjE3NjQ0NTE5MzgsImV4cCI6MTc2NDUzODMzOH0.jVUu5J5V0bYLBnsRXrBGKI0IQ4YrRK6Ox1i8lCopnODXJ8EXtA0XMJkPMOmcyS0iEff7qf2eIJRANkSZQ3_25g\")",
+      "Bash(find:*)",
+      "Bash(./mvnw clean:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc2NDQ1ODQ4MSwiZXhwIjoxNzY0NTQ0ODgxfQ.TDaXSTD1_GKvH9Z21BwwpiyB-VP7R8iT33hLX-SLMrOIv2XI_Oei2aNTDT-5CdOnul0GQFD-TCoyoCjmvDin7w\":*)"
     ],
     "deny": [],
     "ask": []

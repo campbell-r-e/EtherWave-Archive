@@ -68,8 +68,15 @@ export interface QSORequest {
   county?: string;
   state?: string;
   country?: string;
+  dxcc?: number;
+  cqZone?: number;
+  ituZone?: number;
   name?: string;
   licenseClass?: string;
   contestData?: string;
+  qslSent?: string;
+  qslRcvd?: string;
+  lotwSent?: string;
+  lotwRcvd?: string;
   notes?: string;
 }

@@ -2,8 +2,10 @@ import { Component, OnInit } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
+import { LogService } from '../../services/log/log.service';
 import { QSORequest, QSO } from '../../models/qso.model';
 import { Station, Contest } from '../../models/station.model';
+import { getAllBandNames, frequencyToBand } from '../../models/band.constants';
 
 @Component({
   selector: 'app-qso-entry',
@@ -17,6 +19,7 @@ export class QsoEntryComponent implements OnInit {
   qso: QSORequest = this.getEmptyQSO();
   stations: Station[] = [];
   contests: Contest[] = [];
+  availableBands: string[] = getAllBandNames();
 
   lookupInProgress = false;
   saveInProgress = false;
@@ -27,7 +30,10 @@ export class QsoEntryComponent implements OnInit {
   // Contest-specific fields
   contestDataFields: any = {};
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private logService: LogService
+  ) {}
 
   ngOnInit(): void {
     this.loadStations();
@@ -98,16 +104,11 @@ export class QsoEntryComponent implements OnInit {
   }
 
   onFrequencyChange(): void {
-    // Auto-calculate band from frequency
-    const freq = this.qso.frequencyKhz;
-    if (freq >= 1800 && freq <= 2000) this.qso.band = '160m';
-    else if (freq >= 3500 && freq <= 4000) this.qso.band = '80m';
-    else if (freq >= 7000 && freq <= 7300) this.qso.band = '40m';
-    else if (freq >= 14000 && freq <= 14350) this.qso.band = '20m';
-    else if (freq >= 21000 && freq <= 21450) this.qso.band = '15m';
-    else if (freq >= 28000 && freq <= 29700) this.qso.band = '10m';
-    else if (freq >= 50000 && freq <= 54000) this.qso.band = '6m';
-    else if (freq >= 144000 && freq <= 148000) this.qso.band = '2m';
+    // Auto-calculate band from frequency using comprehensive band list
+    const band = frequencyToBand(this.qso.frequencyKhz);
+    if (band) {
+      this.qso.band = band;
+    }
   }
 
   onContestChange(): void {
@@ -129,6 +130,13 @@ export class QsoEntryComponent implements OnInit {
       return;
     }
 
+    // Get current log
+    const currentLog = this.logService.getCurrentLog();
+    if (!currentLog) {
+      this.errorMessage = 'Please select a log first';
+      return;
+    }
+
     // Build contest data JSON if applicable
     if (this.qso.contestId && Object.keys(this.contestDataFields).length > 0) {
       this.qso.contestData = JSON.stringify(this.contestDataFields);
@@ -138,7 +146,7 @@ export class QsoEntryComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    this.apiService.createQSO(this.qso).subscribe({
+    this.apiService.createQSO(this.qso, currentLog.id).subscribe({
       next: (savedQSO) => {
         this.lastSavedQSO = savedQSO;
         this.successMessage = `QSO with ${savedQSO.callsign} saved successfully!`;

@@ -38,12 +38,16 @@
           <div>
             <h6 class="export-title">Cabrillo Export</h6>
             <p class="export-description">
-              Standard contest log submission format. Select a contest and provide required information.
+              Standard log format for contest submission or general logging.
+              @if (currentLog) {
+                <br><strong>Current Log:</strong> {{ getLogTypeName() }}
+              }
             </p>
           </div>
           @if (!showCabrilloOptions) {
             <button class="btn btn-success"
               (click)="showCabrilloForm()"
+              [disabled]="!currentLog"
               >
               📋 Export Cabrillo
             </button>
@@ -54,22 +58,14 @@
         @if (showCabrilloOptions) {
           <div class="cabrillo-form mt-3">
             <div class="alert alert-info">
-              <strong>Contest Log Submission</strong><br>
-              Please fill in the required information for your contest log submission.
+              <strong>Log Export</strong><br>
+              @if (isContestLog()) {
+                Exporting contest log: {{ currentLog?.contestName }}
+              } @else {
+                Exporting personal log
+              }
             </div>
             <div class="row g-3">
-              <!-- Contest Selection -->
-              <div class="col-12">
-                <label class="form-label">Select Contest <span class="text-danger">*</span></label>
-                <select class="form-select" [(ngModel)]="selectedContest">
-                  <option [ngValue]="null">-- Choose a Contest --</option>
-                  @for (contest of contests; track contest) {
-                    <option [ngValue]="contest.id">
-                      {{ contest.contestName }} ({{ contest.contestCode }})
-                    </option>
-                  }
-                </select>
-              </div>
               <!-- Callsign -->
               <div class="col-md-6">
                 <label class="form-label">Station Callsign <span class="text-danger">*</span></label>
@@ -87,13 +83,18 @@
                   [(ngModel)]="cabrilloOptions.operators"
                   placeholder="e.g., W1ABC, N2XYZ">
               </div>
-              <!-- Category -->
+              <!-- Category (optional for personal logs) -->
               <div class="col-12">
-                <label class="form-label">Category</label>
+                <label class="form-label">
+                  Category
+                  @if (!isContestLog()) {
+                    <span class="text-muted">(optional for personal logs)</span>
+                  }
+                </label>
                 <input type="text"
                   class="form-control"
                   [(ngModel)]="cabrilloOptions.category"
-                  placeholder="e.g., SINGLE-OP-ASSISTED">
+                  placeholder="e.g., SINGLE-OP-ASSISTED or CHECKLOG">
               </div>
               <!-- Action Buttons -->
               <div class="col-12">
@@ -111,18 +112,20 @@
         <!-- Cabrillo Features -->
         @if (!showCabrilloOptions) {
           <div class="export-features">
-            <div class="feature-item">✓ Contest-specific format</div>
-            <div class="feature-item">✓ Official submission ready</div>
-            <div class="feature-item">✓ Validated QSO data</div>
-            <div class="feature-item">✓ Header information</div>
+            <div class="feature-item">✓ Works with contest & personal logs</div>
+            <div class="feature-item">✓ Standard Cabrillo v3.0 format</div>
+            <div class="feature-item">✓ No contest data required for personal logs</div>
+            <div class="feature-item">✓ Ready for submission or backup</div>
           </div>
         }
       </div>
 
       <!-- Export Notes -->
       <div class="alert alert-warning mt-4">
-        <strong>Note:</strong> Exports include all QSOs in the database. For contest-specific exports,
-        use the Cabrillo format and select the appropriate contest.
+        <strong>Note:</strong> Exports include all QSOs from the currently selected log.
+        @if (!currentLog) {
+          <br><span class="text-danger">Please select a log to enable export.</span>
+        }
       </div>
     </div>
   </div>

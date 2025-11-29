@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { ApiService } from '../../services/api.service';
+import { LogService } from '../../services/log/log.service';
 import { WebSocketService } from '../../services/websocket.service';
 import { QSO } from '../../models/qso.model';
 import { Subscription } from 'rxjs';
@@ -18,6 +19,7 @@ export class QsoListComponent implements OnInit, OnDestroy {
 
   constructor(
     private apiService: ApiService,
+    private logService: LogService,
     private wsService: WebSocketService
   ) {}
 
@@ -33,8 +35,15 @@ export class QsoListComponent implements OnInit, OnDestroy {
   }
 
   loadRecentQSOs(): void {
+    const currentLog = this.logService.getCurrentLog();
+    if (!currentLog) {
+      console.warn('No log selected');
+      this.loading = false;
+      return;
+    }
+
     this.loading = true;
-    this.apiService.getRecentQSOs(50).subscribe({
+    this.apiService.getRecentQSOs(currentLog.id, 50).subscribe({
       next: (qsos) => {
         this.qsos = qsos;
         this.loading = false;

@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
+import { LogService } from '../../services/log/log.service';
 import { Contest } from '../../models/station.model';
+import { Log } from '../../models/log.model';
 
 @Component({
   selector: 'app-export-panel',
@@ -14,6 +16,7 @@ import { Contest } from '../../models/station.model';
 export class ExportPanelComponent implements OnInit {
   contests: Contest[] = [];
   selectedContest: number | null = null;
+  currentLog: Log | null = null;
   cabrilloOptions = {
     callsign: '',
     operators: '',
@@ -21,10 +24,14 @@ export class ExportPanelComponent implements OnInit {
   };
   showCabrilloOptions = false;
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private logService: LogService
+  ) {}
 
   ngOnInit(): void {
     this.loadContests();
+    this.loadCurrentLog();
   }
 
   loadContests(): void {
@@ -33,6 +40,14 @@ export class ExportPanelComponent implements OnInit {
         this.contests = contests;
       },
       error: (err) => console.error('Error loading contests:', err)
+    });
+  }
+
+  loadCurrentLog(): void {
+    this.logService.currentLog$.subscribe({
+      next: (log) => {
+        this.currentLog = log;
+      }
     });
   }
 
@@ -50,13 +65,19 @@ export class ExportPanelComponent implements OnInit {
   }
 
   exportCabrillo(): void {
-    if (!this.selectedContest || !this.cabrilloOptions.callsign) {
-      alert('Please select a contest and provide a callsign for Cabrillo export');
+    if (!this.currentLog) {
+      alert('Please select a log first');
       return;
     }
 
-    this.apiService.exportCabrillo(
-      this.selectedContest,
+    if (!this.cabrilloOptions.callsign) {
+      alert('Please provide a callsign for Cabrillo export');
+      return;
+    }
+
+    // Use new log-based export method (works for both contest and personal logs)
+    this.apiService.exportCabrilloByLog(
+      this.currentLog.id,
       this.cabrilloOptions.callsign,
       this.cabrilloOptions.operators || undefined,
       this.cabrilloOptions.category || undefined
@@ -78,5 +99,16 @@ export class ExportPanelComponent implements OnInit {
   getContestName(contestId: number): string {
     const contest = this.contests.find(c => c.id === contestId);
     return contest ? contest.contestName : 'Unknown Contest';
+  }
+
+  isContestLog(): boolean {
+    return this.currentLog?.contestId != null;
+  }
+
+  getLogTypeName(): string {
+    if (!this.currentLog) return 'No log selected';
+    return this.isContestLog()
+      ? `Contest Log: ${this.currentLog.contestName}`
+      : 'Personal Log';
   }
 }

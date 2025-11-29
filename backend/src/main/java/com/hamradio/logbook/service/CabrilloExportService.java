@@ -3,10 +3,13 @@ package com.hamradio.logbook.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hamradio.logbook.entity.Contest;
+import com.hamradio.logbook.entity.Log;
 import com.hamradio.logbook.entity.QSO;
+import com.hamradio.logbook.repository.LogRepository;
 import com.hamradio.logbook.repository.QSORepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -16,8 +19,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
- * Service for exporting contest logs in Cabrillo format
- * Cabrillo is the standard format for contest log submissions
+ * Service for exporting logs in Cabrillo format
+ * Supports both contest and personal/non-contest log exports
  */
 @Service
 @RequiredArgsConstructor
@@ -25,14 +28,52 @@ import java.util.List;
 public class CabrilloExportService {
 
     private final QSORepository qsoRepository;
+    private final LogRepository logRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HHmm");
 
     /**
-     * Export QSOs for a contest in Cabrillo format
+     * Export QSOs for a log in Cabrillo format
+     * Handles both contest and personal logs appropriately
      */
+    public byte[] exportLog(Long logId, String callsign, String operators, String category) {
+        Log qsoLog = logRepository.findById(logId)
+                .orElseThrow(() -> new IllegalArgumentException("Log not found: " + logId));
+
+        List<QSO> qsos = qsoRepository.findByLogIdAndDateRange(
+                logId,
+                null,
+                null
+        );
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintWriter writer = new PrintWriter(baos, false, StandardCharsets.UTF_8);
+
+        // Write Cabrillo header
+        Contest contest = qsoLog.getContest();
+        writeHeader(writer, contest, callsign, operators, category, qsos.size());
+
+        // Write QSO records
+        for (QSO qso : qsos) {
+            writeQSO(writer, qso, contest);
+        }
+
+        // Write footer
+        writer.println("END-OF-LOG:");
+        writer.flush();
+
+        String logType = contest != null ? "contest " + contest.getContestCode() : "personal log";
+        log.info("Exported {} QSOs to Cabrillo format for {}", qsos.size(), logType);
+        return baos.toByteArray();
+    }
+
+    /**
+     * Export QSOs for a contest in Cabrillo format
+     * @deprecated Use exportLog() instead for better flexibility
+     */
+    @Deprecated
     public byte[] exportContestLog(Contest contest, String callsign, String operators, String category) {
         List<QSO> qsos = qsoRepository.findByContest(contest, null).getContent();
 
@@ -57,12 +98,19 @@ public class CabrilloExportService {
 
     /**
      * Write Cabrillo header
+     * Handles both contest and non-contest logs
      */
     private void writeHeader(PrintWriter writer, Contest contest, String callsign,
                              String operators, String category, int qsoCount) {
         writer.println("START-OF-LOG: 3.0");
         writer.println("CREATED-BY: Ham Radio Logbook System v1.0");
-        writer.println("CONTEST: " + contest.getContestName());
+
+        // Contest name or generic label for personal logs
+        if (contest != null) {
+            writer.println("CONTEST: " + contest.getContestName());
+        } else {
+            writer.println("CONTEST: PERSONAL-LOG");
+        }
 
         if (callsign != null) {
             writer.println("CALLSIGN: " + callsign);
@@ -70,14 +118,15 @@ public class CabrilloExportService {
 
         if (category != null) {
             writer.println("CATEGORY: " + category);
+        } else if (contest == null) {
+            writer.println("CATEGORY: CHECKLOG");
         }
 
         if (operators != null) {
             writer.println("OPERATORS: " + operators);
         }
 
-        writer.println("CLAIMED-SCORE: 0"); // Calculate actual score based on contest rules
-        writer.println("QSO: " + qsoCount);
+        writer.println("CLAIMED-SCORE: 0");
         writer.println();
     }
 
@@ -179,10 +228,24 @@ public class CabrilloExportService {
 
     /**
      * Extract exchange information from contest data
+     * For non-contest logs, uses RST or generic exchange
      */
     private String extractExchange(QSO qso, Contest contest, boolean sent) {
         try {
-            if (qso.getContestData() == null) return "";
+            // For non-contest logs, use RST or signal report
+            if (contest == null) {
+                String rst = sent ? qso.getRstSent() : qso.getRstRcvd();
+                return rst != null ? rst : "59";
+            }
+
+            if (qso.getContestData() == null || qso.getContestData().isEmpty()) {
+                // No contest data - use state or RST as fallback
+                if (qso.getState() != null && !qso.getState().isEmpty()) {
+                    return qso.getState();
+                }
+                String rst = sent ? qso.getRstSent() : qso.getRstRcvd();
+                return rst != null ? rst : "59";
+            }
 
             JsonNode contestData = objectMapper.readTree(qso.getContestData());
 
