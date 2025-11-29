@@ -1,7 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 
-/* Import Bootstrap */
-@import "bootstrap/dist/css/bootstrap.min.css";
+/* Bootstrap is imported via angular.json */
 
 /* Global app styles */
 body {
