@@ -1,0 +1,396 @@
+package com.hamradio.logbook.controller;
+
+import com.hamradio.logbook.entity.Log;
+import com.hamradio.logbook.entity.User;
+import com.hamradio.logbook.service.AdifExportService;
+import com.hamradio.logbook.service.CabrilloExportService;
+import com.hamradio.logbook.service.LogService;
+import com.hamradio.logbook.testutil.JwtTestUtil;
+import com.hamradio.logbook.testutil.TestDataBuilder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Optional;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@DisplayName("Export Controller Tests")
+class ExportControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
+    private AdifExportService adifExportService;
+
+    @MockitoBean
+    private CabrilloExportService cabrilloExportService;
+
+    @MockitoBean
+    private LogService logService;
+
+    private User testUser;
+    private Log testLog;
+    private String jwtToken;
+    private byte[] sampleAdifData;
+    private byte[] sampleCabrilloData;
+
+    @BeforeEach
+    void setUp() {
+        testUser = TestDataBuilder.aValidUser().id(1L).build();
+        testLog = TestDataBuilder.aValidLog(testUser).id(1L).build();
+        jwtToken = JwtTestUtil.generateToken("testuser");
+
+        sampleAdifData = """
+                ADIF Export
+                <ADIF_VER:5>3.1.4
+                <EOH>
+                <CALL:4>W1AW <FREQ:8>14.25000 <MODE:3>SSB <EOR>
+                """.getBytes();
+
+        sampleCabrilloData = """
+                START-OF-LOG: 3.0
+                CONTEST: ARRL-FIELD-DAY
+                CALLSIGN: W1ABC
+                END-OF-LOG
+                """.getBytes();
+    }
+
+    // ==================== ADIF EXPORT TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/export/adif/log/{logId} - Valid Log - Returns ADIF File")
+    void exportAdifByLog_validLog_returnsAdifFile() throws Exception {
+        // Arrange
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(adifExportService.exportQSOsByLog(1L)).thenReturn(sampleAdifData);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/export/adif/log/1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "application/octet-stream"))
+                .andExpect(header().string("Content-Disposition", containsString("attachment")))
+                .andExpect(header().string("Content-Disposition", containsString(".adi")))
+                .andExpect(content().bytes(sampleAdifData));
+
+        verify(adifExportService).exportQSOsByLog(1L);
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/export/adif/log/{logId} - Log Not Found - Returns 404 Not Found")
+    void exportAdifByLog_logNotFound_returns404() throws Exception {
+        // Arrange
+        when(logService.getLogById(999L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        mockMvc.perform(get("/api/export/adif/log/999")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isNotFound());
+
+        verify(adifExportService, never()).exportQSOsByLog(any());
+    }
+
+    @Test
+    @DisplayName("GET /api/export/adif/log/{logId} - Not Authenticated - Returns 401 Unauthorized")
+    void exportAdifByLog_notAuthenticated_returns401() throws Exception {
+        // Act & Assert
+        mockMvc.perform(get("/api/export/adif/log/1"))
+                .andExpect(status().isUnauthorized());
+
+        verify(adifExportService, never()).exportQSOsByLog(any());
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/export/adif/log/{logId} - Empty Log - Returns Empty ADIF File")
+    void exportAdifByLog_emptyLog_returnsEmptyAdifFile() throws Exception {
+        // Arrange
+        byte[] emptyAdifData = "<ADIF_VER:5>3.1.4\n<EOH>\n".getBytes();
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(adifExportService.exportQSOsByLog(1L)).thenReturn(emptyAdifData);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/export/adif/log/1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(content().bytes(emptyAdifData));
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/export/adif/log/{logId} - Filename Includes Log Name")
+    void exportAdifByLog_filenameIncludesLogName() throws Exception {
+        // Arrange
+        Log namedLog = TestDataBuilder.aValidLog(testUser)
+                .id(1L)
+                .logName("Field Day 2025")
+                .build();
+
+        when(logService.getLogById(1L)).thenReturn(Optional.of(namedLog));
+        when(adifExportService.exportQSOsByLog(1L)).thenReturn(sampleAdifData);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/export/adif/log/1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Disposition",
+                        containsString("Field_Day_2025")));
+    }
+
+    // ==================== CABRILLO EXPORT TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/export/cabrillo/log/{logId} - Valid Log - Returns Cabrillo File")
+    void exportCabrilloByLog_validLog_returnsCabrilloFile() throws Exception {
+        // Arrange
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(cabrilloExportService.exportCabrillo(eq(1L), eq("ARRL-FD"), eq("2A"), eq("ORG"), eq("W1ABC")))
+                .thenReturn(sampleCabrilloData);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/export/cabrillo/log/1")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("contestCode", "ARRL-FD")
+                        .param("stationClass", "2A")
+                        .param("section", "ORG")
+                        .param("callsign", "W1ABC"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "text/plain"))
+                .andExpect(header().string("Content-Disposition", containsString("attachment")))
+                .andExpect(header().string("Content-Disposition", containsString(".cbr")))
+                .andExpect(content().bytes(sampleCabrilloData));
+
+        verify(cabrilloExportService).exportCabrillo(1L, "ARRL-FD", "2A", "ORG", "W1ABC");
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/export/cabrillo/log/{logId} - Missing Required Parameters - Returns 400 Bad Request")
+    void exportCabrilloByLog_missingParameters_returns400() throws Exception {
+        // Arrange
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+
+        // Act & Assert - Missing contestCode, stationClass, section, callsign
+        mockMvc.perform(get("/api/export/cabrillo/log/1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isBadRequest());
+
+        verify(cabrilloExportService, never()).exportCabrillo(any(), any(), any(), any(), any());
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/export/cabrillo/log/{logId} - Invalid Contest Code - Returns 400 Bad Request")
+    void exportCabrilloByLog_invalidContestCode_returns400() throws Exception {
+        // Arrange
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(cabrilloExportService.exportCabrillo(eq(1L), eq("INVALID"), eq("2A"), eq("ORG"), eq("W1ABC")))
+                .thenThrow(new IllegalArgumentException("Invalid contest code"));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/export/cabrillo/log/1")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("contestCode", "INVALID")
+                        .param("stationClass", "2A")
+                        .param("section", "ORG")
+                        .param("callsign", "W1ABC"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/export/cabrillo/log/{logId} - Different Contests - Exports Correctly")
+    void exportCabrilloByLog_differentContests_exportsCorrectly() throws Exception {
+        // Arrange
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+
+        // Test ARRL Field Day
+        when(cabrilloExportService.exportCabrillo(eq(1L), eq("ARRL-FD"), eq("2A"), eq("ORG"), eq("W1ABC")))
+                .thenReturn(sampleCabrilloData);
+
+        mockMvc.perform(get("/api/export/cabrillo/log/1")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("contestCode", "ARRL-FD")
+                        .param("stationClass", "2A")
+                        .param("section", "ORG")
+                        .param("callsign", "W1ABC"))
+                .andExpect(status().isOk());
+
+        // Test Winter Field Day
+        when(cabrilloExportService.exportCabrillo(eq(1L), eq("WFD"), eq("3O"), eq("SCV"), eq("W6XYZ")))
+                .thenReturn(sampleCabrilloData);
+
+        mockMvc.perform(get("/api/export/cabrillo/log/1")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("contestCode", "WFD")
+                        .param("stationClass", "3O")
+                        .param("section", "SCV")
+                        .param("callsign", "W6XYZ"))
+                .andExpect(status().isOk());
+    }
+
+    // ==================== EXPORT BY DATE RANGE TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/export/adif/log/{logId}/date-range - Valid Date Range - Returns ADIF File")
+    void exportAdifByDateRange_validRange_returnsAdifFile() throws Exception {
+        // Arrange
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(adifExportService.exportQSOsByDateRange(eq(1L), any(), any()))
+                .thenReturn(sampleAdifData);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/export/adif/log/1/date-range")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("startDate", "2025-01-01")
+                        .param("endDate", "2025-01-31"))
+                .andExpect(status().isOk())
+                .andExpect(content().bytes(sampleAdifData));
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/export/adif/log/{logId}/date-range - Invalid Date Range - Returns 400 Bad Request")
+    void exportAdifByDateRange_invalidRange_returns400() throws Exception {
+        // Arrange
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+
+        // Act & Assert - End date before start date
+        mockMvc.perform(get("/api/export/adif/log/1/date-range")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("startDate", "2025-01-31")
+                        .param("endDate", "2025-01-01"))
+                .andExpect(status().isBadRequest());
+    }
+
+    // ==================== ERROR HANDLING TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/export/adif/log/{logId} - Export Service Error - Returns 500 Internal Server Error")
+    void exportAdifByLog_serviceError_returns500() throws Exception {
+        // Arrange
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(adifExportService.exportQSOsByLog(1L))
+                .thenThrow(new RuntimeException("Database error"));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/export/adif/log/1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isInternalServerError());
+    }
+
+    // ==================== PERMISSION TESTS ====================
+
+    @Test
+    @WithMockUser(username = "otheruser")
+    @DisplayName("GET /api/export/adif/log/{logId} - No Read Access - Returns 403 Forbidden")
+    void exportAdifByLog_noReadAccess_returns403() throws Exception {
+        // Arrange
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(logService.hasReadAccess(1L, 2L)).thenReturn(false);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/export/adif/log/1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isForbidden());
+
+        verify(adifExportService, never()).exportQSOsByLog(any());
+    }
+
+    // ==================== LARGE EXPORT TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/export/adif/log/{logId} - Large Log - Exports Successfully")
+    void exportAdifByLog_largeLog_exportsSuccessfully() throws Exception {
+        // Arrange
+        byte[] largeAdifData = new byte[1024 * 1024]; // 1MB
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(adifExportService.exportQSOsByLog(1L)).thenReturn(largeAdifData);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/export/adif/log/1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(content().bytes(largeAdifData));
+    }
+
+    // ==================== FILE NAMING TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/export/adif/log/{logId} - Special Characters in Log Name - Sanitizes Filename")
+    void exportAdifByLog_specialCharactersInLogName_sanitizesFilename() throws Exception {
+        // Arrange
+        Log specialLog = TestDataBuilder.aValidLog(testUser)
+                .id(1L)
+                .logName("Field Day / 2025 (Summer)")
+                .build();
+
+        when(logService.getLogById(1L)).thenReturn(Optional.of(specialLog));
+        when(adifExportService.exportQSOsByLog(1L)).thenReturn(sampleAdifData);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/export/adif/log/1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Disposition",
+                        containsString("Field_Day")));
+    }
+
+    // ==================== CONTENT TYPE TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/export/adif/log/{logId} - ADIF Export - Correct Content Type")
+    void exportAdifByLog_correctContentType() throws Exception {
+        // Arrange
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(adifExportService.exportQSOsByLog(1L)).thenReturn(sampleAdifData);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/export/adif/log/1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "application/octet-stream"));
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/export/cabrillo/log/{logId} - Cabrillo Export - Correct Content Type")
+    void exportCabrilloByLog_correctContentType() throws Exception {
+        // Arrange
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(cabrilloExportService.exportCabrillo(eq(1L), eq("ARRL-FD"), eq("2A"), eq("ORG"), eq("W1ABC")))
+                .thenReturn(sampleCabrilloData);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/export/cabrillo/log/1")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("contestCode", "ARRL-FD")
+                        .param("stationClass", "2A")
+                        .param("section", "ORG")
+                        .param("callsign", "W1ABC"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "text/plain"));
+    }
+}

@@ -120,6 +120,17 @@ export class ApiService {
   }
 
   // Export endpoints
+  /**
+   * Export ADIF by log ID
+   */
+  exportAdifByLog(logId: number): void {
+    window.open(`${this.baseUrl}/export/adif/log/${logId}`, '_blank');
+  }
+
+  /**
+   * Export all QSOs as ADIF (legacy method)
+   * @deprecated Use exportAdifByLog instead
+   */
   exportADIF(): void {
     window.open(`${this.baseUrl}/export/adif`, '_blank');
   }
@@ -143,5 +154,13 @@ export class ApiService {
     if (operators) url += `&operators=${operators}`;
     if (category) url += `&category=${category}`;
     window.open(url, '_blank');
+  }
+
+  // Import endpoints
+  importAdif(file: File, logId: number, stationId: number): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const params = new HttpParams().set('stationId', stationId.toString());
+    return this.http.post<any>(`${this.baseUrl}/import/adif/${logId}`, formData, { params });
   }
 }

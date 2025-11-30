@@ -15,15 +15,18 @@
           <p class="export-description">
             Amateur Data Interchange Format - Standard format for ham radio logging.
             Includes all QSOs with complete field data.
+            @if (currentLog) {
+              <br><strong>Current Log:</strong> {{ getLogTypeName() }}
+            }
           </p>
         </div>
-        <button class="btn btn-primary" (click)="exportADIF()">
+        <button class="btn btn-primary" (click)="exportADIF()" [disabled]="!currentLog">
           📥 Download ADIF
         </button>
       </div>
 
       <div class="export-features">
-        <div class="feature-item">✓ All QSO records</div>
+        <div class="feature-item">✓ All QSO records from current log</div>
         <div class="feature-item">✓ Complete field data</div>
         <div class="feature-item">✓ Contest information</div>
         <div class="feature-item">✓ Station details</div>

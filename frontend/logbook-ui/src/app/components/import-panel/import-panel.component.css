@@ -1,0 +1,70 @@
+.import-section {
+  padding: 1rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  background-color: #f8f9fa;
+}
+
+.import-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.import-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #495057;
+}
+
+.import-description {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 0;
+}
+
+.import-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: white;
+  border-radius: 0.25rem;
+}
+
+.feature-item {
+  font-size: 0.85rem;
+  color: #28a745;
+}
+
+.import-form {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 0.25rem;
+}
+
+.table {
+  font-size: 0.9rem;
+}
+
+.table thead {
+  position: sticky;
+  top: 0;
+  background-color: #f8f9fa;
+}
+
+details {
+  cursor: pointer;
+}
+
+details summary {
+  font-weight: 500;
+}
+
+details ul {
+  font-size: 0.85rem;
+  max-height: 200px;
+  overflow-y: auto;
+}

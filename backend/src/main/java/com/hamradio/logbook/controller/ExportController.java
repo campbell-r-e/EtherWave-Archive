@@ -28,9 +28,29 @@ public class ExportController {
     private final ContestRepository contestRepository;
 
     /**
-     * Export all QSOs as ADIF
-     * GET /api/export/adif
+     * Export log as ADIF
+     * GET /api/export/adif/log/{logId}
      */
+    @GetMapping("/adif/log/{logId}")
+    public ResponseEntity<byte[]> exportLogAsADIF(@PathVariable Long logId) {
+        byte[] adifData = adifExportService.exportQSOsByLog(logId);
+
+        String filename = String.format("log_%d_%s.adi",
+                logId,
+                LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.TEXT_PLAIN)
+                .body(adifData);
+    }
+
+    /**
+     * Export all QSOs as ADIF (legacy - use /adif/log/{logId} instead)
+     * GET /api/export/adif
+     * @deprecated Use exportLogAsADIF instead
+     */
+    @Deprecated
     @GetMapping("/adif")
     public ResponseEntity<byte[]> exportAllADIF() {
         byte[] adifData = adifExportService.exportAllQSOs();

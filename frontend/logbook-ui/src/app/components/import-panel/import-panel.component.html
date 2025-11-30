@@ -1,0 +1,173 @@
+<div class="card">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0">📥 Import Logbook</h5>
+  </div>
+  <div class="card-body">
+    <p class="text-muted">
+      Import QSOs from ADIF files into your current log.
+    </p>
+
+    <!-- ADIF Import Section -->
+    <div class="import-section">
+      <div class="import-header">
+        <div>
+          <h6 class="import-title">ADIF Import</h6>
+          <p class="import-description">
+            Amateur Data Interchange Format - Standard format for ham radio logging.
+            @if (currentLog) {
+              <br><strong>Current Log:</strong> {{ getLogName() }}
+            }
+          </p>
+        </div>
+      </div>
+
+      <!-- Import Form -->
+      <div class="import-form mt-3">
+        <div class="row g-3">
+          <!-- Station Selection -->
+          <div class="col-md-6">
+            <label class="form-label">Default Station <span class="text-danger">*</span></label>
+            <select class="form-select" [(ngModel)]="selectedStation">
+              <option [value]="null">Select a station...</option>
+              @for (station of stations; track station.id) {
+                <option [value]="station.id">{{ station.callsign }} - {{ station.stationName }}</option>
+              }
+            </select>
+            <small class="form-text text-muted">
+              Used for QSOs that don't specify a station
+            </small>
+          </div>
+
+          <!-- File Selection -->
+          <div class="col-md-6">
+            <label class="form-label">ADIF File <span class="text-danger">*</span></label>
+            <input type="file"
+                   id="adifFileInput"
+                   class="form-control"
+                   accept=".adi,.adif"
+                   (change)="onFileSelected($event)"
+                   [disabled]="importing">
+            @if (selectedFile) {
+              <small class="form-text text-success">
+                ✓ Selected: {{ selectedFile.name }} ({{ (selectedFile.size / 1024).toFixed(2) }} KB)
+              </small>
+            }
+          </div>
+
+          <!-- Import Button -->
+          <div class="col-12">
+            <button class="btn btn-primary me-2"
+                    (click)="importAdif()"
+                    [disabled]="!currentLog || !selectedStation || !selectedFile || importing">
+              @if (importing) {
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                Importing...
+              } @else {
+                📥 Import ADIF
+              }
+            </button>
+            @if (selectedFile || importResult) {
+              <button class="btn btn-secondary" (click)="resetImport()" [disabled]="importing">
+                Reset
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      @if (errorMessage) {
+        <div class="alert alert-danger mt-3">
+          <strong>Error:</strong> {{ errorMessage }}
+        </div>
+      }
+
+      <!-- Success Message -->
+      @if (importResult && importResult.success) {
+        <div class="alert alert-success mt-3">
+          <strong>✓ Import Successful!</strong><br>
+          {{ importResult.message }}<br>
+          <small>
+            Total records: {{ importResult.totalRecords }},
+            Success: {{ importResult.successCount }},
+            Errors: {{ importResult.errorCount }}
+          </small>
+        </div>
+
+        <!-- Show imported QSOs summary -->
+        @if (importResult.importedQSOs && importResult.importedQSOs.length > 0) {
+          <div class="mt-3">
+            <h6>Imported QSOs ({{ importResult.importedQSOs.length }}):</h6>
+            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+              <table class="table table-sm table-striped">
+                <thead>
+                  <tr>
+                    <th>Callsign</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Mode</th>
+                    <th>Band</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (qso of importResult.importedQSOs; track qso.id) {
+                    <tr>
+                      <td>{{ qso.callsign }}</td>
+                      <td>{{ qso.qsoDate }}</td>
+                      <td>{{ qso.timeOn }}</td>
+                      <td>{{ qso.mode }}</td>
+                      <td>{{ qso.band }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+      }
+
+      <!-- Partial Success Message -->
+      @if (importResult && !importResult.success && importResult.successCount > 0) {
+        <div class="alert alert-warning mt-3">
+          <strong>⚠ Partial Import</strong><br>
+          {{ importResult.message }}<br>
+          <small>
+            Total records: {{ importResult.totalRecords }},
+            Success: {{ importResult.successCount }},
+            Errors: {{ importResult.errorCount }}
+          </small>
+
+          @if (importResult.errors && importResult.errors.length > 0) {
+            <details class="mt-2">
+              <summary class="text-danger">Show Errors ({{ importResult.errors.length }})</summary>
+              <ul class="mt-2 mb-0">
+                @for (error of importResult.errors; track error) {
+                  <li>{{ error }}</li>
+                }
+              </ul>
+            </details>
+          }
+        </div>
+      }
+
+      <!-- Import Features -->
+      <div class="import-features mt-3">
+        <div class="feature-item">✓ Supports ADIF 3.1.4 format</div>
+        <div class="feature-item">✓ Imports all standard QSO fields</div>
+        <div class="feature-item">✓ Preserves contest data</div>
+        <div class="feature-item">✓ Auto-links stations and operators</div>
+      </div>
+    </div>
+
+    <!-- Import Notes -->
+    <div class="alert alert-info mt-4">
+      <strong>Note:</strong> Imported QSOs will be added to the currently selected log.
+      @if (!currentLog) {
+        <br><span class="text-danger">Please select a log to enable import.</span>
+      }
+      @if (!selectedStation) {
+        <br><span class="text-danger">Please select a default station.</span>
+      }
+    </div>
+  </div>
+</div>

@@ -35,7 +35,7 @@ This will:
 
 ### Required Version
 
-The project requires **Java 17 or higher**. Java 21+ is recommended.
+The project requires **Java 25**. This is the minimum version required for Spring Boot 4.0.0.
 
 ### Setting Java Version
 

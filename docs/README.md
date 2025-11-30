@@ -120,10 +120,10 @@ This system provides amateur radio operators with a modern, feature-rich logging
 ## Getting Started
 
 ### Prerequisites
-- Java 17 or higher
-- Node.js 18 or higher
-- Docker and Docker Compose (for rig control)
-- SQLite (included) or PostgreSQL
+- **Java 25** or higher (Eclipse Adoptium Temurin 25 recommended)
+- **Node.js 24** or higher
+- Docker and Docker Compose (for rig control and deployment)
+- SQLite (included) or PostgreSQL 16
 
 ### Quick Start
 
@@ -186,23 +186,25 @@ Detailed documentation is available in the `/docs` folder:
 ## Technology Stack
 
 ### Backend
-- **Spring Boot 3.2.0** - Application framework
-- **Spring Security** - Authentication and authorization
-- **JWT (JJWT 0.12.3)** - Stateless authentication tokens
+- **Java 25** - Latest JDK with cutting-edge features
+- **Spring Boot 4.0.0** - Application framework
+- **Spring Framework 7.0.0** - Core framework
+- **Spring Security 7.x** - Authentication and authorization
+- **JWT (JJWT 0.12.6)** - Stateless authentication tokens
 - **Spring Data JPA** - Database ORM
-- **Hibernate** - JPA implementation
-- **SQLite/PostgreSQL** - Database options
+- **Hibernate 7.1.8** - JPA implementation with Java 25 support
+- **PostgreSQL 16 / SQLite** - Database options
 - **Spring WebSocket** - Real-time communication
-- **Lombok** - Boilerplate reduction
-- **Jackson** - JSON processing
+- **Lombok 1.18.38** - Boilerplate reduction (Java 25 compatible)
+- **Jackson 3.0** - JSON processing (tools.jackson)
 
 ### Frontend
-- **Angular 17** - Frontend framework (standalone components)
-- **TypeScript 5.2** - Type-safe JavaScript
-- **RxJS** - Reactive programming
-- **Bootstrap 5** - UI framework
+- **Angular 21.0.1** - Latest Angular framework with standalone components
+- **TypeScript 5.9** - Type-safe JavaScript with strict mode
+- **RxJS 7.8** - Reactive programming and state management
+- **Bootstrap 5.3** - Modern UI framework with responsive design
 - **Bootstrap Icons** - Icon library
-- **Leaflet** - Map visualization
+- **Leaflet** - Interactive map visualization for QSO plotting
 
 ### Rig Control
 - **Hamlib** - Radio control library (rigctld)

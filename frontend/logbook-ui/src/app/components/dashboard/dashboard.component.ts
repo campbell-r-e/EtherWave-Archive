@@ -15,6 +15,7 @@ import { MapVisualizationComponent } from '../map-visualization/map-visualizatio
 import { ContestSelectionComponent } from '../contest-selection/contest-selection.component';
 import { StationManagementComponent } from '../station-management/station-management.component';
 import { ExportPanelComponent } from '../export-panel/export-panel.component';
+import { ImportPanelComponent } from '../import-panel/import-panel.component';
 
 @Component({
     selector: 'app-dashboard',
@@ -26,7 +27,8 @@ import { ExportPanelComponent } from '../export-panel/export-panel.component';
     MapVisualizationComponent,
     ContestSelectionComponent,
     StationManagementComponent,
-    ExportPanelComponent
+    ExportPanelComponent,
+    ImportPanelComponent
 ],
     templateUrl: './dashboard.component.html',
     styleUrls: ['./dashboard.component.css']

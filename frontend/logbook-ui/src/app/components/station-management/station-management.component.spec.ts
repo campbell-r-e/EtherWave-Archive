@@ -1,0 +1,556 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of, throwError } from 'rxjs';
+import { StationManagementComponent } from './station-management.component';
+import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
+
+describe('StationManagementComponent', () => {
+  let component: StationManagementComponent;
+  let fixture: ComponentFixture<StationManagementComponent>;
+  let apiService: jasmine.SpyObj<ApiService>;
+  let authService: jasmine.SpyObj<AuthService>;
+
+  const mockStations = [
+    {
+      id: 1,
+      callsign: 'W1AW',
+      operatorName: 'John Smith',
+      gridSquare: 'FN31pr',
+      city: 'Newington',
+      state: 'CT',
+      country: 'USA',
+      rigModel: 'Icom IC-7300',
+      antennaType: 'Dipole',
+      powerWatts: 100,
+      isDefault: true
+    },
+    {
+      id: 2,
+      callsign: 'K2ABC',
+      operatorName: 'Jane Doe',
+      gridSquare: 'FN42aa',
+      city: 'New York',
+      state: 'NY',
+      country: 'USA',
+      rigModel: 'Yaesu FT-991A',
+      antennaType: 'Vertical',
+      powerWatts: 50,
+      isDefault: false
+    }
+  ];
+
+  beforeEach(async () => {
+    const apiServiceSpy = jasmine.createSpyObj('ApiService', [
+      'getStations',
+      'createStation',
+      'updateStation',
+      'deleteStation',
+      'setDefaultStation',
+      'validateCallsign'
+    ]);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getCurrentUser']);
+
+    await TestBed.configureTestingModule({
+      imports: [StationManagementComponent],
+      providers: [
+        { provide: ApiService, useValue: apiServiceSpy },
+        { provide: AuthService, useValue: authServiceSpy }
+      ]
+    }).compileComponents();
+
+    apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
+    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+
+    authService.getCurrentUser.and.returnValue({ id: 1, username: 'testuser' });
+    apiService.getStations.and.returnValue(of(mockStations));
+
+    fixture = TestBed.createComponent(StationManagementComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  // ==================== STATION LOADING TESTS ====================
+
+  it('should load stations on init', () => {
+    expect(apiService.getStations).toHaveBeenCalled();
+    expect(component.stations.length).toBe(2);
+  });
+
+  it('should display all stations', () => {
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement;
+    const stationCards = compiled.querySelectorAll('.station-card');
+    expect(stationCards.length).toBe(2);
+  });
+
+  it('should display callsigns', () => {
+    const compiled = fixture.nativeElement;
+    expect(compiled.textContent).toContain('W1AW');
+    expect(compiled.textContent).toContain('K2ABC');
+  });
+
+  it('should display operator names', () => {
+    const compiled = fixture.nativeElement;
+    expect(compiled.textContent).toContain('John Smith');
+    expect(compiled.textContent).toContain('Jane Doe');
+  });
+
+  it('should handle empty station list', () => {
+    apiService.getStations.and.returnValue(of([]));
+    component.ngOnInit();
+
+    expect(component.stations.length).toBe(0);
+    expect(component.hasStations()).toBeFalsy();
+  });
+
+  it('should handle API error gracefully', () => {
+    apiService.getStations.and.returnValue(throwError(() => new Error('Network error')));
+
+    component.loadStations();
+
+    expect(component.errorMessage).toBeTruthy();
+  });
+
+  // ==================== STATION CREATION TESTS ====================
+
+  it('should open create station modal', () => {
+    component.openCreateModal();
+
+    expect(component.showCreateModal).toBeTruthy();
+  });
+
+  it('should create new station', () => {
+    const newStation = {
+      callsign: 'VE3ABC',
+      operatorName: 'Bob Johnson',
+      gridSquare: 'FN03',
+      rigModel: 'Kenwood TS-590SG',
+      powerWatts: 75
+    };
+    apiService.createStation.and.returnValue(of({ id: 3, ...newStation }));
+
+    component.newStation = newStation;
+    component.createStation();
+
+    expect(apiService.createStation).toHaveBeenCalledWith(jasmine.objectContaining(newStation));
+  });
+
+  it('should validate callsign before creation', () => {
+    component.newStation.callsign = 'INVALID';
+    apiService.validateCallsign.and.returnValue(of({ valid: false }));
+
+    component.createStation();
+
+    expect(component.validationError).toBeTruthy();
+  });
+
+  it('should validate grid square format', () => {
+    component.newStation.callsign = 'W1AW';
+    component.newStation.gridSquare = 'INVALID';
+
+    component.createStation();
+
+    expect(component.validationError).toContain('grid square');
+  });
+
+  it('should validate power range', () => {
+    component.newStation.callsign = 'W1AW';
+    component.newStation.powerWatts = 2000; // Too high
+
+    component.createStation();
+
+    expect(component.validationError).toContain('power');
+  });
+
+  it('should close modal after creation', () => {
+    apiService.createStation.and.returnValue(of({ id: 3, callsign: 'VE3ABC' }));
+
+    component.newStation = { callsign: 'VE3ABC', operatorName: 'Test' };
+    component.createStation();
+
+    expect(component.showCreateModal).toBeFalsy();
+  });
+
+  it('should refresh list after creation', () => {
+    spyOn(component, 'loadStations');
+    apiService.createStation.and.returnValue(of({ id: 3, callsign: 'VE3ABC' }));
+
+    component.newStation = { callsign: 'VE3ABC', operatorName: 'Test' };
+    component.createStation();
+
+    expect(component.loadStations).toHaveBeenCalled();
+  });
+
+  // ==================== STATION UPDATE TESTS ====================
+
+  it('should open edit modal', () => {
+    component.editStation(mockStations[0]);
+
+    expect(component.showEditModal).toBeTruthy();
+    expect(component.editingStation).toEqual(mockStations[0]);
+  });
+
+  it('should update station', () => {
+    const updated = { ...mockStations[0], rigModel: 'Icom IC-7610' };
+    apiService.updateStation.and.returnValue(of(updated));
+
+    component.editingStation = updated;
+    component.updateStation();
+
+    expect(apiService.updateStation).toHaveBeenCalledWith(1, jasmine.objectContaining({ rigModel: 'Icom IC-7610' }));
+  });
+
+  it('should validate updates', () => {
+    component.editingStation = { ...mockStations[0], callsign: '' };
+
+    component.updateStation();
+
+    expect(apiService.updateStation).not.toHaveBeenCalled();
+    expect(component.validationError).toBeTruthy();
+  });
+
+  it('should close edit modal after update', () => {
+    apiService.updateStation.and.returnValue(of(mockStations[0]));
+
+    component.editingStation = mockStations[0];
+    component.updateStation();
+
+    expect(component.showEditModal).toBeFalsy();
+  });
+
+  // ==================== STATION DELETION TESTS ====================
+
+  it('should delete station after confirmation', () => {
+    spyOn(window, 'confirm').and.returnValue(true);
+    apiService.deleteStation.and.returnValue(of({}));
+
+    component.deleteStation(1);
+
+    expect(apiService.deleteStation).toHaveBeenCalledWith(1);
+  });
+
+  it('should not delete station if cancelled', () => {
+    spyOn(window, 'confirm').and.returnValue(false);
+
+    component.deleteStation(1);
+
+    expect(apiService.deleteStation).not.toHaveBeenCalled();
+  });
+
+  it('should not delete default station', () => {
+    component.deleteStation(1); // Station 1 is default
+
+    expect(component.errorMessage).toContain('default');
+  });
+
+  it('should refresh list after deletion', () => {
+    spyOn(window, 'confirm').and.returnValue(true);
+    spyOn(component, 'loadStations');
+    apiService.deleteStation.and.returnValue(of({}));
+
+    component.deleteStation(2); // Non-default station
+
+    expect(component.loadStations).toHaveBeenCalled();
+  });
+
+  // ==================== DEFAULT STATION TESTS ====================
+
+  it('should set station as default', () => {
+    apiService.setDefaultStation.and.returnValue(of({ success: true }));
+
+    component.setAsDefault(2);
+
+    expect(apiService.setDefaultStation).toHaveBeenCalledWith(2);
+  });
+
+  it('should highlight default station', () => {
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement;
+    const defaultBadge = compiled.querySelector('.default-badge');
+    expect(defaultBadge).toBeTruthy();
+  });
+
+  it('should update UI after setting default', () => {
+    apiService.setDefaultStation.and.returnValue(of({ success: true }));
+    spyOn(component, 'loadStations');
+
+    component.setAsDefault(2);
+
+    expect(component.loadStations).toHaveBeenCalled();
+  });
+
+  // ==================== CALLSIGN VALIDATION TESTS ====================
+
+  it('should validate US callsign format', () => {
+    expect(component.isValidCallsign('W1AW')).toBeTruthy();
+    expect(component.isValidCallsign('K2ABC')).toBeTruthy();
+    expect(component.isValidCallsign('N3XYZ')).toBeTruthy();
+  });
+
+  it('should validate Canadian callsign format', () => {
+    expect(component.isValidCallsign('VE3ABC')).toBeTruthy();
+    expect(component.isValidCallsign('VA7XYZ')).toBeTruthy();
+  });
+
+  it('should validate UK callsign format', () => {
+    expect(component.isValidCallsign('G3ABC')).toBeTruthy();
+    expect(component.isValidCallsign('M0XYZ')).toBeTruthy();
+  });
+
+  it('should reject invalid callsign format', () => {
+    expect(component.isValidCallsign('INVALID')).toBeFalsy();
+    expect(component.isValidCallsign('123')).toBeFalsy();
+    expect(component.isValidCallsign('')).toBeFalsy();
+  });
+
+  // ==================== GRID SQUARE VALIDATION TESTS ====================
+
+  it('should validate 4-character grid square', () => {
+    expect(component.isValidGridSquare('FN31')).toBeTruthy();
+    expect(component.isValidGridSquare('EM12')).toBeTruthy();
+  });
+
+  it('should validate 6-character grid square', () => {
+    expect(component.isValidGridSquare('FN31pr')).toBeTruthy();
+    expect(component.isValidGridSquare('EM12ab')).toBeTruthy();
+  });
+
+  it('should reject invalid grid square', () => {
+    expect(component.isValidGridSquare('INVALID')).toBeFalsy();
+    expect(component.isValidGridSquare('FN')).toBeFalsy();
+    expect(component.isValidGridSquare('123456')).toBeFalsy();
+  });
+
+  // ==================== RIG MODEL TESTS ====================
+
+  it('should provide list of popular rig models', () => {
+    const models = component.getPopularRigModels();
+
+    expect(models).toContain('Icom IC-7300');
+    expect(models).toContain('Yaesu FT-991A');
+    expect(models).toContain('Kenwood TS-590SG');
+  });
+
+  it('should allow custom rig model', () => {
+    component.newStation.rigModel = 'Custom Homebrew Rig';
+    apiService.createStation.and.returnValue(of({ id: 3, ...component.newStation }));
+
+    component.createStation();
+
+    expect(apiService.createStation).toHaveBeenCalled();
+  });
+
+  // ==================== ANTENNA TYPE TESTS ====================
+
+  it('should provide list of antenna types', () => {
+    const antennas = component.getAntennaTypes();
+
+    expect(antennas).toContain('Dipole');
+    expect(antennas).toContain('Vertical');
+    expect(antennas).toContain('Beam');
+    expect(antennas).toContain('Loop');
+  });
+
+  it('should display antenna type in station card', () => {
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement;
+    expect(compiled.textContent).toContain('Dipole');
+    expect(compiled.textContent).toContain('Vertical');
+  });
+
+  // ==================== POWER TESTS ====================
+
+  it('should validate power within legal limits', () => {
+    expect(component.isValidPower(100)).toBeTruthy();
+    expect(component.isValidPower(1500)).toBeTruthy();
+    expect(component.isValidPower(2000)).toBeFalsy(); // Exceeds typical limit
+  });
+
+  it('should display power in watts', () => {
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement;
+    expect(compiled.textContent).toContain('100 W');
+    expect(compiled.textContent).toContain('50 W');
+  });
+
+  // ==================== LOCATION TESTS ====================
+
+  it('should display location information', () => {
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement;
+    expect(compiled.textContent).toContain('Newington');
+    expect(compiled.textContent).toContain('CT');
+    expect(compiled.textContent).toContain('USA');
+  });
+
+  it('should provide country list', () => {
+    const countries = component.getCountryList();
+
+    expect(countries).toContain('USA');
+    expect(countries).toContain('Canada');
+    expect(countries).toContain('United Kingdom');
+  });
+
+  it('should provide state list for US', () => {
+    component.newStation.country = 'USA';
+    const states = component.getStateList();
+
+    expect(states).toContain('CT');
+    expect(states).toContain('NY');
+    expect(states).toContain('CA');
+  });
+
+  // ==================== SEARCH AND FILTER TESTS ====================
+
+  it('should filter stations by callsign', () => {
+    component.searchTerm = 'W1AW';
+    const filtered = component.getFilteredStations();
+
+    expect(filtered.length).toBe(1);
+    expect(filtered[0].callsign).toBe('W1AW');
+  });
+
+  it('should filter by rig model', () => {
+    component.filterRigModel = 'Icom';
+    const filtered = component.getFilteredStations();
+
+    expect(filtered.every(s => s.rigModel.includes('Icom'))).toBeTruthy();
+  });
+
+  it('should handle case-insensitive search', () => {
+    component.searchTerm = 'w1aw';
+    const filtered = component.getFilteredStations();
+
+    expect(filtered.length).toBe(1);
+  });
+
+  // ==================== SORTING TESTS ====================
+
+  it('should sort by callsign', () => {
+    component.sortBy = 'callsign';
+    component.sortDirection = 'asc';
+    const sorted = component.getSortedStations();
+
+    expect(sorted[0].callsign).toBe('K2ABC');
+  });
+
+  it('should sort by power', () => {
+    component.sortBy = 'power';
+    component.sortDirection = 'desc';
+    const sorted = component.getSortedStations();
+
+    expect(sorted[0].powerWatts).toBe(100);
+  });
+
+  // ==================== EXPORT TESTS ====================
+
+  it('should export station list as CSV', () => {
+    spyOn(component, 'downloadFile');
+
+    component.exportAsCSV();
+
+    expect(component.downloadFile).toHaveBeenCalled();
+  });
+
+  it('should include all station data in export', () => {
+    const csv = component.generateCSV();
+
+    expect(csv).toContain('W1AW');
+    expect(csv).toContain('Icom IC-7300');
+    expect(csv).toContain('FN31pr');
+  });
+
+  // ==================== UI STATE TESTS ====================
+
+  it('should show loading indicator', () => {
+    component.loading = true;
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement;
+    expect(compiled.querySelector('.loading-spinner')).toBeTruthy();
+  });
+
+  it('should show empty state', () => {
+    component.stations = [];
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement;
+    expect(compiled.querySelector('.empty-state')).toBeTruthy();
+  });
+
+  it('should close modal on cancel', () => {
+    component.showCreateModal = true;
+    component.closeModal();
+
+    expect(component.showCreateModal).toBeFalsy();
+  });
+
+  it('should reset form on close', () => {
+    component.newStation = { callsign: 'TEST', operatorName: 'Test' };
+    component.closeModal();
+
+    expect(component.newStation.callsign).toBe('');
+  });
+
+  // ==================== VALIDATION MESSAGES TESTS ====================
+
+  it('should display validation errors', () => {
+    component.validationError = 'Invalid callsign';
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement;
+    expect(compiled.querySelector('.validation-error')?.textContent).toContain('Invalid callsign');
+  });
+
+  it('should clear validation errors on input change', () => {
+    component.validationError = 'Error';
+    component.onInputChange();
+
+    expect(component.validationError).toBe('');
+  });
+
+  // ==================== ACCESSIBILITY TESTS ====================
+
+  it('should have accessible form labels', () => {
+    component.showCreateModal = true;
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement;
+    const callsignInput = compiled.querySelector('input[name="callsign"]');
+    expect(callsignInput?.getAttribute('aria-label')).toBeTruthy();
+  });
+
+  it('should announce station creation to screen readers', () => {
+    spyOn(component, 'announceToScreenReader');
+    apiService.createStation.and.returnValue(of({ id: 3, callsign: 'VE3ABC' }));
+
+    component.newStation = { callsign: 'VE3ABC', operatorName: 'Test' };
+    component.createStation();
+
+    expect(component.announceToScreenReader).toHaveBeenCalled();
+  });
+
+  // ==================== REFRESH TESTS ====================
+
+  it('should refresh stations', () => {
+    spyOn(component, 'loadStations');
+
+    component.refresh();
+
+    expect(component.loadStations).toHaveBeenCalled();
+  });
+
+  it('should clear messages on refresh', () => {
+    component.errorMessage = 'Error';
+    component.successMessage = 'Success';
+
+    component.refresh();
+
+    expect(component.errorMessage).toBe('');
+    expect(component.successMessage).toBe('');
+  });
+});

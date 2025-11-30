@@ -1,0 +1,472 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { of, throwError } from 'rxjs';
+import { RegisterComponent } from './register.component';
+import { AuthService } from '../../services/auth.service';
+
+describe('RegisterComponent', () => {
+  let component: RegisterComponent;
+  let fixture: ComponentFixture<RegisterComponent>;
+  let authService: jasmine.SpyObj<AuthService>;
+  let router: jasmine.SpyObj<Router>;
+
+  beforeEach(async () => {
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['register']);
+    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+
+    await TestBed.configureTestingModule({
+      imports: [ReactiveFormsModule, RegisterComponent],
+      providers: [
+        { provide: AuthService, useValue: authServiceSpy },
+        { provide: Router, useValue: routerSpy }
+      ]
+    }).compileComponents();
+
+    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+    router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+
+    fixture = TestBed.createComponent(RegisterComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  // ==================== COMPONENT INITIALIZATION TESTS ====================
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should initialize registration form with empty values', () => {
+    expect(component.registerForm.get('username')?.value).toBe('');
+    expect(component.registerForm.get('email')?.value).toBe('');
+    expect(component.registerForm.get('password')?.value).toBe('');
+    expect(component.registerForm.get('confirmPassword')?.value).toBe('');
+    expect(component.registerForm.get('callsign')?.value).toBe('');
+  });
+
+  it('should have form invalid when empty', () => {
+    expect(component.registerForm.valid).toBeFalsy();
+  });
+
+  // ==================== USERNAME VALIDATION TESTS ====================
+
+  it('should require username', () => {
+    const username = component.registerForm.get('username');
+    expect(username?.hasError('required')).toBeTruthy();
+  });
+
+  it('should enforce minimum username length', () => {
+    const username = component.registerForm.get('username');
+    username?.setValue('ab');
+    expect(username?.hasError('minlength')).toBeTruthy();
+
+    username?.setValue('abc');
+    expect(username?.hasError('minlength')).toBeFalsy();
+  });
+
+  it('should enforce maximum username length', () => {
+    const username = component.registerForm.get('username');
+    username?.setValue('a'.repeat(51));
+    expect(username?.hasError('maxlength')).toBeTruthy();
+
+    username?.setValue('a'.repeat(50));
+    expect(username?.hasError('maxlength')).toBeFalsy();
+  });
+
+  it('should validate username pattern', () => {
+    const username = component.registerForm.get('username');
+
+    username?.setValue('user@name');
+    expect(username?.hasError('pattern')).toBeTruthy();
+
+    username?.setValue('username123');
+    expect(username?.hasError('pattern')).toBeFalsy();
+  });
+
+  // ==================== EMAIL VALIDATION TESTS ====================
+
+  it('should require email', () => {
+    const email = component.registerForm.get('email');
+    expect(email?.hasError('required')).toBeTruthy();
+  });
+
+  it('should validate email format', () => {
+    const email = component.registerForm.get('email');
+
+    email?.setValue('invalid-email');
+    expect(email?.hasError('email')).toBeTruthy();
+
+    email?.setValue('valid@example.com');
+    expect(email?.hasError('email')).toBeFalsy();
+  });
+
+  // ==================== PASSWORD VALIDATION TESTS ====================
+
+  it('should require password', () => {
+    const password = component.registerForm.get('password');
+    expect(password?.hasError('required')).toBeTruthy();
+  });
+
+  it('should enforce minimum password length', () => {
+    const password = component.registerForm.get('password');
+    password?.setValue('12345');
+    expect(password?.hasError('minlength')).toBeTruthy();
+
+    password?.setValue('123456');
+    expect(password?.hasError('minlength')).toBeFalsy();
+  });
+
+  it('should require password confirmation', () => {
+    const confirmPassword = component.registerForm.get('confirmPassword');
+    expect(confirmPassword?.hasError('required')).toBeTruthy();
+  });
+
+  it('should validate password match', () => {
+    component.registerForm.patchValue({
+      password: 'password123',
+      confirmPassword: 'different'
+    });
+
+    expect(component.registerForm.hasError('passwordMismatch')).toBeTruthy();
+
+    component.registerForm.patchValue({
+      password: 'password123',
+      confirmPassword: 'password123'
+    });
+
+    expect(component.registerForm.hasError('passwordMismatch')).toBeFalsy();
+  });
+
+  // ==================== CALLSIGN VALIDATION TESTS ====================
+
+  it('should require callsign', () => {
+    const callsign = component.registerForm.get('callsign');
+    expect(callsign?.hasError('required')).toBeTruthy();
+  });
+
+  it('should validate callsign format - US callsign', () => {
+    const callsign = component.registerForm.get('callsign');
+
+    callsign?.setValue('W1AW');
+    expect(callsign?.hasError('pattern')).toBeFalsy();
+
+    callsign?.setValue('K2ABC');
+    expect(callsign?.hasError('pattern')).toBeFalsy();
+
+    callsign?.setValue('N3XYZ');
+    expect(callsign?.hasError('pattern')).toBeFalsy();
+  });
+
+  it('should validate callsign format - International callsign', () => {
+    const callsign = component.registerForm.get('callsign');
+
+    callsign?.setValue('VE3ABC');
+    expect(callsign?.hasError('pattern')).toBeFalsy();
+
+    callsign?.setValue('G3XYZ');
+    expect(callsign?.hasError('pattern')).toBeFalsy();
+  });
+
+  it('should reject invalid callsign format', () => {
+    const callsign = component.registerForm.get('callsign');
+
+    callsign?.setValue('123ABC');
+    expect(callsign?.hasError('pattern')).toBeTruthy();
+
+    callsign?.setValue('INVALID');
+    expect(callsign?.hasError('pattern')).toBeTruthy();
+  });
+
+  // ==================== REGISTRATION SUCCESS TESTS ====================
+
+  it('should call authService.register on valid form submission', () => {
+    authService.register.and.returnValue(of({ success: true }));
+
+    component.registerForm.patchValue({
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123',
+      confirmPassword: 'password123',
+      callsign: 'W1AW'
+    });
+
+    component.onSubmit();
+
+    expect(authService.register).toHaveBeenCalledWith({
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123',
+      callsign: 'W1AW'
+    });
+  });
+
+  it('should navigate to login on successful registration', () => {
+    authService.register.and.returnValue(of({ success: true }));
+
+    component.registerForm.patchValue({
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123',
+      confirmPassword: 'password123',
+      callsign: 'W1AW'
+    });
+
+    component.onSubmit();
+
+    expect(router.navigate).toHaveBeenCalledWith(['/login']);
+  });
+
+  it('should display success message on successful registration', () => {
+    authService.register.and.returnValue(of({ success: true }));
+
+    component.registerForm.patchValue({
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123',
+      confirmPassword: 'password123',
+      callsign: 'W1AW'
+    });
+
+    component.onSubmit();
+
+    expect(component.successMessage).toBe('Registration successful! Redirecting to login...');
+  });
+
+  // ==================== REGISTRATION FAILURE TESTS ====================
+
+  it('should display error message on failed registration', () => {
+    authService.register.and.returnValue(throwError(() => ({ error: { message: 'Username already exists' } })));
+
+    component.registerForm.patchValue({
+      username: 'existinguser',
+      email: 'test@example.com',
+      password: 'password123',
+      confirmPassword: 'password123',
+      callsign: 'W1AW'
+    });
+
+    component.onSubmit();
+
+    expect(component.errorMessage).toBe('Username already exists');
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it('should not call authService if form is invalid', () => {
+    component.registerForm.patchValue({
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      callsign: ''
+    });
+
+    component.onSubmit();
+
+    expect(authService.register).not.toHaveBeenCalled();
+  });
+
+  it('should display error for duplicate email', () => {
+    authService.register.and.returnValue(throwError(() => ({ error: { message: 'Email already registered' } })));
+
+    component.registerForm.patchValue({
+      username: 'testuser',
+      email: 'existing@example.com',
+      password: 'password123',
+      confirmPassword: 'password123',
+      callsign: 'W1AW'
+    });
+
+    component.onSubmit();
+
+    expect(component.errorMessage).toBe('Email already registered');
+  });
+
+  it('should display error for duplicate callsign', () => {
+    authService.register.and.returnValue(throwError(() => ({ error: { message: 'Callsign already registered' } })));
+
+    component.registerForm.patchValue({
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123',
+      confirmPassword: 'password123',
+      callsign: 'W1AW'
+    });
+
+    component.onSubmit();
+
+    expect(component.errorMessage).toBe('Callsign already registered');
+  });
+
+  // ==================== PASSWORD VISIBILITY TESTS ====================
+
+  it('should toggle password visibility', () => {
+    expect(component.showPassword).toBeFalsy();
+
+    component.togglePasswordVisibility();
+    expect(component.showPassword).toBeTruthy();
+
+    component.togglePasswordVisibility();
+    expect(component.showPassword).toBeFalsy();
+  });
+
+  it('should toggle confirm password visibility', () => {
+    expect(component.showConfirmPassword).toBeFalsy();
+
+    component.toggleConfirmPasswordVisibility();
+    expect(component.showConfirmPassword).toBeTruthy();
+
+    component.toggleConfirmPasswordVisibility();
+    expect(component.showConfirmPassword).toBeFalsy();
+  });
+
+  // ==================== LOADING STATE TESTS ====================
+
+  it('should disable form during registration', () => {
+    authService.register.and.returnValue(of({ success: true }));
+
+    component.registerForm.patchValue({
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123',
+      confirmPassword: 'password123',
+      callsign: 'W1AW'
+    });
+
+    component.onSubmit();
+
+    // Form should be re-enabled after completion
+    expect(component.registerForm.enabled).toBe(true);
+  });
+
+  // ==================== NAVIGATION TESTS ====================
+
+  it('should navigate to login page', () => {
+    component.navigateToLogin();
+    expect(router.navigate).toHaveBeenCalledWith(['/login']);
+  });
+
+  // ==================== INPUT SANITIZATION TESTS ====================
+
+  it('should trim and uppercase callsign before submission', () => {
+    authService.register.and.returnValue(of({ success: true }));
+
+    component.registerForm.patchValue({
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123',
+      confirmPassword: 'password123',
+      callsign: '  w1aw  '
+    });
+
+    component.onSubmit();
+
+    expect(authService.register).toHaveBeenCalledWith({
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123',
+      callsign: 'W1AW'
+    });
+  });
+
+  it('should trim username and email before submission', () => {
+    authService.register.and.returnValue(of({ success: true }));
+
+    component.registerForm.patchValue({
+      username: '  testuser  ',
+      email: '  test@example.com  ',
+      password: 'password123',
+      confirmPassword: 'password123',
+      callsign: 'W1AW'
+    });
+
+    component.onSubmit();
+
+    expect(authService.register).toHaveBeenCalledWith({
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123',
+      callsign: 'W1AW'
+    });
+  });
+
+  // ==================== TERMS AND CONDITIONS TESTS ====================
+
+  it('should require terms acceptance', () => {
+    const termsAccepted = component.registerForm.get('termsAccepted');
+
+    component.registerForm.patchValue({
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123',
+      confirmPassword: 'password123',
+      callsign: 'W1AW',
+      termsAccepted: false
+    });
+
+    expect(component.registerForm.valid).toBeFalsy();
+
+    termsAccepted?.setValue(true);
+    expect(component.registerForm.valid).toBeTruthy();
+  });
+
+  // ==================== PASSWORD STRENGTH INDICATOR TESTS ====================
+
+  it('should calculate password strength - weak', () => {
+    component.registerForm.get('password')?.setValue('123456');
+    const strength = component.getPasswordStrength();
+    expect(strength).toBe('weak');
+  });
+
+  it('should calculate password strength - medium', () => {
+    component.registerForm.get('password')?.setValue('password123');
+    const strength = component.getPasswordStrength();
+    expect(strength).toBe('medium');
+  });
+
+  it('should calculate password strength - strong', () => {
+    component.registerForm.get('password')?.setValue('P@ssw0rd123!');
+    const strength = component.getPasswordStrength();
+    expect(strength).toBe('strong');
+  });
+
+  // ==================== FORM RESET TESTS ====================
+
+  it('should reset form on reset button click', () => {
+    component.registerForm.patchValue({
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123',
+      confirmPassword: 'password123',
+      callsign: 'W1AW'
+    });
+
+    component.resetForm();
+
+    expect(component.registerForm.get('username')?.value).toBe('');
+    expect(component.registerForm.get('email')?.value).toBe('');
+    expect(component.registerForm.get('password')?.value).toBe('');
+    expect(component.errorMessage).toBe('');
+  });
+
+  // ==================== ACCESSIBILITY TESTS ====================
+
+  it('should have proper ARIA labels', () => {
+    const compiled = fixture.nativeElement;
+    const usernameInput = compiled.querySelector('input[name="username"]');
+    const emailInput = compiled.querySelector('input[name="email"]');
+
+    expect(usernameInput.getAttribute('aria-label')).toBeTruthy();
+    expect(emailInput.getAttribute('aria-label')).toBeTruthy();
+  });
+
+  it('should announce validation errors to screen readers', () => {
+    component.registerForm.get('username')?.setValue('ab');
+    component.registerForm.get('username')?.markAsTouched();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement;
+    const errorMsg = compiled.querySelector('.username-error');
+    expect(errorMsg).toBeTruthy();
+  });
+});

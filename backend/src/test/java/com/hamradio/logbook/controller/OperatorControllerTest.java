@@ -1,0 +1,231 @@
+package com.hamradio.logbook.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hamradio.logbook.entity.Operator;
+import com.hamradio.logbook.entity.User;
+import com.hamradio.logbook.service.OperatorService;
+import com.hamradio.logbook.testutil.JwtTestUtil;
+import com.hamradio.logbook.testutil.TestDataBuilder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import com.hamradio.logbook.config.TestConfig;
+import org.springframework.context.annotation.Import;
+
+@Import(TestConfig.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@AutoConfigureMockMvc(addFilters = false)
+@DisplayName("Operator Controller Tests")
+class OperatorControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private OperatorService operatorService;
+
+    private User testUser;
+    private Operator testOperator;
+    private String jwtToken;
+
+    @BeforeEach
+    void setUp() {
+        testUser = TestDataBuilder.aValidUser().id(1L).build();
+        testOperator = Operator.builder()
+                .id(1L)
+                .callsign("W1OP")
+                .name("Test Operator")
+                .email("operator@example.com")
+                .build();
+        jwtToken = JwtTestUtil.generateToken("testuser");
+    }
+
+    // ==================== CREATE OPERATOR TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/operators - Valid Operator - Returns 201 Created")
+    void createOperator_validOperator_returns201() throws Exception {
+        // Arrange
+        when(operatorService.createOperator(any(Operator.class))).thenReturn(testOperator);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/operators")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testOperator)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.callsign").value("W1OP"))
+                .andExpect(jsonPath("$.name").value("Test Operator"));
+
+        verify(operatorService).createOperator(any(Operator.class));
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/operators - Invalid Callsign - Returns 400 Bad Request")
+    void createOperator_invalidCallsign_returns400() throws Exception {
+        // Arrange
+        Operator invalidOperator = Operator.builder()
+                .callsign("INVALID!!!")
+                .name("Test")
+                .build();
+
+        when(operatorService.createOperator(any(Operator.class)))
+                .thenThrow(new IllegalArgumentException("Invalid callsign format"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/operators")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidOperator)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(containsString("callsign")));
+    }
+
+    // ==================== GET OPERATOR TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/operators/{id} - Valid ID - Returns 200 OK")
+    void getOperator_validId_returns200() throws Exception {
+        // Arrange
+        when(operatorService.getOperatorById(1L)).thenReturn(Optional.of(testOperator));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/operators/1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.callsign").value("W1OP"));
+
+        verify(operatorService).getOperatorById(1L);
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/operators/{id} - Operator Not Found - Returns 404 Not Found")
+    void getOperator_notFound_returns404() throws Exception {
+        // Arrange
+        when(operatorService.getOperatorById(999L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        mockMvc.perform(get("/api/operators/999")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isNotFound());
+    }
+
+    // ==================== GET ALL OPERATORS TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/operators - Returns All Operators")
+    void getAllOperators_returnsAllOperators() throws Exception {
+        // Arrange
+        Operator operator2 = Operator.builder().id(2L).callsign("K2OP").name("Second Operator").build();
+        when(operatorService.getAllOperators()).thenReturn(Arrays.asList(testOperator, operator2));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/operators")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].callsign").value("W1OP"))
+                .andExpect(jsonPath("$[1].callsign").value("K2OP"));
+    }
+
+    // ==================== UPDATE OPERATOR TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("PUT /api/operators/{id} - Valid Update - Returns 200 OK")
+    void updateOperator_validUpdate_returns200() throws Exception {
+        // Arrange
+        Operator updatedOperator = Operator.builder()
+                .id(1L)
+                .callsign("W1OP")
+                .name("Updated Operator")
+                .build();
+
+        when(operatorService.updateOperator(eq(1L), any(Operator.class)))
+                .thenReturn(updatedOperator);
+
+        // Act & Assert
+        mockMvc.perform(put("/api/operators/1")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedOperator)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Updated Operator"));
+
+        verify(operatorService).updateOperator(eq(1L), any(Operator.class));
+    }
+
+    // ==================== DELETE OPERATOR TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("DELETE /api/operators/{id} - Valid ID - Returns 204 No Content")
+    void deleteOperator_validId_returns204() throws Exception {
+        // Arrange
+        doNothing().when(operatorService).deleteOperator(1L);
+
+        // Act & Assert
+        mockMvc.perform(delete("/api/operators/1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isNoContent());
+
+        verify(operatorService).deleteOperator(1L);
+    }
+
+    // ==================== SEARCH OPERATORS TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/operators/search - By Callsign - Returns Matching Operators")
+    void searchOperators_byCallsign_returnsMatching() throws Exception {
+        // Arrange
+        when(operatorService.searchOperators("W1OP")).thenReturn(List.of(testOperator));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/operators/search")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("query", "W1OP"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].callsign").value("W1OP"));
+    }
+
+    @Test
+    @DisplayName("GET /api/operators - Not Authenticated - Returns 401 Unauthorized")
+    void getAllOperators_notAuthenticated_returns401() throws Exception {
+        // Act & Assert
+        mockMvc.perform(get("/api/operators"))
+                .andExpect(status().isUnauthorized());
+
+        verify(operatorService, never()).getAllOperators();
+    }
+}

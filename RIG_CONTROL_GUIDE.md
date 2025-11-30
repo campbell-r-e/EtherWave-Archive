@@ -113,7 +113,7 @@ The following radios have been tested with this system:
   - Ubuntu/Debian: `sudo apt-get install libhamlib4 libhamlib-utils`
   - macOS: `brew install hamlib`
   - Windows: Download from https://hamlib.github.io/
-- **Java 21** (for rig-control-service)
+- **Java 25** (for rig-control-service)
 - **USB driver** for your radio (if not built into OS)
 
 ---
@@ -138,7 +138,7 @@ The following radios have been tested with this system:
 3. **Find your rig model number**:
    ```bash
    # List all supported rigs
-   docker run --rm eclipse-temurin:21-jre-jammy sh -c "
+   docker run --rm eclipse-temurin:25-jre-jammy sh -c "
      apt-get update -qq &&
      apt-get install -y -qq software-properties-common &&
      add-apt-repository universe &&

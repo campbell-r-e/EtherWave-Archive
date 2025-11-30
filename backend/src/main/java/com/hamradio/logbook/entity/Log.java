@@ -2,6 +2,7 @@ package com.hamradio.logbook.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
     @Index(name = "idx_log_contest", columnList = "contest_id")
 })
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Log {

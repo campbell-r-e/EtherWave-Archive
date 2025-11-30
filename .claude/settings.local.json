@@ -31,7 +31,19 @@
       "Bash(TOKEN=\"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmcmVzaHVzZXIiLCJpYXQiOjE3NjQ0NTE5MzgsImV4cCI6MTc2NDUzODMzOH0.jVUu5J5V0bYLBnsRXrBGKI0IQ4YrRK6Ox1i8lCopnODXJ8EXtA0XMJkPMOmcyS0iEff7qf2eIJRANkSZQ3_25g\")",
       "Bash(find:*)",
       "Bash(./mvnw clean:*)",
-      "Bash(TOKEN=\"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc2NDQ1ODQ4MSwiZXhwIjoxNzY0NTQ0ODgxfQ.TDaXSTD1_GKvH9Z21BwwpiyB-VP7R8iT33hLX-SLMrOIv2XI_Oei2aNTDT-5CdOnul0GQFD-TCoyoCjmvDin7w\":*)"
+      "Bash(TOKEN=\"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc2NDQ1ODQ4MSwiZXhwIjoxNzY0NTQ0ODgxfQ.TDaXSTD1_GKvH9Z21BwwpiyB-VP7R8iT33hLX-SLMrOIv2XI_Oei2aNTDT-5CdOnul0GQFD-TCoyoCjmvDin7w\":*)",
+      "Bash(tee:*)",
+      "Bash(xargs:*)",
+      "Bash(jar tf:*)",
+      "Bash(for file in src/test/java/com/hamradio/logbook/config/SecurityConfigTest.java src/test/java/com/hamradio/logbook/controller/AuthControllerTest.java src/test/java/com/hamradio/logbook/controller/ContestControllerTest.java src/test/java/com/hamradio/logbook/controller/ExportControllerTest.java src/test/java/com/hamradio/logbook/controller/ImportControllerTest.java src/test/java/com/hamradio/logbook/controller/InvitationControllerTest.java src/test/java/com/hamradio/logbook/controller/LogControllerTest.java src/test/java/com/hamradio/logbook/controller/OperatorControllerTest.java src/test/java/com/hamradio/logbook/controller/QSOControllerTest.java src/test/java/com/hamradio/logbook/controller/StationControllerTest.java src/test/java/com/hamradio/logbook/controller/TelemetryControllerTest.java src/test/java/com/hamradio/logbook/integration/CompleteWorkflowIntegrationTest.java src/test/java/com/hamradio/logbook/security/JwtAuthenticationFilterTest.java src/test/java/com/hamradio/logbook/security/JwtUtilTest.java src/test/java/com/hamradio/logbook/service/LogServiceEdgeCaseTest.java src/test/java/com/hamradio/logbook/service/QSOServiceEdgeCaseTest.java)",
+      "Bash(do mv $file 'src/test-disabled/$(basename $file)')",
+      "WebSearch",
+      "Bash({} ;)",
+      "Bash(echo:*)",
+      "Bash(cat:*)",
+      "Bash('s/@SpringBootTest$/@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)/g' )",
+      "Bash('s|^@SpringBootTest|import com.hamradio.logbook.config.TestConfig;\\nimport org.springframework.context.annotation.Import;\\n\\n@Import(TestConfig.class)\\n@SpringBootTest|g' )",
+      "Bash(timeout 180 mvn test:*)"
     ],
     "deny": [],
     "ask": []

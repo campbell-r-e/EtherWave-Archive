@@ -12,7 +12,19 @@ This service runs **locally on each client machine** and:
 
 ## Prerequisites
 
-### 1. Install Hamlib
+### 1. Java 25
+
+This service requires **Java 25** or higher.
+
+Download from [Eclipse Adoptium](https://adoptium.net/)
+
+Verify installation:
+```bash
+java -version
+# Should show: openjdk version "25.0.1" or higher
+```
+
+### 2. Install Hamlib
 
 **macOS (Homebrew)**:
 ```bash
@@ -27,7 +39,7 @@ sudo apt-get install libhamlib-utils
 **Windows**:
 Download from: https://github.com/Hamlib/Hamlib/releases
 
-### 2. Start rigctld
+### 3. Start rigctld
 
 Find your rig model number:
 ```bash

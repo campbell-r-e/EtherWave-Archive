@@ -1,0 +1,314 @@
+package com.hamradio.logbook.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hamradio.logbook.entity.Contest;
+import com.hamradio.logbook.service.ContestService;
+import com.hamradio.logbook.testutil.JwtTestUtil;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@DisplayName("Contest Controller Tests")
+class ContestControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private ContestService contestService;
+
+    private Contest fieldDayContest;
+    private Contest potaContest;
+    private String jwtToken;
+
+    @BeforeEach
+    void setUp() {
+        fieldDayContest = Contest.builder()
+                .id(1L)
+                .contestCode("ARRL-FD")
+                .contestName("ARRL Field Day")
+                .description("Annual Field Day contest held on the fourth weekend of June")
+                .rules("Class and Section required")
+                .exchangeFormat("Class + Section (e.g., 2A ORG)")
+                .build();
+
+        potaContest = Contest.builder()
+                .id(2L)
+                .contestCode("POTA")
+                .contestName("Parks on the Air")
+                .description("Activate parks and earn awards")
+                .exchangeFormat("Park reference (e.g., K-0817)")
+                .build();
+
+        jwtToken = JwtTestUtil.generateToken("testuser");
+    }
+
+    // ==================== GET ALL CONTESTS TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/contests - Returns All Contests")
+    void getAllContests_returnsAllContests() throws Exception {
+        // Arrange
+        when(contestService.getAllContests()).thenReturn(Arrays.asList(fieldDayContest, potaContest));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/contests")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].contestCode").value("ARRL-FD"))
+                .andExpect(jsonPath("$[1].contestCode").value("POTA"));
+
+        verify(contestService).getAllContests();
+    }
+
+    @Test
+    @DisplayName("GET /api/contests - Not Authenticated - Returns 401 Unauthorized")
+    void getAllContests_notAuthenticated_returns401() throws Exception {
+        // Act & Assert
+        mockMvc.perform(get("/api/contests"))
+                .andExpect(status().isUnauthorized());
+
+        verify(contestService, never()).getAllContests();
+    }
+
+    // ==================== GET CONTEST BY ID TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/contests/{id} - Valid ID - Returns Contest")
+    void getContestById_validId_returnsContest() throws Exception {
+        // Arrange
+        when(contestService.getContestById(1L)).thenReturn(Optional.of(fieldDayContest));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/contests/1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.contestCode").value("ARRL-FD"))
+                .andExpect(jsonPath("$.contestName").value("ARRL Field Day"));
+
+        verify(contestService).getContestById(1L);
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/contests/{id} - Contest Not Found - Returns 404 Not Found")
+    void getContestById_notFound_returns404() throws Exception {
+        // Arrange
+        when(contestService.getContestById(999L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        mockMvc.perform(get("/api/contests/999")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isNotFound());
+    }
+
+    // ==================== GET CONTEST BY CODE TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/contests/code/{code} - Valid Code - Returns Contest")
+    void getContestByCode_validCode_returnsContest() throws Exception {
+        // Arrange
+        when(contestService.getContestByCode("ARRL-FD")).thenReturn(Optional.of(fieldDayContest));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/contests/code/ARRL-FD")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.contestCode").value("ARRL-FD"))
+                .andExpect(jsonPath("$.contestName").value("ARRL Field Day"));
+
+        verify(contestService).getContestByCode("ARRL-FD");
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/contests/code/{code} - Contest Not Found - Returns 404 Not Found")
+    void getContestByCode_notFound_returns404() throws Exception {
+        // Arrange
+        when(contestService.getContestByCode("INVALID")).thenReturn(Optional.empty());
+
+        // Act & Assert
+        mockMvc.perform(get("/api/contests/code/INVALID")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isNotFound());
+    }
+
+    // ==================== SEARCH CONTESTS TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/contests/search - By Name - Returns Matching Contests")
+    void searchContests_byName_returnsMatching() throws Exception {
+        // Arrange
+        when(contestService.searchContests("Field Day")).thenReturn(List.of(fieldDayContest));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/contests/search")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("query", "Field Day"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].contestName").value(containsString("Field Day")));
+
+        verify(contestService).searchContests("Field Day");
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/contests/search - No Matches - Returns Empty List")
+    void searchContests_noMatches_returnsEmptyList() throws Exception {
+        // Arrange
+        when(contestService.searchContests("NonExistent")).thenReturn(List.of());
+
+        // Act & Assert
+        mockMvc.perform(get("/api/contests/search")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("query", "NonExistent"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    // ==================== GET ACTIVE CONTESTS TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/contests/active - Returns Active Contests")
+    void getActiveContests_returnsActiveContests() throws Exception {
+        // Arrange
+        when(contestService.getActiveContests()).thenReturn(List.of(fieldDayContest, potaContest));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/contests/active")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
+
+        verify(contestService).getActiveContests();
+    }
+
+    // ==================== CONTEST VALIDATION TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/contests/validate - Valid Field Day Data - Returns No Errors")
+    void validateContestData_validFieldDay_returnsNoErrors() throws Exception {
+        // Arrange
+        String contestData = "{\"class\":\"2A\",\"section\":\"ORG\"}";
+        when(contestService.validateContestData("ARRL-FD", contestData)).thenReturn(List.of());
+
+        // Act & Assert
+        mockMvc.perform(post("/api/contests/validate")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("contestCode", "ARRL-FD")
+                        .param("data", contestData))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.valid").value(true))
+                .andExpect(jsonPath("$.errors", hasSize(0)));
+
+        verify(contestService).validateContestData("ARRL-FD", contestData);
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/contests/validate - Invalid Field Day Data - Returns Errors")
+    void validateContestData_invalidFieldDay_returnsErrors() throws Exception {
+        // Arrange
+        String invalidData = "{\"class\":\"INVALID\",\"section\":\"XXX\"}";
+        List<String> errors = List.of(
+                "Invalid class: INVALID",
+                "Invalid section: XXX"
+        );
+        when(contestService.validateContestData("ARRL-FD", invalidData)).thenReturn(errors);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/contests/validate")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("contestCode", "ARRL-FD")
+                        .param("data", invalidData))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.valid").value(false))
+                .andExpect(jsonPath("$.errors", hasSize(2)))
+                .andExpect(jsonPath("$.errors[0]").value(containsString("class")))
+                .andExpect(jsonPath("$.errors[1]").value(containsString("section")));
+    }
+
+    // ==================== GET CONTEST RULES TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/contests/{id}/rules - Returns Contest Rules")
+    void getContestRules_returnsRules() throws Exception {
+        // Arrange
+        when(contestService.getContestById(1L)).thenReturn(Optional.of(fieldDayContest));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/contests/1/rules")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rules").value("Class and Section required"))
+                .andExpect(jsonPath("$.exchangeFormat").value("Class + Section (e.g., 2A ORG)"));
+    }
+
+    // ==================== POPULAR CONTESTS TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/contests/popular - Returns Popular Contests")
+    void getPopularContests_returnsPopularContests() throws Exception {
+        // Arrange
+        when(contestService.getPopularContests()).thenReturn(List.of(fieldDayContest, potaContest));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/contests/popular")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].contestCode").value("ARRL-FD"));
+
+        verify(contestService).getPopularContests();
+    }
+
+    // ==================== CONTEST CATEGORIES TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/contests/categories - Returns Contest Categories")
+    void getContestCategories_returnsCategories() throws Exception {
+        // Arrange
+        List<String> categories = List.of("General", "POTA/SOTA", "DX", "Regional");
+        when(contestService.getContestCategories()).thenReturn(categories);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/contests/categories")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(4)))
+                .andExpect(jsonPath("$[0]").value("General"))
+                .andExpect(jsonPath("$[1]").value("POTA/SOTA"));
+    }
+}

@@ -20,9 +20,11 @@ Complete setup instructions for developers and system administrators.
 - 10GB disk space
 
 ### For Local Development
-- **Java Development Kit (JDK) 21** - Latest LTS version
-  - Download: https://adoptium.net/
-  - Verify: `java -version` should show version 21
+- **Java Development Kit (JDK) 25** - Latest version
+  - Download: https://adoptium.net/ (Eclipse Temurin 25)
+  - Verify: `java -version` should show version 25.0.1 or higher
+  - **Important**: Java 25 is required for Spring Boot 4.0.0 and latest features
+  - Set JAVA_HOME environment variable to JDK 25 installation path
 - **Node.js 24 or higher** and npm 11+
   - Download: https://nodejs.org/
   - Verify: `node --version` (should show v24.x.x) and `npm --version`
@@ -30,6 +32,7 @@ Complete setup instructions for developers and system administrators.
 - **Maven 3.9+**
   - Download: https://maven.apache.org/
   - Verify: `mvn --version`
+  - Ensure Maven is using Java 25 (check `mvn --version` output)
 - **Git** for version control
 - **PostgreSQL 16** (optional, for production database)
 - **Docker** (optional, for rig control service)

@@ -2,8 +2,10 @@
 
 A comprehensive, multi-user web-based logbook application for amateur radio operators with support for contests, rig control, real-time collaboration, and advanced features.
 
-[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.java.net/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://adoptium.net/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![Spring Framework](https://img.shields.io/badge/Spring%20Framework-7.0.0-green.svg)](https://spring.io/projects/spring-framework)
+[![Hibernate](https://img.shields.io/badge/Hibernate-7.1.8-yellow.svg)](https://hibernate.org/)
 [![Angular](https://img.shields.io/badge/Angular-21.0.1-red.svg)](https://angular.io/)
 [![Node.js](https://img.shields.io/badge/Node.js-24-green.svg)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)

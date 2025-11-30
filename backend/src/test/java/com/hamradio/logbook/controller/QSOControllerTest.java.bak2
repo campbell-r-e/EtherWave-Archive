@@ -1,0 +1,472 @@
+package com.hamradio.logbook.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hamradio.logbook.entity.*;
+import com.hamradio.logbook.service.LogService;
+import com.hamradio.logbook.service.QSOService;
+import com.hamradio.logbook.testutil.JwtTestUtil;
+import com.hamradio.logbook.testutil.TestDataBuilder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@DisplayName("QSO Controller Tests")
+class QSOControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private QSOService qsoService;
+
+    @MockitoBean
+    private LogService logService;
+
+    private User testUser;
+    private Station testStation;
+    private Log testLog;
+    private QSO testQSO;
+    private String jwtToken;
+
+    @BeforeEach
+    void setUp() {
+        testUser = TestDataBuilder.aValidUser().id(1L).build();
+        testStation = TestDataBuilder.aValidStation().id(1L).build();
+        testLog = TestDataBuilder.aValidLog(testUser).id(1L).build();
+        testQSO = TestDataBuilder.aValidQSO(testStation, testLog).id(1L).build();
+        jwtToken = JwtTestUtil.generateToken("testuser");
+    }
+
+    // ==================== CREATE QSO TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/qsos - Valid QSO - Returns 201 Created")
+    void createQSO_validQSO_returns201() throws Exception {
+        // Arrange
+        when(logService.hasWriteAccess(1L, 1L)).thenReturn(true);
+        when(qsoService.createQSO(any(QSO.class))).thenReturn(testQSO);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/qsos")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testQSO)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.callsign").value("W1AW"));
+
+        verify(qsoService).createQSO(any(QSO.class));
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/qsos - Invalid QSO - Returns 400 Bad Request")
+    void createQSO_invalidQSO_returns400() throws Exception {
+        // Arrange
+        QSO invalidQSO = TestDataBuilder.aValidQSO(testStation, testLog)
+                .callsign(null) // Missing required field
+                .build();
+
+        when(logService.hasWriteAccess(1L, 1L)).thenReturn(true);
+        when(qsoService.createQSO(any(QSO.class)))
+                .thenThrow(new IllegalArgumentException("Callsign is required"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/qsos")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidQSO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("POST /api/qsos - No Authentication - Returns 401 Unauthorized")
+    void createQSO_noAuthentication_returns401() throws Exception {
+        // Act & Assert
+        mockMvc.perform(post("/api/qsos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testQSO)))
+                .andExpect(status().isUnauthorized());
+
+        verify(qsoService, never()).createQSO(any());
+    }
+
+    @Test
+    @WithMockUser(username = "otheruser")
+    @DisplayName("POST /api/qsos - No Write Access - Returns 403 Forbidden")
+    void createQSO_noWriteAccess_returns403() throws Exception {
+        // Arrange
+        when(logService.hasWriteAccess(1L, 2L)).thenReturn(false);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/qsos")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testQSO)))
+                .andExpect(status().isForbidden());
+
+        verify(qsoService, never()).createQSO(any());
+    }
+
+    // ==================== GET QSO TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/qsos/{id} - Valid ID - Returns 200 OK")
+    void getQSO_validId_returns200() throws Exception {
+        // Arrange
+        when(qsoService.getQSOById(1L)).thenReturn(Optional.of(testQSO));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/qsos/1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.callsign").value("W1AW"))
+                .andExpect(jsonPath("$.frequencyKhz").value(14250))
+                .andExpect(jsonPath("$.mode").value("SSB"));
+
+        verify(qsoService).getQSOById(1L);
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/qsos/{id} - QSO Not Found - Returns 404 Not Found")
+    void getQSO_notFound_returns404() throws Exception {
+        // Arrange
+        when(qsoService.getQSOById(999L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        mockMvc.perform(get("/api/qsos/999")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isNotFound());
+
+        verify(qsoService).getQSOById(999L);
+    }
+
+    // ==================== GET QSOS BY LOG TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/qsos/log/{logId} - Valid Log - Returns 200 OK with Page")
+    void getQSOsByLog_validLog_returns200() throws Exception {
+        // Arrange
+        QSO qso2 = TestDataBuilder.aValidQSO(testStation, testLog).id(2L).callsign("K2ABC").build();
+        Page<QSO> page = new PageImpl<>(Arrays.asList(testQSO, qso2));
+        when(qsoService.getQSOsByLog(eq(1L), any())).thenReturn(page);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/qsos/log/1")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("page", "0")
+                        .param("size", "20"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(2)))
+                .andExpect(jsonPath("$.content[0].callsign").value("W1AW"))
+                .andExpect(jsonPath("$.content[1].callsign").value("K2ABC"));
+
+        verify(qsoService).getQSOsByLog(eq(1L), any());
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/qsos/log/{logId} - Empty Log - Returns Empty Page")
+    void getQSOsByLog_emptyLog_returnsEmptyPage() throws Exception {
+        // Arrange
+        Page<QSO> emptyPage = new PageImpl<>(List.of());
+        when(qsoService.getQSOsByLog(eq(1L), any())).thenReturn(emptyPage);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/qsos/log/1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(0)));
+    }
+
+    // ==================== UPDATE QSO TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("PUT /api/qsos/{id} - Valid Update - Returns 200 OK")
+    void updateQSO_validUpdate_returns200() throws Exception {
+        // Arrange
+        QSO updatedQSO = TestDataBuilder.aValidQSO(testStation, testLog)
+                .id(1L)
+                .callsign("K2ABC")
+                .build();
+
+        when(logService.hasWriteAccess(1L, 1L)).thenReturn(true);
+        when(qsoService.updateQSO(eq(1L), any(QSO.class))).thenReturn(updatedQSO);
+
+        // Act & Assert
+        mockMvc.perform(put("/api/qsos/1")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedQSO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.callsign").value("K2ABC"));
+
+        verify(qsoService).updateQSO(eq(1L), any(QSO.class));
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("PUT /api/qsos/{id} - QSO Not Found - Returns 404 Not Found")
+    void updateQSO_notFound_returns404() throws Exception {
+        // Arrange
+        when(logService.hasWriteAccess(1L, 1L)).thenReturn(true);
+        when(qsoService.updateQSO(eq(999L), any(QSO.class)))
+                .thenThrow(new IllegalArgumentException("QSO not found"));
+
+        // Act & Assert
+        mockMvc.perform(put("/api/qsos/999")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testQSO)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "otheruser")
+    @DisplayName("PUT /api/qsos/{id} - No Write Access - Returns 403 Forbidden")
+    void updateQSO_noWriteAccess_returns403() throws Exception {
+        // Arrange
+        when(logService.hasWriteAccess(1L, 2L)).thenReturn(false);
+
+        // Act & Assert
+        mockMvc.perform(put("/api/qsos/1")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testQSO)))
+                .andExpect(status().isForbidden());
+
+        verify(qsoService, never()).updateQSO(any(), any());
+    }
+
+    // ==================== DELETE QSO TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("DELETE /api/qsos/{id} - Valid ID - Returns 204 No Content")
+    void deleteQSO_validId_returns204() throws Exception {
+        // Arrange
+        when(logService.hasWriteAccess(1L, 1L)).thenReturn(true);
+        doNothing().when(qsoService).deleteQSO(1L);
+
+        // Act & Assert
+        mockMvc.perform(delete("/api/qsos/1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isNoContent());
+
+        verify(qsoService).deleteQSO(1L);
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("DELETE /api/qsos/{id} - QSO Not Found - Returns 404 Not Found")
+    void deleteQSO_notFound_returns404() throws Exception {
+        // Arrange
+        when(logService.hasWriteAccess(1L, 1L)).thenReturn(true);
+        doThrow(new IllegalArgumentException("QSO not found")).when(qsoService).deleteQSO(999L);
+
+        // Act & Assert
+        mockMvc.perform(delete("/api/qsos/999")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "otheruser")
+    @DisplayName("DELETE /api/qsos/{id} - No Write Access - Returns 403 Forbidden")
+    void deleteQSO_noWriteAccess_returns403() throws Exception {
+        // Arrange
+        when(logService.hasWriteAccess(1L, 2L)).thenReturn(false);
+
+        // Act & Assert
+        mockMvc.perform(delete("/api/qsos/1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isForbidden());
+
+        verify(qsoService, never()).deleteQSO(any());
+    }
+
+    // ==================== SEARCH QSO TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/qsos/search - By Callsign - Returns Matching QSOs")
+    void searchQSOs_byCallsign_returnsMatching() throws Exception {
+        // Arrange
+        QSO qso2 = TestDataBuilder.aValidQSO(testStation, testLog).id(2L).callsign("W1AW").build();
+        when(qsoService.searchQSOs(eq(1L), eq("W1AW"), any(), any(), any()))
+                .thenReturn(Arrays.asList(testQSO, qso2));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/qsos/search")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("logId", "1")
+                        .param("callsign", "W1AW"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].callsign").value("W1AW"));
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/qsos/search - By Date Range - Returns QSOs in Range")
+    void searchQSOs_byDateRange_returnsInRange() throws Exception {
+        // Arrange
+        when(qsoService.searchQSOs(eq(1L), any(), eq(LocalDate.of(2025, 1, 1)), eq(LocalDate.of(2025, 1, 31)), any()))
+                .thenReturn(List.of(testQSO));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/qsos/search")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("logId", "1")
+                        .param("startDate", "2025-01-01")
+                        .param("endDate", "2025-01-31"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)));
+    }
+
+    // ==================== GET QSO STATISTICS TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/qsos/stats/log/{logId} - Valid Log - Returns Statistics")
+    void getQSOStatistics_validLog_returnsStats() throws Exception {
+        // Arrange
+        QSOService.QSOStatistics stats = new QSOService.QSOStatistics();
+        stats.totalQSOs = 150L;
+        stats.uniqueCallsigns = 100L;
+        stats.qsosByBand = java.util.Map.of("20m", 50L, "40m", 30L);
+        stats.qsosByMode = java.util.Map.of("SSB", 80L, "CW", 40L);
+
+        when(qsoService.getStatistics(1L)).thenReturn(stats);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/qsos/stats/log/1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalQSOs").value(150))
+                .andExpect(jsonPath("$.uniqueCallsigns").value(100))
+                .andExpect(jsonPath("$.qsosByBand.20m").value(50))
+                .andExpect(jsonPath("$.qsosByMode.SSB").value(80));
+    }
+
+    // ==================== BATCH OPERATIONS TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/qsos/batch - Multiple QSOs - Returns 201 Created")
+    void batchCreateQSOs_multipleQSOs_returns201() throws Exception {
+        // Arrange
+        QSO qso2 = TestDataBuilder.aValidQSO(testStation, testLog).id(2L).callsign("K2ABC").build();
+        List<QSO> qsos = Arrays.asList(testQSO, qso2);
+
+        when(logService.hasWriteAccess(1L, 1L)).thenReturn(true);
+        when(qsoService.createQSOs(any())).thenReturn(qsos);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/qsos/batch")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(qsos)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$", hasSize(2)));
+
+        verify(qsoService).createQSOs(any());
+    }
+
+    // ==================== VALIDATION TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/qsos - Missing Required Field - Returns 400 Bad Request with Error Message")
+    void createQSO_missingRequiredField_returns400WithError() throws Exception {
+        // Arrange
+        QSO invalidQSO = TestDataBuilder.aValidQSO(testStation, testLog)
+                .callsign(null)
+                .build();
+
+        when(logService.hasWriteAccess(1L, 1L)).thenReturn(true);
+        when(qsoService.createQSO(any(QSO.class)))
+                .thenThrow(new IllegalArgumentException("Callsign is required"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/qsos")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidQSO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(containsString("Callsign")));
+    }
+
+    // ==================== PAGINATION TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/qsos/log/{logId} - Custom Page Size - Returns Correct Page")
+    void getQSOsByLog_customPageSize_returnsCorrectPage() throws Exception {
+        // Arrange
+        List<QSO> qsos = Arrays.asList(testQSO);
+        Page<QSO> page = new PageImpl<>(qsos);
+        when(qsoService.getQSOsByLog(eq(1L), any())).thenReturn(page);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/qsos/log/1")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("page", "0")
+                        .param("size", "50"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size").value(1));
+    }
+
+    // ==================== FROZEN LOG TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/qsos - Frozen Log - Returns 403 Forbidden")
+    void createQSO_frozenLog_returns403() throws Exception {
+        // Arrange
+        when(logService.hasWriteAccess(1L, 1L)).thenReturn(true);
+        when(qsoService.createQSO(any(QSO.class)))
+                .thenThrow(new IllegalStateException("Cannot modify frozen log"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/qsos")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testQSO)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value(containsString("frozen")));
+    }
+}

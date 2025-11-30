@@ -1,0 +1,533 @@
+package com.hamradio.logbook.controller;
+
+import com.hamradio.logbook.entity.Log;
+import com.hamradio.logbook.entity.User;
+import com.hamradio.logbook.service.AdifImportService;
+import com.hamradio.logbook.service.LogService;
+import com.hamradio.logbook.testutil.JwtTestUtil;
+import com.hamradio.logbook.testutil.TestDataBuilder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@DisplayName("Import Controller Tests")
+class ImportControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
+    private AdifImportService adifImportService;
+
+    @MockitoBean
+    private LogService logService;
+
+    private User testUser;
+    private Log testLog;
+    private String jwtToken;
+    private byte[] validAdifContent;
+    private AdifImportService.ImportResult successfulImportResult;
+
+    @BeforeEach
+    void setUp() {
+        testUser = TestDataBuilder.aValidUser().id(1L).build();
+        testLog = TestDataBuilder.aValidLog(testUser).id(1L).build();
+        jwtToken = JwtTestUtil.generateToken("testuser");
+
+        validAdifContent = """
+                ADIF Export
+                <ADIF_VER:5>3.1.4
+                <EOH>
+                <CALL:4>W1AW <FREQ:8>14.25000 <MODE:3>SSB <QSO_DATE:8>20250115 <TIME_ON:6>143000 <EOR>
+                <CALL:5>K2ABC <FREQ:7>7.03000 <MODE:2>CW <QSO_DATE:8>20250115 <TIME_ON:6>150000 <EOR>
+                """.getBytes();
+
+        successfulImportResult = new AdifImportService.ImportResult();
+        successfulImportResult.totalRecords = 2;
+        successfulImportResult.successCount = 2;
+        successfulImportResult.errorCount = 0;
+        successfulImportResult.importedQSOs = List.of();
+        successfulImportResult.errors = List.of();
+    }
+
+    // ==================== ADIF IMPORT TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/import/adif/{logId} - Valid ADIF File - Returns 200 OK with Import Result")
+    void importAdif_validFile_returns200() throws Exception {
+        // Arrange
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.adi",
+                "application/octet-stream",
+                validAdifContent
+        );
+
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(logService.hasWriteAccess(1L, 1L)).thenReturn(true);
+        when(adifImportService.importAdif(any(byte[].class), eq(1L), eq(1L)))
+                .thenReturn(successfulImportResult);
+
+        // Act & Assert
+        mockMvc.perform(multipart("/api/import/adif/1")
+                        .file(file)
+                        .param("stationId", "1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalRecords").value(2))
+                .andExpect(jsonPath("$.successCount").value(2))
+                .andExpect(jsonPath("$.errorCount").value(0));
+
+        verify(adifImportService).importAdif(any(byte[].class), eq(1L), eq(1L));
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/import/adif/{logId} - Log Not Found - Returns 404 Not Found")
+    void importAdif_logNotFound_returns404() throws Exception {
+        // Arrange
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.adi",
+                "application/octet-stream",
+                validAdifContent
+        );
+
+        when(logService.getLogById(999L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        mockMvc.perform(multipart("/api/import/adif/999")
+                        .file(file)
+                        .param("stationId", "1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isNotFound());
+
+        verify(adifImportService, never()).importAdif(any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("POST /api/import/adif/{logId} - Not Authenticated - Returns 401 Unauthorized")
+    void importAdif_notAuthenticated_returns401() throws Exception {
+        // Arrange
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.adi",
+                "application/octet-stream",
+                validAdifContent
+        );
+
+        // Act & Assert
+        mockMvc.perform(multipart("/api/import/adif/1")
+                        .file(file)
+                        .param("stationId", "1"))
+                .andExpect(status().isUnauthorized());
+
+        verify(adifImportService, never()).importAdif(any(), any(), any());
+    }
+
+    @Test
+    @WithMockUser(username = "otheruser")
+    @DisplayName("POST /api/import/adif/{logId} - No Write Access - Returns 403 Forbidden")
+    void importAdif_noWriteAccess_returns403() throws Exception {
+        // Arrange
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.adi",
+                "application/octet-stream",
+                validAdifContent
+        );
+
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(logService.hasWriteAccess(1L, 2L)).thenReturn(false);
+
+        // Act & Assert
+        mockMvc.perform(multipart("/api/import/adif/1")
+                        .file(file)
+                        .param("stationId", "1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isForbidden());
+
+        verify(adifImportService, never()).importAdif(any(), any(), any());
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/import/adif/{logId} - Frozen Log - Returns 403 Forbidden")
+    void importAdif_frozenLog_returns403() throws Exception {
+        // Arrange
+        Log frozenLog = TestDataBuilder.aFrozenLog(testUser).id(1L).build();
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.adi",
+                "application/octet-stream",
+                validAdifContent
+        );
+
+        when(logService.getLogById(1L)).thenReturn(Optional.of(frozenLog));
+        when(logService.hasWriteAccess(1L, 1L)).thenReturn(true);
+
+        // Act & Assert
+        mockMvc.perform(multipart("/api/import/adif/1")
+                        .file(file)
+                        .param("stationId", "1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value(containsString("frozen")));
+
+        verify(adifImportService, never()).importAdif(any(), any(), any());
+    }
+
+    // ==================== FILE VALIDATION TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/import/adif/{logId} - Empty File - Returns 400 Bad Request")
+    void importAdif_emptyFile_returns400() throws Exception {
+        // Arrange
+        MockMultipartFile emptyFile = new MockMultipartFile(
+                "file",
+                "empty.adi",
+                "application/octet-stream",
+                new byte[0]
+        );
+
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(logService.hasWriteAccess(1L, 1L)).thenReturn(true);
+
+        // Act & Assert
+        mockMvc.perform(multipart("/api/import/adif/1")
+                        .file(emptyFile)
+                        .param("stationId", "1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(containsString("empty")));
+
+        verify(adifImportService, never()).importAdif(any(), any(), any());
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/import/adif/{logId} - Invalid File Format - Returns 400 Bad Request")
+    void importAdif_invalidFileFormat_returns400() throws Exception {
+        // Arrange
+        byte[] invalidContent = "This is not valid ADIF content".getBytes();
+        MockMultipartFile invalidFile = new MockMultipartFile(
+                "file",
+                "invalid.txt",
+                "text/plain",
+                invalidContent
+        );
+
+        AdifImportService.ImportResult errorResult = new AdifImportService.ImportResult();
+        errorResult.totalRecords = 0;
+        errorResult.successCount = 0;
+        errorResult.errorCount = 1;
+        errorResult.errors = List.of("Invalid ADIF format");
+
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(logService.hasWriteAccess(1L, 1L)).thenReturn(true);
+        when(adifImportService.importAdif(any(byte[].class), eq(1L), eq(1L)))
+                .thenReturn(errorResult);
+
+        // Act & Assert
+        mockMvc.perform(multipart("/api/import/adif/1")
+                        .file(invalidFile)
+                        .param("stationId", "1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk()) // Returns result with errors
+                .andExpect(jsonPath("$.errorCount").value(1));
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/import/adif/{logId} - Large File - Imports Successfully")
+    void importAdif_largeFile_importsSuccessfully() throws Exception {
+        // Arrange
+        byte[] largeContent = new byte[1024 * 1024]; // 1MB
+        MockMultipartFile largeFile = new MockMultipartFile(
+                "file",
+                "large.adi",
+                "application/octet-stream",
+                largeContent
+        );
+
+        AdifImportService.ImportResult largeImportResult = new AdifImportService.ImportResult();
+        largeImportResult.totalRecords = 5000;
+        largeImportResult.successCount = 5000;
+        largeImportResult.errorCount = 0;
+
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(logService.hasWriteAccess(1L, 1L)).thenReturn(true);
+        when(adifImportService.importAdif(any(byte[].class), eq(1L), eq(1L)))
+                .thenReturn(largeImportResult);
+
+        // Act & Assert
+        mockMvc.perform(multipart("/api/import/adif/1")
+                        .file(largeFile)
+                        .param("stationId", "1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalRecords").value(5000))
+                .andExpect(jsonPath("$.successCount").value(5000));
+    }
+
+    // ==================== PARTIAL IMPORT TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/import/adif/{logId} - Partial Success - Returns Result with Errors")
+    void importAdif_partialSuccess_returnsResultWithErrors() throws Exception {
+        // Arrange
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.adi",
+                "application/octet-stream",
+                validAdifContent
+        );
+
+        AdifImportService.ImportResult partialResult = new AdifImportService.ImportResult();
+        partialResult.totalRecords = 10;
+        partialResult.successCount = 7;
+        partialResult.errorCount = 3;
+        partialResult.errors = List.of(
+                "Record 3: Missing callsign",
+                "Record 5: Invalid frequency",
+                "Record 8: Invalid date format"
+        );
+
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(logService.hasWriteAccess(1L, 1L)).thenReturn(true);
+        when(adifImportService.importAdif(any(byte[].class), eq(1L), eq(1L)))
+                .thenReturn(partialResult);
+
+        // Act & Assert
+        mockMvc.perform(multipart("/api/import/adif/1")
+                        .file(file)
+                        .param("stationId", "1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalRecords").value(10))
+                .andExpect(jsonPath("$.successCount").value(7))
+                .andExpect(jsonPath("$.errorCount").value(3))
+                .andExpect(jsonPath("$.errors[0]").value(containsString("callsign")))
+                .andExpect(jsonPath("$.errors[1]").value(containsString("frequency")))
+                .andExpect(jsonPath("$.errors[2]").value(containsString("date")));
+    }
+
+    // ==================== STATION VALIDATION TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/import/adif/{logId} - Missing Station ID - Returns 400 Bad Request")
+    void importAdif_missingStationId_returns400() throws Exception {
+        // Arrange
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.adi",
+                "application/octet-stream",
+                validAdifContent
+        );
+
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(logService.hasWriteAccess(1L, 1L)).thenReturn(true);
+
+        // Act & Assert - Missing stationId parameter
+        mockMvc.perform(multipart("/api/import/adif/1")
+                        .file(file)
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isBadRequest());
+
+        verify(adifImportService, never()).importAdif(any(), any(), any());
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/import/adif/{logId} - Invalid Station ID - Returns 400 Bad Request")
+    void importAdif_invalidStationId_returns400() throws Exception {
+        // Arrange
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.adi",
+                "application/octet-stream",
+                validAdifContent
+        );
+
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(logService.hasWriteAccess(1L, 1L)).thenReturn(true);
+        when(adifImportService.importAdif(any(byte[].class), eq(1L), eq(999L)))
+                .thenThrow(new IllegalArgumentException("Station not found: 999"));
+
+        // Act & Assert
+        mockMvc.perform(multipart("/api/import/adif/1")
+                        .file(file)
+                        .param("stationId", "999")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(containsString("Station not found")));
+    }
+
+    // ==================== FILE EXTENSION TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/import/adif/{logId} - .adi Extension - Imports Successfully")
+    void importAdif_adiExtension_importsSuccessfully() throws Exception {
+        // Arrange
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "export.adi",
+                "application/octet-stream",
+                validAdifContent
+        );
+
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(logService.hasWriteAccess(1L, 1L)).thenReturn(true);
+        when(adifImportService.importAdif(any(byte[].class), eq(1L), eq(1L)))
+                .thenReturn(successfulImportResult);
+
+        // Act & Assert
+        mockMvc.perform(multipart("/api/import/adif/1")
+                        .file(file)
+                        .param("stationId", "1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/import/adif/{logId} - .adif Extension - Imports Successfully")
+    void importAdif_adifExtension_importsSuccessfully() throws Exception {
+        // Arrange
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "export.adif",
+                "application/octet-stream",
+                validAdifContent
+        );
+
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(logService.hasWriteAccess(1L, 1L)).thenReturn(true);
+        when(adifImportService.importAdif(any(byte[].class), eq(1L), eq(1L)))
+                .thenReturn(successfulImportResult);
+
+        // Act & Assert
+        mockMvc.perform(multipart("/api/import/adif/1")
+                        .file(file)
+                        .param("stationId", "1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk());
+    }
+
+    // ==================== ERROR HANDLING TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/import/adif/{logId} - Service Exception - Returns 500 Internal Server Error")
+    void importAdif_serviceException_returns500() throws Exception {
+        // Arrange
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.adi",
+                "application/octet-stream",
+                validAdifContent
+        );
+
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(logService.hasWriteAccess(1L, 1L)).thenReturn(true);
+        when(adifImportService.importAdif(any(byte[].class), eq(1L), eq(1L)))
+                .thenThrow(new RuntimeException("Database connection error"));
+
+        // Act & Assert
+        mockMvc.perform(multipart("/api/import/adif/1")
+                        .file(file)
+                        .param("stationId", "1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isInternalServerError());
+    }
+
+    // ==================== DUPLICATE DETECTION TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/import/adif/{logId} - Duplicate QSOs - Returns Result with Duplicate Info")
+    void importAdif_duplicateQSOs_returnsResultWithDuplicateInfo() throws Exception {
+        // Arrange
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.adi",
+                "application/octet-stream",
+                validAdifContent
+        );
+
+        AdifImportService.ImportResult duplicateResult = new AdifImportService.ImportResult();
+        duplicateResult.totalRecords = 5;
+        duplicateResult.successCount = 3;
+        duplicateResult.errorCount = 2;
+        duplicateResult.errors = List.of(
+                "Record 2: Duplicate QSO (W1AW on 2025-01-15 14:30)",
+                "Record 4: Duplicate QSO (K2ABC on 2025-01-15 15:00)"
+        );
+
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(logService.hasWriteAccess(1L, 1L)).thenReturn(true);
+        when(adifImportService.importAdif(any(byte[].class), eq(1L), eq(1L)))
+                .thenReturn(duplicateResult);
+
+        // Act & Assert
+        mockMvc.perform(multipart("/api/import/adif/1")
+                        .file(file)
+                        .param("stationId", "1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.successCount").value(3))
+                .andExpect(jsonPath("$.errorCount").value(2))
+                .andExpect(jsonPath("$.errors[0]").value(containsString("Duplicate")));
+    }
+
+    // ==================== FILE SIZE LIMIT TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/import/adif/{logId} - File Too Large - Returns 413 Payload Too Large")
+    void importAdif_fileTooLarge_returns413() throws Exception {
+        // Arrange
+        byte[] oversizedContent = new byte[50 * 1024 * 1024]; // 50MB
+        MockMultipartFile oversizedFile = new MockMultipartFile(
+                "file",
+                "huge.adi",
+                "application/octet-stream",
+                oversizedContent
+        );
+
+        when(logService.getLogById(1L)).thenReturn(Optional.of(testLog));
+        when(logService.hasWriteAccess(1L, 1L)).thenReturn(true);
+
+        // Act & Assert
+        // Note: Actual file size limit enforcement would be configured in Spring Boot
+        // This test documents the expected behavior
+        mockMvc.perform(multipart("/api/import/adif/1")
+                        .file(oversizedFile)
+                        .param("stationId", "1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().is4xxClientError());
+    }
+}

@@ -40,7 +40,7 @@ Complete technical guide for developers working on the Ham Radio Contest Logbook
 └─────────────────────────────────────────────────────────────┘
                 ↕ HTTP/REST                ↕ WebSocket
 ┌─────────────────────────────────────────────────────────────┐
-│                    Spring Boot Backend                       │
+│              Spring Boot 4.0.0 Backend                       │
 │  ┌────────────────────────────────────────────────────┐     │
 │  │           Web Layer (Controllers)                   │     │
 │  │  @RestController │ @CrossOrigin │ Exception Handlers│     │
@@ -90,11 +90,13 @@ Complete technical guide for developers working on the Ham Radio Contest Logbook
 - Spring Boot Actuator provides production-ready monitoring and health checks
 - Large community and extensive documentation
 
-#### Why Java 21?
-- Latest LTS (Long-Term Support) release with extended support until 2029
-- Virtual threads for improved concurrency (Project Loom)
-- Pattern matching and record patterns for cleaner code
+#### Why Java 25?
+- Latest Java release with cutting-edge features and improvements
+- Built on Java 21 LTS foundation with additional enhancements
+- Improved virtual threads performance (Project Loom refinements)
+- Enhanced pattern matching and language features
 - Better performance and garbage collection improvements
+- Spring Boot 4.0.0 fully optimized for Java 25
 - Modern language features while maintaining backward compatibility
 
 #### Why Angular 21?
@@ -121,18 +123,18 @@ Complete technical guide for developers working on the Ham Radio Contest Logbook
 
 ```bash
 # Check versions
-java --version    # Should be 21+ (LTS)
-node --version    # Should be 18+
-npm --version     # Should be 9+
+java --version    # Should be 25.0.1 or higher
+node --version    # Should be 24+
+npm --version     # Should be 10+
 git --version     # Should be 2.x
 docker --version  # For rig control (optional)
 ```
 
-**Important**: Java 21 is required. The project uses:
-- Java 21 LTS (latest long-term support version)
-- Spring Boot 3.2.0 (requires Java 17+, optimized for Java 21)
-- Lombok 1.18.34 (Java 21 compatible)
-- Hibernate 6.3 with Java 21 support
+**Important**: Java 25 is required. The project uses:
+- Java 25 (latest release with cutting-edge features)
+- Spring Boot 4.0.0 (requires Java 25, fully optimized for Java 25)
+- Lombok 1.18.38 (Java 25 compatible)
+- Hibernate 7.1.8 with Java 25 support
 
 ### Backend Setup
 

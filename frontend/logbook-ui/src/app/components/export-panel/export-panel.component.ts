@@ -52,7 +52,11 @@ export class ExportPanelComponent implements OnInit {
   }
 
   exportADIF(): void {
-    this.apiService.exportADIF();
+    if (!this.currentLog) {
+      alert('Please select a log first');
+      return;
+    }
+    this.apiService.exportAdifByLog(this.currentLog.id);
   }
 
   showCabrilloForm(): void {

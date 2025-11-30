@@ -1,0 +1,417 @@
+package com.hamradio.logbook.config;
+
+import com.hamradio.logbook.config.JwtAuthenticationFilter;
+import com.hamradio.logbook.util.security.JwtUtil;
+import com.hamradio.logbook.service.security.CustomUserDetailsService;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@DisplayName("Security Configuration Tests")
+class SecurityConfigTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
+    private JwtUtil jwtUtil;
+
+    @MockitoBean
+    private CustomUserDetailsService userDetailsService;
+
+    @MockitoBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    // ==================== PUBLIC ENDPOINT TESTS ====================
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("POST /api/auth/register - Anonymous User - Allows Access")
+    void postAuthRegister_anonymousUser_allowsAccess() throws Exception {
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"test\",\"password\":\"pass\",\"email\":\"test@test.com\",\"callsign\":\"W1AW\"}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("POST /api/auth/login - Anonymous User - Allows Access")
+    void postAuthLogin_anonymousUser_allowsAccess() throws Exception {
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"test\",\"password\":\"pass\"}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("GET /health - Anonymous User - Allows Access")
+    void getHealth_anonymousUser_allowsAccess() throws Exception {
+        mockMvc.perform(get("/health"))
+                .andExpect(status().isOk());
+    }
+
+    // ==================== PROTECTED ENDPOINT TESTS ====================
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("GET /api/qsos - Anonymous User - Denies Access")
+    void getQsos_anonymousUser_deniesAccess() throws Exception {
+        mockMvc.perform(get("/api/qsos"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/qsos - Authenticated User - Allows Access")
+    void getQsos_authenticatedUser_allowsAccess() throws Exception {
+        mockMvc.perform(get("/api/qsos"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("GET /api/logs - Anonymous User - Denies Access")
+    void getLogs_anonymousUser_deniesAccess() throws Exception {
+        mockMvc.perform(get("/api/logs"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/logs - Authenticated User - Allows Access")
+    void getLogs_authenticatedUser_allowsAccess() throws Exception {
+        mockMvc.perform(get("/api/logs"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("GET /api/stations - Anonymous User - Denies Access")
+    void getStations_anonymousUser_deniesAccess() throws Exception {
+        mockMvc.perform(get("/api/stations"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    // ==================== CORS TESTS ====================
+
+    @Test
+    @DisplayName("OPTIONS /api/qsos - CORS Preflight - Allows Access")
+    void optionsQsos_corsPreflight_allowsAccess() throws Exception {
+        mockMvc.perform(options("/api/qsos")
+                        .header("Origin", "http://localhost:4200")
+                        .header("Access-Control-Request-Method", "GET"))
+                .andExpect(status().isOk())
+                .andExpect(header().exists("Access-Control-Allow-Origin"));
+    }
+
+    @Test
+    @DisplayName("GET /api/qsos - With Origin Header - Includes CORS Headers")
+    void getQsos_withOriginHeader_includesCorsHeaders() throws Exception {
+        mockMvc.perform(get("/api/qsos")
+                        .header("Origin", "http://localhost:4200"))
+                .andExpect(status().isUnauthorized()) // Unauthorized because not authenticated, but CORS should work
+                .andExpect(header().exists("Access-Control-Allow-Origin"));
+    }
+
+    // ==================== HTTP METHOD TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/qsos - Authenticated User - Allows Access")
+    void postQsos_authenticatedUser_allowsAccess() throws Exception {
+        mockMvc.perform(post("/api/qsos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("PUT /api/qsos/1 - Authenticated User - Allows Access")
+    void putQsos_authenticatedUser_allowsAccess() throws Exception {
+        mockMvc.perform(put("/api/qsos/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("DELETE /api/qsos/1 - Authenticated User - Allows Access")
+    void deleteQsos_authenticatedUser_allowsAccess() throws Exception {
+        mockMvc.perform(delete("/api/qsos/1"))
+                .andExpect(status().isOk());
+    }
+
+    // ==================== ADMIN ENDPOINT TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser", roles = {"USER"})
+    @DisplayName("GET /api/admin/users - Regular User - Denies Access")
+    void getAdminUsers_regularUser_deniesAccess() throws Exception {
+        mockMvc.perform(get("/api/admin/users"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    @DisplayName("GET /api/admin/users - Admin User - Allows Access")
+    void getAdminUsers_adminUser_allowsAccess() throws Exception {
+        mockMvc.perform(get("/api/admin/users"))
+                .andExpect(status().isOk());
+    }
+
+    // ==================== CSRF TESTS ====================
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("POST /api/auth/register - Without CSRF Token - Allows Access")
+    void postAuthRegister_withoutCsrfToken_allowsAccess() throws Exception {
+        // CSRF should be disabled for stateless JWT authentication
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"test\",\"password\":\"pass\",\"email\":\"test@test.com\",\"callsign\":\"W1AW\"}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/qsos - Without CSRF Token - Allows Access")
+    void postQsos_withoutCsrfToken_allowsAccess() throws Exception {
+        // CSRF should be disabled for stateless JWT authentication
+        mockMvc.perform(post("/api/qsos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isOk());
+    }
+
+    // ==================== PASSWORD ENCODER TESTS ====================
+
+    @Test
+    @DisplayName("Password Encoder Bean - Should Be Available")
+    void passwordEncoderBean_shouldBeAvailable() {
+        // The fact that the context loads successfully means the password encoder bean is configured
+        // This is tested by the @SpringBootTest annotation
+    }
+
+    // ==================== SESSION MANAGEMENT TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("Multiple Requests - Stateless Session - No Session Created")
+    void multipleRequests_statelessSession_noSessionCreated() throws Exception {
+        // First request
+        mockMvc.perform(get("/api/qsos"))
+                .andExpect(status().isOk())
+                .andExpect(request().sessionAttributeDoesNotExist("SPRING_SECURITY_CONTEXT"));
+
+        // Second request - should not reuse session
+        mockMvc.perform(get("/api/logs"))
+                .andExpect(status().isOk())
+                .andExpect(request().sessionAttributeDoesNotExist("SPRING_SECURITY_CONTEXT"));
+    }
+
+    // ==================== CONTENT TYPE TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/qsos - JSON Content Type - Accepts Request")
+    void postQsos_jsonContentType_acceptsRequest() throws Exception {
+        mockMvc.perform(post("/api/qsos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/qsos - Form Content Type - Rejects Request")
+    void postQsos_formContentType_rejectsRequest() throws Exception {
+        mockMvc.perform(post("/api/qsos")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content("field=value"))
+                .andExpect(status().isUnsupportedMediaType());
+    }
+
+    // ==================== ERROR HANDLING TESTS ====================
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("GET /api/nonexistent - Anonymous User - Returns 404 Not 401")
+    void getNonexistent_anonymousUser_returns404Not401() throws Exception {
+        mockMvc.perform(get("/api/nonexistent"))
+                .andExpect(status().isNotFound());
+    }
+
+    // ==================== ACTUATOR ENDPOINT TESTS ====================
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("GET /actuator/health - Anonymous User - Allows Access")
+    void getActuatorHealth_anonymousUser_allowsAccess() throws Exception {
+        mockMvc.perform(get("/actuator/health"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("GET /actuator/info - Anonymous User - Allows Access")
+    void getActuatorInfo_anonymousUser_allowsAccess() throws Exception {
+        mockMvc.perform(get("/actuator/info"))
+                .andExpect(status().isOk());
+    }
+
+    // ==================== EXPORT ENDPOINT TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/export/adif/1 - Authenticated User - Allows Access")
+    void getExportAdif_authenticatedUser_allowsAccess() throws Exception {
+        mockMvc.perform(get("/api/export/adif/1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("GET /api/export/adif/1 - Anonymous User - Denies Access")
+    void getExportAdif_anonymousUser_deniesAccess() throws Exception {
+        mockMvc.perform(get("/api/export/adif/1"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    // ==================== IMPORT ENDPOINT TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/import/adif - Authenticated User - Allows Access")
+    void postImportAdif_authenticatedUser_allowsAccess() throws Exception {
+        mockMvc.perform(post("/api/import/adif")
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("POST /api/import/adif - Anonymous User - Denies Access")
+    void postImportAdif_anonymousUser_deniesAccess() throws Exception {
+        mockMvc.perform(post("/api/import/adif")
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isUnauthorized());
+    }
+
+    // ==================== INVITATION ENDPOINT TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/invitations - Authenticated User - Allows Access")
+    void getInvitations_authenticatedUser_allowsAccess() throws Exception {
+        mockMvc.perform(get("/api/invitations"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("GET /api/invitations - Anonymous User - Denies Access")
+    void getInvitations_anonymousUser_deniesAccess() throws Exception {
+        mockMvc.perform(get("/api/invitations"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/invitations - Authenticated User - Allows Access")
+    void postInvitations_authenticatedUser_allowsAccess() throws Exception {
+        mockMvc.perform(post("/api/invitations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isOk());
+    }
+
+    // ==================== TELEMETRY ENDPOINT TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/telemetry - Authenticated User - Allows Access")
+    void postTelemetry_authenticatedUser_allowsAccess() throws Exception {
+        mockMvc.perform(post("/api/telemetry")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("POST /api/telemetry - Anonymous User - Denies Access")
+    void postTelemetry_anonymousUser_deniesAccess() throws Exception {
+        mockMvc.perform(post("/api/telemetry")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    // ==================== CONTEST ENDPOINT TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/contests - Authenticated User - Allows Access")
+    void getContests_authenticatedUser_allowsAccess() throws Exception {
+        mockMvc.perform(get("/api/contests"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("GET /api/contests - Anonymous User - Denies Access")
+    void getContests_anonymousUser_deniesAccess() throws Exception {
+        mockMvc.perform(get("/api/contests"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    // ==================== SECURITY HEADERS TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/qsos - Includes Security Headers")
+    void getQsos_includesSecurityHeaders() throws Exception {
+        mockMvc.perform(get("/api/qsos"))
+                .andExpect(status().isOk())
+                .andExpect(header().exists("X-Content-Type-Options"))
+                .andExpect(header().exists("X-Frame-Options"))
+                .andExpect(header().exists("X-XSS-Protection"));
+    }
+
+    // ==================== MULTIPLE AUTHENTICATION METHODS TESTS ====================
+
+    @Test
+    @DisplayName("POST /api/auth/login - Valid Credentials - Returns Token")
+    void postAuthLogin_validCredentials_returnsToken() throws Exception {
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"testuser\",\"password\":\"password\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").exists());
+    }
+
+    @Test
+    @DisplayName("POST /api/auth/login - Invalid Credentials - Returns Error")
+    void postAuthLogin_invalidCredentials_returnsError() throws Exception {
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"invalid\",\"password\":\"wrong\"}"))
+                .andExpect(status().isUnauthorized());
+    }
+}

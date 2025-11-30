@@ -1,0 +1,360 @@
+package com.hamradio.logbook.repository;
+
+import com.hamradio.logbook.entity.Contest;
+import com.hamradio.logbook.testutil.BaseIntegrationTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.*;
+
+@DisplayName("Contest Repository Integration Tests")
+class ContestRepositoryTest extends BaseIntegrationTest {
+
+    @Autowired
+    private ContestRepository contestRepository;
+
+    @BeforeEach
+    void setUp() {
+        contestRepository.deleteAll();
+    }
+
+    // ==================== SAVE AND FIND TESTS ====================
+
+    @Test
+    @DisplayName("save - Valid Contest - Persists Successfully")
+    void save_validContest_persistsSuccessfully() {
+        // Arrange
+        Contest contest = Contest.builder()
+                .contestCode("ARRL-FD")
+                .contestName("ARRL Field Day")
+                .description("Annual emergency preparedness exercise")
+                .scoringType("POINTS")
+                .build();
+
+        // Act
+        Contest saved = contestRepository.save(contest);
+
+        // Assert
+        assertThat(saved.getId()).isNotNull();
+        assertThat(saved.getContestCode()).isEqualTo("ARRL-FD");
+        assertThat(saved.getContestName()).isEqualTo("ARRL Field Day");
+    }
+
+    @Test
+    @DisplayName("findById - Existing Contest - Returns Contest")
+    void findById_existingContest_returnsContest() {
+        // Arrange
+        Contest contest = contestRepository.save(Contest.builder()
+                .contestCode("ARRL-FD")
+                .contestName("ARRL Field Day")
+                .build());
+
+        // Act
+        Optional<Contest> found = contestRepository.findById(contest.getId());
+
+        // Assert
+        assertThat(found).isPresent();
+        assertThat(found.get().getContestCode()).isEqualTo("ARRL-FD");
+    }
+
+    // ==================== FIND BY CONTEST CODE TESTS ====================
+
+    @Test
+    @DisplayName("findByContestCode - Existing Contest - Returns Contest")
+    void findByContestCode_existingContest_returnsContest() {
+        // Arrange
+        contestRepository.save(Contest.builder()
+                .contestCode("ARRL-FD")
+                .contestName("ARRL Field Day")
+                .build());
+
+        // Act
+        Optional<Contest> found = contestRepository.findByContestCode("ARRL-FD");
+
+        // Assert
+        assertThat(found).isPresent();
+        assertThat(found.get().getContestName()).isEqualTo("ARRL Field Day");
+    }
+
+    @Test
+    @DisplayName("findByContestCode - Non-Existent Contest - Returns Empty")
+    void findByContestCode_nonExistentContest_returnsEmpty() {
+        // Act
+        Optional<Contest> found = contestRepository.findByContestCode("NON-EXISTENT");
+
+        // Assert
+        assertThat(found).isEmpty();
+    }
+
+    @Test
+    @DisplayName("findByContestCode - Case Sensitive - Returns Correct Contest")
+    void findByContestCode_caseSensitive_returnsCorrectContest() {
+        // Arrange
+        contestRepository.save(Contest.builder()
+                .contestCode("ARRL-FD")
+                .contestName("ARRL Field Day")
+                .build());
+
+        // Act
+        Optional<Contest> found = contestRepository.findByContestCode("arrl-fd");
+
+        // Assert
+        assertThat(found).isEmpty(); // Contest codes are case-sensitive
+    }
+
+    // ==================== SEARCH TESTS ====================
+
+    @Test
+    @DisplayName("findByContestNameContainingIgnoreCase - Returns Matching Contests")
+    void findByContestNameContainingIgnoreCase_returnsMatchingContests() {
+        // Arrange
+        contestRepository.save(Contest.builder()
+                .contestCode("ARRL-FD")
+                .contestName("ARRL Field Day")
+                .build());
+        contestRepository.save(Contest.builder()
+                .contestCode("WFD")
+                .contestName("Winter Field Day")
+                .build());
+        contestRepository.save(Contest.builder()
+                .contestCode("POTA")
+                .contestName("Parks on the Air")
+                .build());
+
+        // Act
+        List<Contest> results = contestRepository.findByContestNameContainingIgnoreCase("field");
+
+        // Assert
+        assertThat(results).hasSize(2);
+        assertThat(results).allMatch(contest ->
+            contest.getContestName().toLowerCase().contains("field"));
+    }
+
+    @Test
+    @DisplayName("findByDescriptionContaining - Returns Matching Contests")
+    void findByDescriptionContaining_returnsMatchingContests() {
+        // Arrange
+        contestRepository.save(Contest.builder()
+                .contestCode("ARRL-FD")
+                .contestName("ARRL Field Day")
+                .description("Emergency preparedness exercise")
+                .build());
+        contestRepository.save(Contest.builder()
+                .contestCode("WFD")
+                .contestName("Winter Field Day")
+                .description("Winter emergency preparedness")
+                .build());
+        contestRepository.save(Contest.builder()
+                .contestCode("POTA")
+                .contestName("Parks on the Air")
+                .description("Portable activation program")
+                .build());
+
+        // Act
+        List<Contest> results = contestRepository.findByDescriptionContaining("emergency");
+
+        // Assert
+        assertThat(results).hasSize(2);
+        assertThat(results).allMatch(contest ->
+            contest.getDescription().contains("emergency"));
+    }
+
+    // ==================== SCORING TYPE TESTS ====================
+
+    @Test
+    @DisplayName("findByScoringType - Returns Contests by Scoring Type")
+    void findByScoringType_returnsContestsByScoringType() {
+        // Arrange
+        contestRepository.save(Contest.builder()
+                .contestCode("ARRL-FD")
+                .contestName("ARRL Field Day")
+                .scoringType("POINTS")
+                .build());
+        contestRepository.save(Contest.builder()
+                .contestCode("WFD")
+                .contestName("Winter Field Day")
+                .scoringType("POINTS")
+                .build());
+        contestRepository.save(Contest.builder()
+                .contestCode("POTA")
+                .contestName("Parks on the Air")
+                .scoringType("ACTIVATION")
+                .build());
+
+        // Act
+        List<Contest> pointsContests = contestRepository.findByScoringType("POINTS");
+        List<Contest> activationContests = contestRepository.findByScoringType("ACTIVATION");
+
+        // Assert
+        assertThat(pointsContests).hasSize(2);
+        assertThat(activationContests).hasSize(1);
+    }
+
+    // ==================== EXISTS TESTS ====================
+
+    @Test
+    @DisplayName("existsByContestCode - Existing Contest - Returns True")
+    void existsByContestCode_existingContest_returnsTrue() {
+        // Arrange
+        contestRepository.save(Contest.builder()
+                .contestCode("ARRL-FD")
+                .contestName("ARRL Field Day")
+                .build());
+
+        // Act
+        boolean exists = contestRepository.existsByContestCode("ARRL-FD");
+
+        // Assert
+        assertThat(exists).isTrue();
+    }
+
+    @Test
+    @DisplayName("existsByContestCode - Non-Existent Contest - Returns False")
+    void existsByContestCode_nonExistentContest_returnsFalse() {
+        // Act
+        boolean exists = contestRepository.existsByContestCode("NON-EXISTENT");
+
+        // Assert
+        assertThat(exists).isFalse();
+    }
+
+    // ==================== COUNT TESTS ====================
+
+    @Test
+    @DisplayName("count - Returns Total Contest Count")
+    void count_returnsTotalContestCount() {
+        // Arrange
+        contestRepository.save(Contest.builder().contestCode("ARRL-FD").contestName("ARRL Field Day").build());
+        contestRepository.save(Contest.builder().contestCode("WFD").contestName("Winter Field Day").build());
+        contestRepository.save(Contest.builder().contestCode("POTA").contestName("Parks on the Air").build());
+        contestRepository.save(Contest.builder().contestCode("SOTA").contestName("Summits on the Air").build());
+
+        // Act
+        long count = contestRepository.count();
+
+        // Assert
+        assertThat(count).isEqualTo(4);
+    }
+
+    @Test
+    @DisplayName("countByScoringType - Returns Count by Scoring Type")
+    void countByScoringType_returnsCountByScoringType() {
+        // Arrange
+        contestRepository.save(Contest.builder()
+                .contestCode("ARRL-FD")
+                .contestName("ARRL Field Day")
+                .scoringType("POINTS")
+                .build());
+        contestRepository.save(Contest.builder()
+                .contestCode("WFD")
+                .contestName("Winter Field Day")
+                .scoringType("POINTS")
+                .build());
+        contestRepository.save(Contest.builder()
+                .contestCode("POTA")
+                .contestName("Parks on the Air")
+                .scoringType("ACTIVATION")
+                .build());
+
+        // Act
+        long pointsCount = contestRepository.countByScoringType("POINTS");
+
+        // Assert
+        assertThat(pointsCount).isEqualTo(2);
+    }
+
+    // ==================== DELETE TESTS ====================
+
+    @Test
+    @DisplayName("deleteById - Removes Contest")
+    void deleteById_removesContest() {
+        // Arrange
+        Contest contest = contestRepository.save(Contest.builder()
+                .contestCode("ARRL-FD")
+                .contestName("ARRL Field Day")
+                .build());
+        Long contestId = contest.getId();
+
+        // Act
+        contestRepository.deleteById(contestId);
+
+        // Assert
+        assertThat(contestRepository.findById(contestId)).isEmpty();
+    }
+
+    @Test
+
+    // ==================== UPDATE TESTS ====================
+
+    @Test
+    @DisplayName("save - Update Existing Contest - Updates Successfully")
+    void save_updateExistingContest_updatesSuccessfully() {
+        // Arrange
+        Contest contest = contestRepository.save(Contest.builder()
+                .contestCode("ARRL-FD")
+                .contestName("ARRL Field Day")
+                .description("Old description")
+                .build());
+        Long contestId = contest.getId();
+
+        // Act
+        contest.setDescription("Updated emergency preparedness exercise");
+        contest.setRulesUrl("https://www.arrl.org/field-day-rules");
+        contestRepository.save(contest);
+
+        // Assert
+        Contest updated = contestRepository.findById(contestId).orElseThrow();
+        assertThat(updated.getDescription()).isEqualTo("Updated emergency preparedness exercise");
+        assertThat(updated.getRulesUrl()).isEqualTo("https://www.arrl.org/field-day-rules");
+    }
+
+    // ==================== FIND ALL TESTS ====================
+
+    @Test
+    @DisplayName("findAll - Returns All Contests")
+    void findAll_returnsAllContests() {
+        // Arrange
+        contestRepository.save(Contest.builder().contestCode("ARRL-FD").contestName("ARRL Field Day").build());
+        contestRepository.save(Contest.builder().contestCode("WFD").contestName("Winter Field Day").build());
+        contestRepository.save(Contest.builder().contestCode("POTA").contestName("Parks on the Air").build());
+
+        // Act
+        List<Contest> contests = (List<Contest>) contestRepository.findAll();
+
+        // Assert
+        assertThat(contests).hasSize(3);
+    }
+
+    // ==================== UNIQUE CONSTRAINT TESTS ====================
+
+    @Test
+    @DisplayName("save - Duplicate Contest Code - Throws Exception")
+    void save_duplicateContestCode_throwsException() {
+        // Arrange
+        contestRepository.save(Contest.builder()
+                .contestCode("ARRL-FD")
+                .contestName("ARRL Field Day")
+                .build());
+
+        // Act & Assert
+        assertThatThrownBy(() -> {
+            contestRepository.save(Contest.builder()
+                    .contestCode("ARRL-FD")
+                    .contestName("Duplicate Field Day")
+                    .build());
+        }).isInstanceOf(Exception.class);
+    }
+
+    // ==================== ORDERING TESTS ====================
+
+    @Test
+
+    // ==================== POPULAR CONTESTS TESTS ====================
+
+    @Test
+}

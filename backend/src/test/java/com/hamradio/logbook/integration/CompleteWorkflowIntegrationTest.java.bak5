@@ -1,0 +1,451 @@
+package com.hamradio.logbook.integration;
+
+import com.hamradio.logbook.entity.*;
+import com.hamradio.logbook.repository.*;
+import com.hamradio.logbook.service.*;
+import com.hamradio.logbook.testutil.BaseIntegrationTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.*;
+
+@SpringBootTest
+@Transactional
+@DisplayName("Complete Workflow Integration Tests")
+class CompleteWorkflowIntegrationTest extends BaseIntegrationTest {
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private StationService stationService;
+
+    @Autowired
+    private LogService logService;
+
+    @Autowired
+    private QSOService qsoService;
+
+    @Autowired
+    private InvitationService invitationService;
+
+    @Autowired
+    private ExportService exportService;
+
+    @Autowired
+    private ImportService importService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private StationRepository stationRepository;
+
+    @Autowired
+    private LogRepository logRepository;
+
+    @Autowired
+    private QSORepository qsoRepository;
+
+    private User user1;
+    private User user2;
+
+    @BeforeEach
+    void setUp() {
+        // Clear all data before each test
+        qsoRepository.deleteAll();
+        logRepository.deleteAll();
+        stationRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
+    // ==================== COMPLETE USER REGISTRATION TO FIRST QSO WORKFLOW ====================
+
+    @Test
+    @DisplayName("Complete Workflow: User Registration → Station Setup → Log Creation → First QSO")
+    void completeWorkflow_userRegistrationToFirstQSO_successfullyExecutes() {
+        // Step 1: Register new user
+        User newUser = new User();
+        newUser.setUsername("freshuser");
+        newUser.setEmail("fresh@example.com");
+        newUser.setPassword("SecurePassword123!");
+        newUser.setCallsign("W1NEW");
+
+        User registeredUser = userService.registerUser(newUser);
+
+        assertThat(registeredUser).isNotNull();
+        assertThat(registeredUser.getId()).isNotNull();
+        assertThat(registeredUser.getUsername()).isEqualTo("freshuser");
+
+        // Step 2: Create station
+        Station station = new Station();
+        station.setCallsign("W1NEW");
+        station.setOperatorName("Fresh User");
+        station.setGridSquare("FN31pr");
+        station.setCity("Newington");
+        station.setState("CT");
+        station.setCountry("USA");
+        station.setRigModel("Icom IC-7300");
+        station.setAntennaType("Dipole");
+        station.setPowerWatts(100);
+        station.setOwner(registeredUser);
+
+        Station createdStation = stationService.createStation(station, registeredUser);
+
+        assertThat(createdStation).isNotNull();
+        assertThat(createdStation.getId()).isNotNull();
+        assertThat(createdStation.getCallsign()).isEqualTo("W1NEW");
+
+        // Step 3: Create log
+        Log log = new Log();
+        log.setName("Field Day 2025");
+        log.setContestCode("ARRL-FD");
+        log.setOwner(registeredUser);
+
+        Log createdLog = logService.createLog(log, registeredUser);
+
+        assertThat(createdLog).isNotNull();
+        assertThat(createdLog.getId()).isNotNull();
+        assertThat(createdLog.getName()).isEqualTo("Field Day 2025");
+
+        // Step 4: Log first QSO
+        QSO qso = QSO.builder()
+            .callsign("W1AW")
+            .frequencyKhz(14250L)
+            .mode("SSB")
+            .band("20m")
+            .qsoDate(LocalDate.now())
+            .timeOn(LocalTime.of(14, 30))
+            .timeOff(LocalTime.of(14, 35))
+            .rstSent("59")
+            .rstRcvd("59")
+            .name("John Smith")
+            .city("Newington")
+            .state("CT")
+            .country("USA")
+            .gridSquare("FN31pr")
+            .station(createdStation)
+            .log(createdLog)
+            .build();
+
+        QSO loggedQSO = qsoService.createQSO(qso, registeredUser);
+
+        assertThat(loggedQSO).isNotNull();
+        assertThat(loggedQSO.getId()).isNotNull();
+        assertThat(loggedQSO.getCallsign()).isEqualTo("W1AW");
+        assertThat(loggedQSO.getStation().getId()).isEqualTo(createdStation.getId());
+        assertThat(loggedQSO.getLog().getId()).isEqualTo(createdLog.getId());
+
+        // Step 5: Verify all data persisted
+        User verifyUser = userRepository.findById(registeredUser.getId()).orElseThrow();
+        assertThat(verifyUser.getUsername()).isEqualTo("freshuser");
+
+        Station verifyStation = stationRepository.findById(createdStation.getId()).orElseThrow();
+        assertThat(verifyStation.getCallsign()).isEqualTo("W1NEW");
+
+        Log verifyLog = logRepository.findById(createdLog.getId()).orElseThrow();
+        assertThat(verifyLog.getName()).isEqualTo("Field Day 2025");
+
+        QSO verifyQSO = qsoRepository.findById(loggedQSO.getId()).orElseThrow();
+        assertThat(verifyQSO.getCallsign()).isEqualTo("W1AW");
+    }
+
+    // ==================== MULTI-USER COLLABORATION WORKFLOW ====================
+
+    @Test
+    @DisplayName("Multi-User Workflow: User1 Creates Log → Invites User2 → User2 Logs QSO")
+    void multiUserWorkflow_logInvitationAndSharedLogging_successfullyExecutes() {
+        // Step 1: Create two users
+        user1 = createUser("user1", "user1@example.com", "W1ABC");
+        user2 = createUser("user2", "user2@example.com", "K2XYZ");
+
+        // Step 2: User1 creates station and log
+        Station station1 = createStation(user1, "W1ABC");
+        Log log = createLog(user1, "Shared Field Day Log");
+
+        // Step 3: User1 invites User2 to log
+        Invitation invitation = new Invitation();
+        invitation.setLog(log);
+        invitation.setInviter(user1);
+        invitation.setInviteeUsername(user2.getUsername());
+        invitation.setRole(InvitationRole.STATION);
+
+        Invitation sentInvitation = invitationService.sendInvitation(invitation, user1);
+
+        assertThat(sentInvitation).isNotNull();
+        assertThat(sentInvitation.getStatus()).isEqualTo(InvitationStatus.PENDING);
+
+        // Step 4: User2 accepts invitation
+        Invitation acceptedInvitation = invitationService.acceptInvitation(sentInvitation.getId(), user2);
+
+        assertThat(acceptedInvitation.getStatus()).isEqualTo(InvitationStatus.ACCEPTED);
+
+        // Step 5: User2 creates their own station
+        Station station2 = createStation(user2, "K2XYZ");
+
+        // Step 6: User2 logs QSO to shared log
+        QSO qso = QSO.builder()
+            .callsign("N3ABC")
+            .frequencyKhz(7125L)
+            .mode("CW")
+            .band("40m")
+            .qsoDate(LocalDate.now())
+            .timeOn(LocalTime.of(15, 0))
+            .rstSent("599")
+            .rstRcvd("599")
+            .station(station2)
+            .log(log)
+            .build();
+
+        QSO loggedQSO = qsoService.createQSO(qso, user2);
+
+        assertThat(loggedQSO).isNotNull();
+        assertThat(loggedQSO.getStation().getCallsign()).isEqualTo("K2XYZ");
+        assertThat(loggedQSO.getLog().getId()).isEqualTo(log.getId());
+
+        // Step 7: Verify both users can see the QSO
+        List<QSO> user1QSOs = qsoService.getQSOsByLog(log.getId(), user1);
+        List<QSO> user2QSOs = qsoService.getQSOsByLog(log.getId(), user2);
+
+        assertThat(user1QSOs).hasSize(1);
+        assertThat(user2QSOs).hasSize(1);
+        assertThat(user1QSOs.get(0).getCallsign()).isEqualTo("N3ABC");
+    }
+
+    // ==================== CONTEST SUBMISSION WORKFLOW ====================
+
+    @Test
+    @DisplayName("Contest Workflow: Create Log → Log Multiple QSOs → Freeze Log → Export Cabrillo")
+    void contestWorkflow_fieldDaySubmission_successfullyExecutes() {
+        // Step 1: Create user and station
+        user1 = createUser("operator1", "op1@example.com", "W1FD");
+        Station station = createStation(user1, "W1FD");
+
+        // Step 2: Create Field Day log
+        Log log = new Log();
+        log.setName("ARRL Field Day 2025");
+        log.setContestCode("ARRL-FD");
+        log.setOwner(user1);
+        log.setContestClass("2A");
+        log.setContestSection("ORG");
+
+        Log createdLog = logService.createLog(log, user1);
+
+        // Step 3: Log multiple QSOs
+        String[] callsigns = {"W1AW", "K2ABC", "N3XYZ", "VE3DEF", "G4GHI"};
+        long[] frequencies = {14250L, 14260L, 7125L, 21200L, 28500L};
+        String[] modes = {"SSB", "SSB", "CW", "FT8", "SSB"};
+
+        for (int i = 0; i < callsigns.length; i++) {
+            QSO qso = QSO.builder()
+                .callsign(callsigns[i])
+                .frequencyKhz(frequencies[i])
+                .mode(modes[i])
+                .qsoDate(LocalDate.now())
+                .timeOn(LocalTime.of(14, 30 + (i * 10)))
+                .rstSent(modes[i].equals("CW") ? "599" : "59")
+                .rstRcvd(modes[i].equals("CW") ? "599" : "59")
+                .contestExchange("2A ORG")
+                .station(station)
+                .log(createdLog)
+                .build();
+
+            qsoService.createQSO(qso, user1);
+        }
+
+        // Step 4: Verify QSO count
+        List<QSO> qsos = qsoService.getQSOsByLog(createdLog.getId(), user1);
+        assertThat(qsos).hasSize(5);
+
+        // Step 5: Freeze log for submission
+        Log frozenLog = logService.freezeLog(createdLog.getId(), user1);
+        assertThat(frozenLog.isFrozen()).isTrue();
+
+        // Step 6: Export as Cabrillo
+        String cabrilloData = exportService.exportCabrillo(createdLog.getId(), user1);
+
+        assertThat(cabrilloData).isNotNull();
+        assertThat(cabrilloData).contains("START-OF-LOG:");
+        assertThat(cabrilloData).contains("CONTEST: ARRL-FD");
+        assertThat(cabrilloData).contains("CALLSIGN: W1FD");
+        assertThat(cabrilloData).contains("CATEGORY-ASSISTED: NON-ASSISTED");
+        assertThat(cabrilloData).contains("CATEGORY-STATION: 2A");
+        assertThat(cabrilloData).contains("ARRL-SECTION: ORG");
+        assertThat(cabrilloData).contains("W1AW");
+        assertThat(cabrilloData).contains("END-OF-LOG");
+
+        // Step 7: Attempt to log QSO to frozen log (should fail)
+        QSO invalidQSO = QSO.builder()
+            .callsign("W2TEST")
+            .frequencyKhz(14250L)
+            .mode("SSB")
+            .station(station)
+            .log(frozenLog)
+            .build();
+
+        assertThatThrownBy(() -> qsoService.createQSO(invalidQSO, user1))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("frozen");
+    }
+
+    // ==================== IMPORT/EXPORT WORKFLOW ====================
+
+    @Test
+    @DisplayName("Import/Export Workflow: Log QSOs → Export ADIF → Import to New Log → Verify")
+    void importExportWorkflow_adifRoundTrip_successfullyExecutes() {
+        // Step 1: Create user, station, and original log
+        user1 = createUser("exporter", "export@example.com", "W1EXP");
+        Station station = createStation(user1, "W1EXP");
+        Log originalLog = createLog(user1, "Original Log");
+
+        // Step 2: Log multiple QSOs
+        for (int i = 0; i < 10; i++) {
+            QSO qso = QSO.builder()
+                .callsign("W1" + String.format("%03d", i))
+                .frequencyKhz(14250L + i)
+                .mode("SSB")
+                .qsoDate(LocalDate.now().minusDays(i))
+                .timeOn(LocalTime.of(14, 30))
+                .rstSent("59")
+                .rstRcvd("59")
+                .station(station)
+                .log(originalLog)
+                .build();
+
+            qsoService.createQSO(qso, user1);
+        }
+
+        // Step 3: Export as ADIF
+        String adifData = exportService.exportAdif(originalLog.getId(), user1);
+
+        assertThat(adifData).isNotNull();
+        assertThat(adifData).contains("<ADIF_VER:5>3.1.4");
+        assertThat(adifData).contains("<CALL:5>W1000");
+        assertThat(adifData).contains("<CALL:5>W1009");
+
+        // Step 4: Create new log for import
+        Log importLog = createLog(user1, "Imported Log");
+
+        // Step 5: Import ADIF data
+        ImportResult result = importService.importAdif(adifData, importLog.getId(), station.getId(), user1);
+
+        assertThat(result.getImportedCount()).isEqualTo(10);
+        assertThat(result.getDuplicateCount()).isEqualTo(0);
+        assertThat(result.getErrorCount()).isEqualTo(0);
+
+        // Step 6: Verify imported QSOs
+        List<QSO> importedQSOs = qsoService.getQSOsByLog(importLog.getId(), user1);
+
+        assertThat(importedQSOs).hasSize(10);
+        assertThat(importedQSOs)
+            .extracting(QSO::getCallsign)
+            .contains("W1000", "W1009");
+
+        // Step 7: Verify duplicate detection on re-import
+        ImportResult duplicateResult = importService.importAdif(adifData, importLog.getId(), station.getId(), user1);
+
+        assertThat(duplicateResult.getDuplicateCount()).isGreaterThan(0);
+    }
+
+    // ==================== LOG FREEZE/UNFREEZE WORKFLOW ====================
+
+    @Test
+    @DisplayName("Freeze Workflow: Log QSOs → Freeze → Verify Immutable → Unfreeze → Modify")
+    void freezeWorkflow_freezeAndUnfreeze_successfullyExecutes() {
+        // Step 1: Setup
+        user1 = createUser("freezeuser", "freeze@example.com", "W1FRZ");
+        Station station = createStation(user1, "W1FRZ");
+        Log log = createLog(user1, "Test Log");
+
+        // Step 2: Log initial QSOs
+        QSO qso1 = createQSO(station, log, "W1AW", 14250L);
+        QSO qso2 = createQSO(station, log, "K2ABC", 14260L);
+
+        // Step 3: Freeze log
+        Log frozenLog = logService.freezeLog(log.getId(), user1);
+        assertThat(frozenLog.isFrozen()).isTrue();
+
+        // Step 4: Verify cannot add QSO
+        QSO invalidQSO = createQSOBuilder(station, frozenLog, "N3XYZ", 14270L);
+
+        assertThatThrownBy(() -> qsoService.createQSO(invalidQSO, user1))
+            .isInstanceOf(IllegalStateException.class);
+
+        // Step 5: Verify cannot update QSO
+        qso1.setFrequencyKhz(14255L);
+
+        assertThatThrownBy(() -> qsoService.updateQSO(qso1.getId(), qso1, user1))
+            .isInstanceOf(IllegalStateException.class);
+
+        // Step 6: Verify cannot delete QSO
+        assertThatThrownBy(() -> qsoService.deleteQSO(qso1.getId(), user1))
+            .isInstanceOf(IllegalStateException.class);
+
+        // Step 7: Unfreeze log
+        Log unfrozenLog = logService.unfreezeLog(log.getId(), user1);
+        assertThat(unfrozenLog.isFrozen()).isFalse();
+
+        // Step 8: Verify can now modify
+        QSO newQSO = createQSOBuilder(station, unfrozenLog, "N3XYZ", 14270L);
+        QSO createdQSO = qsoService.createQSO(newQSO, user1);
+        assertThat(createdQSO).isNotNull();
+
+        qso1.setFrequencyKhz(14255L);
+        QSO updatedQSO = qsoService.updateQSO(qso1.getId(), qso1, user1);
+        assertThat(updatedQSO.getFrequencyKhz()).isEqualTo(14255L);
+    }
+
+    // ==================== HELPER METHODS ====================
+
+    private User createUser(String username, String email, String callsign) {
+        User user = new User();
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPassword("Password123!");
+        user.setCallsign(callsign);
+        return userService.registerUser(user);
+    }
+
+    private Station createStation(User owner, String callsign) {
+        Station station = new Station();
+        station.setCallsign(callsign);
+        station.setOperatorName(owner.getUsername());
+        station.setGridSquare("FN31pr");
+        station.setOwner(owner);
+        return stationService.createStation(station, owner);
+    }
+
+    private Log createLog(User owner, String name) {
+        Log log = new Log();
+        log.setName(name);
+        log.setOwner(owner);
+        return logService.createLog(log, owner);
+    }
+
+    private QSO createQSO(Station station, Log log, String callsign, long frequency) {
+        QSO qso = createQSOBuilder(station, log, callsign, frequency);
+        return qsoService.createQSO(qso, station.getOwner());
+    }
+
+    private QSO createQSOBuilder(Station station, Log log, String callsign, long frequency) {
+        return QSO.builder()
+            .callsign(callsign)
+            .frequencyKhz(frequency)
+            .mode("SSB")
+            .qsoDate(LocalDate.now())
+            .timeOn(LocalTime.of(14, 30))
+            .rstSent("59")
+            .rstRcvd("59")
+            .station(station)
+            .log(log)
+            .build();
+    }
+}

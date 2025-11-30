@@ -1,0 +1,57 @@
+package com.hamradio.logbook.testutil;
+
+import com.hamradio.logbook.entity.User;
+import com.hamradio.logbook.util.security.JwtUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+/**
+ * Utility class for generating test JWTs
+ */
+@Component
+public class JwtTestUtil {
+
+    @Autowired(required = false)
+    private JwtUtil jwtUtil;
+
+    /**
+     * Generate a valid JWT for testing
+     */
+    public String generateToken(String username) {
+        if (jwtUtil == null) {
+            // Fallback for unit tests without Spring context
+            return "mock-jwt-token-" + username;
+        }
+        return jwtUtil.generateToken(username);
+    }
+
+    /**
+     * Generate a valid JWT for a test user
+     */
+    public String generateToken(User user) {
+        return generateToken(user.getUsername());
+    }
+
+    /**
+     * Generate an expired JWT for testing
+     */
+    public String generateExpiredToken(String username) {
+        // This would require modifying JwtUtil to support custom expiry for tests
+        // For now, return a mock expired token
+        return "expired-jwt-token-" + username;
+    }
+
+    /**
+     * Generate an invalid JWT for testing
+     */
+    public String generateInvalidToken() {
+        return "invalid.jwt.token";
+    }
+
+    /**
+     * Generate Authorization header with Bearer token
+     */
+    public String bearerToken(String username) {
+        return "Bearer " + generateToken(username);
+    }
+}

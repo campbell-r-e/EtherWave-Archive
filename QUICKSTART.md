@@ -39,7 +39,7 @@ docker-compose up -d
 ```
 
 This will:
-- Download all required images (Node.js 24, Java 21, PostgreSQL 16, Nginx)
+- Download all required images (Node.js 24, Java 25, PostgreSQL 16, Nginx)
 - Build the backend and frontend
 - Create the database
 - Start all services
@@ -103,8 +103,8 @@ You're ready to log contacts. The QSO entry form will guide you through:
 
 Download and install these:
 
-1. **Java 21** - https://adoptium.net/
-   - Verify: `java -version` (should show 21.x.x)
+1. **Java 25** - https://adoptium.net/
+   - Verify: `java -version` (should show 25.x.x)
 
 2. **Node.js 24** - https://nodejs.org/
    - Verify: `node --version` (should show v24.x.x)
@@ -416,7 +416,7 @@ After getting the system running:
 └─────────────────┬───────────────────────────┘
                   │ HTTP/WebSocket
 ┌─────────────────▼───────────────────────────┐
-│       Backend (Spring Boot 3.2)             │
+│       Backend (Spring Boot 4.0.0)           │
 │        http://localhost:8080                │
 │  - REST API                                 │
 │  - JWT Authentication                       │
@@ -437,7 +437,7 @@ After getting the system running:
 ## Success Checklist
 
 ✅ Docker installed and running (for Docker setup)
-✅ Java 21, Node 24, Maven installed (for local dev)
+✅ Java 25, Node 24, Maven installed (for local dev)
 ✅ All containers showing "healthy" status
 ✅ Frontend loads at http://localhost
 ✅ Backend health check shows "UP"

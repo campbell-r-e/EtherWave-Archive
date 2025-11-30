@@ -1,0 +1,654 @@
+package com.hamradio.logbook.service;
+
+import com.hamradio.logbook.entity.*;
+import com.hamradio.logbook.repository.*;
+import com.hamradio.logbook.exception.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.*;
+import java.util.concurrent.*;
+
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+@DisplayName("QSO Service Edge Case Tests")
+class QSOServiceEdgeCaseTest {
+
+    @Mock
+    private QSORepository qsoRepository;
+
+    @Mock
+    private LogRepository logRepository;
+
+    @Mock
+    private StationRepository stationRepository;
+
+    @InjectMocks
+    private QSOService qsoService;
+
+    private User user;
+    private Station station;
+    private Log log;
+
+    @BeforeEach
+    void setUp() {
+        user = new User();
+        user.setId(1L);
+        user.setUsername("testuser");
+
+        station = new Station();
+        station.setId(1L);
+        station.setCallsign("W1AW");
+        station.setOwner(user);
+
+        log = new Log();
+        log.setId(1L);
+        log.setName("Test Log");
+        log.setOwner(user);
+        log.setFrozen(false);
+    }
+
+    // ==================== NULL INPUT EDGE CASES ====================
+
+    @Test
+    @DisplayName("createQSO - Null QSO - Throws IllegalArgumentException")
+    void createQSO_nullQSO_throwsIllegalArgumentException() {
+        assertThatThrownBy(() -> qsoService.createQSO(null, user))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("QSO cannot be null");
+    }
+
+    @Test
+    @DisplayName("createQSO - Null User - Throws IllegalArgumentException")
+    void createQSO_nullUser_throwsIllegalArgumentException() {
+        QSO qso = QSO.builder()
+            .callsign("W1AW")
+            .frequencyKhz(14250L)
+            .mode("SSB")
+            .build();
+
+        assertThatThrownBy(() -> qsoService.createQSO(qso, null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("User cannot be null");
+    }
+
+    @Test
+    @DisplayName("createQSO - Null Callsign - Throws ValidationException")
+    void createQSO_nullCallsign_throwsValidationException() {
+        QSO qso = QSO.builder()
+            .callsign(null)
+            .frequencyKhz(14250L)
+            .mode("SSB")
+            .station(station)
+            .log(log)
+            .build();
+
+        assertThatThrownBy(() -> qsoService.createQSO(qso, user))
+            .isInstanceOf(ValidationException.class)
+            .hasMessageContaining("Callsign is required");
+    }
+
+    @Test
+    @DisplayName("createQSO - Null Frequency - Throws ValidationException")
+    void createQSO_nullFrequency_throwsValidationException() {
+        QSO qso = QSO.builder()
+            .callsign("W1AW")
+            .frequencyKhz(null)
+            .mode("SSB")
+            .station(station)
+            .log(log)
+            .build();
+
+        assertThatThrownBy(() -> qsoService.createQSO(qso, user))
+            .isInstanceOf(ValidationException.class)
+            .hasMessageContaining("Frequency is required");
+    }
+
+    @Test
+    @DisplayName("createQSO - Null Mode - Throws ValidationException")
+    void createQSO_nullMode_throwsValidationException() {
+        QSO qso = QSO.builder()
+            .callsign("W1AW")
+            .frequencyKhz(14250L)
+            .mode(null)
+            .station(station)
+            .log(log)
+            .build();
+
+        assertThatThrownBy(() -> qsoService.createQSO(qso, user))
+            .isInstanceOf(ValidationException.class)
+            .hasMessageContaining("Mode is required");
+    }
+
+    // ==================== EMPTY STRING EDGE CASES ====================
+
+    @Test
+    @DisplayName("createQSO - Empty Callsign - Throws ValidationException")
+    void createQSO_emptyCallsign_throwsValidationException() {
+        QSO qso = QSO.builder()
+            .callsign("")
+            .frequencyKhz(14250L)
+            .mode("SSB")
+            .station(station)
+            .log(log)
+            .build();
+
+        assertThatThrownBy(() -> qsoService.createQSO(qso, user))
+            .isInstanceOf(ValidationException.class)
+            .hasMessageContaining("Callsign cannot be empty");
+    }
+
+    @Test
+    @DisplayName("createQSO - Whitespace Only Callsign - Throws ValidationException")
+    void createQSO_whitespaceCallsign_throwsValidationException() {
+        QSO qso = QSO.builder()
+            .callsign("   ")
+            .frequencyKhz(14250L)
+            .mode("SSB")
+            .station(station)
+            .log(log)
+            .build();
+
+        assertThatThrownBy(() -> qsoService.createQSO(qso, user))
+            .isInstanceOf(ValidationException.class)
+            .hasMessageContaining("Callsign cannot be empty");
+    }
+
+    @Test
+    @DisplayName("createQSO - Empty Mode - Throws ValidationException")
+    void createQSO_emptyMode_throwsValidationException() {
+        QSO qso = QSO.builder()
+            .callsign("W1AW")
+            .frequencyKhz(14250L)
+            .mode("")
+            .station(station)
+            .log(log)
+            .build();
+
+        assertThatThrownBy(() -> qsoService.createQSO(qso, user))
+            .isInstanceOf(ValidationException.class)
+            .hasMessageContaining("Mode cannot be empty");
+    }
+
+    // ==================== BOUNDARY VALUE EDGE CASES ====================
+
+    @Test
+    @DisplayName("createQSO - Frequency Below Minimum - Throws ValidationException")
+    void createQSO_frequencyBelowMinimum_throwsValidationException() {
+        QSO qso = QSO.builder()
+            .callsign("W1AW")
+            .frequencyKhz(100L) // Below amateur radio spectrum
+            .mode("SSB")
+            .station(station)
+            .log(log)
+            .build();
+
+        assertThatThrownBy(() -> qsoService.createQSO(qso, user))
+            .isInstanceOf(ValidationException.class)
+            .hasMessageContaining("Frequency must be within amateur radio spectrum");
+    }
+
+    @Test
+    @DisplayName("createQSO - Frequency Above Maximum - Throws ValidationException")
+    void createQSO_frequencyAboveMaximum_throwsValidationException() {
+        QSO qso = QSO.builder()
+            .callsign("W1AW")
+            .frequencyKhz(500000L) // Above amateur radio spectrum
+            .mode("SSB")
+            .station(station)
+            .log(log)
+            .build();
+
+        assertThatThrownBy(() -> qsoService.createQSO(qso, user))
+            .isInstanceOf(ValidationException.class)
+            .hasMessageContaining("Frequency must be within amateur radio spectrum");
+    }
+
+    @Test
+    @DisplayName("createQSO - Negative Frequency - Throws ValidationException")
+    void createQSO_negativeFrequency_throwsValidationException() {
+        QSO qso = QSO.builder()
+            .callsign("W1AW")
+            .frequencyKhz(-14250L)
+            .mode("SSB")
+            .station(station)
+            .log(log)
+            .build();
+
+        assertThatThrownBy(() -> qsoService.createQSO(qso, user))
+            .isInstanceOf(ValidationException.class)
+            .hasMessageContaining("Frequency cannot be negative");
+    }
+
+    @Test
+    @DisplayName("createQSO - Future Date - Throws ValidationException")
+    void createQSO_futureDate_throwsValidationException() {
+        QSO qso = QSO.builder()
+            .callsign("W1AW")
+            .frequencyKhz(14250L)
+            .mode("SSB")
+            .qsoDate(LocalDate.now().plusDays(1))
+            .station(station)
+            .log(log)
+            .build();
+
+        assertThatThrownBy(() -> qsoService.createQSO(qso, user))
+            .isInstanceOf(ValidationException.class)
+            .hasMessageContaining("QSO date cannot be in the future");
+    }
+
+    @Test
+    @DisplayName("createQSO - Very Old Date - Warns but Accepts")
+    void createQSO_veryOldDate_warnsButAccepts() {
+        QSO qso = QSO.builder()
+            .callsign("W1AW")
+            .frequencyKhz(14250L)
+            .mode("SSB")
+            .qsoDate(LocalDate.of(1900, 1, 1))
+            .timeOn(LocalTime.of(12, 0))
+            .station(station)
+            .log(log)
+            .build();
+
+        when(stationRepository.findById(1L)).thenReturn(Optional.of(station));
+        when(logRepository.findById(1L)).thenReturn(Optional.of(log));
+        when(qsoRepository.save(any(QSO.class))).thenReturn(qso);
+
+        QSO result = qsoService.createQSO(qso, user);
+
+        assertThat(result).isNotNull();
+        verify(qsoRepository).save(any(QSO.class));
+    }
+
+    @Test
+    @DisplayName("createQSO - Maximum Valid Frequency - Accepts")
+    void createQSO_maximumValidFrequency_accepts() {
+        QSO qso = QSO.builder()
+            .callsign("W1AW")
+            .frequencyKhz(250000L) // 250 GHz - highest amateur band
+            .mode("SSB")
+            .qsoDate(LocalDate.now())
+            .timeOn(LocalTime.of(12, 0))
+            .station(station)
+            .log(log)
+            .build();
+
+        when(stationRepository.findById(1L)).thenReturn(Optional.of(station));
+        when(logRepository.findById(1L)).thenReturn(Optional.of(log));
+        when(qsoRepository.save(any(QSO.class))).thenReturn(qso);
+
+        QSO result = qsoService.createQSO(qso, user);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getFrequencyKhz()).isEqualTo(250000L);
+    }
+
+    // ==================== CONCURRENT MODIFICATION EDGE CASES ====================
+
+    @Test
+    @DisplayName("updateQSO - Concurrent Modification - Throws ConcurrentModificationException")
+    void updateQSO_concurrentModification_throwsException() throws Exception {
+        QSO qso = QSO.builder()
+            .id(1L)
+            .callsign("W1AW")
+            .frequencyKhz(14250L)
+            .mode("SSB")
+            .station(station)
+            .log(log)
+            .version(1L)
+            .build();
+
+        when(qsoRepository.findById(1L)).thenReturn(Optional.of(qso));
+        when(qsoRepository.save(any(QSO.class)))
+            .thenThrow(new OptimisticLockingFailureException("Version mismatch"));
+
+        QSO updatedQso = QSO.builder()
+            .id(1L)
+            .callsign("W1AW")
+            .frequencyKhz(14260L)
+            .mode("SSB")
+            .version(1L)
+            .build();
+
+        assertThatThrownBy(() -> qsoService.updateQSO(1L, updatedQso, user))
+            .isInstanceOf(OptimisticLockingFailureException.class);
+    }
+
+    @Test
+    @DisplayName("deleteQSO - Concurrent Deletion - Throws ResourceNotFoundException")
+    void deleteQSO_concurrentDeletion_throwsException() {
+        when(qsoRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> qsoService.deleteQSO(1L, user))
+            .isInstanceOf(ResourceNotFoundException.class)
+            .hasMessageContaining("QSO not found");
+    }
+
+    // ==================== SPECIAL CHARACTER EDGE CASES ====================
+
+    @Test
+    @DisplayName("createQSO - Callsign with Slash - Accepts")
+    void createQSO_callsignWithSlash_accepts() {
+        QSO qso = QSO.builder()
+            .callsign("W1AW/3") // Portable operation
+            .frequencyKhz(14250L)
+            .mode("SSB")
+            .qsoDate(LocalDate.now())
+            .timeOn(LocalTime.of(12, 0))
+            .station(station)
+            .log(log)
+            .build();
+
+        when(stationRepository.findById(1L)).thenReturn(Optional.of(station));
+        when(logRepository.findById(1L)).thenReturn(Optional.of(log));
+        when(qsoRepository.save(any(QSO.class))).thenReturn(qso);
+
+        QSO result = qsoService.createQSO(qso, user);
+
+        assertThat(result.getCallsign()).isEqualTo("W1AW/3");
+    }
+
+    @Test
+    @DisplayName("createQSO - Callsign with Maritime Mobile - Accepts")
+    void createQSO_callsignMaritimeMobile_accepts() {
+        QSO qso = QSO.builder()
+            .callsign("W1AW/MM") // Maritime mobile
+            .frequencyKhz(14250L)
+            .mode("SSB")
+            .qsoDate(LocalDate.now())
+            .timeOn(LocalTime.of(12, 0))
+            .station(station)
+            .log(log)
+            .build();
+
+        when(stationRepository.findById(1L)).thenReturn(Optional.of(station));
+        when(logRepository.findById(1L)).thenReturn(Optional.of(log));
+        when(qsoRepository.save(any(QSO.class))).thenReturn(qso);
+
+        QSO result = qsoService.createQSO(qso, user);
+
+        assertThat(result.getCallsign()).isEqualTo("W1AW/MM");
+    }
+
+    @Test
+    @DisplayName("createQSO - Very Long Name - Truncates")
+    void createQSO_veryLongName_truncates() {
+        String longName = "A".repeat(300);
+        QSO qso = QSO.builder()
+            .callsign("W1AW")
+            .frequencyKhz(14250L)
+            .mode("SSB")
+            .name(longName)
+            .qsoDate(LocalDate.now())
+            .timeOn(LocalTime.of(12, 0))
+            .station(station)
+            .log(log)
+            .build();
+
+        when(stationRepository.findById(1L)).thenReturn(Optional.of(station));
+        when(logRepository.findById(1L)).thenReturn(Optional.of(log));
+        when(qsoRepository.save(any(QSO.class))).thenAnswer(i -> i.getArgument(0));
+
+        QSO result = qsoService.createQSO(qso, user);
+
+        assertThat(result.getName().length()).isLessThanOrEqualTo(255);
+    }
+
+    @Test
+    @DisplayName("createQSO - Special Characters in Name - Accepts")
+    void createQSO_specialCharactersInName_accepts() {
+        QSO qso = QSO.builder()
+            .callsign("W1AW")
+            .frequencyKhz(14250L)
+            .mode("SSB")
+            .name("José O'Brien-Smith")
+            .qsoDate(LocalDate.now())
+            .timeOn(LocalTime.of(12, 0))
+            .station(station)
+            .log(log)
+            .build();
+
+        when(stationRepository.findById(1L)).thenReturn(Optional.of(station));
+        when(logRepository.findById(1L)).thenReturn(Optional.of(log));
+        when(qsoRepository.save(any(QSO.class))).thenReturn(qso);
+
+        QSO result = qsoService.createQSO(qso, user);
+
+        assertThat(result.getName()).isEqualTo("José O'Brien-Smith");
+    }
+
+    // ==================== PERMISSION EDGE CASES ====================
+
+    @Test
+    @DisplayName("updateQSO - Different User - Throws UnauthorizedException")
+    void updateQSO_differentUser_throwsUnauthorizedException() {
+        User differentUser = new User();
+        differentUser.setId(2L);
+        differentUser.setUsername("differentuser");
+
+        QSO existingQso = QSO.builder()
+            .id(1L)
+            .callsign("W1AW")
+            .frequencyKhz(14250L)
+            .mode("SSB")
+            .station(station)
+            .log(log)
+            .build();
+
+        when(qsoRepository.findById(1L)).thenReturn(Optional.of(existingQso));
+
+        QSO updatedQso = QSO.builder()
+            .callsign("W1AW")
+            .frequencyKhz(14260L)
+            .mode("SSB")
+            .build();
+
+        assertThatThrownBy(() -> qsoService.updateQSO(1L, updatedQso, differentUser))
+            .isInstanceOf(UnauthorizedException.class)
+            .hasMessageContaining("not authorized");
+    }
+
+    @Test
+    @DisplayName("deleteQSO - Frozen Log - Throws IllegalStateException")
+    void deleteQSO_frozenLog_throwsIllegalStateException() {
+        log.setFrozen(true);
+
+        QSO qso = QSO.builder()
+            .id(1L)
+            .callsign("W1AW")
+            .frequencyKhz(14250L)
+            .mode("SSB")
+            .station(station)
+            .log(log)
+            .build();
+
+        when(qsoRepository.findById(1L)).thenReturn(Optional.of(qso));
+
+        assertThatThrownBy(() -> qsoService.deleteQSO(1L, user))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("frozen");
+    }
+
+    // ==================== DUPLICATE DETECTION EDGE CASES ====================
+
+    @Test
+    @DisplayName("createQSO - Exact Duplicate Within 15 Minutes - Warns")
+    void createQSO_exactDuplicateWithin15Minutes_warns() {
+        LocalDate today = LocalDate.now();
+        LocalTime time = LocalTime.of(14, 30);
+
+        QSO qso = QSO.builder()
+            .callsign("W1AW")
+            .frequencyKhz(14250L)
+            .mode("SSB")
+            .qsoDate(today)
+            .timeOn(time)
+            .station(station)
+            .log(log)
+            .build();
+
+        List<QSO> existingQSOs = Arrays.asList(
+            QSO.builder()
+                .callsign("W1AW")
+                .frequencyKhz(14250L)
+                .mode("SSB")
+                .qsoDate(today)
+                .timeOn(time.minusMinutes(10))
+                .build()
+        );
+
+        when(stationRepository.findById(1L)).thenReturn(Optional.of(station));
+        when(logRepository.findById(1L)).thenReturn(Optional.of(log));
+        when(qsoRepository.findByLogIdAndCallsignAndQsoDate(anyLong(), anyString(), any()))
+            .thenReturn(existingQSOs);
+        when(qsoRepository.save(any(QSO.class))).thenReturn(qso);
+
+        QSO result = qsoService.createQSO(qso, user);
+
+        assertThat(result).isNotNull();
+        assertThat(result.isPossibleDuplicate()).isTrue();
+    }
+
+    @Test
+    @DisplayName("createQSO - Same Callsign Different Band - Not Duplicate")
+    void createQSO_sameCallsignDifferentBand_notDuplicate() {
+        LocalDate today = LocalDate.now();
+        LocalTime time = LocalTime.of(14, 30);
+
+        QSO qso = QSO.builder()
+            .callsign("W1AW")
+            .frequencyKhz(14250L) // 20m
+            .mode("SSB")
+            .qsoDate(today)
+            .timeOn(time)
+            .station(station)
+            .log(log)
+            .build();
+
+        List<QSO> existingQSOs = Arrays.asList(
+            QSO.builder()
+                .callsign("W1AW")
+                .frequencyKhz(7125L) // 40m
+                .mode("SSB")
+                .qsoDate(today)
+                .timeOn(time.minusMinutes(10))
+                .build()
+        );
+
+        when(stationRepository.findById(1L)).thenReturn(Optional.of(station));
+        when(logRepository.findById(1L)).thenReturn(Optional.of(log));
+        when(qsoRepository.findByLogIdAndCallsignAndQsoDate(anyLong(), anyString(), any()))
+            .thenReturn(existingQSOs);
+        when(qsoRepository.save(any(QSO.class))).thenReturn(qso);
+
+        QSO result = qsoService.createQSO(qso, user);
+
+        assertThat(result.isPossibleDuplicate()).isFalse();
+    }
+
+    // ==================== TRANSACTION EDGE CASES ====================
+
+    @Test
+    @DisplayName("createQSO - Database Exception - Rolls Back")
+    void createQSO_databaseException_rollsBack() {
+        QSO qso = QSO.builder()
+            .callsign("W1AW")
+            .frequencyKhz(14250L)
+            .mode("SSB")
+            .qsoDate(LocalDate.now())
+            .timeOn(LocalTime.of(12, 0))
+            .station(station)
+            .log(log)
+            .build();
+
+        when(stationRepository.findById(1L)).thenReturn(Optional.of(station));
+        when(logRepository.findById(1L)).thenReturn(Optional.of(log));
+        when(qsoRepository.save(any(QSO.class)))
+            .thenThrow(new DataAccessException("Database error") {});
+
+        assertThatThrownBy(() -> qsoService.createQSO(qso, user))
+            .isInstanceOf(DataAccessException.class);
+
+        verify(qsoRepository, never()).flush();
+    }
+
+    // ==================== BULK OPERATION EDGE CASES ====================
+
+    @Test
+    @DisplayName("createBulkQSOs - Empty List - Returns Empty List")
+    void createBulkQSOs_emptyList_returnsEmptyList() {
+        List<QSO> result = qsoService.createBulkQSOs(Collections.emptyList(), user);
+
+        assertThat(result).isEmpty();
+        verify(qsoRepository, never()).saveAll(anyList());
+    }
+
+    @Test
+    @DisplayName("createBulkQSOs - Partial Failure - Continues with Valid")
+    void createBulkQSOs_partialFailure_continuesWithValid() {
+        QSO validQso = QSO.builder()
+            .callsign("W1AW")
+            .frequencyKhz(14250L)
+            .mode("SSB")
+            .qsoDate(LocalDate.now())
+            .timeOn(LocalTime.of(12, 0))
+            .station(station)
+            .log(log)
+            .build();
+
+        QSO invalidQso = QSO.builder()
+            .callsign(null) // Invalid
+            .frequencyKhz(14250L)
+            .mode("SSB")
+            .station(station)
+            .log(log)
+            .build();
+
+        List<QSO> qsos = Arrays.asList(validQso, invalidQso);
+
+        when(stationRepository.findById(1L)).thenReturn(Optional.of(station));
+        when(logRepository.findById(1L)).thenReturn(Optional.of(log));
+        when(qsoRepository.save(validQso)).thenReturn(validQso);
+
+        List<QSO> result = qsoService.createBulkQSOs(qsos, user);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getCallsign()).isEqualTo("W1AW");
+    }
+
+    @Test
+    @DisplayName("createBulkQSOs - Large Batch - Processes in Chunks")
+    void createBulkQSOs_largeBatch_processesInChunks() {
+        List<QSO> qsos = new ArrayList<>();
+        for (int i = 0; i < 1000; i++) {
+            qsos.add(QSO.builder()
+                .callsign("W1AW")
+                .frequencyKhz(14250L)
+                .mode("SSB")
+                .qsoDate(LocalDate.now())
+                .timeOn(LocalTime.of(12, 0))
+                .station(station)
+                .log(log)
+                .build());
+        }
+
+        when(stationRepository.findById(1L)).thenReturn(Optional.of(station));
+        when(logRepository.findById(1L)).thenReturn(Optional.of(log));
+        when(qsoRepository.saveAll(anyList())).thenAnswer(i -> i.getArgument(0));
+
+        List<QSO> result = qsoService.createBulkQSOs(qsos, user);
+
+        assertThat(result).hasSize(1000);
+        verify(qsoRepository, atLeast(1)).saveAll(anyList());
+    }
+}

@@ -1,0 +1,399 @@
+package com.hamradio.logbook.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hamradio.logbook.entity.Invitation;
+import com.hamradio.logbook.entity.Log;
+import com.hamradio.logbook.entity.LogParticipant;
+import com.hamradio.logbook.entity.User;
+import com.hamradio.logbook.service.InvitationService;
+import com.hamradio.logbook.testutil.JwtTestUtil;
+import com.hamradio.logbook.testutil.TestDataBuilder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@AutoConfigureMockMvc
+@DisplayName("Invitation Controller Tests")
+class InvitationControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private InvitationService invitationService;
+
+    private User creator;
+    private User invitee;
+    private Log testLog;
+    private Invitation testInvitation;
+    private String jwtToken;
+
+    @BeforeEach
+    void setUp() {
+        creator = TestDataBuilder.aValidUser().id(1L).username("creator").build();
+        invitee = TestDataBuilder.aValidUser().id(2L).username("invitee").build();
+        testLog = TestDataBuilder.aValidLog(creator).id(1L).build();
+
+        testInvitation = Invitation.builder()
+                .id(1L)
+                .log(testLog)
+                .invitedUser(invitee)
+                .invitedBy(creator)
+                .role(LogParticipant.ParticipantRole.STATION)
+                .status(Invitation.InvitationStatus.PENDING)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusDays(7))
+                .build();
+
+        jwtToken = JwtTestUtil.generateToken("creator");
+    }
+
+    // ==================== CREATE INVITATION TESTS ====================
+
+    @Test
+    @WithMockUser(username = "creator")
+    @DisplayName("POST /api/invitations - Valid Invitation - Returns 201 Created")
+    void createInvitation_validInvitation_returns201() throws Exception {
+        // Arrange
+        Map<String, Object> invitationRequest = Map.of(
+                "logId", 1L,
+                "invitedUserId", 2L,
+                "role", "STATION"
+        );
+
+        when(invitationService.createInvitation(1L, 2L, 1L, LogParticipant.ParticipantRole.STATION))
+                .thenReturn(testInvitation);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/invitations")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invitationRequest)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.status").value("PENDING"))
+                .andExpect(jsonPath("$.role").value("STATION"));
+
+        verify(invitationService).createInvitation(1L, 2L, 1L, LogParticipant.ParticipantRole.STATION);
+    }
+
+    @Test
+    @WithMockUser(username = "creator")
+    @DisplayName("POST /api/invitations - Not Log Creator - Returns 403 Forbidden")
+    void createInvitation_notCreator_returns403() throws Exception {
+        // Arrange
+        Map<String, Object> invitationRequest = Map.of(
+                "logId", 1L,
+                "invitedUserId", 2L,
+                "role", "STATION"
+        );
+
+        when(invitationService.createInvitation(1L, 2L, 1L, LogParticipant.ParticipantRole.STATION))
+                .thenThrow(new IllegalStateException("Only the creator can send invitations"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/invitations")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invitationRequest)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value(containsString("creator")));
+    }
+
+    @Test
+    @WithMockUser(username = "creator")
+    @DisplayName("POST /api/invitations - Duplicate Invitation - Returns 400 Bad Request")
+    void createInvitation_duplicateInvitation_returns400() throws Exception {
+        // Arrange
+        Map<String, Object> invitationRequest = Map.of(
+                "logId", 1L,
+                "invitedUserId", 2L,
+                "role", "STATION"
+        );
+
+        when(invitationService.createInvitation(1L, 2L, 1L, LogParticipant.ParticipantRole.STATION))
+                .thenThrow(new IllegalStateException("Invitation already exists"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/invitations")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invitationRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(containsString("already exists")));
+    }
+
+    @Test
+    @DisplayName("POST /api/invitations - Not Authenticated - Returns 401 Unauthorized")
+    void createInvitation_notAuthenticated_returns401() throws Exception {
+        // Arrange
+        Map<String, Object> invitationRequest = Map.of(
+                "logId", 1L,
+                "invitedUserId", 2L,
+                "role", "STATION"
+        );
+
+        // Act & Assert
+        mockMvc.perform(post("/api/invitations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invitationRequest)))
+                .andExpect(status().isUnauthorized());
+
+        verify(invitationService, never()).createInvitation(any(), any(), any(), any());
+    }
+
+    // ==================== ACCEPT INVITATION TESTS ====================
+
+    @Test
+    @WithMockUser(username = "invitee")
+    @DisplayName("POST /api/invitations/{id}/accept - Valid Invitation - Returns 200 OK")
+    void acceptInvitation_validInvitation_returns200() throws Exception {
+        // Arrange
+        doNothing().when(invitationService).acceptInvitation(1L, 2L);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/invitations/1/accept")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value(containsString("accepted")));
+
+        verify(invitationService).acceptInvitation(1L, 2L);
+    }
+
+    @Test
+    @WithMockUser(username = "wronguser")
+    @DisplayName("POST /api/invitations/{id}/accept - Wrong User - Returns 403 Forbidden")
+    void acceptInvitation_wrongUser_returns403() throws Exception {
+        // Arrange
+        doThrow(new IllegalStateException("You are not invited"))
+                .when(invitationService).acceptInvitation(1L, 3L);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/invitations/1/accept")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value(containsString("not invited")));
+    }
+
+    @Test
+    @WithMockUser(username = "invitee")
+    @DisplayName("POST /api/invitations/{id}/accept - Expired Invitation - Returns 400 Bad Request")
+    void acceptInvitation_expiredInvitation_returns400() throws Exception {
+        // Arrange
+        doThrow(new IllegalStateException("Invitation has expired"))
+                .when(invitationService).acceptInvitation(1L, 2L);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/invitations/1/accept")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(containsString("expired")));
+    }
+
+    // ==================== DECLINE INVITATION TESTS ====================
+
+    @Test
+    @WithMockUser(username = "invitee")
+    @DisplayName("POST /api/invitations/{id}/decline - Valid Invitation - Returns 200 OK")
+    void declineInvitation_validInvitation_returns200() throws Exception {
+        // Arrange
+        doNothing().when(invitationService).declineInvitation(1L, 2L);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/invitations/1/decline")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value(containsString("declined")));
+
+        verify(invitationService).declineInvitation(1L, 2L);
+    }
+
+    // ==================== CANCEL INVITATION TESTS ====================
+
+    @Test
+    @WithMockUser(username = "creator")
+    @DisplayName("POST /api/invitations/{id}/cancel - Creator Cancels - Returns 200 OK")
+    void cancelInvitation_creator_returns200() throws Exception {
+        // Arrange
+        doNothing().when(invitationService).cancelInvitation(1L, 1L);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/invitations/1/cancel")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value(containsString("cancelled")));
+
+        verify(invitationService).cancelInvitation(1L, 1L);
+    }
+
+    @Test
+    @WithMockUser(username = "otheruser")
+    @DisplayName("POST /api/invitations/{id}/cancel - Not Creator - Returns 403 Forbidden")
+    void cancelInvitation_notCreator_returns403() throws Exception {
+        // Arrange
+        doThrow(new IllegalStateException("Only the creator can cancel"))
+                .when(invitationService).cancelInvitation(1L, 3L);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/invitations/1/cancel")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isForbidden());
+    }
+
+    // ==================== GET INVITATIONS TESTS ====================
+
+    @Test
+    @WithMockUser(username = "invitee")
+    @DisplayName("GET /api/invitations/user/{userId} - Returns User's Pending Invitations")
+    void getInvitationsForUser_returnsPendingInvitations() throws Exception {
+        // Arrange
+        Invitation invitation2 = Invitation.builder()
+                .id(2L)
+                .log(testLog)
+                .invitedUser(invitee)
+                .role(LogParticipant.ParticipantRole.VIEWER)
+                .status(Invitation.InvitationStatus.PENDING)
+                .build();
+
+        when(invitationService.getInvitationsForUser(2L))
+                .thenReturn(Arrays.asList(testInvitation, invitation2));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/invitations/user/2")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].status").value("PENDING"))
+                .andExpect(jsonPath("$[1].status").value("PENDING"));
+
+        verify(invitationService).getInvitationsForUser(2L);
+    }
+
+    @Test
+    @WithMockUser(username = "invitee")
+    @DisplayName("GET /api/invitations/user/{userId} - No Pending Invitations - Returns Empty List")
+    void getInvitationsForUser_noPending_returnsEmptyList() throws Exception {
+        // Arrange
+        when(invitationService.getInvitationsForUser(2L)).thenReturn(List.of());
+
+        // Act & Assert
+        mockMvc.perform(get("/api/invitations/user/2")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @Test
+    @WithMockUser(username = "creator")
+    @DisplayName("GET /api/invitations/log/{logId} - Returns Log's Invitations")
+    void getInvitationsForLog_returnsInvitations() throws Exception {
+        // Arrange
+        when(invitationService.getInvitationsForLog(1L)).thenReturn(List.of(testInvitation));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/invitations/log/1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id").value(1));
+
+        verify(invitationService).getInvitationsForLog(1L);
+    }
+
+    // ==================== INVITATION STATUS TESTS ====================
+
+    @Test
+    @WithMockUser(username = "invitee")
+    @DisplayName("GET /api/invitations/{id} - Returns Invitation Details")
+    void getInvitation_returnsDetails() throws Exception {
+        // Arrange
+        when(invitationService.getInvitationById(1L)).thenReturn(java.util.Optional.of(testInvitation));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/invitations/1")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.status").value("PENDING"))
+                .andExpect(jsonPath("$.role").value("STATION"));
+    }
+
+    @Test
+    @WithMockUser(username = "invitee")
+    @DisplayName("GET /api/invitations/{id} - Invitation Not Found - Returns 404 Not Found")
+    void getInvitation_notFound_returns404() throws Exception {
+        // Arrange
+        when(invitationService.getInvitationById(999L)).thenReturn(java.util.Optional.empty());
+
+        // Act & Assert
+        mockMvc.perform(get("/api/invitations/999")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isNotFound());
+    }
+
+    // ==================== ROLE VALIDATION TESTS ====================
+
+    @Test
+    @WithMockUser(username = "creator")
+    @DisplayName("POST /api/invitations - Invalid Role - Returns 400 Bad Request")
+    void createInvitation_invalidRole_returns400() throws Exception {
+        // Arrange
+        Map<String, Object> invitationRequest = Map.of(
+                "logId", 1L,
+                "invitedUserId", 2L,
+                "role", "CREATOR"  // Cannot invite as creator
+        );
+
+        when(invitationService.createInvitation(eq(1L), eq(2L), eq(1L), any()))
+                .thenThrow(new IllegalArgumentException("Cannot invite user as CREATOR"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/invitations")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invitationRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(containsString("CREATOR")));
+    }
+
+    // ==================== EXPIRATION TESTS ====================
+
+    @Test
+    @WithMockUser(username = "creator")
+    @DisplayName("POST /api/invitations/cleanup-expired - Cleans Up Expired Invitations")
+    void cleanupExpiredInvitations_cleansUp() throws Exception {
+        // Arrange
+        doNothing().when(invitationService).cleanupExpiredInvitations();
+
+        // Act & Assert
+        mockMvc.perform(post("/api/invitations/cleanup-expired")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value(containsString("Cleanup completed")));
+
+        verify(invitationService).cleanupExpiredInvitations();
+    }
+}

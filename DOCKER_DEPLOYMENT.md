@@ -37,7 +37,7 @@ Access: http://localhost
 ## Services
 
 ### 1. Backend (Spring Boot)
-- **Image**: Custom multi-stage build (Java 21)
+- **Image**: Custom multi-stage build (Java 25)
 - **Port**: 8080
 - **Database**: PostgreSQL (dev) or SQLite (field)
 - **Features**:
@@ -63,7 +63,7 @@ Access: http://localhost
 - **Volume**: Persistent storage
 
 ### 4. Rig Control (optional)
-- **Image**: Custom with Hamlib (Java 21 + libhamlib4)
+- **Image**: Custom with Hamlib (Java 25 + libhamlib4)
 - **Ports**: 8081 (service), 4532 (rigctld)
 - **Requires**: USB device passthrough
 - **Base**: Ubuntu Jammy with universe repository for Hamlib packages
@@ -188,7 +188,7 @@ rig-control:
 - Kenwood TS-590SG: `-m 2014`
 - Elecraft K3: `-m 2029`
 
-Find yours: `docker run --rm eclipse-temurin:21-jre-jammy sh -c "apt-get update && apt-get install -y software-properties-common && add-apt-repository universe && apt-get update && apt-get install -y hamlib-utils && rigctl --list"`
+Find yours: `docker run --rm eclipse-temurin:25-jre-jammy sh -c "apt-get update && apt-get install -y software-properties-common && add-apt-repository universe && apt-get update && apt-get install -y hamlib-utils && rigctl --list"`
 
 ## Management Commands
 

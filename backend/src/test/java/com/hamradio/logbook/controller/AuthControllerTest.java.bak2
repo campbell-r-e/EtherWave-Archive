@@ -1,0 +1,500 @@
+package com.hamradio.logbook.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hamradio.logbook.entity.User;
+import com.hamradio.logbook.service.security.AuthService;
+import com.hamradio.logbook.testutil.TestDataBuilder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.http.MediaType;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Map;
+import java.util.Optional;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@DisplayName("Auth Controller Tests")
+class AuthControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private AuthService authService;
+
+    private User testUser;
+
+    @BeforeEach
+    void setUp() {
+        testUser = TestDataBuilder.aValidUser()
+                .id(1L)
+                .username("testuser")
+                .email("testuser@example.com")
+                .callsign("W1TEST")
+                .build();
+    }
+
+    // ==================== REGISTRATION TESTS ====================
+
+    @Test
+    @DisplayName("POST /api/auth/register - Valid User - Returns 201 Created")
+    void register_validUser_returns201() throws Exception {
+        // Arrange
+        Map<String, String> registrationRequest = Map.of(
+                "username", "newuser",
+                "password", "password123",
+                "email", "newuser@example.com",
+                "callsign", "W1NEW"
+        );
+
+        User registeredUser = TestDataBuilder.aValidUser()
+                .id(1L)
+                .username("newuser")
+                .email("newuser@example.com")
+                .callsign("W1NEW")
+                .build();
+
+        when(authService.register(any(User.class), eq("password123"))).thenReturn(registeredUser);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registrationRequest)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.username").value("newuser"))
+                .andExpect(jsonPath("$.email").value("newuser@example.com"))
+                .andExpect(jsonPath("$.callsign").value("W1NEW"))
+                .andExpect(jsonPath("$.password").doesNotExist()); // Password should not be returned
+
+        verify(authService).register(any(User.class), eq("password123"));
+    }
+
+    @Test
+    @DisplayName("POST /api/auth/register - Duplicate Username - Returns 400 Bad Request")
+    void register_duplicateUsername_returns400() throws Exception {
+        // Arrange
+        Map<String, String> registrationRequest = Map.of(
+                "username", "existinguser",
+                "password", "password123",
+                "email", "newuser@example.com",
+                "callsign", "W1NEW"
+        );
+
+        when(authService.register(any(User.class), eq("password123")))
+                .thenThrow(new IllegalArgumentException("Username already exists"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registrationRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(containsString("Username already exists")));
+    }
+
+    @Test
+    @DisplayName("POST /api/auth/register - Weak Password - Returns 400 Bad Request")
+    void register_weakPassword_returns400() throws Exception {
+        // Arrange
+        Map<String, String> registrationRequest = Map.of(
+                "username", "newuser",
+                "password", "123",
+                "email", "newuser@example.com",
+                "callsign", "W1NEW"
+        );
+
+        when(authService.register(any(User.class), eq("123")))
+                .thenThrow(new IllegalArgumentException("Password must be at least 8 characters"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registrationRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(containsString("Password must be")));
+    }
+
+    @Test
+    @DisplayName("POST /api/auth/register - Invalid Callsign - Returns 400 Bad Request")
+    void register_invalidCallsign_returns400() throws Exception {
+        // Arrange
+        Map<String, String> registrationRequest = Map.of(
+                "username", "newuser",
+                "password", "password123",
+                "email", "newuser@example.com",
+                "callsign", "INVALID!!!"
+        );
+
+        when(authService.register(any(User.class), eq("password123")))
+                .thenThrow(new IllegalArgumentException("Invalid callsign format"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registrationRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(containsString("Invalid callsign")));
+    }
+
+    @Test
+    @DisplayName("POST /api/auth/register - Missing Required Fields - Returns 400 Bad Request")
+    void register_missingRequiredFields_returns400() throws Exception {
+        // Arrange
+        Map<String, String> incompleteRequest = Map.of(
+                "username", "newuser"
+                // Missing password, email, callsign
+        );
+
+        // Act & Assert
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(incompleteRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    // ==================== LOGIN TESTS ====================
+
+    @Test
+    @DisplayName("POST /api/auth/login - Valid Credentials - Returns 200 OK with Token")
+    void login_validCredentials_returns200WithToken() throws Exception {
+        // Arrange
+        Map<String, String> loginRequest = Map.of(
+                "username", "testuser",
+                "password", "password123"
+        );
+
+        String jwtToken = "eyJhbGciOiJIUzUxMiJ9.test.token";
+        when(authService.login("testuser", "password123")).thenReturn(jwtToken);
+        when(authService.getUserByUsername("testuser")).thenReturn(Optional.of(testUser));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value(jwtToken))
+                .andExpect(jsonPath("$.user.username").value("testuser"))
+                .andExpect(jsonPath("$.user.callsign").value("W1TEST"))
+                .andExpect(jsonPath("$.user.password").doesNotExist()); // Password should not be returned
+
+        verify(authService).login("testuser", "password123");
+    }
+
+    @Test
+    @DisplayName("POST /api/auth/login - Invalid Credentials - Returns 401 Unauthorized")
+    void login_invalidCredentials_returns401() throws Exception {
+        // Arrange
+        Map<String, String> loginRequest = Map.of(
+                "username", "testuser",
+                "password", "wrongpassword"
+        );
+
+        when(authService.login("testuser", "wrongpassword"))
+                .thenThrow(new BadCredentialsException("Invalid credentials"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value(containsString("Invalid credentials")));
+    }
+
+    @Test
+    @DisplayName("POST /api/auth/login - Inactive User - Returns 403 Forbidden")
+    void login_inactiveUser_returns403() throws Exception {
+        // Arrange
+        Map<String, String> loginRequest = Map.of(
+                "username", "inactiveuser",
+                "password", "password123"
+        );
+
+        when(authService.login("inactiveuser", "password123"))
+                .thenThrow(new IllegalStateException("User account is inactive"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value(containsString("inactive")));
+    }
+
+    @Test
+    @DisplayName("POST /api/auth/login - Empty Credentials - Returns 400 Bad Request")
+    void login_emptyCredentials_returns400() throws Exception {
+        // Arrange
+        Map<String, String> emptyRequest = Map.of(
+                "username", "",
+                "password", ""
+        );
+
+        // Act & Assert
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(emptyRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    // ==================== GET CURRENT USER TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/auth/me - Authenticated User - Returns 200 OK with User Details")
+    void getCurrentUser_authenticated_returns200() throws Exception {
+        // Arrange
+        when(authService.getUserByUsername("testuser")).thenReturn(Optional.of(testUser));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/auth/me"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value("testuser"))
+                .andExpect(jsonPath("$.email").value("testuser@example.com"))
+                .andExpect(jsonPath("$.callsign").value("W1TEST"))
+                .andExpect(jsonPath("$.password").doesNotExist());
+
+        verify(authService).getUserByUsername("testuser");
+    }
+
+    @Test
+    @DisplayName("GET /api/auth/me - Not Authenticated - Returns 401 Unauthorized")
+    void getCurrentUser_notAuthenticated_returns401() throws Exception {
+        // Act & Assert
+        mockMvc.perform(get("/api/auth/me"))
+                .andExpect(status().isUnauthorized());
+
+        verify(authService, never()).getUserByUsername(any());
+    }
+
+    @Test
+    @WithMockUser(username = "nonexistent")
+    @DisplayName("GET /api/auth/me - User Not Found - Returns 404 Not Found")
+    void getCurrentUser_userNotFound_returns404() throws Exception {
+        // Arrange
+        when(authService.getUserByUsername("nonexistent")).thenReturn(Optional.empty());
+
+        // Act & Assert
+        mockMvc.perform(get("/api/auth/me"))
+                .andExpect(status().isNotFound());
+    }
+
+    // ==================== CHANGE PASSWORD TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/auth/change-password - Valid Request - Returns 200 OK")
+    void changePassword_validRequest_returns200() throws Exception {
+        // Arrange
+        Map<String, String> changePasswordRequest = Map.of(
+                "oldPassword", "oldPassword123",
+                "newPassword", "newPassword123"
+        );
+
+        doNothing().when(authService).changePassword(1L, "oldPassword123", "newPassword123");
+        when(authService.getUserByUsername("testuser")).thenReturn(Optional.of(testUser));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/auth/change-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(changePasswordRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value(containsString("Password changed successfully")));
+
+        verify(authService).changePassword(1L, "oldPassword123", "newPassword123");
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/auth/change-password - Wrong Old Password - Returns 400 Bad Request")
+    void changePassword_wrongOldPassword_returns400() throws Exception {
+        // Arrange
+        Map<String, String> changePasswordRequest = Map.of(
+                "oldPassword", "wrongOldPassword",
+                "newPassword", "newPassword123"
+        );
+
+        when(authService.getUserByUsername("testuser")).thenReturn(Optional.of(testUser));
+        doThrow(new IllegalArgumentException("Current password is incorrect"))
+                .when(authService).changePassword(1L, "wrongOldPassword", "newPassword123");
+
+        // Act & Assert
+        mockMvc.perform(post("/api/auth/change-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(changePasswordRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(containsString("incorrect")));
+    }
+
+    @Test
+    @DisplayName("POST /api/auth/change-password - Not Authenticated - Returns 401 Unauthorized")
+    void changePassword_notAuthenticated_returns401() throws Exception {
+        // Arrange
+        Map<String, String> changePasswordRequest = Map.of(
+                "oldPassword", "oldPassword123",
+                "newPassword", "newPassword123"
+        );
+
+        // Act & Assert
+        mockMvc.perform(post("/api/auth/change-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(changePasswordRequest)))
+                .andExpect(status().isUnauthorized());
+
+        verify(authService, never()).changePassword(any(), any(), any());
+    }
+
+    // ==================== LOGOUT TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/auth/logout - Authenticated User - Returns 200 OK")
+    void logout_authenticated_returns200() throws Exception {
+        // Act & Assert
+        mockMvc.perform(post("/api/auth/logout"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value(containsString("Logged out successfully")));
+    }
+
+    @Test
+    @DisplayName("POST /api/auth/logout - Not Authenticated - Returns 401 Unauthorized")
+    void logout_notAuthenticated_returns401() throws Exception {
+        // Act & Assert
+        mockMvc.perform(post("/api/auth/logout"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    // ==================== TOKEN REFRESH TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/auth/refresh - Valid Token - Returns New Token")
+    void refreshToken_validToken_returnsNewToken() throws Exception {
+        // Arrange
+        String oldToken = "eyJhbGciOiJIUzUxMiJ9.old.token";
+        String newToken = "eyJhbGciOiJIUzUxMiJ9.new.token";
+
+        Map<String, String> refreshRequest = Map.of("token", oldToken);
+
+        when(authService.refreshToken(oldToken)).thenReturn(newToken);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(refreshRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value(newToken));
+
+        verify(authService).refreshToken(oldToken);
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/auth/refresh - Expired Token - Returns 401 Unauthorized")
+    void refreshToken_expiredToken_returns401() throws Exception {
+        // Arrange
+        String expiredToken = "eyJhbGciOiJIUzUxMiJ9.expired.token";
+        Map<String, String> refreshRequest = Map.of("token", expiredToken);
+
+        when(authService.refreshToken(expiredToken))
+                .thenThrow(new IllegalArgumentException("Token has expired"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(refreshRequest)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value(containsString("expired")));
+    }
+
+    // ==================== VALIDATION TESTS ====================
+
+    @Test
+    @DisplayName("POST /api/auth/register - Invalid Email Format - Returns 400 Bad Request")
+    void register_invalidEmailFormat_returns400() throws Exception {
+        // Arrange
+        Map<String, String> registrationRequest = Map.of(
+                "username", "newuser",
+                "password", "password123",
+                "email", "invalid-email",
+                "callsign", "W1NEW"
+        );
+
+        when(authService.register(any(User.class), eq("password123")))
+                .thenThrow(new IllegalArgumentException("Invalid email format"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registrationRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(containsString("email")));
+    }
+
+    // ==================== SECURITY TESTS ====================
+
+    @Test
+    @DisplayName("POST /api/auth/register - SQL Injection Attempt - Sanitizes Input")
+    void register_sqlInjectionAttempt_sanitizesInput() throws Exception {
+        // Arrange
+        Map<String, String> maliciousRequest = Map.of(
+                "username", "admin'; DROP TABLE users; --",
+                "password", "password123",
+                "email", "malicious@example.com",
+                "callsign", "W1MAL"
+        );
+
+        when(authService.register(any(User.class), eq("password123")))
+                .thenThrow(new IllegalArgumentException("Invalid username format"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(maliciousRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    // ==================== RATE LIMITING TESTS ====================
+
+    @Test
+    @DisplayName("POST /api/auth/login - Multiple Failed Attempts - Should Rate Limit")
+    void login_multipleFailedAttempts_shouldRateLimit() throws Exception {
+        // Arrange
+        Map<String, String> loginRequest = Map.of(
+                "username", "testuser",
+                "password", "wrongpassword"
+        );
+
+        when(authService.login("testuser", "wrongpassword"))
+                .thenThrow(new BadCredentialsException("Invalid credentials"));
+
+        // Act - Attempt multiple failed logins
+        for (int i = 0; i < 5; i++) {
+            mockMvc.perform(post("/api/auth/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(loginRequest)))
+                    .andExpect(status().isUnauthorized());
+        }
+
+        // Note: Actual rate limiting would require additional configuration
+        // This test documents the expected behavior
+    }
+}

@@ -75,8 +75,9 @@ export class QsoEntryComponent implements OnInit {
 
   setCurrentDateTime(): void {
     const now = new Date();
-    this.qso.qsoDate = now.toISOString().split('T')[0];
-    this.qso.timeOn = now.toTimeString().split(' ')[0];
+    // Always use UTC for date and time
+    this.qso.qsoDate = now.toISOString().split('T')[0]; // YYYY-MM-DD in UTC
+    this.qso.timeOn = now.toISOString().split('T')[1].split('.')[0]; // HH:MM:SS in UTC
   }
 
   onCallsignChange(): void {

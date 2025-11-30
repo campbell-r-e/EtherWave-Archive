@@ -101,6 +101,12 @@ public interface QSORepository extends JpaRepository<QSO, Long> {
     Page<QSO> findByLogId(@Param("logId") Long logId, Pageable pageable);
 
     /**
+     * Find all QSOs for a specific log (without pagination, for exports)
+     */
+    @Query("SELECT q FROM QSO q WHERE q.log.id = :logId ORDER BY q.qsoDate DESC, q.timeOn DESC")
+    List<QSO> findAllByLogId(@Param("logId") Long logId);
+
+    /**
      * Find recent QSOs for a specific log
      */
     @Query("SELECT q FROM QSO q WHERE q.log.id = :logId ORDER BY q.createdAt DESC")

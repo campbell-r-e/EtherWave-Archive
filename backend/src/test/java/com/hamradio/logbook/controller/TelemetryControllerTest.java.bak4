@@ -1,0 +1,264 @@
+package com.hamradio.logbook.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hamradio.logbook.entity.RigTelemetry;
+import com.hamradio.logbook.service.TelemetryService;
+import com.hamradio.logbook.testutil.JwtTestUtil;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@DisplayName("Telemetry Controller Tests")
+class TelemetryControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private TelemetryService telemetryService;
+
+    private RigTelemetry testTelemetry;
+    private String jwtToken;
+
+    @BeforeEach
+    void setUp() {
+        testTelemetry = RigTelemetry.builder()
+                .id(1L)
+                .stationId(1L)
+                .frequency(14250000L) // 14.250 MHz
+                .mode("SSB")
+                .power(100)
+                .swr(1.5)
+                .timestamp(LocalDateTime.now())
+                .rigModel("Icom IC-7300")
+                .build();
+
+        jwtToken = JwtTestUtil.generateToken("testuser");
+    }
+
+    // ==================== RECORD TELEMETRY TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/telemetry - Valid Telemetry - Returns 201 Created")
+    void recordTelemetry_validTelemetry_returns201() throws Exception {
+        // Arrange
+        when(telemetryService.recordTelemetry(any(RigTelemetry.class)))
+                .thenReturn(testTelemetry);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/telemetry")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testTelemetry)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.frequency").value(14250000))
+                .andExpect(jsonPath("$.mode").value("SSB"))
+                .andExpect(jsonPath("$.power").value(100));
+
+        verify(telemetryService).recordTelemetry(any(RigTelemetry.class));
+    }
+
+    @Test
+    @DisplayName("POST /api/telemetry - Not Authenticated - Returns 401 Unauthorized")
+    void recordTelemetry_notAuthenticated_returns401() throws Exception {
+        // Act & Assert
+        mockMvc.perform(post("/api/telemetry")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testTelemetry)))
+                .andExpect(status().isUnauthorized());
+
+        verify(telemetryService, never()).recordTelemetry(any());
+    }
+
+    // ==================== GET LATEST TELEMETRY TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/telemetry/station/{stationId}/latest - Returns Latest Telemetry")
+    void getLatestTelemetry_returnsLatest() throws Exception {
+        // Arrange
+        when(telemetryService.getLatestTelemetry(1L)).thenReturn(Optional.of(testTelemetry));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/telemetry/station/1/latest")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.frequency").value(14250000))
+                .andExpect(jsonPath("$.rigModel").value("Icom IC-7300"));
+
+        verify(telemetryService).getLatestTelemetry(1L);
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/telemetry/station/{stationId}/latest - No Telemetry - Returns 404")
+    void getLatestTelemetry_noTelemetry_returns404() throws Exception {
+        // Arrange
+        when(telemetryService.getLatestTelemetry(999L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        mockMvc.perform(get("/api/telemetry/station/999/latest")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isNotFound());
+    }
+
+    // ==================== GET TELEMETRY HISTORY TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/telemetry/station/{stationId}/history - Returns History")
+    void getTelemetryHistory_returnsHistory() throws Exception {
+        // Arrange
+        RigTelemetry telemetry2 = RigTelemetry.builder()
+                .id(2L)
+                .stationId(1L)
+                .frequency(7030000L)
+                .mode("CW")
+                .power(50)
+                .timestamp(LocalDateTime.now().minusMinutes(5))
+                .build();
+
+        when(telemetryService.getTelemetryHistory(1L, 24))
+                .thenReturn(Arrays.asList(testTelemetry, telemetry2));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/telemetry/station/1/history")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("hours", "24"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].frequency").value(14250000))
+                .andExpect(jsonPath("$[1].frequency").value(7030000));
+
+        verify(telemetryService).getTelemetryHistory(1L, 24);
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/telemetry/station/{stationId}/history - No History - Returns Empty List")
+    void getTelemetryHistory_noHistory_returnsEmptyList() throws Exception {
+        // Arrange
+        when(telemetryService.getTelemetryHistory(1L, 24)).thenReturn(List.of());
+
+        // Act & Assert
+        mockMvc.perform(get("/api/telemetry/station/1/history")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("hours", "24"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    // ==================== RIG STATUS TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/telemetry/station/{stationId}/status - Returns Current Status")
+    void getRigStatus_returnsStatus() throws Exception {
+        // Arrange
+        when(telemetryService.getLatestTelemetry(1L)).thenReturn(Optional.of(testTelemetry));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/telemetry/station/1/status")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.connected").value(true))
+                .andExpect(jsonPath("$.frequency").value(14250000))
+                .andExpect(jsonPath("$.mode").value("SSB"))
+                .andExpect(jsonPath("$.power").value(100))
+                .andExpect(jsonPath("$.swr").value(1.5));
+    }
+
+    // ==================== DELETE TELEMETRY TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("DELETE /api/telemetry/station/{stationId}/old - Deletes Old Telemetry")
+    void deleteOldTelemetry_deletesOld() throws Exception {
+        // Arrange
+        doNothing().when(telemetryService).deleteOldTelemetry(1L, 7);
+
+        // Act & Assert
+        mockMvc.perform(delete("/api/telemetry/station/1/old")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .param("days", "7"))
+                .andExpect(status().isNoContent());
+
+        verify(telemetryService).deleteOldTelemetry(1L, 7);
+    }
+
+    // ==================== VALIDATION TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("POST /api/telemetry - Invalid Frequency - Returns 400 Bad Request")
+    void recordTelemetry_invalidFrequency_returns400() throws Exception {
+        // Arrange
+        RigTelemetry invalidTelemetry = RigTelemetry.builder()
+                .stationId(1L)
+                .frequency(-1L) // Invalid
+                .mode("SSB")
+                .build();
+
+        when(telemetryService.recordTelemetry(any(RigTelemetry.class)))
+                .thenThrow(new IllegalArgumentException("Invalid frequency"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/telemetry")
+                        .header("Authorization", "Bearer " + jwtToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidTelemetry)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(containsString("frequency")));
+    }
+
+    // ==================== STATISTICS TESTS ====================
+
+    @Test
+    @WithMockUser(username = "testuser")
+    @DisplayName("GET /api/telemetry/station/{stationId}/stats - Returns Statistics")
+    void getTelemetryStats_returnsStats() throws Exception {
+        // Arrange
+        when(telemetryService.getTelemetryStats(1L)).thenReturn(java.util.Map.of(
+                "totalRecords", 1000L,
+                "averagePower", 75.0,
+                "averageSWR", 1.3,
+                "mostUsedMode", "SSB"
+        ));
+
+        // Act & Assert
+        mockMvc.perform(get("/api/telemetry/station/1/stats")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalRecords").value(1000))
+                .andExpect(jsonPath("$.averagePower").value(75.0))
+                .andExpect(jsonPath("$.mostUsedMode").value("SSB"));
+
+        verify(telemetryService).getTelemetryStats(1L);
+    }
+}

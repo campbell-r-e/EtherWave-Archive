@@ -39,10 +39,26 @@ public class AdifExportService {
     }
 
     /**
+     * Export QSOs for a specific log to ADIF format
+     */
+    public byte[] exportQSOsByLog(Long logId) {
+        List<QSO> qsos = qsoRepository.findAllByLogId(logId);
+        return exportQSOs(qsos);
+    }
+
+    /**
      * Export QSOs for a date range to ADIF format
      */
     public byte[] exportQSOsByDateRange(LocalDate startDate, LocalDate endDate) {
         List<QSO> qsos = qsoRepository.findByDateRange(startDate, endDate);
+        return exportQSOs(qsos);
+    }
+
+    /**
+     * Export QSOs for a specific log and date range to ADIF format
+     */
+    public byte[] exportQSOsByLogAndDateRange(Long logId, LocalDate startDate, LocalDate endDate) {
+        List<QSO> qsos = qsoRepository.findByLogIdAndDateRange(logId, startDate, endDate);
         return exportQSOs(qsos);
     }
 
