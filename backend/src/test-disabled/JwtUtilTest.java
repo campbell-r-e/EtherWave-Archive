@@ -1,5 +1,6 @@
 package com.hamradio.logbook.security;
 
+import com.hamradio.logbook.util.security.JwtUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;

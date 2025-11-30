@@ -24,9 +24,28 @@ public class FieldDayValidator implements ContestValidator {
             "3A", "3B", "3C", "3D", "3E", "3F",
             "4A", "4B", "4C", "4D", "4E", "4F",
             "5A", "5B", "5C", "5D", "5E", "5F",
-            "6A", "7A", "8A", "9A", "10A", "11A", "12A",
-            "13A", "14A", "15A", "16A", "17A", "18A",
-            "19A", "20A", "21A", "22A", "23A", "24A"
+            "6A", "6B", "6C", "6D", "6E", "6F",
+            "7A", "7B", "7C", "7D", "7E", "7F",
+            "8A", "8B", "8C", "8D", "8E", "8F",
+            "9A", "9B", "9C", "9D", "9E", "9F",
+            "10A", "10B", "10C", "10D", "10E", "10F",
+            "11A", "11B", "11C", "11D", "11E", "11F",
+            "12A", "12B", "12C", "12D", "12E", "12F",
+            "13A", "13B", "13C", "13D", "13E", "13F",
+            "14A", "14B", "14C", "14D", "14E", "14F",
+            "15A", "15B", "15C", "15D", "15E", "15F",
+            "16A", "16B", "16C", "16D", "16E", "16F",
+            "17A", "17B", "17C", "17D", "17E", "17F",
+            "18A", "18B", "18C", "18D", "18E", "18F",
+            "19A", "19B", "19C", "19D", "19E", "19F",
+            "20A", "20B", "20C", "20D", "20E", "20F",
+            "21A", "21B", "21C", "21D", "21E", "21F",
+            "22A", "22B", "22C", "22D", "22E", "22F",
+            "23A", "23B", "23C", "23D", "23E", "23F",
+            "24A", "24B", "24C", "24D", "24E", "24F",
+            "25A", "26A", "27A", "28A", "29A", "30A",
+            "31A", "32A", "33A", "34A", "35A", "36A",
+            "37A", "38A", "39A", "40A"
     );
 
     private static final List<String> VALID_SECTIONS = Arrays.asList(
@@ -40,7 +59,7 @@ public class FieldDayValidator implements ContestValidator {
             "MI", "OH", "WV",                              // Central
             "CO", "ND", "SD", "MN", "MT", "WY",           // Dakota
             "AK", "ID", "OR", "WA",                        // Northwestern
-            "AZ", "EWA", "LAX", "NV", "ORG", "SB", "SC", "SDG", "SF", "SJV", "SV", "PAC", // Pacific
+            "AZ", "EWA", "LAX", "NV", "ORG", "SB", "SC", "SCV", "SDG", "SF", "SJV", "SV", "PAC", // Pacific
             "EB", "PAC",                                   // Roanoke
             "MAR"                                          // Maritime (Canada)
     );
@@ -63,7 +82,7 @@ public class FieldDayValidator implements ContestValidator {
             String classValue = contestData.has("class") ? contestData.get("class").asText() : null;
             if (classValue == null || classValue.isEmpty()) {
                 result.addError("Field Day class is required");
-            } else if (!VALID_CLASSES.contains(classValue.toUpperCase())) {
+            } else if (!VALID_CLASSES.contains(classValue)) {
                 result.addError("Invalid Field Day class: " + classValue);
             }
 
@@ -71,8 +90,8 @@ public class FieldDayValidator implements ContestValidator {
             String section = contestData.has("section") ? contestData.get("section").asText() : null;
             if (section == null || section.isEmpty()) {
                 result.addError("ARRL section is required");
-            } else if (!VALID_SECTIONS.contains(section.toUpperCase())) {
-                result.addWarning("Unknown ARRL section: " + section);
+            } else if (!VALID_SECTIONS.contains(section)) {
+                result.addError("Invalid ARRL section: " + section);
             }
 
             // Validate mode scoring

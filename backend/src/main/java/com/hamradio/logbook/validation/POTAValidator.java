@@ -37,7 +37,7 @@ public class POTAValidator implements ContestValidator {
             // Validate park reference (required for activator)
             String parkRef = contestData.has("park_ref") ? contestData.get("park_ref").asText() : null;
             if (parkRef != null && !parkRef.isEmpty()) {
-                if (!PARK_REF_PATTERN.matcher(parkRef.toUpperCase()).matches()) {
+                if (!PARK_REF_PATTERN.matcher(parkRef).matches()) {
                     result.addError("Invalid POTA park reference format: " + parkRef + " (expected format: K-1234)");
                 } else {
                     // Valid park reference - this is an activation
@@ -48,7 +48,7 @@ public class POTAValidator implements ContestValidator {
             // Validate hunter reference (if hunter contacted another park)
             String hunterRef = contestData.has("hunter_ref") ? contestData.get("hunter_ref").asText() : null;
             if (hunterRef != null && !hunterRef.isEmpty()) {
-                if (!PARK_REF_PATTERN.matcher(hunterRef.toUpperCase()).matches()) {
+                if (!PARK_REF_PATTERN.matcher(hunterRef).matches()) {
                     result.addError("Invalid POTA hunter reference format: " + hunterRef);
                 } else {
                     // Park-to-park contact

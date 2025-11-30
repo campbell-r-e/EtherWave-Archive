@@ -40,7 +40,7 @@ public class SOTAValidator implements ContestValidator {
             if (summitRef == null || summitRef.asText().isEmpty()) {
                 errors.add("SOTA summit_ref is required");
             } else {
-                String ref = summitRef.asText().toUpperCase();
+                String ref = summitRef.asText();
                 if (!SOTA_REF_PATTERN.matcher(ref).matches()) {
                     errors.add("Invalid SOTA summit reference format. Expected format: G/LD-001");
                 }
@@ -59,26 +59,13 @@ public class SOTAValidator implements ContestValidator {
             JsonNode myRef = data.get("my_summit_ref");
             if (myRef != null && !myRef.isNull() && !myRef.asText().isEmpty()) {
                 // This is an activator contact
-                if (!SOTA_REF_PATTERN.matcher(myRef.asText().toUpperCase()).matches()) {
+                if (!SOTA_REF_PATTERN.matcher(myRef.asText()).matches()) {
                     errors.add("Invalid my_summit_ref format");
                 }
             }
 
         } catch (Exception e) {
             errors.add("Invalid JSON in contestData: " + e.getMessage());
-        }
-
-        // Validate basic QSO fields
-        if (qso.getCallsign() == null || qso.getCallsign().trim().isEmpty()) {
-            errors.add("Callsign is required");
-        }
-
-        if (qso.getFrequencyKhz() == null || qso.getFrequencyKhz() < 1800) {
-            errors.add("Valid frequency is required");
-        }
-
-        if (qso.getMode() == null || qso.getMode().trim().isEmpty()) {
-            errors.add("Mode is required");
         }
 
         boolean isValid = errors.isEmpty();

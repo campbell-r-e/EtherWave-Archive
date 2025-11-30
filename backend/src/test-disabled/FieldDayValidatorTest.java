@@ -2,7 +2,6 @@ package com.hamradio.logbook.validation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.hamradio.logbook.entity.Contest;
 import com.hamradio.logbook.entity.QSO;
 import com.hamradio.logbook.testutil.TestDataBuilder;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("Field Day Validator Tests")
@@ -18,20 +19,18 @@ class FieldDayValidatorTest {
 
     private FieldDayValidator validator;
     private ObjectMapper objectMapper;
-    private Contest fieldDayContest;
 
     @BeforeEach
     void setUp() {
         validator = new FieldDayValidator();
         objectMapper = new ObjectMapper();
-        fieldDayContest = TestDataBuilder.fieldDayContest().build();
     }
 
     // ==================== VALID CLASS TESTS ====================
 
     @ParameterizedTest(name = "Class {0} should be valid")
     @ValueSource(strings = {"1A", "2A", "3A", "4A", "5A", "6A", "7A", "8A", "9A", "10A",
-                            "1B", "1C", "1D", "1E", "1F", "2F", "3F", "10F", "20F"})
+                            "1B", "1C", "1D", "1E", "1F", "2F", "3F", "10F", "40F"})
     @DisplayName("validate - Valid Field Day Classes - Passes")
     void validate_validClasses_passes(String fdClass) throws Exception {
         // Arrange
@@ -39,23 +38,21 @@ class FieldDayValidatorTest {
         contestData.put("class", fdClass);
         contestData.put("section", "ORG");
 
-        QSO qso = QSO.builder()
-                .callsign("W1AW")
+        QSO qso = TestDataBuilder.aValidQSO(null, null)
                 .contestData(objectMapper.writeValueAsString(contestData))
                 .build();
 
         // Act
-        ValidationResult result = validator.validate(qso, fieldDayContest);
+        List<String> errors = validator.validate(qso);
 
         // Assert
-        assertThat(result.isValid()).isTrue();
-        assertThat(result.getErrors()).isEmpty();
+        assertThat(errors).isEmpty();
     }
 
     // ==================== INVALID CLASS TESTS ====================
 
     @ParameterizedTest(name = "Class {0} should be invalid")
-    @ValueSource(strings = {"0A", "41A", "1Z", "ABC", "1G", "100A", "1a", "2b"})
+    @ValueSource(strings = {"0A", "41A", "1Z", "ABC", "", "1G", "100A", "1a", "2b"})
     @DisplayName("validate - Invalid Field Day Classes - Fails")
     void validate_invalidClasses_fails(String fdClass) throws Exception {
         // Arrange
@@ -63,18 +60,16 @@ class FieldDayValidatorTest {
         contestData.put("class", fdClass);
         contestData.put("section", "ORG");
 
-        QSO qso = QSO.builder()
-                .callsign("W1AW")
+        QSO qso = TestDataBuilder.aValidQSO(null, null)
                 .contestData(objectMapper.writeValueAsString(contestData))
                 .build();
 
         // Act
-        ValidationResult result = validator.validate(qso, fieldDayContest);
+        List<String> errors = validator.validate(qso);
 
         // Assert
-        assertThat(result.isValid()).isFalse();
-        assertThat(result.hasErrors()).isTrue();
-        assertThat(String.join(" ", result.getErrors())).containsIgnoringCase("class");
+        assertThat(errors).isNotEmpty();
+        assertThat(errors.get(0)).containsIgnoringCase("class");
     }
 
     // ==================== VALID SECTION TESTS ====================
@@ -97,23 +92,21 @@ class FieldDayValidatorTest {
         contestData.put("class", "2A");
         contestData.put("section", section);
 
-        QSO qso = QSO.builder()
-                .callsign("W1AW")
+        QSO qso = TestDataBuilder.aValidQSO(null, null)
                 .contestData(objectMapper.writeValueAsString(contestData))
                 .build();
 
         // Act
-        ValidationResult result = validator.validate(qso, fieldDayContest);
+        List<String> errors = validator.validate(qso);
 
         // Assert
-        assertThat(result.isValid()).isTrue();
-        assertThat(result.getErrors()).isEmpty();
+        assertThat(errors).isEmpty();
     }
 
     // ==================== INVALID SECTION TESTS ====================
 
     @ParameterizedTest(name = "Section {0} should be invalid")
-    @ValueSource(strings = {"XX", "ZZ", "ABC", "", "ORG1", "123", "org", "calif"})
+    @ValueSource(strings = {"XXX", "ABC", "", "org", "OrG", "123"})
     @DisplayName("validate - Invalid ARRL Sections - Fails")
     void validate_invalidSections_fails(String section) throws Exception {
         // Arrange
@@ -121,96 +114,121 @@ class FieldDayValidatorTest {
         contestData.put("class", "2A");
         contestData.put("section", section);
 
-        QSO qso = QSO.builder()
-                .callsign("W1AW")
+        QSO qso = TestDataBuilder.aValidQSO(null, null)
                 .contestData(objectMapper.writeValueAsString(contestData))
                 .build();
 
         // Act
-        ValidationResult result = validator.validate(qso, fieldDayContest);
+        List<String> errors = validator.validate(qso);
 
         // Assert
-        assertThat(result.isValid()).isFalse();
-        assertThat(result.hasErrors()).isTrue();
-        assertThat(String.join(" ", result.getErrors())).containsIgnoringCase("section");
+        assertThat(errors).isNotEmpty();
+        assertThat(errors.get(0)).containsIgnoringCase("section");
     }
 
-    // ==================== MISSING DATA TESTS ====================
+    // ==================== MISSING FIELD TESTS ====================
 
     @Test
-    @DisplayName("validate - Missing class - Fails")
+    @DisplayName("validate - Missing Class - Fails")
     void validate_missingClass_fails() throws Exception {
         // Arrange
         ObjectNode contestData = objectMapper.createObjectNode();
         contestData.put("section", "ORG");
 
-        QSO qso = QSO.builder()
-                .callsign("W1AW")
+        QSO qso = TestDataBuilder.aValidQSO(null, null)
                 .contestData(objectMapper.writeValueAsString(contestData))
                 .build();
 
         // Act
-        ValidationResult result = validator.validate(qso, fieldDayContest);
+        List<String> errors = validator.validate(qso);
 
         // Assert
-        assertThat(result.isValid()).isFalse();
-        assertThat(result.hasErrors()).isTrue();
+        assertThat(errors).isNotEmpty();
+        assertThat(errors.get(0)).containsIgnoringCase("class");
     }
 
     @Test
-    @DisplayName("validate - Missing section - Fails")
+    @DisplayName("validate - Missing Section - Fails")
     void validate_missingSection_fails() throws Exception {
         // Arrange
         ObjectNode contestData = objectMapper.createObjectNode();
         contestData.put("class", "2A");
 
-        QSO qso = QSO.builder()
-                .callsign("W1AW")
+        QSO qso = TestDataBuilder.aValidQSO(null, null)
                 .contestData(objectMapper.writeValueAsString(contestData))
                 .build();
 
         // Act
-        ValidationResult result = validator.validate(qso, fieldDayContest);
+        List<String> errors = validator.validate(qso);
 
         // Assert
-        assertThat(result.isValid()).isFalse();
-        assertThat(result.hasErrors()).isTrue();
+        assertThat(errors).isNotEmpty();
+        assertThat(errors.get(0)).containsIgnoringCase("section");
     }
 
     @Test
-    @DisplayName("validate - Missing contest data - Fails")
+    @DisplayName("validate - Missing Contest Data - Fails")
     void validate_missingContestData_fails() {
         // Arrange
-        QSO qso = QSO.builder()
-                .callsign("W1AW")
+        QSO qso = TestDataBuilder.aValidQSO(null, null)
+                .contestData(null)
                 .build();
 
         // Act
-        ValidationResult result = validator.validate(qso, fieldDayContest);
+        List<String> errors = validator.validate(qso);
 
         // Assert
-        assertThat(result.isValid()).isFalse();
-        assertThat(result.hasErrors()).isTrue();
+        assertThat(errors).isNotEmpty();
+    }
+
+    // ==================== EDGE CASE TESTS ====================
+
+    @Test
+    @DisplayName("validate - Empty Contest Data JSON - Fails")
+    void validate_emptyContestData_fails() {
+        // Arrange
+        QSO qso = TestDataBuilder.aValidQSO(null, null)
+                .contestData("{}")
+                .build();
+
+        // Act
+        List<String> errors = validator.validate(qso);
+
+        // Assert
+        assertThat(errors).hasSize(2); // Both class and section missing
     }
 
     @Test
-    @DisplayName("validate - Valid complete QSO - Passes")
-    void validate_validCompleteQSO_passes() throws Exception {
+    @DisplayName("validate - Invalid JSON - Handles Gracefully")
+    void validate_invalidJson_handlesGracefully() {
+        // Arrange
+        QSO qso = TestDataBuilder.aValidQSO(null, null)
+                .contestData("invalid json {")
+                .build();
+
+        // Act
+        List<String> errors = validator.validate(qso);
+
+        // Assert
+        assertThat(errors).isNotEmpty();
+    }
+
+    @Test
+    @DisplayName("validate - Whitespace in Fields - Trims Correctly")
+    void validate_whitespaceInFields_trimsCorrectly() throws Exception {
         // Arrange
         ObjectNode contestData = objectMapper.createObjectNode();
-        contestData.put("class", "2A");
-        contestData.put("section", "ORG");
+        contestData.put("class", " 2A ");
+        contestData.put("section", " ORG ");
 
-        QSO qso = QSO.builder()
-                .callsign("W1AW")
+        QSO qso = TestDataBuilder.aValidQSO(null, null)
                 .contestData(objectMapper.writeValueAsString(contestData))
                 .build();
 
         // Act
-        ValidationResult result = validator.validate(qso, fieldDayContest);
+        List<String> errors = validator.validate(qso);
 
         // Assert
-        assertThat(result.isValid()).isTrue();
-        assertThat(result.getErrors()).isEmpty();
+        assertThat(errors).isEmpty();
     }
 }

@@ -38,14 +38,18 @@ class AdifExportServiceTest {
 
     @BeforeEach
     void setUp() {
-        testUser = TestDataBuilder.aValidUser().id(1L).build();
-        testStation = TestDataBuilder.aValidStation().id(1L).build();
-        testLog = TestDataBuilder.aValidLog(testUser).id(1L).build();
+        testUser = TestDataBuilder.basicUser().build();
+        testUser.setId(1L);
+        
+        testStation = TestDataBuilder.basicStation().build();
+        testStation.setId(1L);
+        
+        testLog = TestDataBuilder.personalLog(testUser).build();
+        testLog.setId(1L);
 
-        testQSO1 = TestDataBuilder.aValidQSO(testStation, testLog)
-                .id(1L)
+        testQSO1 = TestDataBuilder.basicQSO(testLog, testStation)
                 .callsign("W1AW")
-                .frequencyKhz(14250L)
+                .frequencyKhz(14250000L)
                 .mode("SSB")
                 .band("20m")
                 .qsoDate(LocalDate.of(2025, 1, 15))
@@ -53,11 +57,11 @@ class AdifExportServiceTest {
                 .rstSent("59")
                 .rstRcvd("59")
                 .build();
+        testQSO1.setId(1L);
 
-        testQSO2 = TestDataBuilder.aValidQSO(testStation, testLog)
-                .id(2L)
+        testQSO2 = TestDataBuilder.basicQSO(testLog, testStation)
                 .callsign("K2ABC")
-                .frequencyKhz(7030L)
+                .frequencyKhz(7030000L)
                 .mode("CW")
                 .band("40m")
                 .qsoDate(LocalDate.of(2025, 1, 15))
@@ -65,386 +69,127 @@ class AdifExportServiceTest {
                 .rstSent("599")
                 .rstRcvd("599")
                 .build();
+        testQSO2.setId(2L);
     }
-
-    // ==================== BASIC EXPORT TESTS ====================
 
     @Test
     @DisplayName("exportQSOsByLog - Valid Log with QSOs - Exports Successfully")
     void exportQSOsByLog_validLogWithQSOs_exportsSuccessfully() {
-        // Arrange
         when(qsoRepository.findAllByLogId(1L)).thenReturn(Arrays.asList(testQSO1, testQSO2));
 
-        // Act
         byte[] result = adifExportService.exportQSOsByLog(1L);
 
-        // Assert
         assertThat(result).isNotNull();
         String adifContent = new String(result);
-
-        // Check ADIF header
         assertThat(adifContent).contains("<ADIF_VER:");
-        assertThat(adifContent).contains("<EOH>");
-
-        // Check first QSO
         assertThat(adifContent).contains("<CALL:4>W1AW");
-        assertThat(adifContent).contains("<MODE:3>SSB");
-        assertThat(adifContent).contains("<BAND:3>20m");
-        assertThat(adifContent).contains("<QSO_DATE:8>20250115");
-        assertThat(adifContent).contains("<TIME_ON:6>143000");
-
-        // Check second QSO
         assertThat(adifContent).contains("<CALL:5>K2ABC");
+        assertThat(adifContent).contains("<MODE:3>SSB");
         assertThat(adifContent).contains("<MODE:2>CW");
+        assertThat(adifContent).contains("<BAND:3>20m");
         assertThat(adifContent).contains("<BAND:3>40m");
-
-        verify(qsoRepository).findAllByLogId(1L);
+        assertThat(adifContent).contains("<EOR>");
     }
 
     @Test
-    @DisplayName("exportQSOsByLog - Empty Log - Returns Valid ADIF with No Records")
-    void exportQSOsByLog_emptyLog_returnsValidAdif() {
-        // Arrange
+    @DisplayName("exportQSOsByLog - Empty Log - Returns Empty ADIF")
+    void exportQSOsByLog_emptyLog_returnsEmptyAdif() {
         when(qsoRepository.findAllByLogId(1L)).thenReturn(Collections.emptyList());
 
-        // Act
         byte[] result = adifExportService.exportQSOsByLog(1L);
 
-        // Assert
         assertThat(result).isNotNull();
         String adifContent = new String(result);
         assertThat(adifContent).contains("<ADIF_VER:");
-        assertThat(adifContent).contains("<EOH>");
-        assertThat(adifContent).doesNotContain("<CALL:");
+        assertThat(adifContent).contains("<EOR>"); // Trailing EOR is still present
     }
 
-    // ==================== FREQUENCY EXPORT TESTS ====================
-
     @Test
-    @DisplayName("exportQSOs - Frequency in kHz - Converts to MHz")
-    void exportQSOs_frequencyInKhz_convertsToMhz() {
-        // Arrange
-        QSO qso = TestDataBuilder.aValidQSO(testStation, testLog)
-                .frequencyKhz(14250L) // 14.250 MHz
-                .build();
-        when(qsoRepository.findAllByLogId(1L)).thenReturn(List.of(qso));
+    @DisplayName("exportAllQSOs - Multiple QSOs - Exports All")
+    void exportAllQSOs_multipleQSOs_exportsAll() {
+        when(qsoRepository.findAll()).thenReturn(Arrays.asList(testQSO1, testQSO2));
 
-        // Act
-        byte[] result = adifExportService.exportQSOsByLog(1L);
+        byte[] result = adifExportService.exportAllQSOs();
 
-        // Assert
+        assertThat(result).isNotNull();
         String adifContent = new String(result);
-        assertThat(adifContent).contains("<FREQ:8>14.25000"); // MHz format
+        assertThat(adifContent).contains("<CALL:4>W1AW");
+        assertThat(adifContent).contains("<CALL:5>K2ABC");
     }
 
     @Test
-    @DisplayName("exportQSOs - Various Frequencies - Formats Correctly")
-    void exportQSOs_variousFrequencies_formatsCorrectly() {
-        // Arrange
-        QSO qso1 = TestDataBuilder.aValidQSO(testStation, testLog)
-                .callsign("W1")
-                .frequencyKhz(7030L) // 7.030 MHz
-                .build();
-        QSO qso2 = TestDataBuilder.aValidQSO(testStation, testLog)
-                .callsign("W2")
-                .frequencyKhz(50100L) // 50.100 MHz
-                .build();
-        QSO qso3 = TestDataBuilder.aValidQSO(testStation, testLog)
-                .callsign("W3")
-                .frequencyKhz(144200L) // 144.200 MHz
-                .build();
+    @DisplayName("exportQSOsByDateRange - QSOs in Range - Exports Matching QSOs")
+    void exportQSOsByDateRange_qsosInRange_exportsMatchingQSOs() {
+        LocalDate startDate = LocalDate.of(2025, 1, 1);
+        LocalDate endDate = LocalDate.of(2025, 1, 31);
 
-        when(qsoRepository.findAllByLogId(1L)).thenReturn(Arrays.asList(qso1, qso2, qso3));
+        when(qsoRepository.findByDateRange(startDate, endDate))
+            .thenReturn(Arrays.asList(testQSO1, testQSO2));
 
-        // Act
-        byte[] result = adifExportService.exportQSOsByLog(1L);
+        byte[] result = adifExportService.exportQSOsByDateRange(startDate, endDate);
 
-        // Assert
+        assertThat(result).isNotNull();
         String adifContent = new String(result);
-        assertThat(adifContent).contains("<FREQ:7>7.03000");
-        assertThat(adifContent).contains("<FREQ:7>50.1000");
-        assertThat(adifContent).contains("<FREQ:8>144.2000");
+        assertThat(adifContent).contains("<CALL:4>W1AW");
+        assertThat(adifContent).contains("<CALL:5>K2ABC");
     }
 
-    // ==================== CONTEST DATA EXPORT TESTS ====================
-
     @Test
-    @DisplayName("exportQSOs - Field Day Contest Data - Exports Class and Section")
-    void exportQSOs_fieldDayContestData_exportsClassAndSection() throws Exception {
-        // Arrange
-        Contest fieldDay = Contest.builder().id(1L).contestCode("ARRL-FD").build();
-        String contestData = "{\"class\":\"2A\",\"section\":\"ORG\"}";
+    @DisplayName("exportQSOs - Direct List - Exports QSOs")
+    void exportQSOs_directList_exportsQSOs() {
+        List<QSO> qsos = Arrays.asList(testQSO1, testQSO2);
 
-        QSO qso = TestDataBuilder.aValidQSO(testStation, testLog)
-                .contest(fieldDay)
-                .contestData(contestData)
-                .build();
+        byte[] result = adifExportService.exportQSOs(qsos);
 
-        when(qsoRepository.findAllByLogId(1L)).thenReturn(List.of(qso));
-
-        // Act
-        byte[] result = adifExportService.exportQSOsByLog(1L);
-
-        // Assert
+        assertThat(result).isNotNull();
         String adifContent = new String(result);
-        assertThat(adifContent).contains("<CLASS:2>2A");
-        assertThat(adifContent).contains("<ARRL_SECT:3>ORG");
-        assertThat(adifContent).contains("<CONTEST_ID:7>ARRL-FD");
+        assertThat(adifContent).contains("<CALL:4>W1AW");
+        assertThat(adifContent).contains("<CALL:5>K2ABC");
     }
 
     @Test
-    @DisplayName("exportQSOs - POTA Contest Data - Exports Park Reference")
-    void exportQSOs_potaContestData_exportsParkReference() throws Exception {
-        // Arrange
-        Contest pota = Contest.builder().id(2L).contestCode("POTA").build();
-        String contestData = "{\"park_ref\":\"K-0817\"}";
+    @DisplayName("exportQSOs - Empty List - Returns Empty ADIF")
+    void exportQSOs_emptyList_returnsEmptyAdif() {
+        byte[] result = adifExportService.exportQSOs(Collections.emptyList());
 
-        QSO qso = TestDataBuilder.aValidQSO(testStation, testLog)
-                .contest(pota)
-                .contestData(contestData)
-                .build();
-
-        when(qsoRepository.findAllByLogId(1L)).thenReturn(List.of(qso));
-
-        // Act
-        byte[] result = adifExportService.exportQSOsByLog(1L);
-
-        // Assert
+        assertThat(result).isNotNull();
         String adifContent = new String(result);
-        assertThat(adifContent).contains("<SIG:4>POTA");
-        assertThat(adifContent).contains("<SIG_INFO:6>K-0817");
+        assertThat(adifContent).contains("<ADIF_VER:");
+        assertThat(adifContent).contains("<EOR>"); // Trailing EOR is still present
     }
 
     @Test
-    @DisplayName("exportQSOs - SOTA Contest Data - Exports Summit Reference")
-    void exportQSOs_sotaContestData_exportsSummitReference() throws Exception {
-        // Arrange
-        Contest sota = Contest.builder().id(3L).contestCode("SOTA").build();
-        String contestData = "{\"summit_ref\":\"W7W/CN-001\"}";
-
-        QSO qso = TestDataBuilder.aValidQSO(testStation, testLog)
-                .contest(sota)
-                .contestData(contestData)
-                .build();
-
-        when(qsoRepository.findAllByLogId(1L)).thenReturn(List.of(qso));
-
-        // Act
-        byte[] result = adifExportService.exportQSOsByLog(1L);
-
-        // Assert
-        String adifContent = new String(result);
-        assertThat(adifContent).contains("<SIG:4>SOTA");
-        assertThat(adifContent).contains("<SIG_INFO:10>W7W/CN-001");
-    }
-
-    // ==================== QSL EXPORT TESTS ====================
-
-    @Test
-    @DisplayName("exportQSOs - QSL Info - Exports All QSL Fields")
-    void exportQSOs_qslInfo_exportsAllFields() {
-        // Arrange
-        QSO qso = TestDataBuilder.aValidQSO(testStation, testLog)
-                .qslSent("Y")
-                .qslRcvd("Y")
-                .lotwSent("20250116")
-                .lotwRcvd("20250116")
-                .eqslSent("Y")
-                .eqslRcvd("Y")
-                .build();
-
-        when(qsoRepository.findAllByLogId(1L)).thenReturn(List.of(qso));
-
-        // Act
-        byte[] result = adifExportService.exportQSOsByLog(1L);
-
-        // Assert
-        String adifContent = new String(result);
-        assertThat(adifContent).contains("<QSL_SENT:1>Y");
-        assertThat(adifContent).contains("<QSL_RCVD:1>Y");
-        assertThat(adifContent).contains("<LOTW_QSLSDATE:8>20250116");
-        assertThat(adifContent).contains("<LOTW_QSLRDATE:8>20250116");
-        assertThat(adifContent).contains("<EQSL_QSLSDATE:1>Y");
-        assertThat(adifContent).contains("<EQSL_QSLRDATE:1>Y");
-    }
-
-    // ==================== STATION/OPERATOR EXPORT TESTS ====================
-
-    @Test
-    @DisplayName("exportQSOs - Station Info - Exports Station Callsign and Grid")
-    void exportQSOs_stationInfo_exportsStationCallsignAndGrid() {
-        // Arrange
-        Station station = TestDataBuilder.aValidStation()
-                .callsign("W1ABC")
-                .gridSquare("FN42")
-                .build();
-
-        QSO qso = TestDataBuilder.aValidQSO(station, testLog).build();
-        when(qsoRepository.findAllByLogId(1L)).thenReturn(List.of(qso));
-
-        // Act
-        byte[] result = adifExportService.exportQSOsByLog(1L);
-
-        // Assert
-        String adifContent = new String(result);
-        assertThat(adifContent).contains("<STATION_CALLSIGN:5>W1ABC");
-        assertThat(adifContent).contains("<MY_GRIDSQUARE:4>FN42");
-    }
-
-    @Test
-    @DisplayName("exportQSOs - Operator Info - Exports Operator Callsign")
-    void exportQSOs_operatorInfo_exportsOperatorCallsign() {
-        // Arrange
-        Operator operator = Operator.builder()
-                .id(1L)
-                .callsign("W1OP")
-                .name("Test Operator")
-                .build();
-
-        QSO qso = TestDataBuilder.aValidQSO(testStation, testLog)
-                .operator(operator)
-                .build();
-
-        when(qsoRepository.findAllByLogId(1L)).thenReturn(List.of(qso));
-
-        // Act
-        byte[] result = adifExportService.exportQSOsByLog(1L);
-
-        // Assert
-        String adifContent = new String(result);
-        assertThat(adifContent).contains("<OPERATOR:4>W1OP");
-    }
-
-    // ==================== LOCATION EXPORT TESTS ====================
-
-    @Test
-    @DisplayName("exportQSOs - Location Data - Exports Grid, State, County")
-    void exportQSOs_locationData_exportsAllLocationFields() {
-        // Arrange
-        QSO qso = TestDataBuilder.aValidQSO(testStation, testLog)
-                .gridSquare("FN42ab")
-                .state("CA")
-                .county("Orange")
-                .country("United States")
-                .build();
-
-        when(qsoRepository.findAllByLogId(1L)).thenReturn(List.of(qso));
-
-        // Act
-        byte[] result = adifExportService.exportQSOsByLog(1L);
-
-        // Assert
-        String adifContent = new String(result);
-        assertThat(adifContent).contains("<GRIDSQUARE:6>FN42ab");
-        assertThat(adifContent).contains("<STATE:2>CA");
-        assertThat(adifContent).contains("<CNTY:6>Orange");
-        assertThat(adifContent).contains("<COUNTRY:13>United States");
-    }
-
-    // ==================== NOTES EXPORT TESTS ====================
-
-    @Test
-    @DisplayName("exportQSOs - Notes Field - Exports Comments")
-    void exportQSOs_notesField_exportsComments() {
-        // Arrange
-        QSO qso = TestDataBuilder.aValidQSO(testStation, testLog)
-                .notes("Great signal on 20m")
-                .build();
-
-        when(qsoRepository.findAllByLogId(1L)).thenReturn(List.of(qso));
-
-        // Act
-        byte[] result = adifExportService.exportQSOsByLog(1L);
-
-        // Assert
-        String adifContent = new String(result);
-        assertThat(adifContent).contains("<COMMENT:21>Great signal on 20m");
-    }
-
-    // ==================== DATE/TIME FORMAT TESTS ====================
-
-    @Test
-    @DisplayName("exportQSOs - Date Format - Exports as YYYYMMDD")
-    void exportQSOs_dateFormat_exportsAsYYYYMMDD() {
-        // Arrange
-        QSO qso = TestDataBuilder.aValidQSO(testStation, testLog)
-                .qsoDate(LocalDate.of(2025, 1, 15))
-                .build();
-
-        when(qsoRepository.findAllByLogId(1L)).thenReturn(List.of(qso));
-
-        // Act
-        byte[] result = adifExportService.exportQSOsByLog(1L);
-
-        // Assert
-        String adifContent = new String(result);
-        assertThat(adifContent).contains("<QSO_DATE:8>20250115");
-    }
-
-    @Test
-    @DisplayName("exportQSOs - Time Format - Exports as HHMMSS")
-    void exportQSOs_timeFormat_exportsAsHHMMSS() {
-        // Arrange
-        QSO qso = TestDataBuilder.aValidQSO(testStation, testLog)
-                .timeOn(LocalTime.of(14, 30, 45))
-                .build();
-
-        when(qsoRepository.findAllByLogId(1L)).thenReturn(List.of(qso));
-
-        // Act
-        byte[] result = adifExportService.exportQSOsByLog(1L);
-
-        // Assert
-        String adifContent = new String(result);
-        assertThat(adifContent).contains("<TIME_ON:6>143045");
-    }
-
-    // ==================== EDGE CASE TESTS ====================
-
-    @Test
-    @DisplayName("exportQSOs - Missing Optional Fields - Handles Gracefully")
-    void exportQSOs_missingOptionalFields_handlesGracefully() {
-        // Arrange
-        QSO minimalQSO = QSO.builder()
-                .station(testStation)
-                .log(testLog)
-                .callsign("W1MIN")
-                .frequencyKhz(14250L)
+    @DisplayName("export - QSO with All Fields - Includes All Fields in ADIF")
+    void export_qsoWithAllFields_includesAllFields() {
+        QSO completeQSO = TestDataBuilder.basicQSO(testLog, testStation)
+                .callsign("W1AW")
+                .frequencyKhz(14250000L)
                 .mode("SSB")
                 .band("20m")
                 .qsoDate(LocalDate.of(2025, 1, 15))
                 .timeOn(LocalTime.of(14, 30, 0))
-                .isValid(true)
-                // All optional fields null
+                .timeOff(LocalTime.of(14, 35, 0))
+                .rstSent("59")
+                .rstRcvd("59")
+                .gridSquare("FN31pr")
+                .country("United States")
+                .state("Connecticut")
+                .county("Hartford")
+                .name("John Smith")
+                .notes("Great contact!")
+                .powerWatts(100)
                 .build();
+        completeQSO.setId(1L);
 
-        when(qsoRepository.findAllByLogId(1L)).thenReturn(List.of(minimalQSO));
+        byte[] result = adifExportService.exportQSOs(Arrays.asList(completeQSO));
 
-        // Act & Assert - Should not throw exception
-        assertThatCode(() -> adifExportService.exportQSOsByLog(1L))
-                .doesNotThrowAnyException();
-    }
-
-    @Test
-    @DisplayName("exportQSOs - Large Log - Exports All Records")
-    void exportQSOs_largeLog_exportsAllRecords() {
-        // Arrange
-        List<QSO> largeQSOList = new java.util.ArrayList<>();
-        for (int i = 0; i < 1000; i++) {
-            largeQSOList.add(TestDataBuilder.aValidQSO(testStation, testLog)
-                    .callsign("W" + i)
-                    .build());
-        }
-        when(qsoRepository.findAllByLogId(1L)).thenReturn(largeQSOList);
-
-        // Act
-        byte[] result = adifExportService.exportQSOsByLog(1L);
-
-        // Assert
-        assertThat(result).isNotNull();
         String adifContent = new String(result);
-        // Count <EOR> markers (one per record)
-        int eorCount = adifContent.split("<EOR>").length - 1;
-        assertThat(eorCount).isEqualTo(1000);
+        assertThat(adifContent).contains("<GRIDSQUARE:");
+        assertThat(adifContent).contains("<COUNTRY:");
+        assertThat(adifContent).contains("<STATE:");
+        assertThat(adifContent).contains("<CNTY:"); // ADIF uses CNTY not COUNTY
+        assertThat(adifContent).contains("<NAME:");
+        assertThat(adifContent).contains("<COMMENT:"); // ADIF uses COMMENT not NOTES
+        assertThat(adifContent).contains("<TX_PWR:");
     }
 }

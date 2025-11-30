@@ -2,7 +2,6 @@ package com.hamradio.logbook.service;
 
 import com.hamradio.logbook.entity.*;
 import com.hamradio.logbook.repository.*;
-import com.hamradio.logbook.exception.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

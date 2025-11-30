@@ -1,239 +1,323 @@
 package com.hamradio.logbook.testutil;
 
 import com.hamradio.logbook.entity.*;
+import com.hamradio.logbook.entity.LogParticipant.ParticipantRole;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Test data builders for creating test entities with realistic ham radio data
+ * Test data builder for creating test entities
+ * Updated to match current entity structure
  */
 public class TestDataBuilder {
 
-    // ==================== User Builders ====================
+    // ==================== USER BUILDERS ====================
 
-    public static User.UserBuilder aValidUser() {
+    public static User.UserBuilder basicUser() {
         return User.builder()
-                .username("testuser")
-                .password("$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG") // BCrypt: "password123"
-                .email("testuser@example.com")
-                .callsign("W1TEST")
-                .roles(Set.of(User.Role.ROLE_USER))
-                .enabled(true);
+            .username("testuser")
+            .email("test@example.com")
+            .password("$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG") // "password"
+            .callsign("W1TEST")
+            .fullName("Test User")
+            .gridSquare("FN31pr")
+            .roles(new HashSet<>(Set.of(User.Role.ROLE_USER)))
+            .enabled(true)
+            .accountNonExpired(true)
+            .accountNonLocked(true)
+            .credentialsNonExpired(true);
     }
 
-    public static User.UserBuilder anAdminUser() {
-        return aValidUser()
-                .username("admin")
-                .email("admin@example.com")
-                .callsign("W1ADMIN")
-                .roles(Set.of(User.Role.ROLE_ADMIN));
+    public static User.UserBuilder adminUser() {
+        return User.builder()
+            .username("admin")
+            .email("admin@example.com")
+            .password("$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG") // "password"
+            .callsign("W1ADMIN")
+            .fullName("Admin User")
+            .gridSquare("FN31pr")
+            .roles(new HashSet<>(Set.of(User.Role.ROLE_USER, User.Role.ROLE_ADMIN)))
+            .enabled(true)
+            .accountNonExpired(true)
+            .accountNonLocked(true)
+            .credentialsNonExpired(true);
     }
 
-    // ==================== Station Builders ====================
+    // ==================== STATION BUILDERS ====================
 
-    public static Station.StationBuilder aValidStation() {
+    public static Station.StationBuilder basicStation() {
         return Station.builder()
-                .stationName("Home Station")
-                .callsign("W1ABC")
-                .gridSquare("FN31pr")
-                .latitude(42.3601)
-                .longitude(-71.0589)
-                .power(100)
-                .antenna("Dipole")
-                .rigControlEnabled(false);
+            .stationName("Test Station")
+            .callsign("W1TEST")
+            .location("Boston, MA")
+            .gridSquare("FN42aa")
+            .antenna("Dipole")
+            .powerWatts(100)
+            .rigModel("Icom IC-7300")
+            .rigControlEnabled(false);
     }
 
-    public static Station.StationBuilder aStationWithRigControl() {
-        return aValidStation()
-                .stationName("Contest Station")
-                .rigControlEnabled(true)
-                .rigControlUrl("http://localhost:8081");
+    public static Station.StationBuilder rigControlStation() {
+        return Station.builder()
+            .stationName("Rig Control Station")
+            .callsign("W1RC")
+            .location("Cambridge, MA")
+            .gridSquare("FN42aa")
+            .antenna("Beam")
+            .powerWatts(1500)
+            .rigModel("Yaesu FT-991A")
+            .rigControlEnabled(true)
+            .rigControlHost("localhost")
+            .rigControlPort(4532);
     }
 
-    // ==================== Operator Builders ====================
+    // ==================== OPERATOR BUILDERS ====================
 
-    public static Operator.OperatorBuilder aValidOperator() {
+    public static Operator.OperatorBuilder basicOperator() {
         return Operator.builder()
-                .callsign("K1OPR")
-                .firstName("John")
-                .lastName("Doe")
-                .licenseClass("GENERAL")
-                .gridSquare("FN31pr");
+            .callsign("W1OP")
+            .name("John Operator")
+            .email("operator@example.com")
+            .licenseClass("EXTRA");
     }
 
-    // ==================== Contest Builders ====================
+    // ==================== LOG BUILDERS ====================
 
-    public static Contest.ContestBuilder aFieldDayContest() {
-        return Contest.builder()
-                .contestName("ARRL Field Day 2025")
-                .contestCode("ARRL-FD")
-                .startDate(LocalDateTime.of(2025, 6, 28, 18, 0))
-                .endDate(LocalDateTime.of(2025, 6, 29, 17, 59))
-                .validatorClass("com.hamradio.logbook.validation.FieldDayValidator")
-                .isActive(true);
-    }
-
-    public static Contest.ContestBuilder aPOTAContest() {
-        return Contest.builder()
-                .contestName("Parks on the Air")
-                .contestCode("POTA")
-                .validatorClass("com.hamradio.logbook.validation.POTAValidator")
-                .isActive(true);
-    }
-
-    public static Contest.ContestBuilder aWinterFieldDayContest() {
-        return Contest.builder()
-                .contestName("Winter Field Day 2025")
-                .contestCode("WFD")
-                .startDate(LocalDateTime.of(2025, 1, 25, 18, 0))
-                .endDate(LocalDateTime.of(2025, 1, 26, 17, 59))
-                .validatorClass("com.hamradio.logbook.validation.WinterFieldDayValidator")
-                .isActive(true);
-    }
-
-    // ==================== Log Builders ====================
-
-    public static Log.LogBuilder aValidLog(User creator) {
+    public static Log.LogBuilder personalLog(User creator) {
         return Log.builder()
-                .name("My Contest Log")
-                .description("Field Day 2025 Log")
-                .type(Log.LogType.PERSONAL)
-                .creator(creator)
-                .active(true)
-                .editable(true)
-                .startDate(LocalDateTime.now())
-                .endDate(LocalDateTime.now().plusHours(24));
+            .name("Personal Log")
+            .description("Test personal log")
+            .type(Log.LogType.PERSONAL)
+            .creator(creator)
+            .active(true)
+            .editable(true)
+            .isPublic(false)
+            .startDate(LocalDateTime.now().minusDays(7))
+            .endDate(LocalDateTime.now().plusDays(7));
     }
 
-    public static Log.LogBuilder aFrozenLog(User creator) {
-        return aValidLog(creator)
-                .name("Frozen Log")
-                .editable(false);
+    public static Log.LogBuilder sharedLog(User creator) {
+        return Log.builder()
+            .name("Shared Log")
+            .description("Test shared log")
+            .type(Log.LogType.SHARED)
+            .creator(creator)
+            .active(true)
+            .editable(true)
+            .isPublic(false)
+            .startDate(LocalDateTime.now().minusDays(7))
+            .endDate(LocalDateTime.now().plusDays(7));
     }
 
-    public static Log.LogBuilder aContestLog(User creator, Contest contest) {
-        return aValidLog(creator)
-                .name(contest.getContestName() + " Log")
-                .type(Log.LogType.SHARED)
-                .contest(contest);
+    public static Log.LogBuilder contestLog(User creator, Contest contest) {
+        return Log.builder()
+            .name("Contest Log - " + contest.getContestName())
+            .description("Contest log for " + contest.getContestCode())
+            .type(Log.LogType.SHARED)
+            .creator(creator)
+            .contest(contest)
+            .active(true)
+            .editable(true)
+            .isPublic(false)
+            .startDate(contest.getStartDate())
+            .endDate(contest.getEndDate());
     }
 
-    // ==================== QSO Builders ====================
+    // ==================== CONTEST BUILDERS ====================
 
-    public static QSO.QSOBuilder aValidQSO(Station station, Log log) {
+    public static Contest.ContestBuilder basicContest() {
+        return Contest.builder()
+            .contestCode("TEST-CONTEST")
+            .contestName("Test Contest")
+            .description("A test contest for validation")
+            .isActive(true)
+            .startDate(LocalDateTime.of(2024, 6, 22, 14, 0))
+            .endDate(LocalDateTime.of(2024, 6, 23, 20, 0));
+    }
+
+    public static Contest.ContestBuilder fieldDayContest() {
+        return Contest.builder()
+            .contestCode("ARRL-FD")
+            .contestName("ARRL Field Day")
+            .description("ARRL Field Day Contest")
+            .isActive(true)
+            .validatorClass("com.hamradio.logbook.validation.FieldDayValidator")
+            .startDate(LocalDateTime.of(2024, 6, 22, 14, 0))
+            .endDate(LocalDateTime.of(2024, 6, 23, 20, 0));
+    }
+
+    public static Contest.ContestBuilder potaContest() {
+        return Contest.builder()
+            .contestCode("POTA")
+            .contestName("Parks on the Air")
+            .description("POTA Activation")
+            .isActive(true)
+            .validatorClass("com.hamradio.logbook.validation.POTAValidator");
+    }
+
+    public static Contest.ContestBuilder sotaContest() {
+        return Contest.builder()
+            .contestCode("SOTA")
+            .contestName("Summits on the Air")
+            .description("SOTA Activation")
+            .isActive(true)
+            .validatorClass("com.hamradio.logbook.validation.SOTAValidator");
+    }
+
+    public static Contest.ContestBuilder winterFieldDayContest() {
+        return Contest.builder()
+            .contestCode("ARRL-WFD")
+            .contestName("ARRL Winter Field Day")
+            .description("ARRL Winter Field Day Contest")
+            .isActive(true)
+            .validatorClass("com.hamradio.logbook.validation.WinterFieldDayValidator")
+            .startDate(LocalDateTime.of(2024, 1, 27, 14, 0))
+            .endDate(LocalDateTime.of(2024, 1, 28, 20, 0));
+    }
+
+    // ==================== QSO BUILDERS ====================
+
+    public static QSO.QSOBuilder basicQSO(Log log, Station station) {
         return QSO.builder()
-                .station(station)
-                .log(log)
-                .callsign("W1AW")
-                .frequencyKhz(14250L)
-                .mode("SSB")
-                .band("20m")
-                .qsoDate(LocalDate.now())
-                .timeOn(LocalTime.of(14, 30, 0))
-                .rstSent("59")
-                .rstRcvd("59")
-                .isValid(true);
+            .log(log)
+            .station(station)
+            .callsign("W1AW")
+            .frequencyKhz(14250000L)
+            .mode("SSB")
+            .band("20m")
+            .qsoDate(LocalDate.now())
+            .timeOn(LocalTime.of(14, 30))
+            .rstSent("59")
+            .rstRcvd("59")
+            .powerWatts(100)
+            .gridSquare("FN31pr")
+            .country("United States")
+            .isValid(true);
     }
 
-    public static QSO.QSOBuilder aCWQSO(Station station, Log log) {
-        return aValidQSO(station, log)
-                .callsign("K2CW")
-                .frequencyKhz(7030L)
-                .mode("CW")
-                .band("40m")
-                .rstSent("599")
-                .rstRcvd("599");
+    public static QSO.QSOBuilder contestQSO(Log log, Station station, Contest contest) {
+        return QSO.builder()
+            .log(log)
+            .station(station)
+            .contest(contest)
+            .callsign("W1AW")
+            .frequencyKhz(14250000L)
+            .mode("SSB")
+            .band("20m")
+            .qsoDate(LocalDate.now())
+            .timeOn(LocalTime.of(14, 30))
+            .rstSent("59")
+            .rstRcvd("59")
+            .powerWatts(100)
+            .gridSquare("FN31pr")
+            .country("United States")
+            .isValid(true);
     }
 
-    public static QSO.QSOBuilder anFT8QSO(Station station, Log log) {
-        return aValidQSO(station, log)
-                .callsign("N3FT")
-                .frequencyKhz(14074L)
-                .mode("FT8")
-                .band("20m")
-                .rstSent("-10")
-                .rstRcvd("-15");
+    public static QSO.QSOBuilder fieldDayQSO(Log log, Station station, Contest contest) {
+        return QSO.builder()
+            .log(log)
+            .station(station)
+            .contest(contest)
+            .callsign("W1AW")
+            .frequencyKhz(14250000L)
+            .mode("SSB")
+            .band("20m")
+            .qsoDate(LocalDate.now())
+            .timeOn(LocalTime.of(14, 30))
+            .rstSent("59")
+            .rstRcvd("59")
+            .powerWatts(100)
+            .gridSquare("FN31pr")
+            .country("United States")
+            .contestData("{\"class\":\"2A\",\"section\":\"ORG\"}")
+            .isValid(true);
     }
 
-    public static QSO.QSOBuilder aFieldDayQSO(Station station, Log log) {
-        return aValidQSO(station, log)
-                .callsign("W4FD")
-                .contestData("{\"class\":\"2A\",\"section\":\"ORG\"}")
-                .state("VA")
-                .county("Arlington");
+    public static QSO.QSOBuilder potaQSO(Log log, Station station, Contest contest) {
+        return QSO.builder()
+            .log(log)
+            .station(station)
+            .contest(contest)
+            .callsign("W1AW")
+            .frequencyKhz(14250000L)
+            .mode("SSB")
+            .band("20m")
+            .qsoDate(LocalDate.now())
+            .timeOn(LocalTime.of(14, 30))
+            .rstSent("59")
+            .rstRcvd("59")
+            .powerWatts(100)
+            .gridSquare("FN31pr")
+            .country("United States")
+            .contestData("{\"park_ref\":\"K-0817\"}")
+            .isValid(true);
     }
 
-    public static QSO.QSOBuilder aPOTAQSO(Station station, Log log) {
-        return aValidQSO(station, log)
-                .callsign("K5POT")
-                .contestData("{\"park_ref\":\"K-0817\"}")
-                .state("TX")
-                .gridSquare("EM10");
+    public static QSO.QSOBuilder sotaQSO(Log log, Station station, Contest contest) {
+        return QSO.builder()
+            .log(log)
+            .station(station)
+            .contest(contest)
+            .callsign("W1AW")
+            .frequencyKhz(14250000L)
+            .mode("SSB")
+            .band("20m")
+            .qsoDate(LocalDate.now())
+            .timeOn(LocalTime.of(14, 30))
+            .rstSent("59")
+            .rstRcvd("59")
+            .powerWatts(100)
+            .gridSquare("FN31pr")
+            .country("United States")
+            .contestData("{\"summit_ref\":\"W7W/NG-001\"}")
+            .isValid(true);
     }
 
-    // ==================== Invitation Builders ====================
+    // ==================== INVITATION BUILDERS ====================
 
-    public static Invitation.InvitationBuilder aValidInvitation(Log log, User inviter, String inviteeEmail) {
+    public static Invitation.InvitationBuilder basicInvitation(Log log, User inviter, User invitee) {
         return Invitation.builder()
-                .log(log)
-                .inviter(inviter)
-                .inviteeEmail(inviteeEmail)
-                .role(LogParticipant.ParticipantRole.VIEWER)
-                .status(Invitation.InvitationStatus.PENDING);
+            .log(log)
+            .inviter(inviter)
+            .invitee(invitee)
+            .proposedRole(LogParticipant.ParticipantRole.STATION)
+            .status(Invitation.InvitationStatus.PENDING)
+            .message("Join our log!");
     }
 
-    public static Invitation.InvitationBuilder anAcceptedInvitation(Log log, User inviter, String inviteeEmail) {
-        return aValidInvitation(log, inviter, inviteeEmail)
-                .status(Invitation.InvitationStatus.ACCEPTED);
+    public static Invitation.InvitationBuilder acceptedInvitation(Log log, User inviter, User invitee) {
+        return Invitation.builder()
+            .log(log)
+            .inviter(inviter)
+            .invitee(invitee)
+            .proposedRole(LogParticipant.ParticipantRole.STATION)
+            .status(Invitation.InvitationStatus.ACCEPTED)
+            .respondedAt(LocalDateTime.now());
     }
 
-    // ==================== LogParticipant Builders ====================
+    // ==================== UTILITY METHODS ====================
 
-    public static LogParticipant.LogParticipantBuilder aLogParticipant(Log log, User user, LogParticipant.ParticipantRole role) {
-        return LogParticipant.builder()
-                .log(log)
-                .user(user)
-                .role(role);
-    }
-
-    // ==================== Realistic Ham Radio Data ====================
-
-    public static class RealisticData {
-        public static final String[] CALLSIGNS = {
-                "W1AW", "K1ABC", "N2XYZ", "KD6ABC", "WA7BNM",
-                "VE3JOE", "G3ABC", "JA1ABC", "VK2ABC"
-        };
-
-        public static final String[] MODES = {
-                "SSB", "CW", "FM", "AM", "RTTY", "PSK31", "FT8", "FT4", "MFSK", "OLIVIA"
-        };
-
-        public static final String[] BANDS = {
-                "160m", "80m", "60m", "40m", "30m", "20m", "17m", "15m", "12m", "10m",
-                "6m", "2m", "1.25m", "70cm"
-        };
-
-        public static final String[] GRID_SQUARES = {
-                "FN31pr", "EM12lv", "DM43ne", "CN87ts", "EL89wg",
-                "EN52md", "DN31vr", "FM18lw"
-        };
-
-        public static final String[] STATES = {
-                "CA", "TX", "FL", "NY", "PA", "IL", "OH", "MI", "GA", "NC",
-                "NJ", "VA", "WA", "MA", "AZ", "TN", "IN", "MO", "MD", "WI"
-        };
-
-        public static final String[] ARRL_SECTIONS = {
-                "ORG", "SCV", "LAX", "SF", "SB", "SDG", "SJV", "SV", "PAC", "EB",
-                "AL", "GA", "KY", "NC", "NFL", "SFL", "WCF", "PR", "VI", "SC",
-                "TN", "VA", "AR", "LA", "MS", "NM", "NTX", "OK", "STX", "WTX"
-        };
-
-        public static final String[] FIELD_DAY_CLASSES = {
-                "1A", "2A", "3A", "4A", "5A", "6A", "1B", "1C", "1D", "1E", "1F"
-        };
+    /**
+     * Create a persisted user (requires repository)
+     */
+    public static User createPersistedUser(String username, String callsign) {
+        return User.builder()
+            .username(username)
+            .email(username + "@example.com")
+            .password("$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
+            .callsign(callsign)
+            .fullName(username + " Full Name")
+            .gridSquare("FN31pr")
+            .roles(new HashSet<>(Set.of(User.Role.ROLE_USER)))
+            .enabled(true)
+            .accountNonExpired(true)
+            .accountNonLocked(true)
+            .credentialsNonExpired(true)
+            .build();
     }
 }

@@ -43,7 +43,9 @@
       "Bash(cat:*)",
       "Bash('s/@SpringBootTest$/@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)/g' )",
       "Bash('s|^@SpringBootTest|import com.hamradio.logbook.config.TestConfig;\\nimport org.springframework.context.annotation.Import;\\n\\n@Import(TestConfig.class)\\n@SpringBootTest|g' )",
-      "Bash(timeout 180 mvn test:*)"
+      "Bash(timeout 180 mvn test:*)",
+      "Bash(timeout 300 mvn clean:*)",
+      "Bash(timeout 180 mvn clean test:*)"
     ],
     "deny": [],
     "ask": []
