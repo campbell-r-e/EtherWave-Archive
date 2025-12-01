@@ -6,6 +6,7 @@ import com.hamradio.logbook.entity.Contest;
 import com.hamradio.logbook.entity.Log;
 import com.hamradio.logbook.entity.LogParticipant;
 import com.hamradio.logbook.entity.User;
+import com.hamradio.logbook.exception.ResourceNotFoundException;
 import com.hamradio.logbook.repository.ContestRepository;
 import com.hamradio.logbook.repository.LogParticipantRepository;
 import com.hamradio.logbook.repository.LogRepository;
@@ -358,6 +359,6 @@ public class LogService {
      */
     private Log getLogByIdOrThrow(Long logId) {
         return logRepository.findById(logId)
-                .orElseThrow(() -> new IllegalArgumentException("Log not found: " + logId));
+                .orElseThrow(() -> new ResourceNotFoundException("Log not found: " + logId));
     }
 }

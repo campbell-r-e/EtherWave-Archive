@@ -3,6 +3,7 @@ package com.hamradio.logbook.service;
 import com.hamradio.logbook.dto.QSORequest;
 import com.hamradio.logbook.dto.QSOResponse;
 import com.hamradio.logbook.entity.*;
+import com.hamradio.logbook.exception.ResourceNotFoundException;
 import com.hamradio.logbook.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -142,7 +143,7 @@ public class QSOService {
     public QSOResponse getQSO(Long id, String username) {
         User user = getUserByUsername(username);
         QSO qso = qsoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("QSO not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("QSO not found"));
 
         // Check if user has access to this log
         if (!logService.hasAccess(qso.getLog(), user)) {
@@ -159,7 +160,7 @@ public class QSOService {
     public QSOResponse updateQSO(Long id, QSORequest request, String username) {
         User user = getUserByUsername(username);
         QSO qso = qsoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("QSO not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("QSO not found"));
 
         // Check if user can edit this log
         if (!logService.canEdit(qso.getLog(), user)) {
@@ -217,7 +218,7 @@ public class QSOService {
     public void deleteQSO(Long id, String username) {
         User user = getUserByUsername(username);
         QSO qso = qsoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("QSO not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("QSO not found"));
 
         // Check if user can edit this log
         if (!logService.canEdit(qso.getLog(), user)) {
