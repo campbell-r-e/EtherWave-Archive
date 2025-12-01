@@ -1,5 +1,3 @@
-version: '3.8'
-
 # Field Deployment Configuration
 # Uses SQLite instead of PostgreSQL for portable operations
 # Suitable for Field Day, POTA activations, portable contests

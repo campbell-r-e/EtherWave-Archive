@@ -132,7 +132,7 @@ docker-compose -f docker-compose.field.yml up -d
 ### Local Development
 
 **Prerequisites:**
-- ☕ Java 21 or higher ([Download](https://adoptium.net/))
+- ☕ Java 25 or higher ([Download](https://adoptium.net/))
 - 🟢 Node.js 24 or higher ([Download](https://nodejs.org/))
 - 📦 Maven 3.9+ ([Download](https://maven.apache.org/))
 - 🐳 Docker (optional, for rig control)
@@ -240,14 +240,14 @@ Comprehensive documentation is available:
 ## Technology Stack
 
 ### Backend
-- **Java 21** - Latest LTS version
-- **Spring Boot 3.2.0** - Application framework
+- **Java 25** - Latest version with cutting-edge features
+- **Spring Boot 4.0.0** - Application framework
 - **Spring Security** - Authentication and authorization
 - **Spring Boot Actuator** - Production monitoring
 - **JWT (JJWT 0.12.3)** - Stateless authentication tokens
 - **Spring Data JPA** - Database ORM
-- **Hibernate 6.3** - JPA implementation with Java 21 support
-- **Lombok 1.18.34** - Boilerplate reduction (Java 21 compatible)
+- **Hibernate 7.1.8** - JPA implementation with Java 25 support
+- **Lombok 1.18.38** - Boilerplate reduction (Java 25 compatible)
 - **PostgreSQL 16 / SQLite** - Database options
 - **Spring WebSocket** - Real-time communication
 
@@ -368,7 +368,7 @@ Hamradiologbook/
 │   ├── src/main/resources/
 │   │   ├── application.properties    # App configuration
 │   │   └── contest-definitions/      # Contest JSON configs
-│   ├── Dockerfile                    # Backend container (Java 21)
+│   ├── Dockerfile                    # Backend container (Java 25)
 │   └── pom.xml                       # Maven dependencies
 │
 ├── frontend/logbook-ui/              # Angular 17 frontend
@@ -383,7 +383,7 @@ Hamradiologbook/
 │
 ├── rig-control-service/              # Hamlib integration
 │   ├── src/main/java/com/hamradio/rigcontrol/
-│   ├── Dockerfile                    # Rig control container (Java 21 + Hamlib)
+│   ├── Dockerfile                    # Rig control container (Java 25 + Hamlib)
 │   └── pom.xml
 │
 ├── docs/                             # Comprehensive documentation

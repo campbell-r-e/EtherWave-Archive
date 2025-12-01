@@ -92,7 +92,7 @@ Complete technical guide for developers working on the Ham Radio Contest Logbook
 
 #### Why Java 25?
 - Latest Java release with cutting-edge features and improvements
-- Built on Java 21 LTS foundation with additional enhancements
+- Built on Java 25 LTS foundation with additional enhancements
 - Improved virtual threads performance (Project Loom refinements)
 - Enhanced pattern matching and language features
 - Better performance and garbage collection improvements

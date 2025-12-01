@@ -110,25 +110,25 @@ docker-compose -f docker-compose.field.yml down
 
 ### Backend Setup
 
-1. **Install Java 21**
+1. **Install Java 25**
    ```bash
    # macOS (using Homebrew)
-   brew install openjdk@21
+   brew install temurin@25
 
    # Ubuntu/Debian
    sudo apt install openjdk-21-jdk
 
    # Verify installation
-   java -version  # Should show version 21
+   java -version  # Should show version 25
    ```
 
 2. **Set JAVA_HOME**
    ```bash
    # macOS
-   export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+   export JAVA_HOME=$(/usr/libexec/java_home -v 25)
 
    # Linux
-   export JAVA_HOME=/usr/lib/jvm/java-21-openjdk
+   export JAVA_HOME=/usr/lib/jvm/java-25-openjdk
 
    # Add to ~/.bashrc or ~/.zshrc for persistence
    ```
@@ -338,10 +338,10 @@ No setup required! The database file `logbook.db` will be created automatically 
    Type=simple
    User=hamradio
    WorkingDirectory=/opt/hamradio-logbook
-   Environment="JAVA_HOME=/usr/lib/jvm/java-21-openjdk"
+   Environment="JAVA_HOME=/usr/lib/jvm/java-25-openjdk"
    Environment="SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/hamradio_logbook"
    Environment="JWT_SECRET=YourSecretKey"
-   ExecStart=/usr/lib/jvm/java-21-openjdk/bin/java -jar logbook-backend-1.0.0-SNAPSHOT.jar
+   ExecStart=/usr/lib/jvm/java-25-openjdk/bin/java -jar logbook-backend-1.0.0-SNAPSHOT.jar
    Restart=always
 
    [Install]
@@ -464,8 +464,8 @@ No database service needed. SQLite database stored in Docker volume.
 java -version  # Must be 21 or higher
 
 # Set correct JAVA_HOME
-export JAVA_HOME=$(/usr/libexec/java_home -v 21)  # macOS
-export JAVA_HOME=/usr/lib/jvm/java-21-openjdk     # Linux
+export JAVA_HOME=$(/usr/libexec/java_home -v 25)  # macOS
+export JAVA_HOME=/usr/lib/jvm/java-25-openjdk     # Linux
 ```
 
 #### 2. Frontend build fails with npm errors
