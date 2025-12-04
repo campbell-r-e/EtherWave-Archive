@@ -16,9 +16,23 @@
     "scoring": {
       "phone": 1,
       "cw": 2,
-      "digital": 2
+      "digital": 2,
+      "gota_bonus_per_qso": 5
     },
+    "power_multipliers": {
+      "qrp": 5,
+      "low": 2,
+      "high": 1
+    },
+    "multipliers": {
+      "type": "arrl_section",
+      "required_fields": ["section"],
+      "per_band": false
+    },
+    "duplicate_window": "24_hours",
+    "duplicate_fields": ["callsign", "band", "mode"],
     "bonus_points": {
+      "gota_station": 100,
       "100pct_emergency_power": 100,
       "media_publicity": 100,
       "public_location": 100,
@@ -31,8 +45,22 @@
       "educational_activity": 100,
       "elected_official_visit": 100,
       "agency_visit": 100,
-      "gota_station": 100,
-      "youth_participation": 20
-    }
+      "youth_participation": 20,
+      "social_media": 100,
+      "safety_officer": 100
+    },
+    "valid_sections": [
+      "CT", "EMA", "ME", "NH", "RI", "VT", "WMA",
+      "ENY", "NLI", "NNJ", "NNY", "SNJ", "WNY",
+      "DE", "EPA", "MDC", "WPA",
+      "AL", "GA", "KY", "NC", "NFL", "PR", "SC", "SFL", "SV", "TN", "VA", "VI", "WCF",
+      "AR", "LA", "MS", "NM", "NTX", "OK", "STX", "WTX",
+      "EB", "LAX", "ORG", "PAC", "SB", "SCV", "SDG", "SF", "SJV", "SV",
+      "AZ", "EWA", "ID", "MT", "NV", "OR", "UT", "WWA", "WY",
+      "AK", "MI", "OH", "WV",
+      "IL", "IN", "WI",
+      "CO", "IA", "KS", "MN", "MO", "NE", "ND", "SD",
+      "AB", "BC", "GTA", "MB", "MAR", "NL", "NT", "ONE", "ONN", "ONS", "PE", "QC", "SK"
+    ]
   }
 }

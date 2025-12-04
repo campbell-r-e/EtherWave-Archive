@@ -36,6 +36,13 @@ export interface Log {
   userRole?: ParticipantRole;
   participantCount: number;
   qsoCount: number;
+
+  // Contest scoring fields
+  totalQsos?: number;
+  totalPoints?: number;
+  totalMultipliers?: number;
+  calculatedScore?: number;
+  lastScoreCalculation?: string;
 }
 
 export interface LogRequest {

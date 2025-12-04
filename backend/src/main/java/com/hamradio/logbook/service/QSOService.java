@@ -37,6 +37,7 @@ public class QSOService {
     private final SimpMessagingTemplate messagingTemplate;
     private final QSOValidationService validationService;
     private final LogService logService;
+    private final ScoringService scoringService;
 
     /**
      * Create a new QSO in a specific log
@@ -128,6 +129,15 @@ public class QSOService {
         QSO savedQSO = qsoRepository.save(qso);
         log.info("QSO saved with ID: {}", savedQSO.getId());
 
+        // Calculate scoring (points, duplicates, multipliers)
+        try {
+            scoringService.updateScoreForQso(savedQSO);
+            log.debug("Scoring calculated for QSO {}: points={}, isDupe={}, isMult={}",
+                    savedQSO.getId(), savedQSO.getPoints(), savedQSO.getIsDuplicate(), savedQSO.getIsMultiplier());
+        } catch (Exception e) {
+            log.error("Error calculating score for QSO {}: {}", savedQSO.getId(), e.getMessage());
+        }
+
         // Convert to response
         QSOResponse response = toResponse(savedQSO);
 
@@ -208,6 +218,16 @@ public class QSOService {
         }
 
         QSO updatedQSO = qsoRepository.save(qso);
+
+        // Recalculate scoring after update
+        try {
+            scoringService.updateScoreForQso(updatedQSO);
+            log.debug("Scoring recalculated for QSO {}: points={}, isDupe={}, isMult={}",
+                    updatedQSO.getId(), updatedQSO.getPoints(), updatedQSO.getIsDuplicate(), updatedQSO.getIsMultiplier());
+        } catch (Exception e) {
+            log.error("Error recalculating score for QSO {}: {}", updatedQSO.getId(), e.getMessage());
+        }
+
         return toResponse(updatedQSO);
     }
 

@@ -142,6 +142,20 @@ public class QSO {
     @Column(name = "validation_errors", columnDefinition = "TEXT")
     private String validationErrors;
 
+    // Scoring fields
+    @Column(name = "points")
+    private Integer points = 0;
+
+    @Column(name = "is_duplicate")
+    private Boolean isDuplicate = false;
+
+    @Column(name = "is_multiplier")
+    private Boolean isMultiplier = false;
+
+    // JSON array of multiplier types this QSO counts for: ["STATE", "DXCC", "ARRL_SECT"]
+    @Column(name = "multiplier_types", columnDefinition = "TEXT")
+    private String multiplierTypes;
+
     // Comments
     @Column(columnDefinition = "TEXT")
     private String notes;

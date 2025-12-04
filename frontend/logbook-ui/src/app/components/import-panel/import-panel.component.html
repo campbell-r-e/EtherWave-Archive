@@ -57,23 +57,95 @@
           <!-- Import Button -->
           <div class="col-12">
             <button class="btn btn-primary me-2"
-                    (click)="importAdif()"
-                    [disabled]="!currentLog || !selectedStation || !selectedFile || importing">
-              @if (importing) {
+                    (click)="previewAndMapStations()"
+                    [disabled]="!currentLog || !selectedStation || !selectedFile || importing || previewing">
+              @if (previewing) {
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                Previewing...
+              } @else if (importing) {
                 <span class="spinner-border spinner-border-sm me-2" role="status"></span>
                 Importing...
               } @else {
-                📥 Import ADIF
+                🔍 Preview & Map Stations
               }
             </button>
             @if (selectedFile || importResult) {
-              <button class="btn btn-secondary" (click)="resetImport()" [disabled]="importing">
+              <button class="btn btn-secondary" (click)="resetImport()" [disabled]="importing || previewing">
                 Reset
               </button>
             }
           </div>
         </div>
       </div>
+
+      <!-- Station Mapping UI -->
+      @if (showStationMapping && previewResult) {
+        <div class="station-mapping-section mt-4 p-3 border rounded bg-light">
+          <h6 class="mb-3">📋 Station Mapping</h6>
+
+          <div class="alert alert-info mb-3">
+            <strong>Preview Results:</strong> Found {{ previewResult.totalRecords }} total records
+            @if (previewResult.stationCallsigns && previewResult.stationCallsigns.length > 0) {
+              with {{ previewResult.stationCallsigns.length }} unique station callsign(s).
+              <br><small>Map each imported station callsign to one of your local stations below:</small>
+            }
+          </div>
+
+          @if (previewResult.stationCallsigns && previewResult.stationCallsigns.length > 0) {
+            <div class="table-responsive mb-3">
+              <table class="table table-bordered table-sm bg-white">
+                <thead class="table-light">
+                  <tr>
+                    <th style="width: 40%">Imported Station Callsign</th>
+                    <th style="width: 60%">Map to Local Station</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (callsign of previewResult.stationCallsigns; track callsign) {
+                    <tr>
+                      <td class="align-middle">
+                        <strong>{{ callsign }}</strong>
+                      </td>
+                      <td>
+                        <select class="form-select form-select-sm"
+                                [(ngModel)]="stationMapping[callsign]">
+                          @for (station of stations; track station.id) {
+                            <option [value]="station.id">
+                              {{ station.callsign }} - {{ station.stationName }}
+                              @if (station.isGota) {
+                                (GOTA)
+                              }
+                            </option>
+                          }
+                        </select>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+
+          <!-- Mapping Action Buttons -->
+          <div class="d-flex gap-2">
+            <button class="btn btn-success"
+                    (click)="importWithMapping()"
+                    [disabled]="importing">
+              @if (importing) {
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                Importing...
+              } @else {
+                ✓ Import with Mapping
+              }
+            </button>
+            <button class="btn btn-outline-secondary"
+                    (click)="cancelMapping()"
+                    [disabled]="importing">
+              Cancel
+            </button>
+          </div>
+        </div>
+      }
 
       <!-- Error Message -->
       @if (errorMessage) {

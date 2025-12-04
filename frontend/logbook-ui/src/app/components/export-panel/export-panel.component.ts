@@ -23,6 +23,7 @@ export class ExportPanelComponent implements OnInit {
     category: ''
   };
   showCabrilloOptions = false;
+  cabrilloExportType: 'combined' | 'gota' | 'non-gota' = 'combined';
 
   constructor(
     private apiService: ApiService,
@@ -59,7 +60,32 @@ export class ExportPanelComponent implements OnInit {
     this.apiService.exportAdifByLog(this.currentLog.id);
   }
 
-  showCabrilloForm(): void {
+  exportAdifCombined(): void {
+    if (!this.currentLog) {
+      alert('Please select a log first');
+      return;
+    }
+    this.apiService.exportAdifCombined(this.currentLog.id);
+  }
+
+  exportAdifGota(): void {
+    if (!this.currentLog) {
+      alert('Please select a log first');
+      return;
+    }
+    this.apiService.exportAdifGota(this.currentLog.id);
+  }
+
+  exportAdifNonGota(): void {
+    if (!this.currentLog) {
+      alert('Please select a log first');
+      return;
+    }
+    this.apiService.exportAdifNonGota(this.currentLog.id);
+  }
+
+  showCabrilloForm(exportType: 'combined' | 'gota' | 'non-gota' = 'combined'): void {
+    this.cabrilloExportType = exportType;
     this.showCabrilloOptions = true;
   }
 
@@ -79,13 +105,32 @@ export class ExportPanelComponent implements OnInit {
       return;
     }
 
-    // Use new log-based export method (works for both contest and personal logs)
-    this.apiService.exportCabrilloByLog(
-      this.currentLog.id,
-      this.cabrilloOptions.callsign,
-      this.cabrilloOptions.operators || undefined,
-      this.cabrilloOptions.category || undefined
-    );
+    // Export based on selected type
+    switch (this.cabrilloExportType) {
+      case 'gota':
+        this.apiService.exportCabrilloGota(
+          this.currentLog.id,
+          this.cabrilloOptions.callsign,
+          this.cabrilloOptions.operators || undefined,
+          this.cabrilloOptions.category || undefined
+        );
+        break;
+      case 'non-gota':
+        this.apiService.exportCabrilloNonGota(
+          this.currentLog.id,
+          this.cabrilloOptions.callsign,
+          this.cabrilloOptions.operators || undefined,
+          this.cabrilloOptions.category || undefined
+        );
+        break;
+      default:
+        this.apiService.exportCabrilloCombined(
+          this.currentLog.id,
+          this.cabrilloOptions.callsign,
+          this.cabrilloOptions.operators || undefined,
+          this.cabrilloOptions.category || undefined
+        );
+    }
 
     this.showCabrilloOptions = false;
     this.resetCabrilloOptions();

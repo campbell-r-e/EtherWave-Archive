@@ -20,6 +20,24 @@
             </div>
           }
 
+          <!-- Scoring Indicators (after QSO is saved) -->
+          @if (lastSavedQSO) {
+            <div class="alert alert-info d-flex align-items-center gap-3">
+              <div>
+                <strong>Last QSO:</strong> {{ lastSavedQSO.callsign }}
+              </div>
+              @if (lastSavedQSO.points !== undefined) {
+                <span class="badge bg-primary">{{ lastSavedQSO.points }} points</span>
+              }
+              @if (lastSavedQSO.isDuplicate) {
+                <span class="badge bg-warning text-dark">⚠️ DUPLICATE</span>
+              }
+              @if (lastSavedQSO.isMultiplier && !lastSavedQSO.isDuplicate) {
+                <span class="badge bg-success">⭐ NEW MULTIPLIER!</span>
+              }
+            </div>
+          }
+
           <form (ngSubmit)="saveQSO()">
             <!-- Station and Contest Selection -->
             <div class="row mb-3">
@@ -28,8 +46,16 @@
                 <select id="qso-station" class="form-select" [(ngModel)]="qso.stationId" name="station" required aria-required="true">
                   <option [value]="0">Select Station</option>
                   @for (station of stations; track station) {
-                    <option [value]="station.id">
+                    <option [value]="station.id"
+                      [style.background-color]="station.isGota ? '#d4edda' : 'transparent'"
+                      [style.color]="station.isGota ? '#155724' : 'inherit'">
                       {{ station.stationName }} ({{ station.callsign }})
+                      @if (station.isGota) {
+                        <span> 🟢 GOTA</span>
+                      }
+                      @if (station.stationNumber) {
+                        <span> - Station {{ station.stationNumber }}</span>
+                      }
                     </option>
                   }
                 </select>

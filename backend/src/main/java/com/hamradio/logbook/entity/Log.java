@@ -59,6 +59,22 @@ public class Log {
     @Column(name = "is_public")
     private Boolean isPublic = false; // For future feature: public logs
 
+    // Aggregate scoring fields (cached for performance)
+    @Column(name = "total_qsos")
+    private Integer totalQsos = 0;
+
+    @Column(name = "total_points")
+    private Integer totalPoints = 0;
+
+    @Column(name = "total_multipliers")
+    private Integer totalMultipliers = 0;
+
+    @Column(name = "calculated_score")
+    private Integer calculatedScore = 0;
+
+    @Column(name = "last_score_calculation")
+    private LocalDateTime lastScoreCalculation;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

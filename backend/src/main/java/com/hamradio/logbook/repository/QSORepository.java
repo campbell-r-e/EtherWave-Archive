@@ -128,4 +128,62 @@ public interface QSORepository extends JpaRepository<QSO, Long> {
      * Count QSOs for a specific log
      */
     long countByLogId(Long logId);
+
+    /**
+     * Count QSOs by log, station, and duplicate status
+     * Used for GOTA bonus calculation
+     */
+    @Query("SELECT COUNT(q) FROM QSO q WHERE q.log.id = :logId AND q.station.id = :stationId AND q.isDuplicate = :isDuplicate")
+    long countByLogIdAndStationIdAndIsDuplicate(
+            @Param("logId") Long logId,
+            @Param("stationId") Long stationId,
+            @Param("isDuplicate") Boolean isDuplicate
+    );
+
+    /**
+     * Find QSOs by log, callsign, band, and date range
+     * Used for duplicate detection
+     */
+    @Query("SELECT q FROM QSO q WHERE q.log.id = :logId AND q.callsign = :callsign AND q.band = :band " +
+           "AND q.qsoDate BETWEEN :startDate AND :endDate ORDER BY q.qsoDate, q.timeOn")
+    List<QSO> findByLogIdAndCallsignAndBandAndDateRange(
+            @Param("logId") Long logId,
+            @Param("callsign") String callsign,
+            @Param("band") String band,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    /**
+     * Find QSOs by log, callsign, and date range (no band filter)
+     * Used for duplicate detection when band is not a factor
+     */
+    @Query("SELECT q FROM QSO q WHERE q.log.id = :logId AND q.callsign = :callsign " +
+           "AND q.qsoDate BETWEEN :startDate AND :endDate ORDER BY q.qsoDate, q.timeOn")
+    List<QSO> findByLogIdAndCallsignAndDateRange(
+            @Param("logId") Long logId,
+            @Param("callsign") String callsign,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    /**
+     * Find QSOs by log and station (for GOTA filtering)
+     */
+    @Query("SELECT q FROM QSO q WHERE q.log.id = :logId AND q.station.id = :stationId ORDER BY q.qsoDate DESC, q.timeOn DESC")
+    List<QSO> findByLogIdAndStationId(
+            @Param("logId") Long logId,
+            @Param("stationId") Long stationId
+    );
+
+    /**
+     * Find QSOs by log and station with duplicate filter
+     */
+    @Query("SELECT q FROM QSO q WHERE q.log.id = :logId AND q.station.id = :stationId AND q.isDuplicate = :isDuplicate " +
+           "ORDER BY q.qsoDate DESC, q.timeOn DESC")
+    List<QSO> findByLogIdAndStationIdAndIsDuplicateList(
+            @Param("logId") Long logId,
+            @Param("stationId") Long stationId,
+            @Param("isDuplicate") Boolean isDuplicate
+    );
 }

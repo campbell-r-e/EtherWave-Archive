@@ -36,6 +36,7 @@ public class AdifImportService {
     private final OperatorRepository operatorRepository;
     private final ContestRepository contestRepository;
     private final LogRepository logRepository;
+    private final ScoringJobService scoringJobService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     // ADIF field pattern: <FIELD_NAME:LENGTH[:TYPE]>VALUE
@@ -57,6 +58,43 @@ public class AdifImportService {
         public int totalRecords = 0;
         public int successCount = 0;
         public int errorCount = 0;
+    }
+
+    /**
+     * Preview result containing unique station callsigns found in ADIF file
+     */
+    public static class PreviewResult {
+        public Set<String> stationCallsigns = new HashSet<>();
+        public int totalRecords = 0;
+    }
+
+    /**
+     * Preview ADIF file and extract unique station callsigns
+     */
+    public PreviewResult previewAdif(byte[] fileContent) {
+        PreviewResult result = new PreviewResult();
+
+        try {
+            String content = new String(fileContent, StandardCharsets.UTF_8);
+            List<Map<String, String>> records = parseAdifContent(content);
+
+            result.totalRecords = records.size();
+
+            for (Map<String, String> record : records) {
+                String stationCallsign = record.get("STATION_CALLSIGN");
+                if (stationCallsign != null && !stationCallsign.isEmpty()) {
+                    result.stationCallsigns.add(stationCallsign.toUpperCase());
+                }
+            }
+
+            log.info("Previewed ADIF file: {} records, {} unique station callsigns",
+                    result.totalRecords, result.stationCallsigns.size());
+
+        } catch (Exception e) {
+            log.error("Error previewing ADIF file", e);
+        }
+
+        return result;
     }
 
     /**
@@ -97,6 +135,89 @@ public class AdifImportService {
             }
 
             log.info("ADIF import completed: {} success, {} errors", result.successCount, result.errorCount);
+
+            // Trigger background scoring recalculation if QSOs were imported
+            if (result.successCount > 0) {
+                log.info("Starting background score recalculation for log {} after importing {} QSOs",
+                        logId, result.successCount);
+                scoringJobService.recalculateLogScoresAsync(logId);
+            }
+
+        } catch (Exception e) {
+            result.errors.add("Failed to parse ADIF file: " + e.getMessage());
+            result.errorCount = result.totalRecords;
+            log.error("Failed to parse ADIF file", e);
+        }
+
+        return result;
+    }
+
+    /**
+     * Import QSOs from ADIF file with station mapping
+     * @param stationMapping Map of STATION_CALLSIGN (from ADIF) to local Station ID
+     */
+    @Transactional
+    public ImportResult importAdifWithMapping(byte[] fileContent, Long logId, Map<String, Long> stationMapping, Long fallbackStationId) {
+        ImportResult result = new ImportResult();
+
+        // Validate log exists
+        Log targetLog = logRepository.findById(logId)
+                .orElseThrow(() -> new IllegalArgumentException("Log not found: " + logId));
+
+        // Validate fallback station exists
+        Station fallbackStation = stationRepository.findById(fallbackStationId)
+                .orElseThrow(() -> new IllegalArgumentException("Fallback station not found: " + fallbackStationId));
+
+        // Validate all mapped stations exist
+        Map<String, Station> stationMap = new HashMap<>();
+        for (Map.Entry<String, Long> entry : stationMapping.entrySet()) {
+            Station station = stationRepository.findById(entry.getValue())
+                    .orElseThrow(() -> new IllegalArgumentException("Station not found: " + entry.getValue()));
+            stationMap.put(entry.getKey().toUpperCase(), station);
+        }
+
+        try {
+            String content = new String(fileContent, StandardCharsets.UTF_8);
+            List<Map<String, String>> records = parseAdifContent(content);
+
+            result.totalRecords = records.size();
+            log.info("Parsed {} ADIF records with station mapping", records.size());
+
+            for (int i = 0; i < records.size(); i++) {
+                Map<String, String> record = records.get(i);
+                try {
+                    // Determine which station to use for this QSO
+                    String stationCallsign = record.get("STATION_CALLSIGN");
+                    Station targetStation;
+
+                    if (stationCallsign != null && !stationCallsign.isEmpty()) {
+                        String upperCallsign = stationCallsign.toUpperCase();
+                        targetStation = stationMap.getOrDefault(upperCallsign, fallbackStation);
+                    } else {
+                        targetStation = fallbackStation;
+                    }
+
+                    QSO qso = createQSOFromAdifRecord(record, targetLog, targetStation);
+                    QSO savedQso = qsoRepository.save(qso);
+                    result.importedQSOs.add(savedQso);
+                    result.successCount++;
+                } catch (Exception e) {
+                    String error = String.format("Record %d: %s", i + 1, e.getMessage());
+                    result.errors.add(error);
+                    result.errorCount++;
+                    log.warn("Error importing ADIF record {}: {}", i + 1, e.getMessage());
+                }
+            }
+
+            log.info("ADIF import with mapping completed: {} success, {} errors", result.successCount, result.errorCount);
+
+            // Trigger background scoring recalculation if QSOs were imported
+            if (result.successCount > 0) {
+                log.info("Starting background score recalculation for log {} after importing {} QSOs",
+                        logId, result.successCount);
+                scoringJobService.recalculateLogScoresAsync(logId);
+            }
+
         } catch (Exception e) {
             result.errors.add("Failed to parse ADIF file: " + e.getMessage());
             result.errorCount = result.totalRecords;

@@ -3,6 +3,39 @@
     <h5 class="mb-0">📻 Live QSO Feed</h5>
     <span class="badge bg-light text-dark">{{ qsos.length }} QSOs</span>
   </div>
+
+  <!-- Station Filter Buttons -->
+  <div class="card-body pb-0">
+    <div class="btn-group mb-3" role="group" aria-label="Filter by station">
+      <button type="button"
+        class="btn btn-sm"
+        [class.btn-primary]="selectedStationFilter === null"
+        [class.btn-outline-primary]="selectedStationFilter !== null"
+        (click)="filterByStation(null)">
+        All Stations
+      </button>
+      @for (station of stations; track station) {
+        @if (station.id) {
+          <button type="button"
+            class="btn btn-sm"
+            [class.btn-primary]="selectedStationFilter === station.id"
+            [class.btn-outline-primary]="selectedStationFilter !== station.id"
+            [style.border-color]="selectedStationFilter === station.id ? getStationColor(station) : ''"
+            [style.background-color]="selectedStationFilter === station.id ? getStationColor(station) : ''"
+            (click)="filterByStation(station.id)">
+            {{ station.stationName || station.name }}
+            @if (station.isGota) {
+              <span>🟢</span>
+            }
+            @if (station.stationNumber) {
+              <span class="badge bg-light text-dark ms-1">{{ station.stationNumber }}</span>
+            }
+          </button>
+        }
+      }
+    </div>
+  </div>
+
   <div class="card-body p-0">
     @if (loading) {
       <div class="text-center p-4">
@@ -27,6 +60,7 @@
               <th>Callsign</th>
               <th>Frequency</th>
               <th>Mode</th>
+              <th>Points</th>
               <th>RST</th>
               <th>Name</th>
               <th>State</th>
@@ -38,13 +72,21 @@
             @for (qso of qsos; track qso) {
               <tr
                 [attr.data-qso-id]="qso.id"
-                [class]="getValidationClass(qso)">
+                [class]="getValidationClass(qso)"
+                [style.border-left]="getStationBorder(qso)"
+                [style.background-color]="getRowBackground(qso)">
                 <td class="text-nowrap">
                   <small>{{ qso.qsoDate }}</small><br>
                   <strong>{{ qso.timeOn }}</strong>
                 </td>
                 <td>
                   <strong class="text-primary">{{ qso.callsign }}</strong>
+                  @if (qso.isDuplicate) {
+                    <span class="badge bg-warning text-dark ms-1" title="Duplicate QSO">⚠️ DUPE</span>
+                  }
+                  @if (qso.isMultiplier && !qso.isDuplicate) {
+                    <span class="badge bg-success ms-1" title="New Multiplier">⭐</span>
+                  }
                   @if (!qso.isValid) {
                     <span class="badge bg-danger ms-1">Invalid</span>
                   }
@@ -58,13 +100,26 @@
                   <br><small class="text-muted">{{ qso.band }}</small>
                 </td>
                 <td><span class="badge bg-info">{{ qso.mode }}</span></td>
+                <td class="text-center">
+                  @if (qso.points !== undefined && !qso.isDuplicate) {
+                    <strong class="text-success">{{ qso.points }}</strong>
+                  }
+                  @if (qso.isDuplicate) {
+                    <span class="text-muted" title="Duplicates score 0 points">0</span>
+                  }
+                  @if (qso.points === undefined) {
+                    <span class="text-muted">-</span>
+                  }
+                </td>
                 <td class="text-nowrap">
                   <small>S: {{ qso.rstSent || '-' }}</small><br>
                   <small>R: {{ qso.rstRcvd || '-' }}</small>
                 </td>
                 <td>{{ qso.name || '-' }}</td>
                 <td>{{ qso.state || '-' }}</td>
-                <td><small>{{ qso.stationName }}</small></td>
+                <td>
+                  <small>{{ qso.stationName }}</small>
+                </td>
                 <td>
                   <button class="btn btn-sm btn-outline-danger"
                     (click)="deleteQSO(qso)"

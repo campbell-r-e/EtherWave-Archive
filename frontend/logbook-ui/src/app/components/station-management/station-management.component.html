@@ -80,6 +80,44 @@
               [(ngModel)]="currentStation.antenna"
               placeholder="e.g., Dipole, Yagi">
           </div>
+          <!-- Station Number -->
+          <div class="col-md-4">
+            <label class="form-label">Station Number</label>
+            <input type="number"
+              class="form-control"
+              [(ngModel)]="currentStation.stationNumber"
+              min="1"
+              max="20"
+              placeholder="e.g., 1, 2, 3">
+            <small class="text-muted">For multi-station contests (1=Blue, 2=Red)</small>
+          </div>
+          <!-- GOTA Station -->
+          <div class="col-md-4">
+            <label class="form-label d-block">GOTA Station</label>
+            <div class="form-check form-switch">
+              <input class="form-check-input"
+                type="checkbox"
+                role="switch"
+                [(ngModel)]="currentStation.isGota"
+                id="gotaCheckbox">
+              <label class="form-check-label" for="gotaCheckbox">
+                Get On The Air (GOTA)
+              </label>
+            </div>
+            <small class="text-muted">Field Day GOTA station (Green)</small>
+          </div>
+          <!-- Station Color (read-only display) -->
+          <div class="col-md-4">
+            <label class="form-label">Station Color</label>
+            <div class="d-flex align-items-center">
+              <span class="badge"
+                [style.background-color]="getStationColor(currentStation)"
+                [style.color]="'white'">
+                {{ getStationColorName(currentStation) }}
+              </span>
+              <small class="text-muted ms-2">Auto-assigned</small>
+            </div>
+          </div>
           <!-- Comments -->
           <div class="col-12">
             <label class="form-label">Comments</label>
@@ -115,7 +153,19 @@
           <div class="station-card">
             <div class="station-header">
               <div>
-                <h6 class="station-name">{{ station.name }}</h6>
+                <h6 class="station-name">
+                  {{ station.name }}
+                  @if (station.isGota) {
+                    <span class="badge bg-success ms-2">GOTA</span>
+                  }
+                  @if (station.stationNumber) {
+                    <span class="badge ms-2"
+                      [style.background-color]="getStationColor(station)"
+                      [style.color]="'white'">
+                      Station {{ station.stationNumber }}
+                    </span>
+                  }
+                </h6>
                 <span class="station-callsign">{{ station.callsign }}</span>
               </div>
               <div class="station-actions">

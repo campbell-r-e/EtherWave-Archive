@@ -20,16 +20,61 @@
             }
           </p>
         </div>
-        <button class="btn btn-primary" (click)="exportADIF()" [disabled]="!currentLog">
-          📥 Download ADIF
-        </button>
       </div>
 
-      <div class="export-features">
-        <div class="feature-item">✓ All QSO records from current log</div>
-        <div class="feature-item">✓ Complete field data</div>
-        <div class="feature-item">✓ Contest information</div>
-        <div class="feature-item">✓ Station details</div>
+      <!-- Three Export Options -->
+      <div class="row g-3 mt-2">
+        <!-- Combined Export -->
+        <div class="col-md-4">
+          <div class="card border-primary">
+            <div class="card-body text-center">
+              <h6 class="card-title">📦 Combined</h6>
+              <p class="card-text small text-muted">
+                All QSOs including GOTA stations
+              </p>
+              <button class="btn btn-primary btn-sm" (click)="exportAdifCombined()" [disabled]="!currentLog">
+                Download Combined
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- GOTA Only Export -->
+        <div class="col-md-4">
+          <div class="card border-success">
+            <div class="card-body text-center">
+              <h6 class="card-title">🟢 GOTA Only</h6>
+              <p class="card-text small text-muted">
+                Only Get On The Air station QSOs
+              </p>
+              <button class="btn btn-success btn-sm" (click)="exportAdifGota()" [disabled]="!currentLog">
+                Download GOTA
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Non-GOTA Export -->
+        <div class="col-md-4">
+          <div class="card border-info">
+            <div class="card-body text-center">
+              <h6 class="card-title">📻 Non-GOTA</h6>
+              <p class="card-text small text-muted">
+                Regular stations only (excludes GOTA)
+              </p>
+              <button class="btn btn-info btn-sm" (click)="exportAdifNonGota()" [disabled]="!currentLog">
+                Download Non-GOTA
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="export-features mt-3">
+        <div class="feature-item">✓ Complete field data in all exports</div>
+        <div class="feature-item">✓ Contest information included</div>
+        <div class="feature-item">✓ Station details preserved</div>
+        <div class="feature-item">✓ ADIF 3.1.4 compliant format</div>
       </div>
     </div>
 
@@ -47,21 +92,63 @@
               }
             </p>
           </div>
-          @if (!showCabrilloOptions) {
-            <button class="btn btn-success"
-              (click)="showCabrilloForm()"
-              [disabled]="!currentLog"
-              >
-              📋 Export Cabrillo
-            </button>
-          }
         </div>
+
+        <!-- Three Export Options -->
+        @if (!showCabrilloOptions) {
+          <div class="row g-3 mt-2">
+            <!-- Combined Export -->
+            <div class="col-md-4">
+              <div class="card border-primary">
+                <div class="card-body text-center">
+                  <h6 class="card-title">📦 Combined</h6>
+                  <p class="card-text small text-muted">
+                    All QSOs including GOTA stations
+                  </p>
+                  <button class="btn btn-primary btn-sm" (click)="showCabrilloForm('combined')" [disabled]="!currentLog">
+                    Export Combined
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- GOTA Only Export -->
+            <div class="col-md-4">
+              <div class="card border-success">
+                <div class="card-body text-center">
+                  <h6 class="card-title">🟢 GOTA Only</h6>
+                  <p class="card-text small text-muted">
+                    Only Get On The Air station QSOs
+                  </p>
+                  <button class="btn btn-success btn-sm" (click)="showCabrilloForm('gota')" [disabled]="!currentLog">
+                    Export GOTA
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Non-GOTA Export -->
+            <div class="col-md-4">
+              <div class="card border-info">
+                <div class="card-body text-center">
+                  <h6 class="card-title">📻 Non-GOTA</h6>
+                  <p class="card-text small text-muted">
+                    Regular stations only (excludes GOTA)
+                  </p>
+                  <button class="btn btn-info btn-sm" (click)="showCabrilloForm('non-gota')" [disabled]="!currentLog">
+                    Export Non-GOTA
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
 
         <!-- Cabrillo Options Form -->
         @if (showCabrilloOptions) {
           <div class="cabrillo-form mt-3">
             <div class="alert alert-info">
-              <strong>Log Export</strong><br>
+              <strong>Cabrillo Export - {{ cabrilloExportType === 'combined' ? 'Combined' : cabrilloExportType === 'gota' ? 'GOTA Only' : 'Non-GOTA' }}</strong><br>
               @if (isContestLog()) {
                 Exporting contest log: {{ currentLog?.contestName }}
               } @else {
@@ -114,11 +201,11 @@
 
         <!-- Cabrillo Features -->
         @if (!showCabrilloOptions) {
-          <div class="export-features">
+          <div class="export-features mt-3">
             <div class="feature-item">✓ Works with contest & personal logs</div>
             <div class="feature-item">✓ Standard Cabrillo v3.0 format</div>
-            <div class="feature-item">✓ No contest data required for personal logs</div>
-            <div class="feature-item">✓ Ready for submission or backup</div>
+            <div class="feature-item">✓ GOTA separation for Field Day contests</div>
+            <div class="feature-item">✓ Ready for official contest submission</div>
           </div>
         }
       </div>

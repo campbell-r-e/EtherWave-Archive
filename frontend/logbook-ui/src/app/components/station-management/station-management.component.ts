@@ -124,4 +124,54 @@ export class StationManagementComponent implements OnInit {
   isFormValid(): boolean {
     return !!(this.currentStation.name && this.currentStation.callsign);
   }
+
+  /**
+   * Get station color based on ARRL Field Day conventions
+   * Station 1 = Blue, Station 2 = Red, GOTA = Green
+   */
+  getStationColor(station: Station): string {
+    // GOTA stations are always green
+    if (station.isGota) {
+      return '#00AA00';
+    }
+
+    // Station number-based colors
+    if (station.stationNumber) {
+      const colors: { [key: number]: string } = {
+        1: '#0066CC',  // Blue
+        2: '#CC0000',  // Red
+        3: '#FF6600',  // Orange
+        4: '#9900CC',  // Purple
+        5: '#00CCCC',  // Cyan
+        6: '#CCCC00',  // Yellow
+      };
+      return colors[station.stationNumber] || '#666666'; // Gray for others
+    }
+
+    // Default gray for unassigned stations
+    return '#666666';
+  }
+
+  /**
+   * Get human-readable color name
+   */
+  getStationColorName(station: Station): string {
+    if (station.isGota) {
+      return 'Green (GOTA)';
+    }
+
+    if (station.stationNumber) {
+      const names: { [key: number]: string } = {
+        1: 'Blue',
+        2: 'Red',
+        3: 'Orange',
+        4: 'Purple',
+        5: 'Cyan',
+        6: 'Yellow',
+      };
+      return names[station.stationNumber] || 'Gray';
+    }
+
+    return 'Unassigned';
+  }
 }

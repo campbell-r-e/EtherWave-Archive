@@ -3,7 +3,9 @@ package com.hamradio.logbook.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hamradio.logbook.entity.QSO;
+import com.hamradio.logbook.entity.Station;
 import com.hamradio.logbook.repository.QSORepository;
+import com.hamradio.logbook.repository.StationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,8 +14,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Service for exporting QSOs in ADIF format
@@ -25,10 +29,12 @@ import java.util.List;
 public class AdifExportService {
 
     private final QSORepository qsoRepository;
+    private final StationRepository stationRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HHmmss");
+    private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd HHmmss");
 
     /**
      * Export all QSOs to ADIF format
@@ -63,6 +69,61 @@ public class AdifExportService {
     }
 
     /**
+     * Export GOTA QSOs only for a specific log
+     */
+    public byte[] exportGotaQSOs(Long logId) {
+        // Find all GOTA stations
+        List<Station> gotaStations = stationRepository.findAll().stream()
+                .filter(s -> s.getIsGota() != null && s.getIsGota())
+                .toList();
+
+        if (gotaStations.isEmpty()) {
+            log.warn("No GOTA stations found for log {}", logId);
+            return exportQSOs(List.of()); // Return empty ADIF file
+        }
+
+        // Get QSOs from all GOTA stations
+        List<QSO> gotaQsos = new ArrayList<>();
+        for (Station gotaStation : gotaStations) {
+            List<QSO> stationQsos = qsoRepository.findByLogIdAndStationId(logId, gotaStation.getId());
+            gotaQsos.addAll(stationQsos);
+        }
+
+        log.info("Exporting {} GOTA QSOs from log {}", gotaQsos.size(), logId);
+        return exportQSOs(gotaQsos);
+    }
+
+    /**
+     * Export non-GOTA QSOs only for a specific log
+     */
+    public byte[] exportNonGotaQSOs(Long logId) {
+        // Find all GOTA stations
+        List<Station> gotaStations = stationRepository.findAll().stream()
+                .filter(s -> s.getIsGota() != null && s.getIsGota())
+                .toList();
+
+        // Get all QSOs from log
+        List<QSO> allQsos = qsoRepository.findAllByLogId(logId);
+
+        // Filter out GOTA QSOs
+        List<QSO> nonGotaQsos;
+        if (gotaStations.isEmpty()) {
+            nonGotaQsos = allQsos;
+        } else {
+            Set<Long> gotaStationIds = gotaStations.stream()
+                    .map(Station::getId)
+                    .collect(Collectors.toSet());
+
+            nonGotaQsos = allQsos.stream()
+                    .filter(qso -> !gotaStationIds.contains(qso.getStation().getId()))
+                    .toList();
+        }
+
+        log.info("Exporting {} non-GOTA QSOs from log {}", nonGotaQsos.size(), logId);
+        return exportQSOs(nonGotaQsos);
+    }
+
+    /**
      * Export a list of QSOs to ADIF format
      */
     public byte[] exportQSOs(List<QSO> qsos) {
@@ -89,9 +150,12 @@ public class AdifExportService {
      * Write ADIF header
      */
     private void writeHeader(PrintWriter writer) {
+        String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMAT);
+
         writer.println("ADIF Export from Ham Radio Logbook System");
         writer.println("Generated: " + LocalDate.now().format(DATE_FORMAT));
         writer.println("<ADIF_VER:5>3.1.4");
+        writer.println("<CREATED_TIMESTAMP:" + timestamp.length() + ">" + timestamp);
         writer.println("<PROGRAMID:20>HamRadioLogbook");
         writer.println("<PROGRAMVERSION:5>1.0.0");
         writer.println("<EOH>");

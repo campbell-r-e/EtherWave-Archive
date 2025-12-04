@@ -4,6 +4,7 @@ import { ApiService } from '../../services/api.service';
 import { LogService } from '../../services/log/log.service';
 import { WebSocketService } from '../../services/websocket.service';
 import { QSO } from '../../models/qso.model';
+import { Station } from '../../models/station.model';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -14,8 +15,11 @@ import { Subscription } from 'rxjs';
 })
 export class QsoListComponent implements OnInit, OnDestroy {
   qsos: QSO[] = [];
+  allQsos: QSO[] = []; // Store all QSOs for filtering
+  stations: Station[] = [];
   loading = true;
   private wsSubscription: Subscription | null = null;
+  selectedStationFilter: number | null = null; // null = all stations, number = specific station ID
 
   constructor(
     private apiService: ApiService,
@@ -24,8 +28,18 @@ export class QsoListComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.loadStations();
     this.loadRecentQSOs();
     this.subscribeToUpdates();
+  }
+
+  loadStations(): void {
+    this.apiService.getStations().subscribe({
+      next: (stations) => {
+        this.stations = stations;
+      },
+      error: (err) => console.error('Error loading stations:', err)
+    });
   }
 
   ngOnDestroy(): void {
@@ -45,7 +59,8 @@ export class QsoListComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.apiService.getRecentQSOs(currentLog.id, 50).subscribe({
       next: (qsos) => {
-        this.qsos = qsos;
+        this.allQsos = qsos;
+        this.applyStationFilter();
         this.loading = false;
       },
       error: (err) => {
@@ -55,15 +70,30 @@ export class QsoListComponent implements OnInit, OnDestroy {
     });
   }
 
+  filterByStation(stationId: number | null): void {
+    this.selectedStationFilter = stationId;
+    this.applyStationFilter();
+  }
+
+  applyStationFilter(): void {
+    if (this.selectedStationFilter === null) {
+      this.qsos = [...this.allQsos];
+    } else {
+      this.qsos = this.allQsos.filter(qso => qso.stationId === this.selectedStationFilter);
+    }
+  }
+
   subscribeToUpdates(): void {
     this.wsSubscription = this.wsService.getQSOUpdates().subscribe({
       next: (newQSO) => {
-        // Add new QSO to top of list
-        this.qsos.unshift(newQSO);
-        // Keep only last 50
-        if (this.qsos.length > 50) {
-          this.qsos.pop();
+        // Add new QSO to all QSOs
+        this.allQsos.unshift(newQSO);
+        // Keep only last 50 in allQsos
+        if (this.allQsos.length > 50) {
+          this.allQsos.pop();
         }
+        // Apply filter to update displayed QSOs
+        this.applyStationFilter();
         // Visual feedback
         this.highlightNewQSO(newQSO);
       }
@@ -108,5 +138,56 @@ export class QsoListComponent implements OnInit, OnDestroy {
     if (!qso.isValid) return 'table-danger';
     if (qso.validationErrors) return 'table-warning';
     return '';
+  }
+
+  /**
+   * Get station for a QSO
+   */
+  getStationForQSO(qso: QSO): Station | undefined {
+    return this.stations.find(s => s.id === qso.stationId);
+  }
+
+  /**
+   * Get station color for left border (5px solid)
+   */
+  getStationBorder(qso: QSO): string {
+    const station = this.getStationForQSO(qso);
+    if (!station) return '5px solid #cccccc';
+
+    const color = this.getStationColor(station);
+    return `5px solid ${color}`;
+  }
+
+  /**
+   * Get subtle background color for row
+   */
+  getRowBackground(qso: QSO): string {
+    if (qso.isDuplicate) {
+      return '#fff3cd'; // Light yellow for duplicates
+    }
+    return 'transparent';
+  }
+
+  /**
+   * Get station color based on ARRL conventions
+   */
+  getStationColor(station: Station): string {
+    if (station.isGota) {
+      return '#00AA00'; // Green
+    }
+
+    if (station.stationNumber) {
+      const colors: { [key: number]: string } = {
+        1: '#0066CC',  // Blue
+        2: '#CC0000',  // Red
+        3: '#FF6600',  // Orange
+        4: '#9900CC',  // Purple
+        5: '#00CCCC',  // Cyan
+        6: '#CCCC00',  // Yellow
+      };
+      return colors[station.stationNumber] || '#666666';
+    }
+
+    return '#666666'; // Gray for unassigned
   }
 }

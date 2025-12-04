@@ -121,10 +121,31 @@ export class ApiService {
 
   // Export endpoints
   /**
-   * Export ADIF by log ID
+   * Export ADIF by log ID (all QSOs)
    */
   exportAdifByLog(logId: number): void {
     window.open(`${this.baseUrl}/export/adif/log/${logId}`, '_blank');
+  }
+
+  /**
+   * Export ADIF combined (all QSOs including GOTA)
+   */
+  exportAdifCombined(logId: number): void {
+    window.open(`${this.baseUrl}/export/adif/log/${logId}/combined`, '_blank');
+  }
+
+  /**
+   * Export ADIF GOTA QSOs only
+   */
+  exportAdifGota(logId: number): void {
+    window.open(`${this.baseUrl}/export/adif/log/${logId}/gota`, '_blank');
+  }
+
+  /**
+   * Export ADIF non-GOTA QSOs only
+   */
+  exportAdifNonGota(logId: number): void {
+    window.open(`${this.baseUrl}/export/adif/log/${logId}/non-gota`, '_blank');
   }
 
   /**
@@ -140,6 +161,36 @@ export class ApiService {
    */
   exportCabrilloByLog(logId: number, callsign: string, operators?: string, category?: string): void {
     let url = `${this.baseUrl}/export/cabrillo/log/${logId}?callsign=${callsign}`;
+    if (operators) url += `&operators=${operators}`;
+    if (category) url += `&category=${category}`;
+    window.open(url, '_blank');
+  }
+
+  /**
+   * Export Cabrillo combined (all QSOs including GOTA)
+   */
+  exportCabrilloCombined(logId: number, callsign: string, operators?: string, category?: string): void {
+    let url = `${this.baseUrl}/export/cabrillo/log/${logId}/combined?callsign=${callsign}`;
+    if (operators) url += `&operators=${operators}`;
+    if (category) url += `&category=${category}`;
+    window.open(url, '_blank');
+  }
+
+  /**
+   * Export Cabrillo GOTA QSOs only
+   */
+  exportCabrilloGota(logId: number, callsign: string, operators?: string, category?: string): void {
+    let url = `${this.baseUrl}/export/cabrillo/log/${logId}/gota?callsign=${callsign}`;
+    if (operators) url += `&operators=${operators}`;
+    if (category) url += `&category=${category}`;
+    window.open(url, '_blank');
+  }
+
+  /**
+   * Export Cabrillo non-GOTA QSOs only
+   */
+  exportCabrilloNonGota(logId: number, callsign: string, operators?: string, category?: string): void {
+    let url = `${this.baseUrl}/export/cabrillo/log/${logId}/non-gota?callsign=${callsign}`;
     if (operators) url += `&operators=${operators}`;
     if (category) url += `&category=${category}`;
     window.open(url, '_blank');
@@ -162,5 +213,33 @@ export class ApiService {
     formData.append('file', file);
     const params = new HttpParams().set('stationId', stationId.toString());
     return this.http.post<any>(`${this.baseUrl}/import/adif/${logId}`, formData, { params });
+  }
+
+  /**
+   * Preview ADIF file to extract unique station callsigns
+   */
+  previewAdifFile(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(`${this.baseUrl}/import/adif/preview`, formData);
+  }
+
+  /**
+   * Import ADIF file with station mapping
+   * @param stationMapping Map of imported callsign to local station ID
+   */
+  importAdifWithMapping(file: File, logId: number, fallbackStationId: number, stationMapping: { [key: string]: number }): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // Add fallback station ID
+    formData.append('fallbackStationId', fallbackStationId.toString());
+
+    // Add station mappings as individual form parameters
+    for (const [callsign, stationId] of Object.entries(stationMapping)) {
+      formData.append(callsign, stationId.toString());
+    }
+
+    return this.http.post<any>(`${this.baseUrl}/import/adif/${logId}/with-mapping`, formData);
   }
 }

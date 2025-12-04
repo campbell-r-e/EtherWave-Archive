@@ -16,6 +16,7 @@ import { ContestSelectionComponent } from '../contest-selection/contest-selectio
 import { StationManagementComponent } from '../station-management/station-management.component';
 import { ExportPanelComponent } from '../export-panel/export-panel.component';
 import { ImportPanelComponent } from '../import-panel/import-panel.component';
+import { ScoreSummaryComponent } from '../score-summary/score-summary.component';
 
 @Component({
     selector: 'app-dashboard',
@@ -28,7 +29,8 @@ import { ImportPanelComponent } from '../import-panel/import-panel.component';
     ContestSelectionComponent,
     StationManagementComponent,
     ExportPanelComponent,
-    ImportPanelComponent
+    ImportPanelComponent,
+    ScoreSummaryComponent
 ],
     templateUrl: './dashboard.component.html',
     styleUrls: ['./dashboard.component.css']

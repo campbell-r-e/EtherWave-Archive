@@ -10,6 +10,10 @@ export interface Station {
   rigControlEnabled?: boolean;
   rigControlHost?: string;
   rigControlPort?: number;
+  // GOTA and contest fields
+  isGota?: boolean;
+  stationNumber?: number;
+  stationColor?: string;
   createdAt?: string;
   updatedAt?: string;
   // Added for template compatibility

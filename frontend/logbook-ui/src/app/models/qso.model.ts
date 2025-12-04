@@ -45,6 +45,12 @@ export interface QSO {
   isValid?: boolean;
   validationErrors?: string;
 
+  // Scoring (calculated by backend)
+  points?: number;
+  isDuplicate?: boolean;
+  isMultiplier?: boolean;
+  multiplierTypes?: string;
+
   notes?: string;
   createdAt?: string;
   updatedAt?: string;

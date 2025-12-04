@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hamradio.logbook.entity.Contest;
 import com.hamradio.logbook.entity.Log;
 import com.hamradio.logbook.entity.QSO;
+import com.hamradio.logbook.entity.Station;
 import com.hamradio.logbook.repository.LogRepository;
 import com.hamradio.logbook.repository.QSORepository;
+import com.hamradio.logbook.repository.StationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -16,7 +18,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service for exporting logs in Cabrillo format
@@ -29,16 +33,28 @@ public class CabrilloExportService {
 
     private final QSORepository qsoRepository;
     private final LogRepository logRepository;
+    private final StationRepository stationRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HHmm");
 
     /**
-     * Export QSOs for a log in Cabrillo format
+     * Export QSOs for a log in Cabrillo format (backward compatible)
      * Handles both contest and personal logs appropriately
      */
     public byte[] exportLog(Long logId, String callsign, String operators, String category) {
+        return exportLog(logId, callsign, operators, category, null, null, null, null, null, null);
+    }
+
+    /**
+     * Export QSOs for a log in Cabrillo format
+     * Handles both contest and personal logs appropriately
+     * Supports full Cabrillo 3.0 category specification
+     */
+    public byte[] exportLog(Long logId, String callsign, String operators, String category,
+                            String categoryBand, String categoryMode, String categoryPower,
+                            String categoryOperator, String categoryTransmitter, String categoryOverlay) {
         Log qsoLog = logRepository.findById(logId)
                 .orElseThrow(() -> new IllegalArgumentException("Log not found: " + logId));
 
@@ -53,7 +69,8 @@ public class CabrilloExportService {
 
         // Write Cabrillo header
         Contest contest = qsoLog.getContest();
-        writeHeader(writer, contest, callsign, operators, category, qsos.size());
+        writeHeader(writer, contest, callsign, operators, category, qsos.size(),
+                categoryBand, categoryMode, categoryPower, categoryOperator, categoryTransmitter, categoryOverlay);
 
         // Write QSO records
         for (QSO qso : qsos) {
@@ -70,6 +87,99 @@ public class CabrilloExportService {
     }
 
     /**
+     * Export combined Cabrillo (all QSOs including GOTA)
+     * This is the same as exportLog() but with clearer naming
+     */
+    public byte[] exportCombined(Long logId, String callsign, String operators, String category) {
+        return exportLog(logId, callsign, operators, category, null, null, null, null, null, null);
+    }
+
+    /**
+     * Export GOTA QSOs only in Cabrillo format
+     */
+    public byte[] exportGotaQSOs(Long logId, String callsign, String operators, String category) {
+        Log qsoLog = logRepository.findById(logId)
+                .orElseThrow(() -> new IllegalArgumentException("Log not found: " + logId));
+
+        // Get all GOTA stations
+        List<Station> gotaStations = stationRepository.findAll().stream()
+                .filter(s -> s.getIsGota() != null && s.getIsGota())
+                .collect(Collectors.toList());
+
+        // Get QSOs for GOTA stations only
+        List<QSO> gotaQsos = new ArrayList<>();
+        for (Station gotaStation : gotaStations) {
+            List<QSO> stationQsos = qsoRepository.findByLogIdAndStationId(logId, gotaStation.getId());
+            gotaQsos.addAll(stationQsos);
+        }
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintWriter writer = new PrintWriter(baos, false, StandardCharsets.UTF_8);
+
+        // Write Cabrillo header
+        Contest contest = qsoLog.getContest();
+        writeHeader(writer, contest, callsign, operators, category, gotaQsos.size(),
+                null, null, null, null, null, null);
+
+        // Write QSO records
+        for (QSO qso : gotaQsos) {
+            writeQSO(writer, qso, contest);
+        }
+
+        // Write footer
+        writer.println("END-OF-LOG:");
+        writer.flush();
+
+        log.info("Exported {} GOTA QSOs to Cabrillo format for log {}", gotaQsos.size(), logId);
+        return baos.toByteArray();
+    }
+
+    /**
+     * Export non-GOTA QSOs only in Cabrillo format
+     */
+    public byte[] exportNonGotaQSOs(Long logId, String callsign, String operators, String category) {
+        Log qsoLog = logRepository.findById(logId)
+                .orElseThrow(() -> new IllegalArgumentException("Log not found: " + logId));
+
+        // Get all GOTA stations
+        List<Station> gotaStations = stationRepository.findAll().stream()
+                .filter(s -> s.getIsGota() != null && s.getIsGota())
+                .collect(Collectors.toList());
+
+        List<Long> gotaStationIds = gotaStations.stream()
+                .map(Station::getId)
+                .collect(Collectors.toList());
+
+        // Get all QSOs for this log
+        List<QSO> allQsos = qsoRepository.findByLogIdAndDateRange(logId, null, null);
+
+        // Filter out GOTA QSOs
+        List<QSO> nonGotaQsos = allQsos.stream()
+                .filter(qso -> qso.getStation() != null && !gotaStationIds.contains(qso.getStation().getId()))
+                .collect(Collectors.toList());
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintWriter writer = new PrintWriter(baos, false, StandardCharsets.UTF_8);
+
+        // Write Cabrillo header
+        Contest contest = qsoLog.getContest();
+        writeHeader(writer, contest, callsign, operators, category, nonGotaQsos.size(),
+                null, null, null, null, null, null);
+
+        // Write QSO records
+        for (QSO qso : nonGotaQsos) {
+            writeQSO(writer, qso, contest);
+        }
+
+        // Write footer
+        writer.println("END-OF-LOG:");
+        writer.flush();
+
+        log.info("Exported {} non-GOTA QSOs to Cabrillo format for log {}", nonGotaQsos.size(), logId);
+        return baos.toByteArray();
+    }
+
+    /**
      * Export QSOs for a contest in Cabrillo format
      * @deprecated Use exportLog() instead for better flexibility
      */
@@ -81,7 +191,8 @@ public class CabrilloExportService {
         PrintWriter writer = new PrintWriter(baos, false, StandardCharsets.UTF_8);
 
         // Write Cabrillo header
-        writeHeader(writer, contest, callsign, operators, category, qsos.size());
+        writeHeader(writer, contest, callsign, operators, category, qsos.size(),
+                null, null, null, null, null, null);
 
         // Write QSO records
         for (QSO qso : qsos) {
@@ -99,9 +210,12 @@ public class CabrilloExportService {
     /**
      * Write Cabrillo header
      * Handles both contest and non-contest logs
+     * Supports full Cabrillo 3.0 category specification
      */
     private void writeHeader(PrintWriter writer, Contest contest, String callsign,
-                             String operators, String category, int qsoCount) {
+                             String operators, String category, int qsoCount,
+                             String categoryBand, String categoryMode, String categoryPower,
+                             String categoryOperator, String categoryTransmitter, String categoryOverlay) {
         writer.println("START-OF-LOG: 3.0");
         writer.println("CREATED-BY: Ham Radio Logbook System v1.0");
 
@@ -116,10 +230,36 @@ public class CabrilloExportService {
             writer.println("CALLSIGN: " + callsign);
         }
 
+        // Legacy single category field (backward compatibility)
         if (category != null) {
             writer.println("CATEGORY: " + category);
         } else if (contest == null) {
             writer.println("CATEGORY: CHECKLOG");
+        }
+
+        // Cabrillo 3.0 separate category fields
+        if (categoryBand != null) {
+            writer.println("CATEGORY-BAND: " + categoryBand);
+        }
+
+        if (categoryMode != null) {
+            writer.println("CATEGORY-MODE: " + categoryMode);
+        }
+
+        if (categoryPower != null) {
+            writer.println("CATEGORY-POWER: " + categoryPower);
+        }
+
+        if (categoryOperator != null) {
+            writer.println("CATEGORY-OPERATOR: " + categoryOperator);
+        }
+
+        if (categoryTransmitter != null) {
+            writer.println("CATEGORY-TRANSMITTER: " + categoryTransmitter);
+        }
+
+        if (categoryOverlay != null) {
+            writer.println("CATEGORY-OVERLAY: " + categoryOverlay);
         }
 
         if (operators != null) {

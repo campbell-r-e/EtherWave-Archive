@@ -55,6 +55,20 @@ public class Station {
     @Column(name = "rig_control_port")
     private Integer rigControlPort;
 
+    // GOTA (Get On The Air) station designation for Field Day
+    @Column(name = "is_gota")
+    private Boolean isGota = false;
+
+    // Station number for multi-station contests (1, 2, 3, etc.)
+    // Used for station identification and color coding
+    @Column(name = "station_number")
+    private Integer stationNumber;
+
+    // Station color (hex code) for visualization
+    // Auto-assigned based on station number: 1=Blue, 2=Red, GOTA=Green
+    @Column(name = "station_color", length = 7)
+    private String stationColor;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

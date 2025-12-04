@@ -50,7 +50,13 @@
     <!-- Dashboard Content (Only show when log is selected) -->
     @if (currentLog) {
       <div>
-        <!-- Row 1: QSO Entry and Rig Status -->
+        <!-- Row 1: Score Summary (Full Width) -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <app-score-summary></app-score-summary>
+          </div>
+        </div>
+        <!-- Row 2: QSO Entry and Rig Status -->
         <div class="row mb-4">
           <div class="col-lg-8">
             <app-qso-entry></app-qso-entry>
@@ -59,7 +65,7 @@
             <app-rig-status></app-rig-status>
           </div>
         </div>
-        <!-- Row 2: Contest Selection and Station Management -->
+        <!-- Row 3: Contest Selection and Station Management -->
         <div class="row mb-4">
           <div class="col-lg-6">
             <app-contest-selection></app-contest-selection>
@@ -68,13 +74,13 @@
             <app-station-management></app-station-management>
           </div>
         </div>
-        <!-- Row 3: QSO List (Full Width) -->
+        <!-- Row 4: QSO List (Full Width) -->
         <div class="row mb-4">
           <div class="col-12">
             <app-qso-list></app-qso-list>
           </div>
         </div>
-        <!-- Row 4: Map Visualization and Export -->
+        <!-- Row 5: Map Visualization and Export -->
         <div class="row mb-4">
           <div class="col-lg-8">
             <app-map-visualization></app-map-visualization>
@@ -83,7 +89,7 @@
             <app-export-panel></app-export-panel>
           </div>
         </div>
-        <!-- Row 5: Import Panel -->
+        <!-- Row 6: Import Panel -->
         <div class="row mb-4">
           <div class="col-12">
             <app-import-panel></app-import-panel>

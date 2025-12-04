@@ -22,6 +22,12 @@ export class ImportPanelComponent implements OnInit {
   importResult: any = null;
   errorMessage: string | null = null;
 
+  // Station mapping UI state
+  showStationMapping = false;
+  previewing = false;
+  previewResult: any = null;
+  stationMapping: { [key: string]: number } = {};
+
   constructor(
     private apiService: ApiService,
     private logService: LogService
@@ -106,6 +112,92 @@ export class ImportPanelComponent implements OnInit {
         console.error('Error importing ADIF:', err);
       }
     });
+  }
+
+  /**
+   * Preview ADIF file to show station mapping UI
+   */
+  previewAndMapStations(): void {
+    if (!this.selectedFile) {
+      this.errorMessage = 'Please select an ADIF file';
+      return;
+    }
+
+    this.previewing = true;
+    this.errorMessage = null;
+
+    this.apiService.previewAdifFile(this.selectedFile).subscribe({
+      next: (result) => {
+        this.previewing = false;
+        this.previewResult = result;
+
+        // Initialize station mappings with default station for each callsign
+        this.stationMapping = {};
+        if (result.stationCallsigns && result.stationCallsigns.length > 0) {
+          for (const callsign of result.stationCallsigns) {
+            this.stationMapping[callsign] = this.selectedStation || (this.stations[0]?.id || 0);
+          }
+          this.showStationMapping = true;
+        } else {
+          // No station callsigns found, use simple import
+          this.importAdif();
+        }
+      },
+      error: (err) => {
+        this.previewing = false;
+        this.errorMessage = err.error?.message || 'Failed to preview ADIF file';
+        console.error('Error previewing ADIF:', err);
+      }
+    });
+  }
+
+  /**
+   * Import ADIF file with station mapping
+   */
+  importWithMapping(): void {
+    if (!this.currentLog || !this.selectedFile || !this.selectedStation) {
+      this.errorMessage = 'Missing required information';
+      return;
+    }
+
+    this.importing = true;
+    this.errorMessage = null;
+    this.importResult = null;
+
+    this.apiService.importAdifWithMapping(
+      this.selectedFile,
+      this.currentLog.id,
+      this.selectedStation,
+      this.stationMapping
+    ).subscribe({
+      next: (result) => {
+        this.importing = false;
+        this.importResult = result;
+        this.selectedFile = null;
+        this.showStationMapping = false;
+        this.previewResult = null;
+        this.stationMapping = {};
+        // Reset file input
+        const fileInput = document.getElementById('adifFileInput') as HTMLInputElement;
+        if (fileInput) {
+          fileInput.value = '';
+        }
+      },
+      error: (err) => {
+        this.importing = false;
+        this.errorMessage = err.error?.message || 'Failed to import ADIF file';
+        console.error('Error importing ADIF with mapping:', err);
+      }
+    });
+  }
+
+  /**
+   * Cancel station mapping and return to file selection
+   */
+  cancelMapping(): void {
+    this.showStationMapping = false;
+    this.previewResult = null;
+    this.stationMapping = {};
   }
 
   resetImport(): void {
