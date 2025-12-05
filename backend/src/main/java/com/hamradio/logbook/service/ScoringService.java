@@ -120,24 +120,15 @@ public class ScoringService {
      */
     public int calculateGotaBonus(Long logId) {
         try {
-            // Find GOTA stations
-            List<Station> gotaStations = stationRepository.findAll().stream()
-                    .filter(s -> s.getIsGota() != null && s.getIsGota())
-                    .collect(Collectors.toList());
-
-            if (gotaStations.isEmpty()) {
-                return 0;
-            }
-
-            // Count GOTA QSOs
-            int gotaQsoCount = 0;
-            for (Station gotaStation : gotaStations) {
-                gotaQsoCount += qsoRepository.countByLogIdAndStationIdAndIsDuplicate(
-                        logId, gotaStation.getId(), false);
-            }
+            // Count valid GOTA QSOs (non-duplicates)
+            List<QSO> allQsos = qsoRepository.findAllByLogId(logId);
+            long gotaQsoCount = allQsos.stream()
+                    .filter(q -> Boolean.TRUE.equals(q.getIsGota()))
+                    .filter(q -> !Boolean.TRUE.equals(q.getIsDuplicate()))
+                    .count();
 
             // 100 points for having GOTA station + 5 points per GOTA QSO
-            return gotaQsoCount > 0 ? 100 + (gotaQsoCount * 5) : 0;
+            return gotaQsoCount > 0 ? 100 + ((int)gotaQsoCount * 5) : 0;
 
         } catch (Exception e) {
             log.error("Error calculating GOTA bonus for log {}: {}", logId, e.getMessage());
@@ -165,19 +156,34 @@ public class ScoringService {
 
         // Step 3: Calculate points for each QSO
         List<QSO> qsos = qsoRepository.findAllByLogId(logId);
-        int totalPoints = 0;
-        int validQsoCount = 0;
+        int totalPoints = 0;          // Main contest points (GOTA excluded)
+        int validQsoCount = 0;        // Main contest QSO count (GOTA excluded)
+        int gotaPoints = 0;           // GOTA points (tracked separately)
+        int gotaQsoCount = 0;         // GOTA QSO count (tracked separately)
 
         for (QSO qso : qsos) {
             int points = calculateQsoPoints(qso);
             qso.setPoints(points);
             qsoRepository.save(qso);
 
-            if (!qso.getIsDuplicate()) {
-                totalPoints += points;
-                validQsoCount++;
+            boolean isGota = Boolean.TRUE.equals(qso.getIsGota());
+            boolean isDupe = Boolean.TRUE.equals(qso.getIsDuplicate());
+
+            if (!isDupe) {
+                if (isGota) {
+                    // GOTA QSOs: track separately, not counted in main score
+                    gotaPoints += points;
+                    gotaQsoCount++;
+                } else {
+                    // Main contest QSOs: count toward contest score
+                    totalPoints += points;
+                    validQsoCount++;
+                }
             }
         }
+
+        log.debug("Scoring breakdown for log {}: Main QSOs={}, Main Points={}, GOTA QSOs={}, GOTA Points={}",
+                logId, validQsoCount, totalPoints, gotaQsoCount, gotaPoints);
 
         // Step 4: Calculate final score with power multiplier and bonuses
         int finalScore = calculateFinalScore(targetLog, totalPoints);

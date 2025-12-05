@@ -32,6 +32,10 @@ export interface QSO {
   name?: string;
   licenseClass?: string;
 
+  // Multi-station contest support
+  stationNumber?: number; // 1-1000, null if unassigned
+  isGota?: boolean;       // Get On The Air station
+
   // Contest data (JSON string)
   contestData?: string;
 
@@ -79,6 +83,8 @@ export interface QSORequest {
   ituZone?: number;
   name?: string;
   licenseClass?: string;
+  stationNumber?: number; // 1-1000, null if unassigned
+  isGota?: boolean;       // Get On The Air station
   contestData?: string;
   qslSent?: string;
   qslRcvd?: string;

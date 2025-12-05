@@ -160,6 +160,23 @@ public class LogController {
     }
 
     /**
+     * Get current user's participant record for a log (station assignment)
+     */
+    @GetMapping("/{logId}/my-assignment")
+    public ResponseEntity<LogParticipantResponse> getMyAssignment(
+            @PathVariable Long logId,
+            Authentication authentication) {
+        String username = authentication.getName();
+        LogParticipant participant = logService.getMyParticipation(logId, username);
+
+        if (participant == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(LogParticipantResponse.fromLogParticipant(participant));
+    }
+
+    /**
      * Leave a log (remove yourself as participant)
      */
     @PostMapping("/{logId}/leave")

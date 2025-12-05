@@ -4,36 +4,54 @@
     <span class="badge bg-light text-dark">{{ qsos.length }} QSOs</span>
   </div>
 
-  <!-- Station Filter Buttons -->
+  <!-- Station Tabs -->
   <div class="card-body pb-0">
-    <div class="btn-group mb-3" role="group" aria-label="Filter by station">
-      <button type="button"
-        class="btn btn-sm"
-        [class.btn-primary]="selectedStationFilter === null"
-        [class.btn-outline-primary]="selectedStationFilter !== null"
-        (click)="filterByStation(null)">
-        All Stations
-      </button>
-      @for (station of stations; track station) {
-        @if (station.id) {
-          <button type="button"
-            class="btn btn-sm"
-            [class.btn-primary]="selectedStationFilter === station.id"
-            [class.btn-outline-primary]="selectedStationFilter !== station.id"
-            [style.border-color]="selectedStationFilter === station.id ? getStationColor(station) : ''"
-            [style.background-color]="selectedStationFilter === station.id ? getStationColor(station) : ''"
-            (click)="filterByStation(station.id)">
-            {{ station.stationName || station.name }}
-            @if (station.isGota) {
-              <span>🟢</span>
-            }
-            @if (station.stationNumber) {
-              <span class="badge bg-light text-dark ms-1">{{ station.stationNumber }}</span>
-            }
+    <ul class="nav nav-tabs" role="tablist">
+      <!-- All Tab -->
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link"
+          [class.active]="activeTab === 'all'"
+          (click)="selectTab('all')"
+          type="button"
+          role="tab">
+          <strong>All</strong>
+          <span class="badge bg-secondary ms-2">{{ allQsos.length }}</span>
+        </button>
+      </li>
+
+      <!-- Station Number Tabs -->
+      @for (stationNum of availableStations; track stationNum) {
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            [class.active]="activeTab === stationNum.toString()"
+            (click)="selectTab(stationNum.toString())"
+            type="button"
+            role="tab"
+            [style.border-bottom-color]="activeTab === stationNum.toString() ? getStationColorForQSO({stationNumber: stationNum, isGota: false}) : ''">
+            <span class="me-1" [style.color]="getStationColorForQSO({stationNumber: stationNum, isGota: false})">●</span>
+            <strong>Station {{ stationNum }}</strong>
           </button>
-        }
+        </li>
       }
-    </div>
+
+      <!-- GOTA Tab -->
+      @if (hasGotaQsos) {
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            [class.active]="activeTab === 'gota'"
+            (click)="selectTab('gota')"
+            type="button"
+            role="tab"
+            [style.border-bottom-color]="activeTab === 'gota' ? getStationColorForQSO({isGota: true}) : ''">
+            <span class="me-1" [style.color]="getStationColorForQSO({isGota: true})">●</span>
+            <strong>GOTA</strong> 🟢
+          </button>
+        </li>
+      }
+    </ul>
   </div>
 
   <div class="card-body p-0">
@@ -47,7 +65,11 @@
 
     @if (!loading && qsos.length === 0) {
       <div class="text-center p-4 text-muted">
-        <p>No QSOs logged yet. Start logging contacts!</p>
+        @if (activeTab === 'all') {
+          <p>No QSOs logged yet. Start logging contacts!</p>
+        } @else {
+          <p>No QSOs for this station yet.</p>
+        }
       </div>
     }
 
@@ -99,31 +121,39 @@
                   {{ formatFrequency(qso.frequencyKhz) }}
                   <br><small class="text-muted">{{ qso.band }}</small>
                 </td>
-                <td><span class="badge bg-info">{{ qso.mode }}</span></td>
+                <td><strong>{{ qso.mode }}</strong></td>
                 <td class="text-center">
-                  @if (qso.points !== undefined && !qso.isDuplicate) {
-                    <strong class="text-success">{{ qso.points }}</strong>
-                  }
-                  @if (qso.isDuplicate) {
-                    <span class="text-muted" title="Duplicates score 0 points">0</span>
-                  }
-                  @if (qso.points === undefined) {
+                  <span class="badge"
+                    [class.bg-success]="!qso.isDuplicate && qso.points"
+                    [class.bg-secondary]="qso.isDuplicate || !qso.points">
+                    {{ qso.points || 0 }}
+                  </span>
+                </td>
+                <td class="text-nowrap small">
+                  <span class="text-muted">S:</span> {{ qso.rstSent || '-' }}<br>
+                  <span class="text-muted">R:</span> {{ qso.rstRcvd || '-' }}
+                </td>
+                <td>{{ qso.name || '-' }}</td>
+                <td>
+                  @if (qso.state) {
+                    <span class="badge bg-info">{{ qso.state }}</span>
+                  } @else {
                     <span class="text-muted">-</span>
                   }
                 </td>
-                <td class="text-nowrap">
-                  <small>S: {{ qso.rstSent || '-' }}</small><br>
-                  <small>R: {{ qso.rstRcvd || '-' }}</small>
-                </td>
-                <td>{{ qso.name || '-' }}</td>
-                <td>{{ qso.state || '-' }}</td>
                 <td>
-                  <small>{{ qso.stationName }}</small>
+                  @if (qso.stationNumber || qso.isGota) {
+                    <span class="badge"
+                      [style.background-color]="getStationColorForQSO(qso)"
+                      [style.color]="'white'">
+                      {{ getStationLabel(qso) }}
+                    </span>
+                  } @else {
+                    <span class="badge bg-secondary">Unassigned</span>
+                  }
                 </td>
                 <td>
-                  <button class="btn btn-sm btn-outline-danger"
-                    (click)="deleteQSO(qso)"
-                    title="Delete QSO">
+                  <button class="btn btn-sm btn-outline-danger" (click)="deleteQSO(qso)" title="Delete QSO">
                     🗑️
                   </button>
                 </td>

@@ -74,7 +74,9 @@
       "Bash($JAVA_HOME/bin/java -version)",
       "WebFetch(domain:www.adif.org.uk)",
       "Bash(./mvnw spring-boot:run:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(for:*)",
+      "Bash(do docker info)"
     ],
     "deny": [],
     "ask": []

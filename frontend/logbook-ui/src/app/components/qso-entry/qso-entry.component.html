@@ -20,6 +20,25 @@
             </div>
           }
 
+          <!-- Station Assignment Display (for multi-station contests) -->
+          @if (hasStationAssignment()) {
+            <div class="alert d-flex align-items-center justify-content-between"
+                 [style.background-color]="getStationAssignmentColor() + '20'"
+                 [style.border-left]="'5px solid ' + getStationAssignmentColor()">
+              <div>
+                <strong>Logging as:</strong>
+                <span class="badge ms-2"
+                      [style.background-color]="getStationAssignmentColor()"
+                      [style.color]="'white'">
+                  {{ getStationAssignmentLabel() }}
+                </span>
+              </div>
+              <small class="text-muted">
+                <em>QSOs will be automatically tagged for this station</em>
+              </small>
+            </div>
+          }
+
           <!-- Scoring Indicators (after QSO is saved) -->
           @if (lastSavedQSO) {
             <div class="alert alert-info d-flex align-items-center gap-3">

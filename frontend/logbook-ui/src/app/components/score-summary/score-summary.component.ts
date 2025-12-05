@@ -1,18 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ApiService } from '../../services/api.service';
 import { LogService } from '../../services/log/log.service';
+import { StationStatsService } from '../../services/station-stats/station-stats.service';
 import { Log } from '../../models/log.model';
-import { Station } from '../../models/station.model';
-import { QSO } from '../../models/qso.model';
-
-interface StationScore {
-  station: Station;
-  qsoCount: number;
-  points: number;
-  isGota: boolean;
-  color: string;
-}
+import { StationStatsSummary, StationStatistics } from '../../models/station-stats.model';
 
 @Component({
   selector: 'app-score-summary',
@@ -23,13 +14,12 @@ interface StationScore {
 })
 export class ScoreSummaryComponent implements OnInit {
   currentLog: Log | null = null;
-  stations: Station[] = [];
-  stationScores: StationScore[] = [];
+  summary: StationStatsSummary | null = null;
   loading = true;
 
   constructor(
-    private apiService: ApiService,
-    private logService: LogService
+    private logService: LogService,
+    private stationStatsService: StationStatsService
   ) {}
 
   ngOnInit(): void {
@@ -37,94 +27,68 @@ export class ScoreSummaryComponent implements OnInit {
       next: (log) => {
         this.currentLog = log;
         if (log) {
-          this.loadStations();
+          this.loadStationSummary();
         }
       }
     });
   }
 
-  loadStations(): void {
+  loadStationSummary(): void {
+    if (!this.currentLog) return;
+
     this.loading = true;
-    this.apiService.getStations().subscribe({
-      next: (stations) => {
-        this.stations = stations;
-        this.calculateStationScores();
+    this.stationStatsService.getStationSummary(this.currentLog.id).subscribe({
+      next: (summary) => {
+        this.summary = summary;
         this.loading = false;
       },
       error: (err) => {
-        console.error('Error loading stations:', err);
+        console.error('Error loading station summary:', err);
         this.loading = false;
       }
     });
   }
 
-  calculateStationScores(): void {
-    if (!this.currentLog) return;
-
-    // Get QSOs for current log
-    this.apiService.getRecentQSOs(this.currentLog.id, 1000).subscribe({
-      next: (qsos) => {
-        this.stationScores = this.stations.map(station => {
-          const stationQsos = qsos.filter(q => q.stationId === station.id);
-          const points = stationQsos
-            .filter(q => !q.isDuplicate)
-            .reduce((sum, q) => sum + (q.points || 0), 0);
-
-          return {
-            station: station,
-            qsoCount: stationQsos.length,
-            points: points,
-            isGota: station.isGota || false,
-            color: this.getStationColor(station)
-          };
-        }).filter(s => s.qsoCount > 0); // Only show stations with QSOs
-      },
-      error: (err) => console.error('Error loading QSOs:', err)
-    });
-  }
-
-  getStationColor(station: Station): string {
-    if (station.isGota) {
-      return '#00AA00'; // Green
+  getStationColor(stationNumber?: number, isGota?: boolean): string {
+    if (isGota) {
+      return '#43A047'; // Green (GEKHoosier theme)
     }
 
-    if (station.stationNumber) {
+    if (stationNumber) {
       const colors: { [key: number]: string } = {
-        1: '#0066CC',  // Blue
-        2: '#CC0000',  // Red
-        3: '#FF6600',  // Orange
-        4: '#9900CC',  // Purple
-        5: '#00CCCC',  // Cyan
-        6: '#CCCC00',  // Yellow
+        1: '#1E88E5',  // Blue
+        2: '#E53935',  // Red
+        3: '#FB8C00',  // Orange
+        4: '#8E24AA',  // Purple
+        5: '#00ACC1',  // Cyan
+        6: '#FDD835',  // Yellow
       };
-      return colors[station.stationNumber] || '#666666';
+      return colors[stationNumber] || '#9E9E9E';
     }
 
-    return '#666666'; // Gray
+    return '#9E9E9E'; // Gray
   }
 
-  getGotaStations(): StationScore[] {
-    return this.stationScores.filter(s => s.isGota);
+  getMedalIcon(rank?: number): string {
+    if (!rank) return '';
+    switch (rank) {
+      case 1: return '🥇';
+      case 2: return '🥈';
+      case 3: return '🥉';
+      default: return '';
+    }
   }
 
-  getNonGotaStations(): StationScore[] {
-    return this.stationScores.filter(s => !s.isGota);
+  getScorePercentage(points: number, totalPoints: number): number {
+    if (!totalPoints) return 0;
+    return Math.round((points / totalPoints) * 100);
   }
 
-  getTotalGotaPoints(): number {
-    return this.getGotaStations().reduce((sum, s) => sum + s.points, 0);
+  hasMultipleStations(): boolean {
+    return (this.summary?.mainStations?.length || 0) > 1;
   }
 
-  getTotalGotaQsos(): number {
-    return this.getGotaStations().reduce((sum, s) => sum + s.qsoCount, 0);
-  }
-
-  hasGotaStations(): boolean {
-    return this.getGotaStations().length > 0;
-  }
-
-  getScorePercentage(points: number): number {
-    if (!this.currentLog?.totalPoints) return 0;
-    return Math.round((points / this.currentLog.totalPoints) * 100);
+  hasGotaStation(): boolean {
+    return !!this.summary?.gota;
   }
 }

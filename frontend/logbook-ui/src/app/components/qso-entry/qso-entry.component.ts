@@ -27,6 +27,9 @@ export class QsoEntryComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
 
+  // Station assignment for multi-station contests
+  userStationAssignment: { stationNumber?: number; isGota?: boolean } | null = null;
+
   // Contest-specific fields
   contestDataFields: any = {};
 
@@ -39,6 +42,7 @@ export class QsoEntryComponent implements OnInit {
     this.loadStations();
     this.loadContests();
     this.setCurrentDateTime();
+    this.loadStationAssignment();
   }
 
   getEmptyQSO(): QSORequest {
@@ -70,6 +74,30 @@ export class QsoEntryComponent implements OnInit {
     this.apiService.getActiveContests().subscribe({
       next: (contests) => this.contests = contests,
       error: (err) => console.error('Error loading contests:', err)
+    });
+  }
+
+  loadStationAssignment(): void {
+    const currentLog = this.logService.getCurrentLog();
+    if (!currentLog) {
+      return;
+    }
+
+    this.apiService.getMyStationAssignment(currentLog.id).subscribe({
+      next: (participant) => {
+        if (participant) {
+          this.userStationAssignment = {
+            stationNumber: participant.stationNumber,
+            isGota: participant.isGota || false
+          };
+        }
+      },
+      error: (err) => {
+        // 404 is expected if user is not a participant or log is personal
+        if (err.status !== 404) {
+          console.error('Error loading station assignment:', err);
+        }
+      }
     });
   }
 
@@ -154,6 +182,13 @@ export class QsoEntryComponent implements OnInit {
         if (savedQSO.validationErrors) {
           this.errorMessage = savedQSO.validationErrors;
         }
+        // Update station assignment from saved QSO (in case it changed)
+        if (savedQSO.stationNumber || savedQSO.isGota) {
+          this.userStationAssignment = {
+            stationNumber: savedQSO.stationNumber,
+            isGota: savedQSO.isGota || false
+          };
+        }
         this.saveInProgress = false;
         this.resetForm();
       },
@@ -202,5 +237,64 @@ export class QsoEntryComponent implements OnInit {
       this.successMessage = '';
       this.errorMessage = '';
     }, 5000);
+  }
+
+  // Multi-station assignment display helpers
+  getStationAssignmentLabel(): string {
+    // Use userStationAssignment if available (loaded on init)
+    if (this.userStationAssignment) {
+      if (this.userStationAssignment.isGota) {
+        return 'GOTA';
+      }
+      if (this.userStationAssignment.stationNumber) {
+        return `Station ${this.userStationAssignment.stationNumber}`;
+      }
+    }
+    // Fall back to lastSavedQSO for backwards compatibility
+    if (this.lastSavedQSO?.isGota) {
+      return 'GOTA';
+    }
+    if (this.lastSavedQSO?.stationNumber) {
+      return `Station ${this.lastSavedQSO.stationNumber}`;
+    }
+    return '';
+  }
+
+  getStationAssignmentColor(): string {
+    const colors: { [key: number]: string } = {
+      1: '#1E88E5',  // Blue
+      2: '#E53935',  // Red
+      3: '#FB8C00',  // Orange
+      4: '#8E24AA',  // Purple
+      5: '#00ACC1',  // Cyan
+      6: '#FDD835',  // Yellow
+    };
+
+    // Use userStationAssignment if available (loaded on init)
+    if (this.userStationAssignment) {
+      if (this.userStationAssignment.isGota) {
+        return '#43A047'; // Green (GEKHoosier theme)
+      }
+      if (this.userStationAssignment.stationNumber) {
+        return colors[this.userStationAssignment.stationNumber] || '#9E9E9E';
+      }
+    }
+    // Fall back to lastSavedQSO for backwards compatibility
+    if (this.lastSavedQSO?.isGota) {
+      return '#43A047'; // Green (GEKHoosier theme)
+    }
+    if (this.lastSavedQSO?.stationNumber) {
+      return colors[this.lastSavedQSO.stationNumber] || '#9E9E9E';
+    }
+    return '#9E9E9E'; // Gray
+  }
+
+  hasStationAssignment(): boolean {
+    // Check userStationAssignment first
+    if (this.userStationAssignment) {
+      return !!(this.userStationAssignment.stationNumber || this.userStationAssignment.isGota);
+    }
+    // Fall back to lastSavedQSO
+    return !!(this.lastSavedQSO?.stationNumber || this.lastSavedQSO?.isGota);
   }
 }

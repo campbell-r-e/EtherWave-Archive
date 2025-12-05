@@ -19,7 +19,11 @@ export class QsoListComponent implements OnInit, OnDestroy {
   stations: Station[] = [];
   loading = true;
   private wsSubscription: Subscription | null = null;
-  selectedStationFilter: number | null = null; // null = all stations, number = specific station ID
+
+  // Tab filtering: 'all' | station number | 'gota'
+  activeTab: string = 'all';
+  availableStations: number[] = []; // Unique station numbers that have QSOs
+  hasGotaQsos = false;
 
   constructor(
     private apiService: ApiService,
@@ -60,6 +64,7 @@ export class QsoListComponent implements OnInit, OnDestroy {
     this.apiService.getRecentQSOs(currentLog.id, 50).subscribe({
       next: (qsos) => {
         this.allQsos = qsos;
+        this.updateAvailableTabs();
         this.applyStationFilter();
         this.loading = false;
       },
@@ -70,16 +75,40 @@ export class QsoListComponent implements OnInit, OnDestroy {
     });
   }
 
-  filterByStation(stationId: number | null): void {
-    this.selectedStationFilter = stationId;
+  /**
+   * Update available tabs based on QSOs
+   */
+  updateAvailableTabs(): void {
+    // Get unique station numbers
+    const stationNumbers = new Set<number>();
+    let gotaFound = false;
+
+    this.allQsos.forEach(qso => {
+      if (qso.isGota) {
+        gotaFound = true;
+      } else if (qso.stationNumber) {
+        stationNumbers.add(qso.stationNumber);
+      }
+    });
+
+    this.availableStations = Array.from(stationNumbers).sort((a, b) => a - b);
+    this.hasGotaQsos = gotaFound;
+  }
+
+  selectTab(tab: string): void {
+    this.activeTab = tab;
     this.applyStationFilter();
   }
 
   applyStationFilter(): void {
-    if (this.selectedStationFilter === null) {
+    if (this.activeTab === 'all') {
       this.qsos = [...this.allQsos];
+    } else if (this.activeTab === 'gota') {
+      this.qsos = this.allQsos.filter(qso => qso.isGota);
     } else {
-      this.qsos = this.allQsos.filter(qso => qso.stationId === this.selectedStationFilter);
+      // Filter by station number
+      const stationNum = parseInt(this.activeTab);
+      this.qsos = this.allQsos.filter(qso => qso.stationNumber === stationNum && !qso.isGota);
     }
   }
 
@@ -151,10 +180,7 @@ export class QsoListComponent implements OnInit, OnDestroy {
    * Get station color for left border (5px solid)
    */
   getStationBorder(qso: QSO): string {
-    const station = this.getStationForQSO(qso);
-    if (!station) return '5px solid #cccccc';
-
-    const color = this.getStationColor(station);
+    const color = this.getStationColorForQSO(qso);
     return `5px solid ${color}`;
   }
 
@@ -169,25 +195,61 @@ export class QsoListComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Get station color based on ARRL conventions
+   * Get station color based on stationNumber or GOTA
+   */
+  getStationColorForQSO(qso: Partial<QSO> | QSO): string {
+    if (qso.isGota) {
+      return '#43A047'; // Green (GEKHoosier theme)
+    }
+
+    if (qso.stationNumber) {
+      const colors: { [key: number]: string } = {
+        1: '#1E88E5',  // Blue
+        2: '#E53935',  // Red
+        3: '#FB8C00',  // Orange
+        4: '#8E24AA',  // Purple
+        5: '#00ACC1',  // Cyan
+        6: '#FDD835',  // Yellow
+      };
+      return colors[qso.stationNumber] || '#9E9E9E';
+    }
+
+    return '#9E9E9E'; // Gray for unassigned
+  }
+
+  /**
+   * Get station label for display
+   */
+  getStationLabel(qso: Partial<QSO> | QSO): string {
+    if (qso.isGota) {
+      return 'GOTA';
+    }
+    if (qso.stationNumber) {
+      return `Station ${qso.stationNumber}`;
+    }
+    return 'Unassigned';
+  }
+
+  /**
+   * Get station color for legacy station-based calls
    */
   getStationColor(station: Station): string {
     if (station.isGota) {
-      return '#00AA00'; // Green
+      return '#43A047'; // Green
     }
 
     if (station.stationNumber) {
       const colors: { [key: number]: string } = {
-        1: '#0066CC',  // Blue
-        2: '#CC0000',  // Red
-        3: '#FF6600',  // Orange
-        4: '#9900CC',  // Purple
-        5: '#00CCCC',  // Cyan
-        6: '#CCCC00',  // Yellow
+        1: '#1E88E5',  // Blue
+        2: '#E53935',  // Red
+        3: '#FB8C00',  // Orange
+        4: '#8E24AA',  // Purple
+        5: '#00ACC1',  // Cyan
+        6: '#FDD835',  // Yellow
       };
-      return colors[station.stationNumber] || '#666666';
+      return colors[station.stationNumber] || '#9E9E9E';
     }
 
-    return '#666666'; // Gray for unassigned
+    return '#9E9E9E'; // Gray for unassigned
   }
 }

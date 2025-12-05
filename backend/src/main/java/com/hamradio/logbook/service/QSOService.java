@@ -34,6 +34,7 @@ public class QSOService {
     private final ContestRepository contestRepository;
     private final LogRepository logRepository;
     private final UserRepository userRepository;
+    private final LogParticipantRepository logParticipantRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final QSOValidationService validationService;
     private final LogService logService;
@@ -76,6 +77,22 @@ public class QSOService {
                     .orElseThrow(() -> new IllegalArgumentException("Contest not found"));
         }
 
+        // Auto-tag QSO with station number and GOTA status from participant assignment
+        Integer stationNumber = null;
+        Boolean isGota = false;
+
+        // Get participant record for auto-tagging (for shared logs)
+        if (qsoLog.isShared()) {
+            LogParticipant participant = logParticipantRepository.findByLogAndUser(qsoLog, user)
+                    .orElse(null);
+            if (participant != null && participant.getActive()) {
+                stationNumber = participant.getStationNumber();
+                isGota = participant.getIsGota() != null ? participant.getIsGota() : false;
+                log.debug("Auto-tagging QSO with stationNumber={}, isGota={} from participant assignment",
+                         stationNumber, isGota);
+            }
+        }
+
         // Build QSO entity
         QSO qso = QSO.builder()
                 .log(qsoLog)
@@ -101,6 +118,8 @@ public class QSOService {
                 .ituZone(request.getItuZone())
                 .name(request.getName())
                 .licenseClass(request.getLicenseClass())
+                .stationNumber(stationNumber)  // Auto-tagged from participant
+                .isGota(isGota)                 // Auto-tagged from participant
                 .contestData(request.getContestData())
                 .qslSent(request.getQslSent())
                 .qslRcvd(request.getQslRcvd())
@@ -352,6 +371,8 @@ public class QSOService {
                 .ituZone(qso.getItuZone())
                 .name(qso.getName())
                 .licenseClass(qso.getLicenseClass())
+                .stationNumber(qso.getStationNumber())
+                .isGota(qso.getIsGota())
                 .contestData(qso.getContestData())
                 .qslSent(qso.getQslSent())
                 .qslRcvd(qso.getQslRcvd())

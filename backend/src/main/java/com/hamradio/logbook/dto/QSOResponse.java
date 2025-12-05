@@ -58,6 +58,10 @@ public class QSOResponse {
     private String name;
     private String licenseClass;
 
+    // Multi-station contest support
+    private Integer stationNumber; // 1-1000, null if unassigned
+    private Boolean isGota; // Get On The Air station
+
     // Contest-specific data
     private String contestData;
 

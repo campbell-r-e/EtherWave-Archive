@@ -207,6 +207,14 @@ export class ApiService {
     window.open(url, '_blank');
   }
 
+  // Log participant endpoints
+  /**
+   * Get current user's station assignment for a log
+   */
+  getMyStationAssignment(logId: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/logs/${logId}/my-assignment`);
+  }
+
   // Import endpoints
   importAdif(file: File, logId: number, stationId: number): Observable<any> {
     const formData = new FormData();

@@ -218,6 +218,29 @@ public class LogService {
     }
 
     /**
+     * Get current user's participant record for a log (station assignment)
+     * Returns null if user is not a participant or log is personal
+     */
+    @Transactional(readOnly = true)
+    public LogParticipant getMyParticipation(Long logId, String username) {
+        User user = getUserByUsername(username);
+        Log log = getLogByIdOrThrow(logId);
+
+        // Only shared logs have participants
+        if (!log.isShared()) {
+            return null;
+        }
+
+        // Check access
+        if (!hasAccess(log, user)) {
+            throw new SecurityException("User does not have access to this log");
+        }
+
+        return logParticipantRepository.findByLogAndUser(log, user)
+                .orElse(null);
+    }
+
+    /**
      * Remove a participant from a log
      */
     @Transactional

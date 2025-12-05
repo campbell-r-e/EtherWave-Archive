@@ -186,4 +186,32 @@ public interface QSORepository extends JpaRepository<QSO, Long> {
             @Param("stationId") Long stationId,
             @Param("isDuplicate") Boolean isDuplicate
     );
+
+    // ===========================
+    // Multi-station contest queries
+    // ===========================
+
+    /**
+     * Find all QSOs for a specific log (entity-based)
+     */
+    @Query("SELECT q FROM QSO q WHERE q.log = :log ORDER BY q.qsoDate DESC, q.timeOn DESC")
+    List<QSO> findByLog(@Param("log") com.hamradio.logbook.entity.Log log);
+
+    /**
+     * Find QSOs by log and station number
+     */
+    @Query("SELECT q FROM QSO q WHERE q.log = :log AND q.stationNumber = :stationNumber ORDER BY q.qsoDate DESC, q.timeOn DESC")
+    List<QSO> findByLogAndStationNumber(
+            @Param("log") com.hamradio.logbook.entity.Log log,
+            @Param("stationNumber") Integer stationNumber
+    );
+
+    /**
+     * Find QSOs by log and GOTA status
+     */
+    @Query("SELECT q FROM QSO q WHERE q.log = :log AND q.isGota = :isGota ORDER BY q.qsoDate DESC, q.timeOn DESC")
+    List<QSO> findByLogAndIsGota(
+            @Param("log") com.hamradio.logbook.entity.Log log,
+            @Param("isGota") Boolean isGota
+    );
 }
