@@ -1,8 +1,8 @@
-# 🚀 START HERE - Ham Radio Logbook Quick Reference
+# 🚀 START HERE - GEKHoosier QSO Suite Quick Reference
 
 ## ✅ Configuration Complete!
 
-All initial configuration files have been created. Your system is ready to run.
+All initial configuration files have been created. Your GEKHoosier QSO Suite is ready to run with an Indiana-themed professional interface featuring dark mode support!
 
 ---
 
@@ -134,6 +134,7 @@ curl http://localhost:8080/actuator/health
 |----------|-------------|
 | **QUICKSTART.md** | Complete beginner's guide (5 minutes) |
 | **SETUP.md** | Comprehensive setup instructions |
+| **BRANDING.md** | GEKHoosier branding guidelines and theme system |
 | **CONFIGURATION.md** | Detailed configuration reference |
 | **README.md** | Full system documentation |
 | **RIG_CONTROL_GUIDE.md** | Rig control setup |
@@ -159,7 +160,11 @@ curl http://localhost:8080/actuator/health
    - Enter log details
    - Choose contest type (optional)
 
-5. **Start logging QSOs!**
+5. **Customize your experience:**
+   - Toggle dark/light mode using the theme button (☀️/🌙) in the navbar
+   - Theme preference is saved automatically
+
+6. **Start logging QSOs!**
 
 ---
 
@@ -254,4 +259,4 @@ kill -9 <PID>
 
 ---
 
-**73 and happy logging! 📻**
+**GEKHoosier QSO Suite - 73 and happy logging from Indiana and beyond! 📻**

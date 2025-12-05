@@ -1,6 +1,6 @@
-# Ham Radio Logbook - Setup Guide
+# GEKHoosier QSO Suite - Setup Guide
 
-Complete setup instructions for developers and system administrators.
+Complete setup instructions for the Indiana-themed ham radio logging system with dark mode support for developers and system administrators.
 
 ## Table of Contents
 

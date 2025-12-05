@@ -1,6 +1,6 @@
-# Ham Radio Logbook - Configuration Guide
+# GEKHoosier QSO Suite - Configuration Guide
 
-This guide explains all configuration options for the Ham Radio Logbook System.
+This guide explains all configuration options for the GEKHoosier QSO Suite, including theme customization and branding settings.
 
 ## Table of Contents
 
@@ -174,6 +174,43 @@ The project is configured with:
 - TypeScript 5.9
 - Bootstrap 5.3
 - Development server on port 4200
+
+### Theme Configuration (GEKHoosier Branding)
+
+The application features a professional Indiana-themed interface with dark/light mode support.
+
+**Theme Service**: `frontend/logbook-ui/src/app/services/theme/theme.service.ts`
+
+**Theme Management:**
+- Automatic theme detection from system preferences
+- Manual toggle via navbar button (☀️/🌙)
+- localStorage persistence (`gekhoosier-theme` key)
+- Real-time theme switching without page reload
+
+**Color System**: `frontend/logbook-ui/src/styles.css`
+
+Primary brand colors:
+- Hoosier Blue: `#003F87`
+- Cardinal Red: `#C41E3A`
+- QSO Green: `#4CAF50`
+- Highlight Yellow: `#F5C542`
+
+Station colors:
+- Station 1: Blue `#1E88E5`
+- Station 2: Red `#E53935`
+- GOTA: Green `#43A047`
+- Viewer: Gray `#9E9E9E`
+
+**Station Color Configuration**: `frontend/logbook-ui/src/app/config/station-colors.ts`
+
+TypeScript utilities for consistent station color usage across components.
+
+**Branding Assets**: `frontend/logbook-ui/src/assets/branding/`
+- `logo.svg` - Primary logo (light mode)
+- `logo-dark.svg` - Dark mode variant
+- `icon.svg` - Icon-only version
+
+**For more details**, see [BRANDING.md](BRANDING.md) for complete branding guidelines.
 
 ---
 

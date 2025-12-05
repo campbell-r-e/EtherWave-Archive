@@ -1,11 +1,12 @@
-# Ham Radio Logbook - Quick Start Guide
+# GEKHoosier QSO Suite - Quick Start Guide
 
-**Get your Ham Radio Logbook running in 5 minutes!**
+**Get your Indiana-themed ham radio logging system running in 5 minutes!**
 
-This guide will get you up and running with the complete system as quickly as possible.
+This guide will get you up and running with the complete GEKHoosier QSO Suite as quickly as possible.
 
 ## What You'll Get
 
+- 🎨 **Professional GEKHoosier UI** - Indiana-themed interface with dark/light mode toggle
 - 📻 **Multi-user logbook system** - Create personal or shared contest logs
 - 🎯 **Real-time QSO entry** - Log contacts with instant validation
 - 🗺️ **Map visualization** - See your QSOs plotted on a world map
@@ -13,6 +14,7 @@ This guide will get you up and running with the complete system as quickly as po
 - 🏆 **Contest support** - Built-in validators for CQ WW, ARRL, Field Day, POTA, SOTA
 - 📤 **Export** - ADIF 3.1.4 and Cabrillo formats
 - 👥 **Multi-operator** - Role-based access with station/operator management
+- 🌓 **Theme toggle** - Switch between light and dark modes with a single click
 
 ---
 
@@ -84,7 +86,11 @@ Go to: **http://localhost**
    - Description (optional)
 4. Click "Create"
 
-**7. Start logging QSOs!**
+**7. Customize your experience**
+
+Toggle between light and dark modes using the theme button (☀️/🌙) in the top-right navbar. Your preference is saved automatically!
+
+**8. Start logging QSOs!**
 
 You're ready to log contacts. The QSO entry form will guide you through:
 - Station selection (create one first)
