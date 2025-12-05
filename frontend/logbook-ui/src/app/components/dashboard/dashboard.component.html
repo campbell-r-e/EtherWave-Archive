@@ -23,6 +23,13 @@
               @if (currentUser.callsign) {
                 <span class="badge bg-light text-dark ms-2">{{ currentUser.callsign }}</span>
               }
+              @if (getStationAssignmentText()) {
+                <span class="badge ms-2"
+                      [style.background-color]="getStationAssignmentColor()"
+                      [style.color]="'white'">
+                  {{ getStationAssignmentText() }}
+                </span>
+              }
             </span>
           </li>
         }
@@ -96,6 +103,12 @@
           </div>
           <div class="col-lg-6">
             <app-station-management></app-station-management>
+          </div>
+        </div>
+        <!-- Row 3.5: Participant Management (Shared Logs Only) -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <app-participant-management></app-participant-management>
           </div>
         </div>
         <!-- Row 4: QSO List (Full Width) -->

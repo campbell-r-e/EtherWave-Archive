@@ -2,6 +2,7 @@ package com.hamradio.logbook.service;
 
 import com.hamradio.logbook.dto.log.LogRequest;
 import com.hamradio.logbook.dto.log.LogResponse;
+import com.hamradio.logbook.dto.log.StationAssignmentRequest;
 import com.hamradio.logbook.entity.Contest;
 import com.hamradio.logbook.entity.Log;
 import com.hamradio.logbook.entity.LogParticipant;
@@ -243,6 +244,45 @@ public class LogService {
 
         LogService.log.info("Removed participant '{}' from log '{}' (ID: {})",
             participant.getUser().getUsername(), log.getName(), log.getId());
+    }
+
+    /**
+     * Update participant station assignment
+     * Only the log creator can assign stations
+     */
+    @Transactional
+    public LogParticipant updateParticipantStation(Long logId, Long participantId,
+                                                   StationAssignmentRequest request, String username) {
+        User user = getUserByUsername(username);
+        Log log = getLogByIdOrThrow(logId);
+
+        // Check if user is creator
+        if (!isCreator(log, user)) {
+            throw new SecurityException("Only the log creator can assign stations");
+        }
+
+        // Get the participant
+        LogParticipant participant = logParticipantRepository.findById(participantId)
+                .orElseThrow(() -> new IllegalArgumentException("Participant not found: " + participantId));
+
+        // Verify participant belongs to this log
+        if (!participant.getLog().getId().equals(logId)) {
+            throw new IllegalArgumentException("Participant does not belong to this log");
+        }
+
+        // Update station number
+        participant.setStationNumber(request.getStationNumber());
+
+        // Update GOTA status
+        participant.setIsGota(request.getIsGota() != null ? request.getIsGota() : false);
+
+        participant = logParticipantRepository.save(participant);
+
+        LogService.log.info("Updated station assignment for participant '{}' in log '{}' (ID: {}) - Station: {}, GOTA: {}",
+            participant.getUser().getUsername(), log.getName(), log.getId(),
+            participant.getStationNumber(), participant.getIsGota());
+
+        return participant;
     }
 
     /**

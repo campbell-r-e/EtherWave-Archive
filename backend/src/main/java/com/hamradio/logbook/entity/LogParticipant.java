@@ -42,6 +42,12 @@ public class LogParticipant {
     @Column(name = "station_callsign", length = 20)
     private String stationCallsign; // For multi-op contests, which station they operate
 
+    @Column(name = "station_number")
+    private Integer stationNumber; // Station assignment (1-1000), null if unassigned
+
+    @Column(name = "is_gota", nullable = false)
+    private Boolean isGota = false; // Get On The Air station designation (mutually exclusive with station number)
+
     @Column(nullable = false)
     private Boolean active = true;
 

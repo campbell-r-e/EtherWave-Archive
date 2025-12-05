@@ -3,6 +3,7 @@ package com.hamradio.logbook.controller;
 import com.hamradio.logbook.dto.log.LogParticipantResponse;
 import com.hamradio.logbook.dto.log.LogRequest;
 import com.hamradio.logbook.dto.log.LogResponse;
+import com.hamradio.logbook.dto.log.StationAssignmentRequest;
 import com.hamradio.logbook.entity.LogParticipant;
 import com.hamradio.logbook.service.LogService;
 import jakarta.validation.Valid;
@@ -133,6 +134,29 @@ public class LogController {
         String username = authentication.getName();
         logService.removeParticipant(logId, participantId, username);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Update participant station assignment
+     * Only the log creator can assign stations
+     */
+    @PutMapping("/{logId}/participants/{participantId}/station")
+    public ResponseEntity<LogParticipantResponse> updateParticipantStation(
+            @PathVariable Long logId,
+            @PathVariable Long participantId,
+            @Valid @RequestBody StationAssignmentRequest request,
+            Authentication authentication) {
+
+        // Validate that stationNumber and isGota are mutually exclusive
+        if (!request.isValid()) {
+            throw new IllegalArgumentException("A participant cannot be both GOTA and assigned to a station number");
+        }
+
+        String username = authentication.getName();
+        LogParticipant participant = logService.updateParticipantStation(
+                logId, participantId, request, username);
+
+        return ResponseEntity.ok(LogParticipantResponse.fromLogParticipant(participant));
     }
 
     /**

@@ -6,7 +6,8 @@ import {
   LogRequest,
   LogParticipant,
   Invitation,
-  InvitationRequest
+  InvitationRequest,
+  StationAssignmentRequest
 } from '../../models/log.model';
 import { environment } from '../../../environments/environment';
 
@@ -137,6 +138,13 @@ export class LogService {
    */
   removeParticipant(logId: number, participantId: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${logId}/participants/${participantId}`);
+  }
+
+  /**
+   * Update participant station assignment
+   */
+  updateParticipantStation(logId: number, participantId: number, request: StationAssignmentRequest): Observable<LogParticipant> {
+    return this.http.put<LogParticipant>(`${this.baseUrl}/${logId}/participants/${participantId}/station`, request);
   }
 
   /**

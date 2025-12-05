@@ -5,7 +5,8 @@ import { AuthService } from '../../services/auth/auth.service';
 import { LogService } from '../../services/log/log.service';
 import { ThemeService } from '../../services/theme/theme.service';
 import { User } from '../../models/auth/user.model';
-import { Log } from '../../models/log.model';
+import { Log, LogParticipant } from '../../models/log.model';
+import { getStationColor } from '../../config/station-colors';
 
 // Import all logbook components
 import { LogSelectorComponent } from '../log/log-selector/log-selector.component';
@@ -15,6 +16,7 @@ import { RigStatusComponent } from '../rig-status/rig-status.component';
 import { MapVisualizationComponent } from '../map-visualization/map-visualization.component';
 import { ContestSelectionComponent } from '../contest-selection/contest-selection.component';
 import { StationManagementComponent } from '../station-management/station-management.component';
+import { ParticipantManagementComponent } from '../participant-management/participant-management.component';
 import { ExportPanelComponent } from '../export-panel/export-panel.component';
 import { ImportPanelComponent } from '../import-panel/import-panel.component';
 import { ScoreSummaryComponent } from '../score-summary/score-summary.component';
@@ -29,6 +31,7 @@ import { ScoreSummaryComponent } from '../score-summary/score-summary.component'
     MapVisualizationComponent,
     ContestSelectionComponent,
     StationManagementComponent,
+    ParticipantManagementComponent,
     ExportPanelComponent,
     ImportPanelComponent,
     ScoreSummaryComponent
@@ -39,6 +42,7 @@ import { ScoreSummaryComponent } from '../score-summary/score-summary.component'
 export class DashboardComponent implements OnInit {
   currentUser: User | null = null;
   currentLog: Log | null = null;
+  currentParticipant: LogParticipant | null = null;
 
   constructor(
     private authService: AuthService,
@@ -51,11 +55,13 @@ export class DashboardComponent implements OnInit {
     // Subscribe to current user
     this.authService.currentUser.subscribe(user => {
       this.currentUser = user;
+      this.loadCurrentParticipant();
     });
 
     // Subscribe to current log
     this.logService.currentLog$.subscribe(log => {
       this.currentLog = log;
+      this.loadCurrentParticipant();
     });
 
     // Load current log from storage
@@ -66,6 +72,54 @@ export class DashboardComponent implements OnInit {
 
     // Load pending invitations count
     this.logService.getPendingInvitations().subscribe();
+  }
+
+  loadCurrentParticipant(): void {
+    if (!this.currentLog || !this.currentUser) {
+      this.currentParticipant = null;
+      return;
+    }
+
+    // Load participants and find the current user
+    this.logService.getLogParticipants(this.currentLog.id).subscribe({
+      next: (participants) => {
+        this.currentParticipant = participants.find(
+          p => p.userId === this.currentUser!.id
+        ) || null;
+      },
+      error: (err) => {
+        console.error('Error loading participant data:', err);
+        this.currentParticipant = null;
+      }
+    });
+  }
+
+  getStationAssignmentText(): string {
+    if (!this.currentParticipant) return '';
+
+    if (this.currentParticipant.isGota) {
+      return 'GOTA';
+    }
+
+    if (this.currentParticipant.stationNumber) {
+      return `Station ${this.currentParticipant.stationNumber}`;
+    }
+
+    return '';
+  }
+
+  getStationAssignmentColor(): string {
+    if (!this.currentParticipant) return '#9E9E9E';
+
+    if (this.currentParticipant.isGota) {
+      return getStationColor('gota', 'primary');
+    }
+
+    if (this.currentParticipant.stationNumber) {
+      return getStationColor(this.currentParticipant.stationNumber, 'primary');
+    }
+
+    return '#9E9E9E'; // Gray for unassigned
   }
 
   logout(): void {

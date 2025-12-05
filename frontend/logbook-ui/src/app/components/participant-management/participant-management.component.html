@@ -1,0 +1,123 @@
+@if (shouldShowComponent()) {
+  <div class="card">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">👥 Participant Station Assignments</h5>
+    </div>
+    <div class="card-body">
+      <p class="text-muted">
+        Assign station numbers (1-1000) or GOTA designation to participants.
+        <strong>Note:</strong> A participant cannot be both GOTA and assigned to a station number.
+      </p>
+
+      @if (loading) {
+        <div class="text-center py-3">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading participants...</span>
+          </div>
+        </div>
+      } @else if (participants.length === 0) {
+        <div class="alert alert-info">
+          No participants found. Invite other operators to this log.
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Operator</th>
+                <th>Callsign</th>
+                <th>Role</th>
+                <th>Station Assignment</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (participant of participants; track participant.id) {
+                <tr>
+                  <td>
+                    <strong>{{ participant.username }}</strong>
+                  </td>
+                  <td>
+                    @if (participant.userCallsign) {
+                      <span class="badge bg-secondary">{{ participant.userCallsign }}</span>
+                    } @else {
+                      <span class="text-muted">-</span>
+                    }
+                  </td>
+                  <td>
+                    <span class="badge"
+                          [class.bg-danger]="participant.role === 'CREATOR'"
+                          [class.bg-success]="participant.role === 'STATION'"
+                          [class.bg-info]="participant.role === 'VIEWER'">
+                      {{ getRoleBadge(participant.role) }}
+                    </span>
+                  </td>
+                  <td>
+                    @if (editingParticipantId === participant.id) {
+                      <!-- Edit Mode -->
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="form-check">
+                          <input type="checkbox"
+                                 class="form-check-input"
+                                 id="gota-{{participant.id}}"
+                                 [(ngModel)]="editIsGota"
+                                 [disabled]="editStationNumber !== null">
+                          <label class="form-check-label" for="gota-{{participant.id}}">
+                            GOTA
+                          </label>
+                        </div>
+                        <span class="text-muted">OR</span>
+                        <input type="number"
+                               class="form-control form-control-sm"
+                               style="width: 100px;"
+                               [(ngModel)]="editStationNumber"
+                               placeholder="1-1000"
+                               min="1"
+                               max="1000"
+                               [disabled]="editIsGota">
+                      </div>
+                    } @else {
+                      <!-- View Mode -->
+                      <span class="badge"
+                            [style.background-color]="getAssignmentColor(participant)"
+                            [style.color]="'white'">
+                        {{ getAssignmentBadge(participant) }}
+                      </span>
+                    }
+                  </td>
+                  <td>
+                    @if (editingParticipantId === participant.id) {
+                      <!-- Save/Cancel buttons -->
+                      <button class="btn btn-sm btn-success me-1" (click)="saveAssignment(participant)">
+                        ✓ Save
+                      </button>
+                      <button class="btn btn-sm btn-secondary" (click)="cancelEditing()">
+                        ✗ Cancel
+                      </button>
+                    } @else {
+                      <!-- Edit button -->
+                      <button class="btn btn-sm btn-primary" (click)="startEditing(participant)">
+                        ✏️ Assign
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Legend -->
+        <div class="mt-3">
+          <h6 class="mb-2">Station Colors:</h6>
+          <div class="d-flex flex-wrap gap-2">
+            <span class="badge" style="background-color: #1E88E5; color: white;">Station 1</span>
+            <span class="badge" style="background-color: #E53935; color: white;">Station 2</span>
+            <span class="badge" style="background-color: #43A047; color: white;">GOTA</span>
+            <span class="badge" style="background-color: #9E9E9E; color: white;">Unassigned</span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}

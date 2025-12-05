@@ -22,6 +22,8 @@ public class LogParticipantResponse {
     private String userCallsign;
     private LogParticipant.ParticipantRole role;
     private String stationCallsign;
+    private Integer stationNumber;
+    private Boolean isGota;
     private Boolean active;
     private LocalDateTime joinedAt;
 
@@ -35,6 +37,8 @@ public class LogParticipantResponse {
                 .userCallsign(participant.getUser().getCallsign())
                 .role(participant.getRole())
                 .stationCallsign(participant.getStationCallsign())
+                .stationNumber(participant.getStationNumber())
+                .isGota(participant.getIsGota())
                 .active(participant.getActive())
                 .joinedAt(participant.getJoinedAt())
                 .build();

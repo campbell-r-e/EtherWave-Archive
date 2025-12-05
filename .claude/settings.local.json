@@ -67,7 +67,14 @@
       "Bash(if ps aux)",
       "Bash(then echo 'Tests still running...')",
       "Bash(else echo 'Tests completed!')",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "WebFetch(domain:adif.org)",
+      "WebFetch(domain:wwrof.org)",
+      "WebFetch(domain:www.arrl.org)",
+      "Bash($JAVA_HOME/bin/java -version)",
+      "WebFetch(domain:www.adif.org.uk)",
+      "Bash(./mvnw spring-boot:run:*)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []

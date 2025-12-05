@@ -64,6 +64,8 @@ export interface LogParticipant {
   userCallsign?: string;
   role: ParticipantRole;
   stationCallsign?: string;
+  stationNumber?: number;  // 1-1000, null if unassigned
+  isGota: boolean;  // Get On The Air station designation
   active: boolean;
   joinedAt: string;
 }
@@ -94,4 +96,9 @@ export interface InvitationRequest {
   stationCallsign?: string;
   message?: string;
   expiresAt?: string;
+}
+
+export interface StationAssignmentRequest {
+  stationNumber?: number;  // 1-1000, null to unassign
+  isGota?: boolean;  // defaults to false if null
 }
