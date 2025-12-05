@@ -22,57 +22,84 @@
         </div>
       </div>
 
-      <!-- Three Export Options -->
-      <div class="row g-3 mt-2">
-        <!-- Combined Export -->
-        <div class="col-md-4">
-          <div class="card border-primary">
-            <div class="card-body text-center">
-              <h6 class="card-title">📦 Combined</h6>
-              <p class="card-text small text-muted">
-                All QSOs including GOTA stations
-              </p>
-              <button class="btn btn-primary btn-sm" (click)="exportAdifCombined()" [disabled]="!currentLog">
-                Download Combined
-              </button>
+      <!-- Personal Log: Simple Export -->
+      @if (!isContestLog()) {
+        <div class="row g-3 mt-2">
+          <div class="col-12">
+            <div class="card border-primary">
+              <div class="card-body text-center">
+                <h6 class="card-title">📦 Export ADIF</h6>
+                <p class="card-text small text-muted">
+                  Export all QSOs from your personal logbook
+                </p>
+                <button class="btn btn-primary" (click)="exportAdifCombined()" [disabled]="!currentLog">
+                  Download ADIF
+                </button>
+              </div>
             </div>
           </div>
         </div>
+      }
 
-        <!-- GOTA Only Export -->
-        <div class="col-md-4">
-          <div class="card border-success">
-            <div class="card-body text-center">
-              <h6 class="card-title">🟢 GOTA Only</h6>
-              <p class="card-text small text-muted">
-                Only Get On The Air station QSOs
-              </p>
-              <button class="btn btn-success btn-sm" (click)="exportAdifGota()" [disabled]="!currentLog">
-                Download GOTA
-              </button>
+      <!-- Contest Log: Three Export Options with GOTA Split -->
+      @if (isContestLog()) {
+        <div class="row g-3 mt-2">
+          <!-- Combined Export -->
+          <div class="col-md-4">
+            <div class="card border-primary">
+              <div class="card-body text-center">
+                <h6 class="card-title">📦 Combined</h6>
+                <p class="card-text small text-muted">
+                  All QSOs including GOTA stations
+                </p>
+                <button class="btn btn-primary btn-sm" (click)="exportAdifCombined()" [disabled]="!currentLog">
+                  Download Combined
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Non-GOTA Export -->
-        <div class="col-md-4">
-          <div class="card border-info">
-            <div class="card-body text-center">
-              <h6 class="card-title">📻 Non-GOTA</h6>
-              <p class="card-text small text-muted">
-                Regular stations only (excludes GOTA)
-              </p>
-              <button class="btn btn-info btn-sm" (click)="exportAdifNonGota()" [disabled]="!currentLog">
-                Download Non-GOTA
-              </button>
+          <!-- GOTA Only Export -->
+          <div class="col-md-4">
+            <div class="card border-success">
+              <div class="card-body text-center">
+                <h6 class="card-title">🟢 GOTA Only</h6>
+                <p class="card-text small text-muted">
+                  Only Get On The Air station QSOs
+                </p>
+                <button class="btn btn-success btn-sm" (click)="exportAdifGota()" [disabled]="!currentLog">
+                  Download GOTA
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Non-GOTA Export -->
+          <div class="col-md-4">
+            <div class="card border-info">
+              <div class="card-body text-center">
+                <h6 class="card-title">📻 Non-GOTA</h6>
+                <p class="card-text small text-muted">
+                  Regular stations only (excludes GOTA)
+                </p>
+                <button class="btn btn-info btn-sm" (click)="exportAdifNonGota()" [disabled]="!currentLog">
+                  Download Non-GOTA
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      }
 
       <div class="export-features mt-3">
         <div class="feature-item">✓ Complete field data in all exports</div>
-        <div class="feature-item">✓ Contest information included</div>
+        @if (isContestLog()) {
+          <div class="feature-item">✓ Contest information included</div>
+          <div class="feature-item">✓ GOTA separation for Field Day</div>
+        } @else {
+          <div class="feature-item">✓ Personal log export</div>
+          <div class="feature-item">✓ All QSOs included</div>
+        }
         <div class="feature-item">✓ Station details preserved</div>
         <div class="feature-item">✓ ADIF 3.1.4 compliant format</div>
       </div>
@@ -94,8 +121,27 @@
           </div>
         </div>
 
-        <!-- Three Export Options -->
-        @if (!showCabrilloOptions) {
+        <!-- Personal Log: Simple Export -->
+        @if (!showCabrilloOptions && !isContestLog()) {
+          <div class="row g-3 mt-2">
+            <div class="col-12">
+              <div class="card border-primary">
+                <div class="card-body text-center">
+                  <h6 class="card-title">📦 Export Cabrillo</h6>
+                  <p class="card-text small text-muted">
+                    Export all QSOs from your personal logbook
+                  </p>
+                  <button class="btn btn-primary" (click)="showCabrilloForm('combined')" [disabled]="!currentLog">
+                    Export Cabrillo
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Contest Log: Three Export Options with GOTA Split -->
+        @if (!showCabrilloOptions && isContestLog()) {
           <div class="row g-3 mt-2">
             <!-- Combined Export -->
             <div class="col-md-4">
@@ -204,8 +250,13 @@
           <div class="export-features mt-3">
             <div class="feature-item">✓ Works with contest & personal logs</div>
             <div class="feature-item">✓ Standard Cabrillo v3.0 format</div>
-            <div class="feature-item">✓ GOTA separation for Field Day contests</div>
-            <div class="feature-item">✓ Ready for official contest submission</div>
+            @if (isContestLog()) {
+              <div class="feature-item">✓ GOTA separation for Field Day contests</div>
+              <div class="feature-item">✓ Ready for official contest submission</div>
+            } @else {
+              <div class="feature-item">✓ Perfect for personal logging records</div>
+              <div class="feature-item">✓ Compatible with other logging software</div>
+            }
           </div>
         }
       </div>
