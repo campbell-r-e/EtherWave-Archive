@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 import { LogService } from '../../services/log/log.service';
+import { ThemeService } from '../../services/theme/theme.service';
 import { User } from '../../models/auth/user.model';
 import { Log } from '../../models/log.model';
 
@@ -42,6 +43,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private logService: LogService,
+    public themeService: ThemeService,
     private router: Router
   ) {}
 

@@ -1,15 +1,405 @@
-/* You can add global styles to this file, and also import other style files */
+/* ============================================================================
+   GEKHoosier QSO Suite - Global Styles
+   A professional, Indiana-themed ham radio contest logging platform
+   ============================================================================ */
 
 /* Bootstrap is imported via angular.json */
 
-/* Global app styles */
+/* ============================================================================
+   CSS Custom Properties - Color System
+   ============================================================================ */
+
+:root {
+  /* ===== Primary Brand Colors ===== */
+  --color-hoosier-blue: #003F87;
+  --color-cardinal-red: #C41E3A;
+  --color-qso-green: #4CAF50;
+  --color-highlight-yellow: #F5C542;
+
+  /* ===== Light Theme (Default) ===== */
+  --bg-primary: #F2F5F7;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #E8EDEF;
+  --bg-elevated: #FFFFFF;
+
+  --text-primary: #1A1A1A;
+  --text-secondary: #4A4A4A;
+  --text-muted: #757575;
+  --text-inverse: #FFFFFF;
+
+  --border-color: #D1D5DB;
+  --border-color-dark: #9CA3AF;
+
+  /* ===== Interactive Elements ===== */
+  --link-color: #003F87;
+  --link-hover: #002B5C;
+
+  /* ===== Station Colors ===== */
+  --station-1-primary: #1E88E5;
+  --station-1-light: #64B5F6;
+  --station-1-dark: #1565C0;
+
+  --station-2-primary: #E53935;
+  --station-2-light: #EF5350;
+  --station-2-dark: #C62828;
+
+  --station-gota-primary: #43A047;
+  --station-gota-light: #66BB6A;
+  --station-gota-dark: #2E7D32;
+
+  --station-viewer-primary: #9E9E9E;
+  --station-viewer-light: #BDBDBD;
+  --station-viewer-dark: #616161;
+
+  /* ===== Accent Colors ===== */
+  --accent-ai: #7E57C2;
+  --accent-rig-online: #00E5FF;
+  --accent-validation-error: #FF7043;
+  --accent-warning: #FFA726;
+  --accent-success: #66BB6A;
+  --accent-info: #29B6F6;
+
+  /* ===== Shadows ===== */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+
+  /* ===== Transitions ===== */
+  --transition-fast: 150ms ease-in-out;
+  --transition-base: 250ms ease-in-out;
+  --transition-slow: 350ms ease-in-out;
+}
+
+/* ============================================================================
+   Dark Theme Variables
+   ============================================================================ */
+
+body.dark-theme {
+  /* ===== Dark Theme Colors ===== */
+  --bg-primary: #1A1A1A;
+  --bg-secondary: #242424;
+  --bg-tertiary: #2D2D2D;
+  --bg-elevated: #303030;
+
+  --text-primary: #E8EDEF;
+  --text-secondary: #B8BCBF;
+  --text-muted: #8A8E91;
+  --text-inverse: #1A1A1A;
+
+  --border-color: #404040;
+  --border-color-dark: #505050;
+
+  /* ===== Interactive (brighter in dark mode) ===== */
+  --link-color: #64B5F6;
+  --link-hover: #90CAF9;
+
+  /* ===== Accent Colors (adjusted for dark mode) ===== */
+  --accent-validation-error: #FF8A65;
+  --accent-warning: #FFB74D;
+
+  /* ===== Shadows (darker/subtle) ===== */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+}
+
+/* ============================================================================
+   Base Styles
+   ============================================================================ */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   margin: 0;
   padding: 0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color var(--transition-base), color var(--transition-base);
 }
 
-/* Utility classes */
+/* ============================================================================
+   Typography Scale
+   ============================================================================ */
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
+  margin-top: 0;
+  font-weight: 600;
+}
+
+h1 { font-size: 2.5rem; line-height: 1.2; }
+h2 { font-size: 2rem; line-height: 1.3; }
+h3 { font-size: 1.75rem; line-height: 1.4; }
+h4 { font-size: 1.5rem; line-height: 1.4; }
+h5 { font-size: 1.25rem; line-height: 1.5; }
+h6 { font-size: 1rem; line-height: 1.5; }
+
+p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--link-hover);
+  text-decoration: underline;
+}
+
+/* ============================================================================
+   Utility Classes
+   ============================================================================ */
+
 .cursor-pointer {
   cursor: pointer;
+}
+
+.text-primary { color: var(--text-primary) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-muted { color: var(--text-muted) !important; }
+.text-inverse { color: var(--text-inverse) !important; }
+
+.bg-primary { background-color: var(--bg-primary) !important; }
+.bg-secondary { background-color: var(--bg-secondary) !important; }
+.bg-elevated { background-color: var(--bg-elevated) !important; }
+
+/* ===== Brand Color Classes ===== */
+.text-hoosier-blue { color: var(--color-hoosier-blue) !important; }
+.text-cardinal-red { color: var(--color-cardinal-red) !important; }
+.text-qso-green { color: var(--color-qso-green) !important; }
+
+.bg-hoosier-blue { background-color: var(--color-hoosier-blue) !important; }
+.bg-cardinal-red { background-color: var(--color-cardinal-red) !important; }
+.bg-qso-green { background-color: var(--color-qso-green) !important; }
+
+/* ===== Station Color Classes ===== */
+.station-1-color { color: var(--station-1-primary) !important; }
+.station-2-color { color: var(--station-2-primary) !important; }
+.station-gota-color { color: var(--station-gota-primary) !important; }
+
+.station-1-bg { background-color: var(--station-1-primary) !important; }
+.station-2-bg { background-color: var(--station-2-primary) !important; }
+.station-gota-bg { background-color: var(--station-gota-primary) !important; }
+
+.station-1-border { border-left: 4px solid var(--station-1-primary) !important; }
+.station-2-border { border-left: 4px solid var(--station-2-primary) !important; }
+.station-gota-border { border-left: 4px solid var(--station-gota-primary) !important; }
+
+/* ===== Shadow Classes ===== */
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+.shadow-xl { box-shadow: var(--shadow-xl); }
+
+/* ============================================================================
+   Card Component Styling
+   ============================================================================ */
+
+.card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-base), transform var(--transition-base);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--bg-tertiary);
+  border-radius: 8px 8px 0 0;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.card-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--bg-tertiary);
+  border-radius: 0 0 8px 8px;
+}
+
+/* ============================================================================
+   Table Styling
+   ============================================================================ */
+
+.table {
+  color: var(--text-primary);
+}
+
+.table thead th {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border-color-dark);
+}
+
+.table-hover tbody tr:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: var(--bg-tertiary);
+}
+
+/* ============================================================================
+   Form Controls
+   ============================================================================ */
+
+.form-control,
+.form-select {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  transition: border-color var(--transition-fast);
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--color-hoosier-blue);
+  box-shadow: 0 0 0 0.2rem rgba(0, 63, 135, 0.25);
+}
+
+.form-control::placeholder {
+  color: var(--text-muted);
+}
+
+.form-label {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* ============================================================================
+   Button Overrides (Bootstrap Enhancement)
+   ============================================================================ */
+
+.btn {
+  transition: all var(--transition-fast);
+}
+
+.btn-primary {
+  background-color: var(--color-hoosier-blue);
+  border-color: var(--color-hoosier-blue);
+}
+
+.btn-primary:hover {
+  background-color: #002B5C;
+  border-color: #002B5C;
+}
+
+.btn-danger {
+  background-color: var(--color-cardinal-red);
+  border-color: var(--color-cardinal-red);
+}
+
+.btn-success {
+  background-color: var(--color-qso-green);
+  border-color: var(--color-qso-green);
+}
+
+/* ============================================================================
+   Alert/Badge Styling
+   ============================================================================ */
+
+.alert {
+  border-radius: 6px;
+}
+
+.badge {
+  font-weight: 600;
+  padding: 0.35em 0.65em;
+}
+
+/* ============================================================================
+   Scrollbar Styling (Webkit browsers)
+   ============================================================================ */
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color-dark);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ============================================================================
+   Loading States & Animations
+   ============================================================================ */
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.loading-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+/* ============================================================================
+   Responsive Design Utilities
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.75rem; }
+  h3 { font-size: 1.5rem; }
+
+  .card-body {
+    padding: 1rem;
+  }
+}
+
+/* ============================================================================
+   Print Styles
+   ============================================================================ */
+
+@media print {
+  body {
+    background-color: white;
+    color: black;
+  }
+
+  .no-print {
+    display: none !important;
+  }
 }

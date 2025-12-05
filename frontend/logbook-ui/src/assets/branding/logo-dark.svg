@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 250" width="800" height="250">
+  <!-- RF Waves (Bright Cardinal Red for dark mode) -->
+  <path d="M 160 90 Q 140 70 120 90" fill="none" stroke="#FF5252" stroke-width="8" stroke-linecap="round"/>
+  <path d="M 170 75 Q 140 45 110 75" fill="none" stroke="#FF5252" stroke-width="8" stroke-linecap="round"/>
+  <path d="M 180 60 Q 140 20 100 60" fill="none" stroke="#FF5252" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Radio Tower (Light Blue for dark mode) -->
+  <rect x="125" y="100" width="30" height="80" fill="#64B5F6"/>
+  <polygon points="140,100 130,80 150,80" fill="#64B5F6"/>
+  <rect x="120" y="130" width="40" height="3" fill="#64B5F6"/>
+  <rect x="115" y="150" width="50" height="3" fill="#64B5F6"/>
+  <rect x="110" y="170" width="60" height="3" fill="#64B5F6"/>
+  <polygon points="140,180 110,200 170,200" fill="#64B5F6"/>
+
+  <!-- Indiana State Outline (Bright Red for dark mode) -->
+  <path d="M 110 200 L 105 205 L 110 215 L 120 220 L 130 225 L 145 225 L 155 220 L 165 215 L 170 205 L 165 200 Z"
+        fill="#FF5252" opacity="0.9"/>
+
+  <!-- GEK Text (White/Light Blue) -->
+  <text x="200" y="150" font-family="Arial, sans-serif" font-size="80" font-weight="900" fill="#E3F2FD">GEK</text>
+
+  <!-- Hoosier Text (Bright Red) -->
+  <text x="390" y="150" font-family="Arial, sans-serif" font-size="80" font-weight="700" fill="#FF5252">Hoosier</text>
+
+  <!-- QSO SUITE Text (White/Light) -->
+  <text x="340" y="200" font-family="Arial, sans-serif" font-size="40" font-weight="600" fill="#E3F2FD" letter-spacing="8">QSO SUITE</text>
+</svg>
