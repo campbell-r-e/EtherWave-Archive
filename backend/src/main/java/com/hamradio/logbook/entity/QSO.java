@@ -23,7 +23,9 @@ import java.time.LocalTime;
     @Index(name = "idx_qso_date", columnList = "qso_date"),
     @Index(name = "idx_qso_station", columnList = "station_id"),
     @Index(name = "idx_qso_contest", columnList = "contest_id"),
-    @Index(name = "idx_qso_frequency", columnList = "frequency_khz")
+    @Index(name = "idx_qso_frequency", columnList = "frequency_khz"),
+    @Index(name = "idx_qso_station_number", columnList = "station_number"),
+    @Index(name = "idx_qso_is_gota", columnList = "is_gota")
 })
 @Data
 @Builder
@@ -111,6 +113,13 @@ public class QSO {
 
     @Column(name = "license_class", length = 20)
     private String licenseClass;
+
+    // Multi-station contest support
+    @Column(name = "station_number")
+    private Integer stationNumber; // 1-1000, null if unassigned or not multi-station
+
+    @Column(name = "is_gota", nullable = false)
+    private Boolean isGota = false; // Get On The Air station (mutually exclusive with stationNumber for scoring)
 
     /**
      * Contest-specific data stored as JSON
