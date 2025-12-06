@@ -1,12 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { Invitation, InvitationRequest, InvitationStatus, ParticipantRole, Log } from '../../../models/log.model';
 import { LogService } from '../../../services/log/log.service';
+import { AuthService } from '../../../services/auth/auth.service';
+import { ThemeService } from '../../../services/theme/theme.service';
+import { User } from '../../../models/auth/user.model';
 
 @Component({
     selector: 'app-invitations',
-    imports: [ReactiveFormsModule],
+    imports: [ReactiveFormsModule, RouterModule],
     templateUrl: './invitations.component.html',
     styleUrls: ['./invitations.component.css']
 })
@@ -19,13 +23,17 @@ export class InvitationsComponent implements OnInit {
   loading = false;
   error: string | null = null;
   activeTab: 'received' | 'sent' = 'received';
+  currentUser: User | null = null;
 
   ParticipantRole = ParticipantRole;
   InvitationStatus = InvitationStatus;
 
   constructor(
     private logService: LogService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private authService: AuthService,
+    public themeService: ThemeService,
+    private router: Router
   ) {
     this.createInvitationForm = this.fb.group({
       logId: ['', Validators.required],
@@ -37,6 +45,11 @@ export class InvitationsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Subscribe to current user
+    this.authService.currentUser.subscribe(user => {
+      this.currentUser = user;
+    });
+
     this.loadData();
 
     // Subscribe to logs
@@ -225,5 +238,10 @@ export class InvitationsComponent implements OnInit {
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

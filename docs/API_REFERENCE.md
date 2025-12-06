@@ -434,6 +434,8 @@ Retrieve all participants for a log.
     "userCallsign": "W1ABC",
     "role": "CREATOR",
     "stationCallsign": null,
+    "stationNumber": 1,
+    "isGota": false,
     "active": true,
     "joinedAt": "2024-06-20T14:30:00"
   },
@@ -446,11 +448,34 @@ Retrieve all participants for a log.
     "userCallsign": "K2XYZ",
     "role": "STATION",
     "stationCallsign": "W1ABC/2",
+    "stationNumber": 2,
+    "isGota": false,
     "active": true,
     "joinedAt": "2024-06-21T09:15:00"
+  },
+  {
+    "id": 3,
+    "logId": 15,
+    "logName": "CQ WW DX SSB 2024",
+    "userId": 18,
+    "username": "newoperator",
+    "userCallsign": "KD7NEW",
+    "role": "STATION",
+    "stationCallsign": null,
+    "stationNumber": null,
+    "isGota": true,
+    "active": true,
+    "joinedAt": "2024-06-21T10:00:00"
   }
 ]
 ```
+
+**Fields**:
+- `role`: User's role in the log (CREATOR, STATION, or VIEWER)
+- `stationCallsign`: Optional station-specific callsign (e.g., W1ABC/2)
+- `stationNumber`: Station assignment number (1-10, or null for unassigned)
+- `isGota`: Boolean indicating if this is a GOTA (Get On The Air) station
+- `active`: Whether participant is currently active in the log
 
 **Error Responses**:
 - `403 Forbidden`: User does not have access to this log
@@ -480,6 +505,85 @@ Remove a participant from a log.
 - Cannot remove the log creator
 - This is a soft delete (sets active = false)
 - User loses all access to the log immediately
+
+---
+
+### Update Participant Station Assignment
+
+Update a participant's station assignment in a log.
+
+**Endpoint**: `PUT /logs/{logId}/participants/{participantId}/station`
+
+**Authentication**: Required (CREATOR role only)
+
+**Parameters**:
+- `logId` (path): Log ID
+- `participantId` (path): Participant ID
+
+**Request Body**:
+```json
+{
+  "stationNumber": 2,
+  "isGota": false
+}
+```
+
+**Alternative GOTA Assignment**:
+```json
+{
+  "stationNumber": null,
+  "isGota": true
+}
+```
+
+**Unassigned Station**:
+```json
+{
+  "stationNumber": null,
+  "isGota": false
+}
+```
+
+**Response**: `200 OK`
+```json
+{
+  "id": 2,
+  "logId": 15,
+  "logName": "CQ WW DX SSB 2024",
+  "userId": 12,
+  "username": "janedoe",
+  "userCallsign": "K2XYZ",
+  "role": "STATION",
+  "stationCallsign": "W1ABC/2",
+  "stationNumber": 2,
+  "isGota": false,
+  "active": true,
+  "joinedAt": "2024-06-21T09:15:00"
+}
+```
+
+**Error Responses**:
+- `400 Bad Request`: Invalid station number (must be 1-10 or null)
+- `403 Forbidden`: User is not the log creator
+- `404 Not Found`: Participant does not exist
+
+**Validation Rules**:
+- `stationNumber`: Must be between 1-10 or null
+- `isGota`: Boolean, true for GOTA station
+- Cannot have both `stationNumber` and `isGota` set (either numbered station OR GOTA, not both)
+- Setting `stationNumber` automatically sets `isGota` to false
+- Setting `isGota` to true automatically sets `stationNumber` to null
+
+**Station Assignment Rules**:
+- **Numbered Stations (1-10)**: Primary operating positions
+- **GOTA Station**: Educational station for Field Day (isGota = true, stationNumber = null)
+- **Unassigned**: No station assignment (stationNumber = null, isGota = false)
+
+**Notes**:
+- Changes take effect immediately
+- Previous QSOs retain their original station assignment
+- New QSOs will use the updated station assignment
+- Station assignments are used for filtering, scoring, and exports
 
 ---
 

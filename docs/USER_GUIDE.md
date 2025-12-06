@@ -5,15 +5,17 @@ Complete guide for using the Ham Radio Contest Logbook system.
 ## Table of Contents
 
 1. [Getting Started](#getting-started)
-2. [User Authentication](#user-authentication)
-3. [Log Management](#log-management)
-4. [Logging QSOs](#logging-qsos)
-5. [Rig Control](#rig-control)
-6. [Contest Operations](#contest-operations)
-7. [Multi-User Collaboration](#multi-user-collaboration)
-8. [Export and Import](#export-and-import)
-9. [Maps and Visualization](#maps-and-visualization)
-10. [Troubleshooting](#troubleshooting)
+2. [User Interface](#user-interface)
+3. [User Authentication](#user-authentication)
+4. [Log Management](#log-management)
+5. [Logging QSOs](#logging-qsos)
+6. [Rig Control](#rig-control)
+7. [Contest Operations](#contest-operations)
+8. [Multi-User Collaboration](#multi-user-collaboration)
+9. [Station Management](#station-management)
+10. [Export and Import](#export-and-import)
+11. [Maps and Visualization](#maps-and-visualization)
+12. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -36,6 +38,59 @@ Complete guide for using the Ham Radio Contest Logbook system.
 1. Enter your **username** and **password**
 2. Click **Login**
 3. You'll be redirected to the main dashboard
+
+---
+
+## User Interface
+
+### GEKHoosier Branding
+
+The **GEKHoosier QSO Suite** logo appears on all pages of the application:
+
+- **Login Page**: Theme-aware logo at the top
+- **Register Page**: Theme-aware logo at the top
+- **Dashboard**: Logo in the navigation bar (clickable to return home)
+- **Invitations Page**: Logo in the navigation bar with link to dashboard
+
+The logo automatically adapts to your selected theme (light or dark mode) for optimal visibility.
+
+### Navigation Bar
+
+The main navigation bar appears at the top of authenticated pages and includes:
+
+- **GEKHoosier Logo**: Click to navigate to dashboard
+- **Welcome Message**: Shows your username and callsign
+- **Station Badge**: Displays your current station assignment (if applicable)
+- **Dashboard Link**: Quick navigation (on Invitations page)
+- **Theme Toggle**: Switch between dark and light modes
+- **Logout Button**: Sign out of your account
+
+### Theme Toggle (Dark/Light Mode)
+
+The system supports both light and dark themes for comfortable viewing in any environment.
+
+#### Switching Themes
+
+1. Look for the theme toggle button in the navigation bar
+2. Click the button showing:
+   - **Moon icon** (Dark mode available) - Currently in light mode
+   - **Sun icon** (Light mode available) - Currently in dark mode
+3. The theme switches immediately across the entire application
+
+#### Theme Features
+
+- **System Detection**: Automatically detects your system preference on first visit
+- **Persistence**: Your theme choice is saved and remembered across sessions
+- **Instant Switch**: No page reload required
+- **Logo Adaptation**: Logos automatically switch to theme-appropriate versions
+- **Accessibility**: Both themes designed for optimal readability
+
+#### Tips for Using Themes
+
+- **Light Mode**: Best for daytime operation and well-lit environments
+- **Dark Mode**: Reduces eye strain during night-time contests or low-light operation
+- **Field Day**: Use dark mode to preserve night vision
+- **Presentations**: Light mode for better visibility on projectors
 
 ---
 
@@ -368,54 +423,156 @@ When you're added to a shared log, you have one of three roles:
 - Cannot create or edit QSOs
 - Cannot modify log settings
 
+### Accessing the Invitations Page
+
+The Invitations page provides a central location for managing all log invitations:
+
+**Navigation:**
+- From the Dashboard: Look for an **Invitations** link or button
+- Direct URL: Navigate to `/invitations` when logged in
+- Badge Indicator: Shows number of pending invitations you've received
+
+**Page Features:**
+- **GEKHoosier Logo**: Click to return to dashboard
+- **Welcome Message**: Shows your username and callsign
+- **Theme Toggle**: Switch between dark and light modes
+- **Logout Button**: Sign out of your account
+- **Two Tabs**: Received and Sent invitations
+
 ### Sending Invitations
 
 To invite someone to your log (CREATOR only):
 
-1. Click **Invitations** button (top right, near log selector)
-2. Click **Send Invitation**
-3. Fill in invitation details:
-   - **Log**: Select which log to invite them to
+1. Navigate to the **Invitations** page
+2. Switch to the **Sent** tab
+3. Click **Send Invitation** button
+4. Fill in invitation details:
+   - **Log**: Select which log to invite them to (must be a log you created)
    - **Username/Email/Callsign**: Enter their identifier
    - **Role**: Choose STATION or VIEWER
    - **Station Callsign** (optional): For multi-op contests
    - **Message** (optional): Personal note
-4. Click **Send Invitation**
-5. They'll receive the invitation in their account
+5. Click **Send Invitation**
+6. They'll receive the invitation in their account
+7. Invitation appears in your **Sent** tab with status tracking
 
 ### Receiving Invitations
 
 When you receive an invitation:
 
-1. Click **Invitations** button (shows badge with count)
-2. View pending invitations in the **Received** tab
-3. Review invitation details:
-   - Log name
-   - Inviter
-   - Proposed role
-   - Message
-4. Click **Accept** or **Decline**
-5. If accepted, log appears in your log list
+1. Navigate to the **Invitations** page (look for badge with pending count)
+2. View pending invitations in the **Received** tab (default view)
+3. Review invitation details for each invitation:
+   - **Log Name**: The log you're being invited to
+   - **From**: Who sent the invitation
+   - **Role**: Proposed role (STATION or VIEWER)
+   - **Station Callsign**: If specified
+   - **Message**: Personal message from inviter
+   - **Sent Date**: When invitation was sent
+   - **Expires Date**: When invitation expires (if applicable)
+4. Click **Accept** or **Decline** for each invitation
+5. If accepted, log appears in your log list immediately
+6. Accepted/declined invitations are removed from the pending list
 
 ### Managing Participants
 
-To view/manage log participants (CREATOR only):
+The **Participant Management** panel appears on the dashboard for shared logs and provides complete control over log membership.
 
-1. Select the log
-2. Navigate to **Participants** section
-3. View list of all participants with their roles
-4. **Remove Participant**: Click remove icon next to their name
-5. Removed participants lose access immediately
+#### Viewing Participants (All Roles)
+
+All participants can view the participant list:
+
+1. Select a shared log from the dropdown
+2. Locate the **Participant Management** panel on the dashboard
+3. View list showing:
+   - **Username**: Participant's username
+   - **Callsign**: Their amateur radio callsign (if set)
+   - **Role**: CREATOR, STATION, or VIEWER badge
+   - **Station Assignment**: Their current station (color-coded badge)
+
+#### Managing Participants (CREATOR Only)
+
+As the log CREATOR, you have full control:
+
+**Viewing Participant Details:**
+1. Navigate to **Participant Management** panel
+2. See all participants in the log
+3. Each entry shows:
+   - User information (username, callsign)
+   - Current role with badge
+   - Current station assignment with colored badge
+   - Actions available
+
+**Removing Participants:**
+1. Find the participant in the list
+2. Click the **Remove** button (trash icon) next to their name
+3. Confirm removal
+4. Participant loses access immediately
+5. Their QSOs remain in the log
+6. They can be re-invited later if needed
+
+**Station Assignment:**
+(See [Station Management](#station-management) section for detailed information)
+
+#### Participant Roles in the Panel
+
+**What Each Role Sees:**
+
+- **CREATOR**:
+  - Can view all participants
+  - Can remove participants
+  - Can assign/reassign stations
+  - Cannot remove themselves (must delete log instead)
+
+- **STATION**:
+  - Can view all participants
+  - Cannot remove anyone
+  - Cannot change station assignments
+  - View-only access to participant list
+
+- **VIEWER**:
+  - Can view all participants
+  - Cannot remove anyone
+  - Cannot change station assignments
+  - View-only access to participant list
+
+#### Participant Status Indicators
+
+The panel uses color-coded badges for quick identification:
+
+**Role Badges:**
+- **CREATOR**: Blue badge
+- **STATION**: Green badge
+- **VIEWER**: Gray badge
+
+**Station Badges:**
+- **Station 1-10**: Numbered with unique colors
+- **GOTA**: Gold badge
+- **Unassigned**: Gray badge
+
+#### Best Practices for Participant Management
+
+1. **Assign Roles Carefully**: Give STATION role only to operators who will log QSOs
+2. **Use VIEWER for Observers**: Friends, family, and non-operators
+3. **Regular Review**: Check participant list before major contests
+4. **Remove Inactive Users**: Clean up after events to maintain security
+5. **Document Station Assignments**: Keep a record of who operates which station
 
 ### Cancelling Invitations
 
 To cancel a sent invitation (CREATOR only):
 
-1. Click **Invitations** button
+1. Navigate to the **Invitations** page
 2. Switch to **Sent** tab
-3. Find the pending invitation
-4. Click **Cancel**
-5. Invitation is revoked
+3. View list of all invitations you've sent
+4. Find the pending invitation (status shows as PENDING)
+5. Click **Cancel** button next to the invitation
+6. Confirm cancellation
+7. Invitation is revoked immediately
+8. Invitee can no longer accept it
+9. Status changes to CANCELLED in your sent list
+
+**Note**: You can only cancel invitations that are still PENDING. Accepted or declined invitations cannot be cancelled.
 
 ### Collaborative Logging
 
@@ -424,6 +581,154 @@ In shared logs:
 - **Dupe Prevention**: System prevents simultaneous duplicate logging
 - **Activity Feed**: See who's logging what in real-time
 - **Station Identification**: Each QSO tagged with logging operator
+
+---
+
+## Station Management
+
+### Understanding Station Assignments
+
+For multi-operator contest stations, the system supports station assignment to organize operators across multiple transmitting stations.
+
+#### Station Types
+
+1. **Numbered Stations** (Station 1-10)
+   - Primary operating positions
+   - Each has a unique color-coded badge
+   - Used for multi-transmitter categories (e.g., Multi-Multi, Multi-Two)
+
+2. **GOTA Station** (Get On The Air)
+   - Special educational station for Field Day and similar events
+   - Dedicated badge color
+   - For new or unlicensed operators under supervision
+
+3. **Unassigned**
+   - Participants without station assignment
+   - Gray badge
+   - Can log QSOs but not station-specific
+
+### Station Color Coding
+
+Each station has a unique color for easy identification:
+
+- **Station 1**: Red
+- **Station 2**: Blue
+- **Station 3**: Green
+- **Station 4**: Orange
+- **Station 5**: Purple
+- **Station 6**: Teal
+- **Station 7**: Pink
+- **Station 8**: Brown
+- **Station 9**: Cyan
+- **Station 10**: Yellow
+- **GOTA**: Gold
+- **Unassigned**: Gray
+
+These colors appear in:
+- Navigation bar station badges
+- Participant management list
+- QSO entry indicators
+- Export filters
+
+### Assigning Stations (CREATOR Only)
+
+To assign operators to stations:
+
+1. Select the shared log from the dropdown
+2. Navigate to the **Station Management** panel
+3. View list of all participants
+4. For each participant:
+   - Click the station dropdown next to their name
+   - Select station number (1-10), GOTA, or Unassigned
+   - Click **Update**
+5. Changes take effect immediately
+6. Participant sees their station badge in the navigation bar
+
+### Station Assignment Best Practices
+
+#### Field Day
+- **Station 1-N**: One per transmitter (based on class, e.g., 2A = 2 stations)
+- **GOTA**: Assign to GOTA operators
+- **Unassigned**: Loggers, spotters, support crew
+
+#### Multi-Multi Contests
+- **Station 1-6**: Assign one per band (e.g., Station 1 = 20m, Station 2 = 40m)
+- Coordinate band assignments beforehand
+- Use station colors for quick visual identification
+
+#### Multi-Two Contests
+- **Station 1**: Run station
+- **Station 2**: Multiplier station
+- Clear role definition prevents confusion
+
+### Station-Based Operations
+
+#### Viewing Your Station Assignment
+
+Your current station assignment appears in the navigation bar:
+- **Badge**: Colored badge with station name
+- **Color**: Unique color for quick identification
+- **Visibility**: Shows on all pages while logged in
+
+#### Logging QSOs by Station
+
+When logging a QSO:
+- Your station assignment is automatically recorded
+- QSO is tagged with your station for filtering and reporting
+- Other operators see which station logged each QSO
+
+#### Filtering by Station
+
+In the QSO list:
+- Filter to see only QSOs from specific stations
+- Useful for per-station score checking
+- Helps identify band/station conflicts
+
+### Station Callsigns
+
+Some contests require station-specific callsigns (e.g., W1ABC/1, W1ABC/2):
+
+1. When assigning a station, you can optionally specify a **Station Callsign**
+2. This callsign appears in exports and Cabrillo files
+3. Useful for multi-transmitter categories requiring unique call signs
+
+### Reassigning Stations
+
+Stations can be reassigned at any time (CREATOR only):
+
+1. Navigate to **Station Management**
+2. Change the station dropdown for the participant
+3. Click **Update**
+4. Previous QSOs retain original station assignment
+5. New QSOs use the updated station
+
+**Note**: Reassignment is useful for operator rotation or band changes during multi-day events.
+
+### Station Indicators in QSO List
+
+The QSO list shows which station logged each QSO:
+- **Color Dot**: Station color indicator
+- **Station Column**: Station name (if enabled)
+- **Operator Column**: Which user logged it
+- **Sortable**: Click to sort by station
+
+### Multi-Station Scoring
+
+For contests with per-station scoring:
+- View total QSOs per station
+- Check score breakdown by station
+- Identify underperforming stations
+- Balance operator assignments
+
+### Removing Station Assignments
+
+To remove a station assignment:
+
+1. Navigate to **Station Management**
+2. Select the participant
+3. Choose **Unassigned** from station dropdown
+4. Click **Update**
+5. Participant's badge changes to gray "Unassigned"
 
 ---
 
@@ -439,6 +744,7 @@ The **Export Panel** (bottom right) provides export options:
    - **All QSOs**: Export entire log
    - **Date Range**: Export specific period
    - **Contest Only**: Export contest QSOs
+   - **Station Filter**: Export QSOs from specific station (for shared logs)
 3. Click **Export**
 4. File downloads: `logname_YYYYMMDD.adi`
 

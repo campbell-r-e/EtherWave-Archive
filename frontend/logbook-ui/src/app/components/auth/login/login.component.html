@@ -2,7 +2,7 @@
   <div class="login-card">
     <div class="text-center mb-4">
       <!-- GEKHoosier Logo -->
-      <img src="assets/branding/logo.svg"
+      <img [src]="themeService.isDarkTheme() ? 'assets/branding/logo-dark.svg' : 'assets/branding/logo.svg'"
            alt="GEKHoosier QSO Suite"
            height="80"
            class="mb-3">

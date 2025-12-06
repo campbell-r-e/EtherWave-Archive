@@ -29,12 +29,19 @@ This system provides amateur radio operators with a modern, feature-rich logging
 - Admin user configuration via environment variables
 - Role-based access control (CREATOR, STATION, VIEWER)
 - In-app invitation system for shared logs
+- Dark/Light theme toggle with system preference detection
+- Theme persistence across sessions
+- GEKHoosier branding on all pages (theme-aware logos)
 
 ### Logbook Management
 - Personal and shared logbooks
 - Log freeze functionality (manual or automatic after contest end)
 - Multi-tenant architecture with log isolation
 - QSO count and participant tracking
+- Station assignment system for multi-operator contests
+- Numbered stations (Station 1-10) with color-coded badges
+- GOTA (Get On The Air) station designation
+- Station-specific QSO tracking and filtering
 
 ### QSO Entry & Validation
 - Comprehensive QSO data capture (frequency, mode, RST, location, etc.)
@@ -61,11 +68,20 @@ This system provides amateur radio operators with a modern, feature-rich logging
 - Automatic scoring and validation
 - Reference data validation (parks, counties, etc.)
 
+### Participant Management
+- Real-time participant invitation system
+- Role-based access control (CREATOR, STATION, VIEWER)
+- Station assignment and reassignment
+- Participant removal and permission management
+- Invitation tracking (pending, accepted, declined, cancelled)
+- Station callsign assignment for operators
+
 ### Export & Import
 - ADIF 3.1.4 format export
 - Cabrillo format for contest submissions
 - Bulk import with validation
 - Re-scoring on import
+- Export filtering by station assignment
 
 ### Visualization
 - Interactive map showing contacted stations
@@ -78,15 +94,19 @@ This system provides amateur radio operators with a modern, feature-rich logging
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                         Frontend                             │
-│  Angular 17 Standalone Components + Bootstrap 5             │
-│  - Authentication (Login/Register)                           │
+│  Angular 21 Standalone Components + Bootstrap 5             │
+│  - Authentication (Login/Register with theme-aware logos)    │
 │  - Log Management (Selector, Invitations)                    │
 │  - QSO Entry & List                                          │
 │  - Rig Control Status                                        │
 │  - Map Visualization                                         │
 │  - Contest Selection                                         │
-│  - Station/Operator Management                               │
-│  - Export Panel                                              │
+│  - Station Management (Assignment & Configuration)           │
+│  - Participant Management (Invites & Permissions)            │
+│  - Export Panel (ADIF/Cabrillo with station filtering)       │
+│  - Import Panel (ADIF with validation)                       │
+│  - Theme Toggle (Dark/Light mode)                            │
+│  - Score Summary Dashboard                                   │
 └─────────────────────────────────────────────────────────────┘
                             ↕ HTTP/WebSocket
 ┌─────────────────────────────────────────────────────────────┐
@@ -241,18 +261,32 @@ Hamradiologbook/
 │   ├── src/app/
 │   │   ├── components/               # UI components
 │   │   │   ├── auth/                 # Login/Register
+│   │   │   │   ├── login/            # Login component
+│   │   │   │   └── register/         # Register component
 │   │   │   ├── dashboard/            # Main dashboard
 │   │   │   ├── log/                  # Log management
+│   │   │   │   ├── log-selector/     # Log dropdown selector
+│   │   │   │   └── invitations/      # Invitation management
 │   │   │   ├── qso-entry/            # QSO entry form
 │   │   │   ├── qso-list/             # QSO data grid
 │   │   │   ├── rig-status/           # Rig control panel
 │   │   │   ├── map-visualization/    # Map display
 │   │   │   ├── contest-selection/    # Contest picker
-│   │   │   ├── station-management/   # Station config
-│   │   │   └── export-panel/         # ADIF/Cabrillo export
+│   │   │   ├── station-management/   # Station assignment & config
+│   │   │   ├── participant-management/ # User invites & permissions
+│   │   │   ├── score-summary/        # Contest scoring dashboard
+│   │   │   ├── export-panel/         # ADIF/Cabrillo export
+│   │   │   └── import-panel/         # ADIF import
 │   │   ├── models/                   # TypeScript interfaces
 │   │   ├── services/                 # HTTP/WebSocket services
-│   │   └── guards/                   # Route guards
+│   │   │   ├── auth/                 # Authentication service
+│   │   │   ├── log/                  # Log service
+│   │   │   ├── qso/                  # QSO service
+│   │   │   ├── theme/                # Theme toggle service
+│   │   │   └── websocket/            # WebSocket service
+│   │   ├── guards/                   # Route guards
+│   │   ├── config/                   # Station colors & configs
+│   │   └── assets/branding/          # GEKHoosier logos
 │   └── package.json                  # npm dependencies
 │
 ├── rig-control-service/              # Hamlib integration service
