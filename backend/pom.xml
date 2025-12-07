@@ -13,9 +13,9 @@
     </parent>
 
     <groupId>com.hamradio</groupId>
-    <artifactId>logbook-backend</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-    <name>Ham Radio Logbook Backend</name>
+    <artifactId>etherwave-archive-backend</artifactId>
+    <version>1.0.0</version>
+    <name>EtherWave Archive Backend</name>
     <description>Multi-station ham radio logbook system backend</description>
 
     <properties>

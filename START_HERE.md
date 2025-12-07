@@ -1,8 +1,8 @@
-# 🚀 START HERE - GEKHoosier QSO Suite Quick Reference
+# 🚀 START HERE - EtherWave Archive Quick Reference
 
 ## ✅ Configuration Complete!
 
-All initial configuration files have been created. Your GEKHoosier QSO Suite is ready to run with an Indiana-themed professional interface featuring dark mode support!
+All initial configuration files have been created. Your EtherWave Archive is ready to run with an professional professional interface featuring dark mode support!
 
 ---
 
@@ -134,7 +134,7 @@ curl http://localhost:8080/actuator/health
 |----------|-------------|
 | **QUICKSTART.md** | Complete beginner's guide (5 minutes) |
 | **SETUP.md** | Comprehensive setup instructions |
-| **BRANDING.md** | GEKHoosier branding guidelines and theme system |
+| **BRANDING.md** | EtherWave Archive branding guidelines and theme system |
 | **CONFIGURATION.md** | Detailed configuration reference |
 | **README.md** | Full system documentation |
 | **RIG_CONTROL_GUIDE.md** | Rig control setup |
@@ -259,4 +259,4 @@ kill -9 <PID>
 
 ---
 
-**GEKHoosier QSO Suite - 73 and happy logging from Indiana and beyond! 📻**
+**EtherWave Archive - 73 and happy logging from Indiana and beyond! 📻**

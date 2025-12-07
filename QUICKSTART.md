@@ -1,12 +1,12 @@
-# GEKHoosier QSO Suite - Quick Start Guide
+# EtherWave Archive - Quick Start Guide
 
-**Get your Indiana-themed ham radio logging system running in 5 minutes!**
+**Get your professional ham radio logging system running in 5 minutes!**
 
-This guide will get you up and running with the complete GEKHoosier QSO Suite as quickly as possible.
+This guide will get you up and running with the complete EtherWave Archive as quickly as possible.
 
 ## What You'll Get
 
-- 🎨 **Professional GEKHoosier UI** - Indiana-themed interface with dark/light mode toggle
+- 🎨 **Professional EtherWave Archive UI** - professional interface with dark/light mode toggle
 - 📻 **Multi-user logbook system** - Create personal or shared contest logs
 - 🎯 **Real-time QSO entry** - Log contacts with instant validation
 - 🗺️ **Map visualization** - See your QSOs plotted on a world map

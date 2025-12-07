@@ -1,15 +1,15 @@
-# GEKHoosier QSO Suite - Branding Guidelines
+# EtherWave Archive - Branding Guidelines
 
 ## 🎨 Overview
 
-The GEKHoosier QSO Suite is an open-source, Indiana-themed, multi-station ham radio contest logging platform. Our branding reflects the professional, technical nature of amateur radio while celebrating Indiana's identity through color and symbolism.
+The EtherWave Archive is an open-source, professional, multi-station ham radio contest logging platform. Our branding reflects the professional, technical nature of amateur radio while celebrating Indiana's identity through color and symbolism.
 
 ---
 
 ## 📐 Logo
 
 ### Primary Logo
-![GEKHoosier QSO Suite Logo](frontend/logbook-ui/src/assets/branding/logo.svg)
+![EtherWave Archive Logo](frontend/logbook-ui/src/assets/branding/logo.svg)
 
 **Components:**
 - **Radio Tower:** Symbolizes amateur radio communication
@@ -58,8 +58,8 @@ Maintain a clear space around the logo equal to the height of the "G" in "GEK" t
 
 | Color | Hex | Usage | Accessibility |
 |-------|-----|-------|---------------|
-| **Hoosier Blue** | `#003F87` | Primary brand, buttons, headers | AAA on white, AA on light gray |
-| **Cardinal Red** | `#C41E3A` | Accent, alerts, important actions | AAA on white |
+| **Gold** | `#003F87` | Primary brand, buttons, headers | AAA on white, AA on light gray |
+| **Bronze** | `#C41E3A` | Accent, alerts, important actions | AAA on white |
 | **QSO Green** | `#4CAF50` | Success states, GOTA (when not station) | AAA on white |
 | **Highlight Yellow** | `#F5C542` | Callouts, highlights | AAA on dark backgrounds |
 
@@ -451,4 +451,4 @@ For questions about branding, color usage, or accessibility:
 
 **Last Updated:** December 4, 2025
 **Version:** 1.0.0
-**Maintained by:** GEKHoosier QSO Suite Team
+**Maintained by:** EtherWave Archive Team

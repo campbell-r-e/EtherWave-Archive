@@ -43,9 +43,9 @@ Complete guide for using the Ham Radio Contest Logbook system.
 
 ## User Interface
 
-### GEKHoosier Branding
+### EtherWave Archive Branding
 
-The **GEKHoosier QSO Suite** logo appears on all pages of the application:
+The **EtherWave Archive** logo appears on all pages of the application:
 
 - **Login Page**: Theme-aware logo at the top
 - **Register Page**: Theme-aware logo at the top
@@ -58,7 +58,7 @@ The logo automatically adapts to your selected theme (light or dark mode) for op
 
 The main navigation bar appears at the top of authenticated pages and includes:
 
-- **GEKHoosier Logo**: Click to navigate to dashboard
+- **EtherWave Archive Logo**: Click to navigate to dashboard
 - **Welcome Message**: Shows your username and callsign
 - **Station Badge**: Displays your current station assignment (if applicable)
 - **Dashboard Link**: Quick navigation (on Invitations page)
@@ -433,7 +433,7 @@ The Invitations page provides a central location for managing all log invitation
 - Badge Indicator: Shows number of pending invitations you've received
 
 **Page Features:**
-- **GEKHoosier Logo**: Click to return to dashboard
+- **EtherWave Archive Logo**: Click to return to dashboard
 - **Welcome Message**: Shows your username and callsign
 - **Theme Toggle**: Switch between dark and light modes
 - **Logout Button**: Sign out of your account

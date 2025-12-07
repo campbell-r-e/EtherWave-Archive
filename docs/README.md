@@ -31,7 +31,7 @@ This system provides amateur radio operators with a modern, feature-rich logging
 - In-app invitation system for shared logs
 - Dark/Light theme toggle with system preference detection
 - Theme persistence across sessions
-- GEKHoosier branding on all pages (theme-aware logos)
+- EtherWave Archive branding on all pages (theme-aware logos)
 
 ### Logbook Management
 - Personal and shared logbooks
@@ -286,7 +286,7 @@ Hamradiologbook/
 │   │   │   └── websocket/            # WebSocket service
 │   │   ├── guards/                   # Route guards
 │   │   ├── config/                   # Station colors & configs
-│   │   └── assets/branding/          # GEKHoosier logos
+│   │   └── assets/branding/          # EtherWave Archive logos
 │   └── package.json                  # npm dependencies
 │
 ├── rig-control-service/              # Hamlib integration service

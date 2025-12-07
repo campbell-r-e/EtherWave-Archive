@@ -1,14 +1,14 @@
 # Multi-Station Contest Logging System - Implementation Plan
 
 **Date:** 2025-12-04
-**Project:** GEKHoosier QSO Suite
+**Project:** EtherWave Archive
 **Feature:** Multi-Station Contest Logging with GOTA Support
 
 ---
 
 ## 📋 Overview
 
-Transform the GEKHoosier QSO Suite into a comprehensive multi-station contest logging system for club operations, Field Day, and other multi-operator events. Support up to 1000 stations plus separate GOTA (Get On The Air) operations.
+Transform the EtherWave Archive into a comprehensive multi-station contest logging system for club operations, Field Day, and other multi-operator events. Support up to 1000 stations plus separate GOTA (Get On The Air) operations.
 
 ---
 
@@ -275,7 +275,7 @@ Add:
 - Tab navigation bar
 - Station filter logic
 - Station badge display in each QSO row
-- Color coding using GEKHoosier station colors
+- Color coding using EtherWave Archive station colors
 
 ### Phase 6: Frontend - Station Statistics Panels
 

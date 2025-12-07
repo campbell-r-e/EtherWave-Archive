@@ -6,7 +6,15 @@
       "Bash(export PATH=\"$JAVA_HOME/bin:$PATH\")",
       "Bash(if [ -f test_output.log ])",
       "Bash(then cat test_output.log)",
-      "Bash(timeout 600 mvn clean test:*)"
+      "Bash(timeout 600 mvn clean test:*)",
+      "Bash(grep:*)",
+      "Bash(mvn clean compile:*)",
+      "Bash(java:*)",
+      "Bash(/usr/libexec/java_home:*)",
+      "Bash(export JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-25.jdk/Contents/Home)",
+      "Bash(npm run build:*)",
+      "Bash(find:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

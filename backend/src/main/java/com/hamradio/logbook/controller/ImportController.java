@@ -158,9 +158,9 @@ public class ImportController {
     @PostMapping("/adif/{logId}/with-mapping")
     public ResponseEntity<Map<String, Object>> importAdifWithMapping(
             @PathVariable Long logId,
-            @RequestParam Long fallbackStationId,
+            @RequestParam("fallbackStationId") Long fallbackStationId,
             @RequestParam("file") MultipartFile file,
-            @RequestParam Map<String, String> stationMapping) {
+            @RequestParam(required = false) Map<String, String> allParams) {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -173,13 +173,20 @@ public class ImportController {
             }
 
             // Convert station mapping from String keys to Long values
+            // Filter out the known parameters (file and fallbackStationId)
             Map<String, Long> mappingConverted = new HashMap<>();
-            for (Map.Entry<String, String> entry : stationMapping.entrySet()) {
-                if (!entry.getKey().equals("file") && !entry.getKey().equals("fallbackStationId")) {
-                    try {
-                        mappingConverted.put(entry.getKey(), Long.parseLong(entry.getValue()));
-                    } catch (NumberFormatException e) {
-                        log.warn("Invalid station ID for mapping {}: {}", entry.getKey(), entry.getValue());
+            if (allParams != null) {
+                for (Map.Entry<String, String> entry : allParams.entrySet()) {
+                    String key = entry.getKey();
+                    // Skip file and fallbackStationId parameters
+                    if (!key.equals("file") && !key.equals("fallbackStationId")) {
+                        try {
+                            Long stationId = Long.parseLong(entry.getValue());
+                            mappingConverted.put(key, stationId);
+                            log.debug("Station mapping: {} -> {}", key, stationId);
+                        } catch (NumberFormatException e) {
+                            log.warn("Invalid station ID for mapping {}: {}", key, entry.getValue());
+                        }
                     }
                 }
             }

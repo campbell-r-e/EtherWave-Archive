@@ -1,6 +1,6 @@
-# GEKHoosier QSO Suite - Configuration Guide
+# EtherWave Archive - Configuration Guide
 
-This guide explains all configuration options for the GEKHoosier QSO Suite, including theme customization and branding settings.
+This guide explains all configuration options for the EtherWave Archive, including theme customization and branding settings.
 
 ## Table of Contents
 
@@ -175,9 +175,9 @@ The project is configured with:
 - Bootstrap 5.3
 - Development server on port 4200
 
-### Theme Configuration (GEKHoosier Branding)
+### Theme Configuration (EtherWave Archive Branding)
 
-The application features a professional Indiana-themed interface with dark/light mode support.
+The application features a professional professional interface with dark/light mode support.
 
 **Theme Service**: `frontend/logbook-ui/src/app/services/theme/theme.service.ts`
 
@@ -190,8 +190,8 @@ The application features a professional Indiana-themed interface with dark/light
 **Color System**: `frontend/logbook-ui/src/styles.css`
 
 Primary brand colors:
-- Hoosier Blue: `#003F87`
-- Cardinal Red: `#C41E3A`
+- Gold: `#003F87`
+- Bronze: `#C41E3A`
 - QSO Green: `#4CAF50`
 - Highlight Yellow: `#F5C542`
 

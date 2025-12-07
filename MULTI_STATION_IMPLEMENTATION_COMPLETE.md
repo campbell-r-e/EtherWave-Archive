@@ -1,7 +1,7 @@
 # Multi-Station Contest Logging System - Implementation Complete ✅
 
 **Date**: 2025-12-05
-**Project**: GEKHoosier QSO Suite
+**Project**: EtherWave Archive
 **Status**: ✅ **FULLY IMPLEMENTED & TESTED**
 **Server**: 🟢 Running on http://localhost:8080
 
@@ -183,7 +183,7 @@ findByLogAndIsGota(Log log, Boolean isGota)
 
 ## 🎨 Design System
 
-### Color Palette (GEKHoosier Theme)
+### Color Palette (EtherWave Archive Theme)
 ```typescript
 Station 1:  #1E88E5  (Blue)
 Station 2:  #E53935  (Red)

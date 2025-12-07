@@ -1,4 +1,4 @@
-# Docker Deployment - GEKHoosier QSO Suite ✅
+# Docker Deployment - EtherWave Archive ✅
 
 **Date**: 2025-12-05  
 **Status**: 🟢 **RUNNING**

@@ -1,20 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
-  <!-- Simplified icon version - just tower and waves -->
+  <!-- Simplified icon version - globe with tower and waves -->
 
-  <!-- RF Waves (Cardinal Red) -->
-  <path d="M 120 60 Q 100 40 80 60" fill="none" stroke="#C41E3A" stroke-width="10" stroke-linecap="round"/>
-  <path d="M 135 45 Q 100 10 65 45" fill="none" stroke="#C41E3A" stroke-width="10" stroke-linecap="round"/>
-  <path d="M 150 30 Q 100 -20 50 30" fill="none" stroke="#C41E3A" stroke-width="10" stroke-linecap="round"/>
+  <!-- Globe Circle -->
+  <circle cx="100" cy="100" r="80" fill="none" stroke="#B8860B" stroke-width="4"/>
 
-  <!-- Radio Tower (Hoosier Blue) -->
-  <rect x="85" y="70" width="30" height="80" fill="#003F87"/>
-  <polygon points="100,70 90,50 110,50" fill="#003F87"/>
-  <rect x="80" y="95" width="40" height="4" fill="#003F87"/>
-  <rect x="75" y="115" width="50" height="4" fill="#003F87"/>
-  <rect x="70" y="135" width="60" height="4" fill="#003F87"/>
-  <polygon points="100,150 70,170 130,170" fill="#003F87"/>
+  <!-- Latitude Lines -->
+  <ellipse cx="100" cy="100" rx="80" ry="25" fill="none" stroke="#B8860B" stroke-width="3"/>
+  <line x1="100" y1="20" x2="100" y2="180" stroke="#B8860B" stroke-width="3"/>
+  <line x1="20" y1="100" x2="180" y2="100" stroke="#B8860B" stroke-width="3"/>
 
-  <!-- Indiana State Outline (Cardinal Red) -->
-  <path d="M 70 170 L 65 175 L 70 185 L 80 190 L 90 195 L 105 195 L 115 190 L 125 185 L 130 175 L 125 170 Z"
-        fill="#C41E3A" opacity="0.9"/>
+  <!-- Longitude Lines -->
+  <ellipse cx="100" cy="100" rx="25" ry="80" fill="none" stroke="#B8860B" stroke-width="3"/>
+
+  <!-- Radio Tower -->
+  <line x1="100" y1="55" x2="100" y2="100" stroke="#B8860B" stroke-width="5"/>
+  <line x1="85" y1="65" x2="115" y2="65" stroke="#B8860B" stroke-width="3"/>
+  <line x1="88" y1="75" x2="112" y2="75" stroke="#B8860B" stroke-width="3"/>
+  <line x1="92" y1="85" x2="108" y2="85" stroke="#B8860B" stroke-width="3"/>
+
+  <!-- RF Waves -->
+  <path d="M 120 100 Q 140 80, 160 100" fill="none" stroke="#B8860B" stroke-width="4"/>
+  <path d="M 125 100 Q 150 70, 175 100" fill="none" stroke="#B8860B" stroke-width="4"/>
+  <path d="M 80 100 Q 60 80, 40 100" fill="none" stroke="#B8860B" stroke-width="4"/>
+  <path d="M 75 100 Q 50 70, 25 100" fill="none" stroke="#B8860B" stroke-width="4"/>
 </svg>

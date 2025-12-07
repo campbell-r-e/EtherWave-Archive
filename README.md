@@ -1,6 +1,6 @@
-# GEKHoosier QSO Suite
+# EtherWave Archive
 
-A comprehensive, multi-user web-based logbook application for amateur radio operators with an Indiana-themed professional interface, featuring dark mode support, real-time collaboration, contest logging, rig control, and advanced visualization features.
+A comprehensive, multi-user web-based logbook application for amateur radio operators with a professional interface, featuring dark mode support, real-time collaboration, contest logging, rig control, and advanced visualization features.
 
 [![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://adoptium.net/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
@@ -39,10 +39,10 @@ This system provides amateur radio operators with a modern, feature-rich logging
 
 ## Key Features
 
-### Modern UI/UX with Indiana Theme
-- Professional GEKHoosier branding with radio tower logo and Indiana state outline
+### Modern UI/UX
+- Professional EtherWave Archive branding with globe and radio tower logo
 - Dark/Light mode toggle with localStorage persistence and system preference detection
-- Indiana-themed color palette (Hoosier Blue #003F87, Cardinal Red #C41E3A)
+- Professional color palette with gold accents (#B8860B light, #DAA520 dark)
 - Station-specific color coding (Station 1 Blue, Station 2 Red, GOTA Green)
 - Responsive design optimized for desktop, tablet, and mobile
 - WCAG AA/AAA accessibility compliance
@@ -183,7 +183,7 @@ For detailed installation and configuration instructions, see:
 ┌─────────────────────────────────────────────────────────────┐
 │                         Frontend                             │
 │  Angular 21.0.1 Standalone Components + Bootstrap 5.3       │
-│  - GEKHoosier branding with Indiana-themed UI                │
+│  - EtherWave Archive branding with professional UI                │
 │  - Dark/Light theme toggle with ThemeService                 │
 │  - TypeScript 5.9 with strict type checking                 │
 │  - Reactive Forms with validation                           │
@@ -236,7 +236,7 @@ Comprehensive documentation is available:
 - **[QUICKSTART.md](QUICKSTART.md)** - 5-minute quick start guide (START HERE!)
 - **[SETUP.md](SETUP.md)** - Detailed installation and configuration
 - **[RIG_CONTROL_GUIDE.md](RIG_CONTROL_GUIDE.md)** - Complete rig control setup
-- **[BRANDING.md](BRANDING.md)** - GEKHoosier branding guidelines, colors, and UI components
+- **[BRANDING.md](BRANDING.md)** - EtherWave Archive branding guidelines, colors, and UI components
 
 ### Using the System
 - **[User Guide](docs/USER_GUIDE.md)** - How to use the system as an operator
@@ -390,7 +390,7 @@ Hamradiologbook/
 │   │   ├── services/                 # HTTP/WebSocket services (inc. ThemeService)
 │   │   ├── config/                   # Station colors configuration
 │   │   ├── guards/                   # Auth guards
-│   │   └── assets/branding/          # GEKHoosier logos (SVG)
+│   │   └── assets/branding/          # EtherWave Archive logos (SVG)
 │   ├── src/styles.css                # Global CSS with theme variables
 │   ├── nginx.conf                    # Nginx configuration
 │   ├── Dockerfile                    # Frontend container
@@ -410,7 +410,7 @@ Hamradiologbook/
 │
 ├── docker-compose.yml                # Production deployment (PostgreSQL)
 ├── docker-compose.field.yml          # Field deployment (SQLite)
-├── BRANDING.md                       # GEKHoosier branding guidelines
+├── BRANDING.md                       # EtherWave Archive branding guidelines
 ├── SETUP.md                          # Setup instructions
 └── README.md                         # This file
 ```
@@ -485,4 +485,4 @@ Contributions are welcome! Please:
 
 ---
 
-**GEKHoosier QSO Suite - Built with ❤️ for the Amateur Radio Community in Indiana and beyond - 73!**
+**EtherWave Archive - Built with ❤️ for the Amateur Radio Community in Indiana and beyond - 73!**
