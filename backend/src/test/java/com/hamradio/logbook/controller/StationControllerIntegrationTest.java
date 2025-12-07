@@ -1,7 +1,6 @@
 package com.hamradio.logbook.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hamradio.logbook.config.TestConfig;
 import com.hamradio.logbook.entity.Station;
 import com.hamradio.logbook.repository.StationRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +19,6 @@ import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Import(TestConfig.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc(addFilters = false) // No auth required for this controller
 @ActiveProfiles("test")

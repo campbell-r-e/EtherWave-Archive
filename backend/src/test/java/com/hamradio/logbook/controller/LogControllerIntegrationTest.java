@@ -1,7 +1,6 @@
 package com.hamradio.logbook.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hamradio.logbook.config.TestConfig;
 import com.hamradio.logbook.dto.auth.LoginRequest;
 import com.hamradio.logbook.dto.log.LogRequest;
 import com.hamradio.logbook.entity.Log;
@@ -27,7 +26,6 @@ import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Import(TestConfig.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")

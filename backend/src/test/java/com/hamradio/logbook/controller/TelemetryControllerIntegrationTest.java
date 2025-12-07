@@ -1,7 +1,6 @@
 package com.hamradio.logbook.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hamradio.logbook.config.TestConfig;
 import com.hamradio.logbook.dto.TelemetryRequest;
 import com.hamradio.logbook.entity.Station;
 import com.hamradio.logbook.repository.RigTelemetryRepository;
@@ -21,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Import(TestConfig.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
