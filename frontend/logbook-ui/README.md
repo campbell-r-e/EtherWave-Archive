@@ -1,6 +1,8 @@
-# LogbookUi
+# EtherWave Archive - Frontend UI
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.17.
+The Angular-based frontend for EtherWave Archive, a professional multi-station ham radio contest logging system.
+
+This project uses [Angular CLI](https://github.com/angular/angular-cli) version 21.0.1.
 
 ## Development server
 

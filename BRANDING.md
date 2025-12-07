@@ -2,28 +2,28 @@
 
 ## 🎨 Overview
 
-The EtherWave Archive is an open-source, professional, multi-station ham radio contest logging platform. Our branding reflects the professional, technical nature of amateur radio while celebrating Indiana's identity through color and symbolism.
+The EtherWave Archive is an open-source, professional, multi-station ham radio contest logging platform. Our branding reflects the professional, technical nature of amateur radio with a global perspective, emphasizing connectivity and communication across the airwaves.
 
 ---
 
 ## 📐 Logo
 
 ### Primary Logo
-![EtherWave Archive Logo](frontend/logbook-ui/src/assets/branding/logo.svg)
+![EtherWave Archive Logo](frontend/logbook-ui/src/assets/branding/logo.png)
 
 **Components:**
-- **Radio Tower:** Symbolizes amateur radio communication
-- **RF Waves:** Represent signal propagation
-- **Indiana State Outline:** Pays homage to our Hoosier roots
-- **Typography:** Clean, modern, technical
+- **Globe:** Represents global connectivity and worldwide amateur radio community
+- **Radio Tower:** Symbolizes amateur radio communication and signal transmission
+- **RF Waves:** Represent electromagnetic wave propagation
+- **Typography:** Bold "ETHERWAVE" with elegant "ARCHIVE" - professional and modern
 
 ### Logo Variants
 
-| Variant | Usage | Path |
-|---------|-------|------|
-| **Primary (Light)** | Light backgrounds, default | `/assets/branding/logo.svg` |
-| **Dark Mode** | Dark backgrounds, dark theme | `/assets/branding/logo-dark.svg` |
-| **Icon Only** | Favicon, mobile apps, small spaces | `/assets/branding/icon.svg` |
+| Variant | Usage | Path | Format |
+|---------|-------|------|--------|
+| **Primary (Light)** | Light backgrounds, default | `/assets/branding/logo.png` | PNG 1.8MB |
+| **Dark Mode** | Dark backgrounds, dark theme | `/assets/branding/logo-dark.png` | PNG 1.8MB |
+| **Icon** | Favicon, mobile apps, small spaces | `/assets/branding/icon.png` | PNG 1.8MB |
 
 ### Logo Sizing Guidelines
 
@@ -34,7 +34,7 @@ The EtherWave Archive is an open-source, professional, multi-station ham radio c
 - **Minimum Size:** Never smaller than 24px height
 
 ### Logo Clear Space
-Maintain a clear space around the logo equal to the height of the "G" in "GEK" to ensure visibility and impact.
+Maintain a clear space around the logo equal to the height of the "E" in "ETHERWAVE" to ensure visibility and impact.
 
 ### Logo Don'ts
 ❌ Do not stretch or distort the logo
@@ -50,17 +50,19 @@ Maintain a clear space around the logo equal to the height of the "G" in "GEK" t
 ### Primary Brand Colors
 
 ```css
---color-hoosier-blue: #003F87
---color-cardinal-red: #C41E3A
+--color-primary-gold: #B8860B
+--color-dark-gold: #DAA520
+--color-navy-blue: #003F87
 --color-qso-green: #4CAF50
 --color-highlight-yellow: #F5C542
 ```
 
 | Color | Hex | Usage | Accessibility |
 |-------|-----|-------|---------------|
-| **Gold** | `#003F87` | Primary brand, buttons, headers | AAA on white, AA on light gray |
-| **Bronze** | `#C41E3A` | Accent, alerts, important actions | AAA on white |
-| **QSO Green** | `#4CAF50` | Success states, GOTA (when not station) | AAA on white |
+| **Primary Gold** | `#B8860B` | Logo (light theme), accents, borders | AAA on white, AA on light gray |
+| **Dark Gold** | `#DAA520` | Logo (dark theme), highlights | AAA on dark backgrounds |
+| **Navy Blue** | `#003F87` | Headers, buttons, navigation bar | AAA on white |
+| **QSO Green** | `#4CAF50` | Success states, GOTA stations | AAA on white |
 | **Highlight Yellow** | `#F5C542` | Callouts, highlights | AAA on dark backgrounds |
 
 ### Station Colors (Must Use Consistently)
@@ -388,9 +390,9 @@ getStationBorder(qso: QSO): string {
 
 ```
 frontend/logbook-ui/src/assets/branding/
-├── logo.svg           # Primary logo (light mode)
-├── logo-dark.svg      # Dark mode logo variant
-├── icon.svg           # Icon-only version
+├── logo.png           # Primary logo (light mode) - 1.8MB
+├── logo-dark.png      # Dark mode logo variant - 1.8MB
+├── icon.png           # Icon-only version - 1.8MB
 └── favicons/          # Generated favicon sizes
     ├── favicon-16x16.png
     ├── favicon-32x32.png

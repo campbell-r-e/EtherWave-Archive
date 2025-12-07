@@ -206,9 +206,9 @@ Station colors:
 TypeScript utilities for consistent station color usage across components.
 
 **Branding Assets**: `frontend/logbook-ui/src/assets/branding/`
-- `logo.svg` - Primary logo (light mode)
-- `logo-dark.svg` - Dark mode variant
-- `icon.svg` - Icon-only version
+- `logo.png` - Primary logo (light mode) - 1.8MB
+- `logo-dark.png` - Dark mode variant - 1.8MB
+- `icon.png` - Icon-only version - 1.8MB
 
 **For more details**, see [BRANDING.md](BRANDING.md) for complete branding guidelines.
 
