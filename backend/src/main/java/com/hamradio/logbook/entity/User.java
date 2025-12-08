@@ -46,6 +46,16 @@ public class User {
     @Column(length = 10)
     private String gridSquare;
 
+    // Default location for user (fallback when station location not set)
+    @Column(name = "default_latitude", precision = 9, scale = 6)
+    private Double defaultLatitude;
+
+    @Column(name = "default_longitude", precision = 9, scale = 6)
+    private Double defaultLongitude;
+
+    @Column(name = "default_grid", length = 8)
+    private String defaultGrid;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "role")

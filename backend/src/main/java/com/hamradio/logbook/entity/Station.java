@@ -37,6 +37,19 @@ public class Station {
     @Column(name = "grid_square", length = 10)
     private String gridSquare;
 
+    // Operator location (for map visualization)
+    @Column(precision = 9, scale = 6)
+    private Double latitude;
+
+    @Column(precision = 9, scale = 6)
+    private Double longitude;
+
+    @Column(name = "maidenhead_grid", length = 8)
+    private String maidenheadGrid;
+
+    @Column(name = "location_name", length = 100)
+    private String locationName; // e.g., "Field Day Site 2025"
+
     @Column(length = 200)
     private String antenna;
 

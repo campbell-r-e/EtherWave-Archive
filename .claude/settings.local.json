@@ -19,7 +19,8 @@
       "Bash(git push:*)",
       "Bash(gh:*)",
       "Bash(git remote set-url:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(mvn compile:*)"
     ],
     "deny": [],
     "ask": []
