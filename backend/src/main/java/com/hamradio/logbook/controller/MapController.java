@@ -7,6 +7,7 @@ import com.hamradio.logbook.service.GridCoverageService;
 import com.hamradio.logbook.service.HeatmapService;
 import com.hamradio.logbook.service.LocationManagementService;
 import com.hamradio.logbook.service.ContestOverlayService;
+import com.hamradio.logbook.service.MapExportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -31,6 +32,7 @@ public class MapController {
     private final HeatmapService heatmapService;
     private final LocationManagementService locationManagementService;
     private final ContestOverlayService contestOverlayService;
+    private final MapExportService mapExportService;
 
     /**
      * Get QSO location data with adaptive clustering
@@ -214,16 +216,37 @@ public class MapController {
      * Export map data in various formats
      *
      * POST /api/maps/export/{logId}
+     * Supported formats: GEOJSON, KML, CSV, ADIF
      */
     @PostMapping("/export/{logId}")
-    public ResponseEntity<?> exportMapData(
+    public ResponseEntity<MapExportService.ExportResult> exportMapData(
             @PathVariable Long logId,
             @RequestBody ExportRequest request
     ) {
         log.info("POST /api/maps/export/{} - format: {}", logId, request.getFormat());
 
-        // TODO: Implement export service
-        return ResponseEntity.ok().body("{\"message\": \"Export endpoint - implementation pending\"}");
+        MapFilters filters = request.getFilters();
+        if (filters == null) {
+            filters = MapFilters.builder().build();
+        }
+
+        MapExportService.ExportResult result = switch (request.getFormat().toUpperCase()) {
+            case "GEOJSON" -> mapExportService.exportToGeoJSON(logId, filters);
+            case "KML" -> mapExportService.exportToKML(logId, filters);
+            case "CSV" -> mapExportService.exportToCSV(logId, filters);
+            case "ADIF" -> mapExportService.exportToADIF(logId, filters);
+            default -> MapExportService.ExportResult.builder()
+                .format(request.getFormat())
+                .success(false)
+                .error("Unsupported format. Use: GEOJSON, KML, CSV, or ADIF")
+                .build();
+        };
+
+        if (!result.isSuccess()) {
+            return ResponseEntity.badRequest().body(result);
+        }
+
+        return ResponseEntity.ok(result);
     }
 
     /**
