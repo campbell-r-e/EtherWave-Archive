@@ -20,7 +20,8 @@
       "Bash(gh:*)",
       "Bash(git remote set-url:*)",
       "Bash(ls:*)",
-      "Bash(mvn compile:*)"
+      "Bash(mvn compile:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []
