@@ -6,6 +6,7 @@ import com.hamradio.logbook.service.MapDataService.MapFilters;
 import com.hamradio.logbook.service.GridCoverageService;
 import com.hamradio.logbook.service.HeatmapService;
 import com.hamradio.logbook.service.LocationManagementService;
+import com.hamradio.logbook.service.ContestOverlayService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -29,6 +30,7 @@ public class MapController {
     private final GridCoverageService gridCoverageService;
     private final HeatmapService heatmapService;
     private final LocationManagementService locationManagementService;
+    private final ContestOverlayService contestOverlayService;
 
     /**
      * Get QSO location data with adaptive clustering
@@ -158,14 +160,54 @@ public class MapController {
     /**
      * Get contest-specific overlay data
      *
-     * GET /api/maps/contest-overlays/{logId}
+     * GET /api/maps/contest-overlays/{logId}?type=CQ_ZONES
+     * GET /api/maps/contest-overlays/{logId}?type=ITU_ZONES
+     * GET /api/maps/contest-overlays/{logId}?type=ARRL_SECTIONS
+     * GET /api/maps/contest-overlays/{logId}?type=DXCC
      */
     @GetMapping("/contest-overlays/{logId}")
-    public ResponseEntity<?> getContestOverlays(@PathVariable Long logId) {
-        log.info("GET /api/maps/contest-overlays/{}", logId);
+    public ResponseEntity<?> getContestOverlays(
+            @PathVariable Long logId,
+            @RequestParam(required = false, defaultValue = "CQ_ZONES") String type
+    ) {
+        log.info("GET /api/maps/contest-overlays/{} - type: {}", logId, type);
 
-        // TODO: Implement contest overlay service
-        return ResponseEntity.ok().body("{\"message\": \"Contest overlay endpoint - implementation pending\"}");
+        return switch (type.toUpperCase()) {
+            case "CQ_ZONES" -> {
+                ContestOverlayService.ZoneOverlayResponse response = contestOverlayService.getCQZoneOverlay(logId);
+                yield ResponseEntity.ok(response);
+            }
+            case "ITU_ZONES" -> {
+                ContestOverlayService.ZoneOverlayResponse response = contestOverlayService.getITUZoneOverlay(logId);
+                yield ResponseEntity.ok(response);
+            }
+            case "ARRL_SECTIONS" -> {
+                ContestOverlayService.SectionOverlayResponse response = contestOverlayService.getARRLSectionOverlay(logId);
+                yield ResponseEntity.ok(response);
+            }
+            case "DXCC" -> {
+                ContestOverlayService.DXCCOverlayResponse response = contestOverlayService.getDXCCOverlay(logId);
+                yield ResponseEntity.ok(response);
+            }
+            default -> ResponseEntity.badRequest().body("{\"error\": \"Invalid overlay type. Use: CQ_ZONES, ITU_ZONES, ARRL_SECTIONS, or DXCC\"}");
+        };
+    }
+
+    /**
+     * Get multiplier summary for a contest
+     *
+     * GET /api/maps/multipliers/{logId}?contest=ARRL_FIELD_DAY
+     */
+    @GetMapping("/multipliers/{logId}")
+    public ResponseEntity<ContestOverlayService.MultiplierSummary> getMultipliers(
+            @PathVariable Long logId,
+            @RequestParam(required = true) ContestOverlayService.ContestType contest
+    ) {
+        log.info("GET /api/maps/multipliers/{} - contest: {}", logId, contest);
+
+        ContestOverlayService.MultiplierSummary summary = contestOverlayService.getMultiplierSummary(logId, contest);
+
+        return ResponseEntity.ok(summary);
     }
 
     /**
