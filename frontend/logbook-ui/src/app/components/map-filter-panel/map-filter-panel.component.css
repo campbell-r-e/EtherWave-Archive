@@ -1,0 +1,326 @@
+/* Map Filter Panel */
+.map-filter-panel {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.dark-theme .map-filter-panel {
+  background: #2a2a2a;
+  color: #ffffff;
+}
+
+/* Filter Header */
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #0080ff 0%, #00d4ff 100%);
+  color: white;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.3s ease;
+}
+
+.filter-header:hover {
+  background: linear-gradient(135deg, #0070dd 0%, #00c0ee 100%);
+}
+
+.filter-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.filter-title i {
+  font-size: 1.2rem;
+}
+
+.toggle-btn {
+  color: white;
+  padding: 0;
+  text-decoration: none;
+  transition: transform 0.3s ease;
+}
+
+.toggle-btn:hover {
+  color: white;
+  transform: scale(1.1);
+}
+
+/* Active Filters Pills */
+.active-filters {
+  padding: 12px 20px;
+  background: rgba(0, 128, 255, 0.05);
+  border-bottom: 1px solid rgba(0, 128, 255, 0.1);
+}
+
+.dark-theme .active-filters {
+  background: rgba(0, 212, 255, 0.1);
+  border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid #0080ff;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  color: #333;
+  box-shadow: 0 2px 4px rgba(0, 128, 255, 0.1);
+  transition: all 0.2s ease;
+}
+
+.dark-theme .filter-pill {
+  background: #3a3a3a;
+  border-color: #00d4ff;
+  color: #ffffff;
+}
+
+.filter-pill:hover {
+  box-shadow: 0 4px 8px rgba(0, 128, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.filter-pill strong {
+  color: #0080ff;
+}
+
+.dark-theme .filter-pill strong {
+  color: #00d4ff;
+}
+
+.btn-close-pill {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: 4px;
+  cursor: pointer;
+  color: #666;
+  font-size: 1rem;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.dark-theme .btn-close-pill {
+  color: #999;
+}
+
+.btn-close-pill:hover {
+  color: #ff0044;
+}
+
+.dark-theme .btn-close-pill:hover {
+  color: #ff5577;
+}
+
+/* Filter Body (collapsible) */
+.filter-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease-out;
+}
+
+.filter-body.expanded {
+  max-height: 1000px;
+  transition: max-height 0.5s ease-in;
+}
+
+.filter-body form {
+  padding: 20px;
+}
+
+/* Form Labels */
+.form-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.dark-theme .form-label {
+  color: #ffffff;
+}
+
+.form-label i {
+  color: #0080ff;
+  font-size: 1rem;
+}
+
+.dark-theme .form-label i {
+  color: #00d4ff;
+}
+
+/* Form Controls */
+.form-control,
+.form-select {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dark-theme .form-control,
+.dark-theme .form-select {
+  background-color: #3a3a3a;
+  border-color: #555;
+  color: #ffffff;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #0080ff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 128, 255, 0.25);
+}
+
+.dark-theme .form-control:focus,
+.dark-theme .form-select:focus {
+  border-color: #00d4ff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 212, 255, 0.25);
+}
+
+/* Action Buttons */
+.filter-actions {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.dark-theme .filter-actions {
+  border-top-color: #444;
+}
+
+.filter-actions .btn {
+  padding: 8px 20px;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.filter-actions .btn-primary {
+  background: linear-gradient(135deg, #0080ff 0%, #00d4ff 100%);
+  border: none;
+}
+
+.filter-actions .btn-primary:hover {
+  background: linear-gradient(135deg, #0070dd 0%, #00c0ee 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 128, 255, 0.3);
+}
+
+.filter-actions .btn-outline-secondary {
+  border: 1px solid #6c757d;
+  color: #6c757d;
+}
+
+.dark-theme .filter-actions .btn-outline-secondary {
+  border-color: #999;
+  color: #999;
+}
+
+.filter-actions .btn-outline-secondary:hover {
+  background-color: #6c757d;
+  color: white;
+}
+
+.dark-theme .filter-actions .btn-outline-secondary:hover {
+  background-color: #666;
+  border-color: #666;
+  color: white;
+}
+
+/* Badge */
+.badge {
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  border-radius: 12px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .filter-header {
+    padding: 12px 15px;
+  }
+
+  .filter-title {
+    font-size: 0.9rem;
+  }
+
+  .filter-body form {
+    padding: 15px;
+  }
+
+  .filter-actions {
+    flex-direction: column;
+  }
+
+  .filter-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .filter-pill {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+  }
+}
+
+@media (max-width: 576px) {
+  .filter-pills {
+    gap: 6px;
+  }
+
+  .filter-pill {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+  }
+
+  .form-label {
+    font-size: 0.85rem;
+  }
+
+  .form-control,
+  .form-select {
+    font-size: 0.85rem;
+  }
+}
+
+/* Animation */
+@keyframes slideDown {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 1000px;
+    opacity: 1;
+  }
+}
+
+.filter-body.expanded {
+  animation: slideDown 0.4s ease-out;
+}

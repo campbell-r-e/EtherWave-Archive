@@ -1,0 +1,253 @@
+<!-- Map Filter Panel -->
+<div class="map-filter-panel">
+  <!-- Panel Header -->
+  <div class="filter-header" (click)="togglePanel()">
+    <div class="filter-title">
+      <i class="bi bi-funnel"></i>
+      <span>Map Filters</span>
+      <span class="badge bg-primary ms-2" *ngIf="activeFilterCount > 0">
+        {{ activeFilterCount }}
+      </span>
+    </div>
+    <button class="btn btn-sm btn-link toggle-btn" type="button">
+      <i class="bi" [class.bi-chevron-down]="!isExpanded" [class.bi-chevron-up]="isExpanded"></i>
+    </button>
+  </div>
+
+  <!-- Active Filters Pills (always visible) -->
+  <div class="active-filters" *ngIf="hasActiveFilters()">
+    <div class="filter-pills">
+      <span class="filter-pill" *ngIf="filters.band">
+        <strong>{{ getFilterLabel('band') }}:</strong> {{ getFilterDisplayText('band') }}
+        <button class="btn-close-pill" (click)="removeFilter('band')" type="button">
+          <i class="bi bi-x"></i>
+        </button>
+      </span>
+
+      <span class="filter-pill" *ngIf="filters.mode">
+        <strong>{{ getFilterLabel('mode') }}:</strong> {{ getFilterDisplayText('mode') }}
+        <button class="btn-close-pill" (click)="removeFilter('mode')" type="button">
+          <i class="bi bi-x"></i>
+        </button>
+      </span>
+
+      <span class="filter-pill" *ngIf="filters.station">
+        <strong>{{ getFilterLabel('station') }}:</strong> {{ getFilterDisplayText('station') }}
+        <button class="btn-close-pill" (click)="removeFilter('station')" type="button">
+          <i class="bi bi-x"></i>
+        </button>
+      </span>
+
+      <span class="filter-pill" *ngIf="filters.operator">
+        <strong>{{ getFilterLabel('operator') }}:</strong> {{ getFilterDisplayText('operator') }}
+        <button class="btn-close-pill" (click)="removeFilter('operator')" type="button">
+          <i class="bi bi-x"></i>
+        </button>
+      </span>
+
+      <span class="filter-pill" *ngIf="filters.dxcc">
+        <strong>{{ getFilterLabel('dxcc') }}:</strong> {{ getFilterDisplayText('dxcc') }}
+        <button class="btn-close-pill" (click)="removeFilter('dxcc')" type="button">
+          <i class="bi bi-x"></i>
+        </button>
+      </span>
+
+      <span class="filter-pill" *ngIf="filters.dateFrom">
+        <strong>{{ getFilterLabel('dateFrom') }}:</strong> {{ getFilterDisplayText('dateFrom') }}
+        <button class="btn-close-pill" (click)="removeFilter('dateFrom')" type="button">
+          <i class="bi bi-x"></i>
+        </button>
+      </span>
+
+      <span class="filter-pill" *ngIf="filters.dateTo">
+        <strong>{{ getFilterLabel('dateTo') }}:</strong> {{ getFilterDisplayText('dateTo') }}
+        <button class="btn-close-pill" (click)="removeFilter('dateTo')" type="button">
+          <i class="bi bi-x"></i>
+        </button>
+      </span>
+
+      <span class="filter-pill" *ngIf="filters.confirmed !== undefined">
+        <strong>{{ getFilterLabel('confirmed') }}:</strong> {{ getFilterDisplayText('confirmed') }}
+        <button class="btn-close-pill" (click)="removeFilter('confirmed')" type="button">
+          <i class="bi bi-x"></i>
+        </button>
+      </span>
+
+      <span class="filter-pill" *ngIf="filters.continent">
+        <strong>{{ getFilterLabel('continent') }}:</strong> {{ getFilterDisplayText('continent') }}
+        <button class="btn-close-pill" (click)="removeFilter('continent')" type="button">
+          <i class="bi bi-x"></i>
+        </button>
+      </span>
+
+      <span class="filter-pill" *ngIf="filters.state">
+        <strong>{{ getFilterLabel('state') }}:</strong> {{ getFilterDisplayText('state') }}
+        <button class="btn-close-pill" (click)="removeFilter('state')" type="button">
+          <i class="bi bi-x"></i>
+        </button>
+      </span>
+
+      <span class="filter-pill" *ngIf="filters.exchange">
+        <strong>{{ getFilterLabel('exchange') }}:</strong> {{ getFilterDisplayText('exchange') }}
+        <button class="btn-close-pill" (click)="removeFilter('exchange')" type="button">
+          <i class="bi bi-x"></i>
+        </button>
+      </span>
+    </div>
+  </div>
+
+  <!-- Filter Form (collapsible) -->
+  <div class="filter-body" [class.expanded]="isExpanded">
+    <form>
+      <div class="row g-3">
+        <!-- Band Filter -->
+        <div class="col-md-6">
+          <label for="bandFilter" class="form-label">
+            <i class="bi bi-broadcast"></i> Band
+          </label>
+          <select id="bandFilter" class="form-select" [(ngModel)]="filters.band" name="band">
+            <option [ngValue]="undefined">All Bands</option>
+            <option *ngFor="let band of availableBands" [value]="band">{{ band }}</option>
+          </select>
+        </div>
+
+        <!-- Mode Filter -->
+        <div class="col-md-6">
+          <label for="modeFilter" class="form-label">
+            <i class="bi bi-soundwave"></i> Mode
+          </label>
+          <select id="modeFilter" class="form-select" [(ngModel)]="filters.mode" name="mode">
+            <option [ngValue]="undefined">All Modes</option>
+            <option *ngFor="let mode of availableModes" [value]="mode">{{ mode }}</option>
+          </select>
+        </div>
+
+        <!-- Station Filter -->
+        <div class="col-md-6">
+          <label for="stationFilter" class="form-label">
+            <i class="bi bi-house"></i> Station
+          </label>
+          <select id="stationFilter" class="form-select" [(ngModel)]="filters.station" name="station">
+            <option [ngValue]="undefined">All Stations</option>
+            <option *ngFor="let station of availableStations" [value]="station">Station {{ station }}</option>
+          </select>
+        </div>
+
+        <!-- Operator Filter -->
+        <div class="col-md-6">
+          <label for="operatorFilter" class="form-label">
+            <i class="bi bi-person"></i> Operator
+          </label>
+          <input
+            type="text"
+            id="operatorFilter"
+            class="form-control"
+            [(ngModel)]="filters.operator"
+            name="operator"
+            placeholder="Callsign or name">
+        </div>
+
+        <!-- DXCC Filter -->
+        <div class="col-md-6">
+          <label for="dxccFilter" class="form-label">
+            <i class="bi bi-globe"></i> DXCC Entity
+          </label>
+          <input
+            type="text"
+            id="dxccFilter"
+            class="form-control"
+            [(ngModel)]="filters.dxcc"
+            name="dxcc"
+            placeholder="Country name or prefix">
+        </div>
+
+        <!-- Continent Filter -->
+        <div class="col-md-6">
+          <label for="continentFilter" class="form-label">
+            <i class="bi bi-geo-alt"></i> Continent
+          </label>
+          <select id="continentFilter" class="form-select" [(ngModel)]="filters.continent" name="continent">
+            <option [ngValue]="undefined">All Continents</option>
+            <option *ngFor="let continent of availableContinents" [value]="continent">{{ continent }}</option>
+          </select>
+        </div>
+
+        <!-- Date From -->
+        <div class="col-md-6">
+          <label for="dateFromFilter" class="form-label">
+            <i class="bi bi-calendar"></i> Date From
+          </label>
+          <input
+            type="date"
+            id="dateFromFilter"
+            class="form-control"
+            [(ngModel)]="filters.dateFrom"
+            name="dateFrom">
+        </div>
+
+        <!-- Date To -->
+        <div class="col-md-6">
+          <label for="dateToFilter" class="form-label">
+            <i class="bi bi-calendar"></i> Date To
+          </label>
+          <input
+            type="date"
+            id="dateToFilter"
+            class="form-control"
+            [(ngModel)]="filters.dateTo"
+            name="dateTo">
+        </div>
+
+        <!-- State Filter -->
+        <div class="col-md-6">
+          <label for="stateFilter" class="form-label">
+            <i class="bi bi-pin-map"></i> State/Province
+          </label>
+          <input
+            type="text"
+            id="stateFilter"
+            class="form-control"
+            [(ngModel)]="filters.state"
+            name="state"
+            placeholder="e.g., CA, ON, FL">
+        </div>
+
+        <!-- Exchange Filter -->
+        <div class="col-md-6">
+          <label for="exchangeFilter" class="form-label">
+            <i class="bi bi-chat-square-text"></i> Exchange
+          </label>
+          <input
+            type="text"
+            id="exchangeFilter"
+            class="form-control"
+            [(ngModel)]="filters.exchange"
+            name="exchange"
+            placeholder="Contest exchange">
+        </div>
+
+        <!-- Confirmed Status -->
+        <div class="col-md-6">
+          <label for="confirmedFilter" class="form-label">
+            <i class="bi bi-check-circle"></i> Confirmation Status
+          </label>
+          <select id="confirmedFilter" class="form-select" [(ngModel)]="filters.confirmed" name="confirmed">
+            <option [ngValue]="undefined">All QSOs</option>
+            <option [value]="true">Confirmed Only</option>
+            <option [value]="false">Unconfirmed Only</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="filter-actions">
+        <button type="button" class="btn btn-primary" (click)="applyFilters()">
+          <i class="bi bi-check-circle"></i> Apply Filters
+        </button>
+        <button type="button" class="btn btn-outline-secondary" (click)="clearFilters()">
+          <i class="bi bi-x-circle"></i> Clear All
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
