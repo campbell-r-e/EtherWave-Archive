@@ -212,9 +212,11 @@ export class QSOMapComponent implements OnInit, OnDestroy {
    */
   private createQSOIcon(marker: MapMarker): L.DivIcon {
     const color = this.getStationColor(marker.station);
+    const isRecent = this.isRecentQSO(marker.timestamp);
+    const recentClass = isRecent ? ' recent' : '';
 
     return L.divIcon({
-      html: `<div class="qso-marker" style="background-color: ${color};">
+      html: `<div class="qso-marker${recentClass}" style="background-color: ${color};">
                <div class="qso-marker-inner"></div>
              </div>`,
       className: 'qso-marker-container',
@@ -416,6 +418,19 @@ export class QSOMapComponent implements OnInit, OnDestroy {
     if (count < 100) return 50;
     if (count < 500) return 60;
     return 70;
+  }
+
+  /**
+   * Check if QSO is recent (within last 15 minutes)
+   */
+  private isRecentQSO(timestamp?: string): boolean {
+    if (!timestamp) return false;
+
+    const qsoTime = new Date(timestamp).getTime();
+    const now = Date.now();
+    const fifteenMinutes = 15 * 60 * 1000; // 15 minutes in milliseconds
+
+    return (now - qsoTime) <= fifteenMinutes;
   }
 
   /**
