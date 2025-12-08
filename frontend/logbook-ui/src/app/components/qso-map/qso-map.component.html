@@ -35,6 +35,20 @@
         <option [value]="8">Extended (8-char)</option>
       </select>
 
+      <!-- Heatmap Radius Slider (visible when heatmap is on) -->
+      <div *ngIf="heatmapVisible" class="heatmap-radius-control me-2">
+        <input
+          type="range"
+          class="form-range"
+          [(ngModel)]="heatmapRadius"
+          (change)="setHeatmapRadius(heatmapRadius)"
+          min="10"
+          max="50"
+          step="5"
+          title="Heatmap radius">
+        <small class="text-muted">{{ heatmapRadius }}px</small>
+      </div>
+
       <!-- Grid Overlay Toggle -->
       <button
         class="btn btn-sm"
@@ -44,6 +58,17 @@
         [disabled]="isLoading"
         title="Toggle grid square overlay">
         <i class="bi bi-grid-3x3"></i>
+      </button>
+
+      <!-- Heatmap Toggle -->
+      <button
+        class="btn btn-sm ms-2"
+        [class.btn-primary]="heatmapVisible"
+        [class.btn-outline-secondary]="!heatmapVisible"
+        (click)="toggleHeatmap()"
+        [disabled]="isLoading"
+        title="Toggle heatmap density layer">
+        <i class="bi bi-fire"></i>
       </button>
 
       <!-- Refresh Button -->

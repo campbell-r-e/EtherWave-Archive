@@ -80,6 +80,36 @@
   background-color: #2a2a2a;
 }
 
+.heatmap-radius-control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 120px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.dark-theme .heatmap-radius-control {
+  background: rgba(50, 50, 50, 0.9);
+  border-color: #555;
+}
+
+.heatmap-radius-control .form-range {
+  width: 100%;
+  margin-bottom: 2px;
+}
+
+.heatmap-radius-control small {
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+.dark-theme .heatmap-radius-control small {
+  color: #ccc;
+}
+
 /* Loading Overlay */
 .loading-overlay {
   position: absolute;

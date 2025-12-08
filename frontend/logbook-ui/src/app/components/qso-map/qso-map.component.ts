@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import * as L from 'leaflet';
 import { MapService, MapFilters, MapMarker, MapCluster } from '../../services/map.service';
 import { GridOverlayService } from '../../services/grid-overlay.service';
+import { HeatmapService } from '../../services/heatmap.service';
 import { Subscription } from 'rxjs';
 
 /**
@@ -44,6 +45,11 @@ export class QSOMapComponent implements OnInit, OnDestroy {
   gridOverlayVisible: boolean = false;
   gridPrecision: number = 4;
 
+  // Heatmap overlay
+  private heatmapLayer?: L.Layer;
+  heatmapVisible: boolean = false;
+  heatmapRadius: number = 25;
+
   // Map state
   currentZoom: number = 4;
   isLoading: boolean = false;
@@ -57,7 +63,8 @@ export class QSOMapComponent implements OnInit, OnDestroy {
 
   constructor(
     private mapService: MapService,
-    private gridOverlayService: GridOverlayService
+    private gridOverlayService: GridOverlayService,
+    private heatmapService: HeatmapService
   ) {}
 
   ngOnInit(): void {
@@ -443,6 +450,56 @@ export class QSOMapComponent implements OnInit, OnDestroy {
       } catch (error) {
         console.error('Error reloading grid overlay:', error);
       }
+    }
+  }
+
+  /**
+   * Toggle heatmap overlay visibility
+   */
+  async toggleHeatmap(): Promise<void> {
+    if (this.heatmapVisible) {
+      // Hide heatmap
+      if (this.heatmapLayer) {
+        this.heatmapService.clearHeatmaps(this.map);
+        this.heatmapLayer = undefined;
+      }
+      this.heatmapVisible = false;
+    } else {
+      // Show heatmap
+      if (!this.logId) {
+        console.warn('No logId provided for heatmap');
+        return;
+      }
+
+      try {
+        this.heatmapLayer = await this.heatmapService.addHeatmap(
+          this.map,
+          this.logId,
+          this.filters,
+          {
+            radius: this.heatmapRadius,
+            blur: 15,
+            maxZoom: 17
+          }
+        );
+        this.heatmapVisible = true;
+      } catch (error) {
+        console.error('Error loading heatmap:', error);
+      }
+    }
+  }
+
+  /**
+   * Change heatmap radius and reload if visible
+   */
+  async setHeatmapRadius(radius: number): Promise<void> {
+    this.heatmapRadius = radius;
+
+    if (this.heatmapVisible && this.heatmapLayer) {
+      // Update heatmap options
+      this.heatmapService.updateHeatmapOptions(this.heatmapLayer, {
+        radius: this.heatmapRadius
+      });
     }
   }
 }
