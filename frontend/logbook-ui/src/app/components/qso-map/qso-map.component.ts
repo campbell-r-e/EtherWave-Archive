@@ -7,6 +7,7 @@ import { GridOverlayService } from '../../services/grid-overlay.service';
 import { HeatmapService } from '../../services/heatmap.service';
 import { ContestOverlayService } from '../../services/contest-overlay.service';
 import { WebSocketService } from '../../services/websocket.service';
+import { MapExportDialogComponent } from '../map-export-dialog/map-export-dialog.component';
 import { QSO } from '../../models/qso.model';
 import { Subscription } from 'rxjs';
 
@@ -23,7 +24,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-qso-map',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MapExportDialogComponent],
   templateUrl: './qso-map.component.html',
   styleUrls: ['./qso-map.component.css']
 })
@@ -32,6 +33,7 @@ export class QSOMapComponent implements OnInit, OnDestroy {
   @Input() filters?: MapFilters;
   @Input() darkMode: boolean = false;
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
+  @ViewChild('exportDialog') exportDialog!: MapExportDialogComponent;
 
   private map!: L.Map;
   private markers: L.Marker[] = [];
@@ -770,6 +772,15 @@ export class QSOMapComponent implements OnInit, OnDestroy {
         this.wsSubscription.unsubscribe();
         this.wsSubscription = undefined;
       }
+    }
+  }
+
+  /**
+   * Open export dialog
+   */
+  openExportDialog(): void {
+    if (this.exportDialog) {
+      this.exportDialog.show();
     }
   }
 }

@@ -1,0 +1,82 @@
+<!-- Map Export Dialog Modal -->
+<div class="modal fade" [class.show]="isVisible" [style.display]="isVisible ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-download"></i>
+          Export Map Data
+        </h5>
+        <button type="button" class="btn-close" (click)="hide()" [disabled]="isExporting"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <!-- Format Selection -->
+        <div class="mb-4">
+          <label class="form-label fw-bold">Select Export Format</label>
+          <div class="format-options">
+            <div
+              *ngFor="let format of exportFormats"
+              class="format-option"
+              [class.selected]="selectedFormat === format.value"
+              (click)="selectedFormat = format.value">
+              <div class="format-icon">
+                <i class="bi" [ngClass]="format.icon"></i>
+              </div>
+              <div class="format-info">
+                <div class="format-label">{{ format.label }}</div>
+                <div class="format-description">{{ format.description }}</div>
+              </div>
+              <div class="format-check">
+                <i class="bi bi-check-circle-fill" *ngIf="selectedFormat === format.value"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Export Info -->
+        <div class="alert alert-info mb-0">
+          <i class="bi bi-info-circle"></i>
+          <strong>{{ getSelectedFormatDetails()?.label }}</strong> export will include all QSO locations
+          {{ filters ? 'matching your current filters' : 'from this log' }}.
+        </div>
+
+        <!-- Error Message -->
+        <div class="alert alert-danger mt-3 mb-0" *ngIf="errorMessage">
+          <i class="bi bi-exclamation-triangle"></i>
+          {{ errorMessage }}
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="hide()"
+          [disabled]="isExporting">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="exportMap()"
+          [disabled]="isExporting">
+          <span *ngIf="!isExporting">
+            <i class="bi bi-download"></i>
+            Export {{ getSelectedFormatDetails()?.label }}
+          </span>
+          <span *ngIf="isExporting">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Exporting...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Backdrop -->
+<div class="modal-backdrop fade" [class.show]="isVisible" *ngIf="isVisible" (click)="hide()"></div>

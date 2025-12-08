@@ -119,6 +119,15 @@
         <i class="bi" [class.bi-broadcast]="realtimeEnabled" [class.bi-broadcast-pin]="!realtimeEnabled"></i>
       </button>
 
+      <!-- Export Button -->
+      <button
+        class="btn btn-sm btn-outline-secondary ms-2"
+        (click)="openExportDialog()"
+        [disabled]="isLoading || totalQSOs === 0"
+        title="Export map data">
+        <i class="bi bi-download"></i>
+      </button>
+
       <!-- Refresh Button -->
       <button
         class="btn btn-sm btn-outline-secondary ms-2"
@@ -150,3 +159,10 @@
     </p>
   </div>
 </div>
+
+<!-- Map Export Dialog -->
+<app-map-export-dialog
+  #exportDialog
+  [logId]="logId"
+  [filters]="filters">
+</app-map-export-dialog>
