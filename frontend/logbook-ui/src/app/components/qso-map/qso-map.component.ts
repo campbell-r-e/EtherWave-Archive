@@ -6,6 +6,8 @@ import { MapService, MapFilters, MapMarker, MapCluster } from '../../services/ma
 import { GridOverlayService } from '../../services/grid-overlay.service';
 import { HeatmapService } from '../../services/heatmap.service';
 import { ContestOverlayService } from '../../services/contest-overlay.service';
+import { WebSocketService } from '../../services/websocket.service';
+import { QSO } from '../../models/qso.model';
 import { Subscription } from 'rxjs';
 
 /**
@@ -67,6 +69,10 @@ export class QSOMapComponent implements OnInit, OnDestroy {
   displayedPoints: number = 0;
   clustered: boolean = false;
 
+  // Real-time updates
+  realtimeEnabled: boolean = true;
+  private wsSubscription?: Subscription;
+
   // Default center (US)
   private defaultCenter: L.LatLngExpression = [39.8283, -98.5795];
   private defaultZoom: number = 4;
@@ -75,16 +81,21 @@ export class QSOMapComponent implements OnInit, OnDestroy {
     private mapService: MapService,
     private gridOverlayService: GridOverlayService,
     private heatmapService: HeatmapService,
-    private contestOverlayService: ContestOverlayService
+    private contestOverlayService: ContestOverlayService,
+    private webSocketService: WebSocketService
   ) {}
 
   ngOnInit(): void {
     this.initializeMap();
     this.loadQSOLocations();
+    this.subscribeToRealtimeUpdates();
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+    if (this.wsSubscription) {
+      this.wsSubscription.unsubscribe();
+    }
     if (this.map) {
       this.map.remove();
     }
@@ -653,5 +664,112 @@ export class QSOMapComponent implements OnInit, OnDestroy {
       dxcc: 'dxcc'
     };
     return keyMap[overlayType] || overlayType;
+  }
+
+  /**
+   * Subscribe to real-time QSO updates via WebSocket
+   */
+  private subscribeToRealtimeUpdates(): void {
+    if (!this.realtimeEnabled) return;
+
+    this.wsSubscription = this.webSocketService.getQSOUpdates().subscribe({
+      next: (qso: QSO) => {
+        this.handleNewQSO(qso);
+      },
+      error: (error) => {
+        console.error('WebSocket error:', error);
+      }
+    });
+  }
+
+  /**
+   * Handle new QSO from WebSocket
+   */
+  private handleNewQSO(qso: QSO): void {
+    // Only add QSO if it belongs to the current log
+    if (qso.logId !== this.logId) return;
+
+    // Check if QSO matches current filters
+    if (this.filters && !this.matchesFilters(qso)) return;
+
+    // If in clustered mode, reload data to recalculate clusters
+    if (this.clustered) {
+      console.log('New QSO received, reloading clustered data');
+      this.loadQSOLocations();
+      return;
+    }
+
+    // In non-clustered mode, add marker directly if location data exists
+    if (qso.gridSquare || (qso.latitude && qso.longitude)) {
+      console.log('New QSO received, adding marker:', qso.callsign);
+
+      // Convert QSO to MapMarker format
+      const marker: MapMarker = {
+        lat: qso.latitude || 0,
+        lon: qso.longitude || 0,
+        callsign: qso.callsign,
+        grid: qso.gridSquare,
+        band: qso.band,
+        mode: qso.mode,
+        station: qso.stationId,
+        timestamp: qso.qsoDate
+      };
+
+      // Create and add marker to map
+      const leafletMarker = L.marker([marker.lat, marker.lon], {
+        icon: this.createQSOIcon(marker)
+      });
+
+      const popupContent = this.createQSOPopup(marker);
+      leafletMarker.bindPopup(popupContent);
+      leafletMarker.addTo(this.map);
+      this.markers.push(leafletMarker);
+
+      // Update statistics
+      this.totalQSOs++;
+      this.displayedPoints++;
+
+      // Show notification (optional)
+      this.showNewQSONotification(qso);
+    }
+  }
+
+  /**
+   * Check if QSO matches current filters
+   */
+  private matchesFilters(qso: QSO): boolean {
+    if (!this.filters) return true;
+
+    if (this.filters.band && qso.band !== this.filters.band) return false;
+    if (this.filters.mode && qso.mode !== this.filters.mode) return false;
+    if (this.filters.station && qso.stationId !== this.filters.station) return false;
+    if (this.filters.operator && !qso.operator?.toLowerCase().includes(this.filters.operator.toLowerCase())) return false;
+
+    // Add more filter checks as needed
+    return true;
+  }
+
+  /**
+   * Show notification for new QSO (optional visual feedback)
+   */
+  private showNewQSONotification(qso: QSO): void {
+    // Could add a toast notification or temporary indicator here
+    console.log(`✓ New QSO added to map: ${qso.callsign} on ${qso.band} ${qso.mode}`);
+  }
+
+  /**
+   * Toggle real-time updates
+   */
+  toggleRealtimeUpdates(): void {
+    this.realtimeEnabled = !this.realtimeEnabled;
+
+    if (this.realtimeEnabled) {
+      this.subscribeToRealtimeUpdates();
+    } else {
+      if (this.wsSubscription) {
+        this.wsSubscription.unsubscribe();
+        this.wsSubscription = undefined;
+      }
+    }
   }
 }

@@ -109,6 +109,16 @@
         </ul>
       </div>
 
+      <!-- Real-time Updates Toggle -->
+      <button
+        class="btn btn-sm ms-2"
+        [class.btn-success]="realtimeEnabled"
+        [class.btn-outline-secondary]="!realtimeEnabled"
+        (click)="toggleRealtimeUpdates()"
+        title="Toggle real-time updates">
+        <i class="bi" [class.bi-broadcast]="realtimeEnabled" [class.bi-broadcast-pin]="!realtimeEnabled"></i>
+      </button>
+
       <!-- Refresh Button -->
       <button
         class="btn btn-sm btn-outline-secondary ms-2"
