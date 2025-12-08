@@ -38,10 +38,10 @@ public class Station {
     private String gridSquare;
 
     // Operator location (for map visualization)
-    @Column(precision = 9, scale = 6)
+    @Column
     private Double latitude;
 
-    @Column(precision = 9, scale = 6)
+    @Column
     private Double longitude;
 
     @Column(name = "maidenhead_grid", length = 8)

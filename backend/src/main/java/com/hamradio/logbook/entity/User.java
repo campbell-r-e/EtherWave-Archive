@@ -47,10 +47,10 @@ public class User {
     private String gridSquare;
 
     // Default location for user (fallback when station location not set)
-    @Column(name = "default_latitude", precision = 9, scale = 6)
+    @Column(name = "default_latitude")
     private Double defaultLatitude;
 
-    @Column(name = "default_longitude", precision = 9, scale = 6)
+    @Column(name = "default_longitude")
     private Double defaultLongitude;
 
     @Column(name = "default_grid", length = 8)
