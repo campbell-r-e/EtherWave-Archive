@@ -1,5 +1,13 @@
 <!-- Map Filter Panel -->
-<div class="map-filter-panel">
+<div class="map-filter-panel"
+     [class.expanded]="isExpanded"
+     (touchstart)="onTouchStart($event)"
+     (touchend)="onTouchEnd($event)">
+  <!-- Mobile Swipe Handle -->
+  <div class="mobile-handle" (click)="togglePanel()">
+    <div class="handle-bar"></div>
+  </div>
+
   <!-- Panel Header -->
   <div class="filter-header" (click)="togglePanel()">
     <div class="filter-title">

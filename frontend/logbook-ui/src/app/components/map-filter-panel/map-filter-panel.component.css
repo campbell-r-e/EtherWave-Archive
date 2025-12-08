@@ -5,11 +5,63 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
   overflow: hidden;
+  transition: all 0.3s ease;
 }
 
 .dark-theme .map-filter-panel {
   background: #2a2a2a;
   color: #ffffff;
+}
+
+/* Mobile Bottom Sheet */
+@media (max-width: 768px) {
+  .map-filter-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    margin: 0;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+    max-height: 80vh;
+    overflow-y: auto;
+    transform: translateY(calc(100% - 60px));
+  }
+
+  .map-filter-panel.expanded {
+    transform: translateY(0);
+  }
+
+  .dark-theme .map-filter-panel {
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Mobile Handle */
+  .mobile-handle {
+    display: flex;
+    justify-content: center;
+    padding: 8px 0;
+    cursor: pointer;
+  }
+
+  .handle-bar {
+    width: 40px;
+    height: 4px;
+    background: #ccc;
+    border-radius: 2px;
+  }
+
+  .dark-theme .handle-bar {
+    background: #666;
+  }
+}
+
+/* Hide handle on desktop */
+@media (min-width: 769px) {
+  .mobile-handle {
+    display: none;
+  }
 }
 
 /* Filter Header */

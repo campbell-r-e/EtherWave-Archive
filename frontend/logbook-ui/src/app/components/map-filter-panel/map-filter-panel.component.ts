@@ -33,6 +33,10 @@ export class MapFilterPanelComponent {
   isExpanded: boolean = false;
   activeFilterCount: number = 0;
 
+  // Touch gesture state
+  private touchStartY: number = 0;
+  private touchEndY: number = 0;
+
   /**
    * Apply current filters
    */
@@ -134,5 +138,38 @@ export class MapFilterPanelComponent {
     };
 
     return labels[key] || key;
+  }
+
+  /**
+   * Handle touch start for swipe gesture
+   */
+  onTouchStart(event: TouchEvent): void {
+    this.touchStartY = event.touches[0].clientY;
+  }
+
+  /**
+   * Handle touch end for swipe gesture
+   */
+  onTouchEnd(event: TouchEvent): void {
+    this.touchEndY = event.changedTouches[0].clientY;
+    this.handleSwipeGesture();
+  }
+
+  /**
+   * Process swipe gesture
+   */
+  private handleSwipeGesture(): void {
+    const swipeDistance = this.touchStartY - this.touchEndY;
+    const minSwipeDistance = 50; // Minimum pixels to trigger swipe
+
+    if (Math.abs(swipeDistance) > minSwipeDistance) {
+      if (swipeDistance > 0) {
+        // Swipe up - expand
+        this.isExpanded = true;
+      } else {
+        // Swipe down - collapse
+        this.isExpanded = false;
+      }
+    }
   }
 }
