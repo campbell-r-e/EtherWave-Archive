@@ -8,6 +8,7 @@ import com.hamradio.logbook.service.HeatmapService;
 import com.hamradio.logbook.service.LocationManagementService;
 import com.hamradio.logbook.service.ContestOverlayService;
 import com.hamradio.logbook.service.MapExportService;
+import com.hamradio.logbook.service.SessionLocationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -33,6 +34,7 @@ public class MapController {
     private final LocationManagementService locationManagementService;
     private final ContestOverlayService contestOverlayService;
     private final MapExportService mapExportService;
+    private final SessionLocationService sessionLocationService;
 
     /**
      * Get QSO location data with adaptive clustering
@@ -340,17 +342,53 @@ public class MapController {
      * Set temporary session location (override for current session)
      *
      * POST /api/maps/location/session/{logId}
+     * DELETE /api/maps/location/session/{logId} (to clear)
      */
     @PostMapping("/location/session/{logId}")
-    public ResponseEntity<?> setSessionLocation(
+    public ResponseEntity<SessionLocationService.SessionLocationResponse> setSessionLocation(
             @PathVariable Long logId,
             @RequestBody LocationRequest request
     ) {
         log.info("POST /api/maps/location/session/{} - lat: {}, lon: {}", logId, request.getLatitude(), request.getLongitude());
 
-        // TODO: Implement session location (store in HTTP session or cache)
-        // This would require session management infrastructure
-        return ResponseEntity.ok().body("{\"message\": \"Session location - implementation requires session management infrastructure\"}");
+        SessionLocationService.SessionLocationResponse response = sessionLocationService.setSessionLocation(
+            logId,
+            request.getLatitude(),
+            request.getLongitude(),
+            request.getGrid()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Clear session location for a log
+     *
+     * DELETE /api/maps/location/session/{logId}
+     */
+    @DeleteMapping("/location/session/{logId}")
+    public ResponseEntity<Void> clearSessionLocation(@PathVariable Long logId) {
+        log.info("DELETE /api/maps/location/session/{}", logId);
+        sessionLocationService.clearSessionLocation(logId);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Get session location for a log
+     *
+     * GET /api/maps/location/session/{logId}
+     */
+    @GetMapping("/location/session/{logId}")
+    public ResponseEntity<SessionLocationService.SessionLocation> getSessionLocation(@PathVariable Long logId) {
+        log.info("GET /api/maps/location/session/{}", logId);
+
+        SessionLocationService.SessionLocation location = sessionLocationService.getSessionLocation(logId);
+
+        if (location == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(location);
     }
 
     // ===== Helper Methods =====
