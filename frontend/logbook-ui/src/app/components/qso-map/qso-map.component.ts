@@ -230,6 +230,22 @@ export class QSOMapComponent implements OnInit, OnDestroy {
   private createClusterIcon(cluster: MapCluster): L.DivIcon {
     const size = this.getClusterSize(cluster.count);
 
+    // Use pie chart if multiple stations
+    if (cluster.stationBreakdown && Object.keys(cluster.stationBreakdown).length > 1) {
+      const pieChartSVG = this.createPieChartSVG(cluster.stationBreakdown, size);
+      return L.divIcon({
+        html: `<div class="cluster-marker pie-chart-marker" style="width: ${size}px; height: ${size}px;">
+                 ${pieChartSVG}
+                 <span class="cluster-count">${cluster.count}</span>
+               </div>`,
+        className: 'cluster-marker-container',
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2],
+        popupAnchor: [0, -(size / 2)]
+      });
+    }
+
+    // Default solid color cluster
     return L.divIcon({
       html: `<div class="cluster-marker" style="width: ${size}px; height: ${size}px;">
                <span class="cluster-count">${cluster.count}</span>
@@ -339,6 +355,56 @@ export class QSOMapComponent implements OnInit, OnDestroy {
     ];
 
     return colors[(station - 1) % colors.length];
+  }
+
+  /**
+   * Create SVG pie chart for cluster with multiple stations
+   */
+  private createPieChartSVG(stationBreakdown: { [key: string]: number }, size: number): string {
+    const total = Object.values(stationBreakdown).reduce((sum, count) => sum + count, 0);
+    const radius = size / 2;
+    const center = size / 2;
+
+    let currentAngle = -90; // Start at top
+    let paths = '';
+
+    // Sort stations by count (descending) for consistent order
+    const sortedStations = Object.entries(stationBreakdown)
+      .sort(([, a], [, b]) => b - a);
+
+    sortedStations.forEach(([station, count]) => {
+      const percentage = count / total;
+      const angle = percentage * 360;
+
+      if (percentage === 1) {
+        // Full circle for single station (shouldn't happen, but just in case)
+        const color = this.getStationColor(parseInt(station));
+        paths += `<circle cx="${center}" cy="${center}" r="${radius}" fill="${color}" />`;
+      } else {
+        // Calculate arc path
+        const startAngle = currentAngle;
+        const endAngle = currentAngle + angle;
+
+        const startRad = (startAngle * Math.PI) / 180;
+        const endRad = (endAngle * Math.PI) / 180;
+
+        const x1 = center + radius * Math.cos(startRad);
+        const y1 = center + radius * Math.sin(startRad);
+        const x2 = center + radius * Math.cos(endRad);
+        const y2 = center + radius * Math.sin(endRad);
+
+        const largeArc = angle > 180 ? 1 : 0;
+
+        const color = this.getStationColor(parseInt(station));
+        paths += `<path d="M ${center},${center} L ${x1},${y1} A ${radius},${radius} 0 ${largeArc},1 ${x2},${y2} Z" fill="${color}" />`;
+
+        currentAngle += angle;
+      }
+    });
+
+    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" class="pie-chart-svg">
+              ${paths}
+            </svg>`;
   }
 
   /**

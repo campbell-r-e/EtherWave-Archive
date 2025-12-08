@@ -231,6 +231,42 @@
   font-weight: bold;
   font-size: 0.9rem;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 10;
+}
+
+/* Pie Chart Cluster Marker */
+:host ::ng-deep .pie-chart-marker {
+  background: none !important;
+  position: relative;
+}
+
+:host ::ng-deep .pie-chart-marker .pie-chart-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  border: 4px solid white;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+:host ::ng-deep .pie-chart-marker:hover .pie-chart-svg {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+}
+
+:host ::ng-deep .pie-chart-marker .cluster-count {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  width: 60%;
+  height: 60%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
 }
 
 /* Pulse animation for recent QSOs (future enhancement) */
