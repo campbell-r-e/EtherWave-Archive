@@ -5,6 +5,7 @@ import * as L from 'leaflet';
 import { MapService, MapFilters, MapMarker, MapCluster } from '../../services/map.service';
 import { GridOverlayService } from '../../services/grid-overlay.service';
 import { HeatmapService } from '../../services/heatmap.service';
+import { ContestOverlayService } from '../../services/contest-overlay.service';
 import { Subscription } from 'rxjs';
 
 /**
@@ -50,6 +51,15 @@ export class QSOMapComponent implements OnInit, OnDestroy {
   heatmapVisible: boolean = false;
   heatmapRadius: number = 25;
 
+  // Contest overlays
+  private contestOverlays: Map<string, L.LayerGroup> = new Map();
+  contestOverlayVisible: { [key: string]: boolean } = {
+    cqZones: false,
+    ituZones: false,
+    arrlSections: false,
+    dxcc: false
+  };
+
   // Map state
   currentZoom: number = 4;
   isLoading: boolean = false;
@@ -64,7 +74,8 @@ export class QSOMapComponent implements OnInit, OnDestroy {
   constructor(
     private mapService: MapService,
     private gridOverlayService: GridOverlayService,
-    private heatmapService: HeatmapService
+    private heatmapService: HeatmapService,
+    private contestOverlayService: ContestOverlayService
   ) {}
 
   ngOnInit(): void {
@@ -582,5 +593,65 @@ export class QSOMapComponent implements OnInit, OnDestroy {
         radius: this.heatmapRadius
       });
     }
+  }
+
+  /**
+   * Toggle contest overlay (CQ zones, ITU zones, ARRL sections, DXCC)
+   */
+  async toggleContestOverlay(overlayType: string): Promise<void> {
+    const isVisible = this.contestOverlayVisible[overlayType];
+
+    if (isVisible) {
+      // Hide overlay
+      this.contestOverlayService.clearOverlay(this.map, this.getOverlayKey(overlayType));
+      this.contestOverlayVisible[overlayType] = false;
+      this.contestOverlays.delete(overlayType);
+    } else {
+      // Show overlay
+      if (!this.logId) {
+        console.warn('No logId provided for contest overlay');
+        return;
+      }
+
+      try {
+        let layerGroup: L.LayerGroup;
+
+        switch (overlayType) {
+          case 'cqZones':
+            layerGroup = await this.contestOverlayService.addCQZoneOverlay(this.map, this.logId);
+            break;
+          case 'ituZones':
+            layerGroup = await this.contestOverlayService.addITUZoneOverlay(this.map, this.logId);
+            break;
+          case 'arrlSections':
+            layerGroup = await this.contestOverlayService.addARRLSectionsOverlay(this.map, this.logId);
+            break;
+          case 'dxcc':
+            layerGroup = await this.contestOverlayService.addDXCCOverlay(this.map, this.logId);
+            break;
+          default:
+            console.warn('Unknown contest overlay type:', overlayType);
+            return;
+        }
+
+        this.contestOverlays.set(overlayType, layerGroup);
+        this.contestOverlayVisible[overlayType] = true;
+      } catch (error) {
+        console.error(`Error loading ${overlayType} overlay:`, error);
+      }
+    }
+  }
+
+  /**
+   * Get overlay key for contest overlay service
+   */
+  private getOverlayKey(overlayType: string): string {
+    const keyMap: { [key: string]: string } = {
+      cqZones: 'cq-zones',
+      ituZones: 'itu-zones',
+      arrlSections: 'arrl-sections',
+      dxcc: 'dxcc'
+    };
+    return keyMap[overlayType] || overlayType;
   }
 }

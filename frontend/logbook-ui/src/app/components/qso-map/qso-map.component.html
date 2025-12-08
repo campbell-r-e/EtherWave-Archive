@@ -71,6 +71,44 @@
         <i class="bi bi-fire"></i>
       </button>
 
+      <!-- Contest Overlays Dropdown -->
+      <div class="btn-group ms-2" role="group">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary dropdown-toggle"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+          title="Contest overlays">
+          <i class="bi bi-trophy"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li>
+            <a class="dropdown-item" href="javascript:void(0)" (click)="toggleContestOverlay('cqZones')">
+              <i class="bi" [class.bi-check-square]="contestOverlayVisible['cqZones']" [class.bi-square]="!contestOverlayVisible['cqZones']"></i>
+              CQ Zones
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="javascript:void(0)" (click)="toggleContestOverlay('ituZones')">
+              <i class="bi" [class.bi-check-square]="contestOverlayVisible['ituZones']" [class.bi-square]="!contestOverlayVisible['ituZones']"></i>
+              ITU Zones
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="javascript:void(0)" (click)="toggleContestOverlay('arrlSections')">
+              <i class="bi" [class.bi-check-square]="contestOverlayVisible['arrlSections']" [class.bi-square]="!contestOverlayVisible['arrlSections']"></i>
+              ARRL Sections
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="javascript:void(0)" (click)="toggleContestOverlay('dxcc')">
+              <i class="bi" [class.bi-check-square]="contestOverlayVisible['dxcc']" [class.bi-square]="!contestOverlayVisible['dxcc']"></i>
+              DXCC Entities
+            </a>
+          </li>
+        </ul>
+      </div>
+
       <!-- Refresh Button -->
       <button
         class="btn btn-sm btn-outline-secondary ms-2"
