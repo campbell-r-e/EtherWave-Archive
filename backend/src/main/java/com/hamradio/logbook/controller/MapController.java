@@ -1,9 +1,11 @@
 package com.hamradio.logbook.controller;
 
+import com.hamradio.logbook.entity.QSOLocation;
 import com.hamradio.logbook.service.MapDataService;
 import com.hamradio.logbook.service.MapDataService.MapFilters;
 import com.hamradio.logbook.service.GridCoverageService;
 import com.hamradio.logbook.service.HeatmapService;
+import com.hamradio.logbook.service.LocationManagementService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -26,6 +28,7 @@ public class MapController {
     private final MapDataService mapDataService;
     private final GridCoverageService gridCoverageService;
     private final HeatmapService heatmapService;
+    private final LocationManagementService locationManagementService;
 
     /**
      * Get QSO location data with adaptive clustering
@@ -187,14 +190,37 @@ public class MapController {
      * GET /api/maps/distance/{logId}/{qsoId}
      */
     @GetMapping("/distance/{logId}/{qsoId}")
-    public ResponseEntity<?> getDistance(
+    public ResponseEntity<DistanceResponse> getDistance(
             @PathVariable Long logId,
             @PathVariable Long qsoId
     ) {
         log.info("GET /api/maps/distance/{}/{}", logId, qsoId);
 
-        // TODO: Implement distance retrieval
-        return ResponseEntity.ok().body("{\"message\": \"Distance endpoint - implementation pending\"}");
+        QSOLocation location = mapDataService.getQSOLocationByQsoId(qsoId);
+
+        if (location == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        DistanceResponse response = DistanceResponse.builder()
+            .qsoId(qsoId)
+            .distanceKm(location.getDistanceKm())
+            .distanceMi(location.getDistanceMi())
+            .bearing(location.getBearing())
+            .operatorLocation(location.getOperatorLat() != null ?
+                DistanceResponse.LocationInfo.builder()
+                    .lat(location.getOperatorLat())
+                    .lon(location.getOperatorLon())
+                    .grid(location.getOperatorGrid())
+                    .build() : null)
+            .contactLocation(DistanceResponse.LocationInfo.builder()
+                .lat(location.getContactLat())
+                .lon(location.getContactLon())
+                .grid(location.getContactGrid())
+                .build())
+            .build();
+
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -203,14 +229,21 @@ public class MapController {
      * PUT /api/maps/location/station/{stationId}
      */
     @PutMapping("/location/station/{stationId}")
-    public ResponseEntity<?> setStationLocation(
+    public ResponseEntity<LocationManagementService.LocationUpdateResponse> setStationLocation(
             @PathVariable Long stationId,
             @RequestBody LocationRequest request
     ) {
         log.info("PUT /api/maps/location/station/{} - lat: {}, lon: {}", stationId, request.getLatitude(), request.getLongitude());
 
-        // TODO: Implement station location update
-        return ResponseEntity.ok().body("{\"message\": \"Station location update - implementation pending\"}");
+        LocationManagementService.LocationUpdateResponse response = locationManagementService.updateStationLocation(
+            stationId,
+            request.getLatitude(),
+            request.getLongitude(),
+            request.getGrid(),
+            request.getLocationName()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -219,11 +252,23 @@ public class MapController {
      * PUT /api/maps/location/user
      */
     @PutMapping("/location/user")
-    public ResponseEntity<?> setUserLocation(@RequestBody LocationRequest request) {
+    public ResponseEntity<LocationManagementService.LocationUpdateResponse> setUserLocation(
+            @RequestBody LocationRequest request
+    ) {
         log.info("PUT /api/maps/location/user - lat: {}, lon: {}", request.getLatitude(), request.getLongitude());
 
-        // TODO: Implement user location update
-        return ResponseEntity.ok().body("{\"message\": \"User location update - implementation pending\"}");
+        // TODO: Get current user ID from security context
+        // For now, using a placeholder - this needs proper authentication integration
+        Long userId = 1L; // TEMPORARY - should come from SecurityContextHolder
+
+        LocationManagementService.LocationUpdateResponse response = locationManagementService.updateUserLocation(
+            userId,
+            request.getLatitude(),
+            request.getLongitude(),
+            request.getGrid()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -238,8 +283,9 @@ public class MapController {
     ) {
         log.info("POST /api/maps/location/session/{} - lat: {}, lon: {}", logId, request.getLatitude(), request.getLongitude());
 
-        // TODO: Implement session location
-        return ResponseEntity.ok().body("{\"message\": \"Session location - implementation pending\"}");
+        // TODO: Implement session location (store in HTTP session or cache)
+        // This would require session management infrastructure
+        return ResponseEntity.ok().body("{\"message\": \"Session location - implementation requires session management infrastructure\"}");
     }
 
     // ===== Helper Methods =====
@@ -264,5 +310,24 @@ public class MapController {
         private Double longitude;
         private String grid; // Optional, can be auto-calculated
         private String locationName;
+    }
+
+    @lombok.Data
+    @lombok.Builder
+    public static class DistanceResponse {
+        private Long qsoId;
+        private java.math.BigDecimal distanceKm;
+        private java.math.BigDecimal distanceMi;
+        private java.math.BigDecimal bearing;
+        private LocationInfo operatorLocation;
+        private LocationInfo contactLocation;
+
+        @lombok.Data
+        @lombok.Builder
+        public static class LocationInfo {
+            private java.math.BigDecimal lat;
+            private java.math.BigDecimal lon;
+            private String grid;
+        }
     }
 }

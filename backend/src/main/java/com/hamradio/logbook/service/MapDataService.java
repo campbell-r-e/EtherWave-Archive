@@ -110,6 +110,25 @@ public class MapDataService {
     }
 
     /**
+     * Get QSO location by QSO ID
+     */
+    @Transactional(readOnly = true)
+    public QSOLocation getQSOLocationByQsoId(Long qsoId) {
+        Optional<QSOLocation> location = qsoLocationRepository.findByQsoId(qsoId);
+        if (location.isPresent()) {
+            return location.get();
+        }
+
+        // Try to create it if it doesn't exist
+        Optional<QSO> qso = Optional.ofNullable(qsoRepository.findById(qsoId).orElse(null));
+        if (qso.isPresent()) {
+            return getOrCreateQSOLocation(qso.get());
+        }
+
+        return null;
+    }
+
+    /**
      * Get or create QSO location data
      */
     @Transactional
