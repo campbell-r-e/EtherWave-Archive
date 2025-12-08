@@ -1,7 +1,9 @@
 import { Component, OnInit, OnDestroy, Input, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import * as L from 'leaflet';
 import { MapService, MapFilters, MapMarker, MapCluster } from '../../services/map.service';
+import { GridOverlayService } from '../../services/grid-overlay.service';
 import { Subscription } from 'rxjs';
 
 /**
@@ -11,12 +13,13 @@ import { Subscription } from 'rxjs';
  * - Dark/light theme tile layers
  * - QSO markers with popups
  * - Cluster markers with breakdown
+ * - Grid square overlay with multiple precisions
  * - Real-time updates via WebSocket
  */
 @Component({
   selector: 'app-qso-map',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './qso-map.component.html',
   styleUrls: ['./qso-map.component.css']
 })
@@ -36,6 +39,11 @@ export class QSOMapComponent implements OnInit, OnDestroy {
   private darkTileLayer!: L.TileLayer;
   private currentTileLayer!: L.TileLayer;
 
+  // Grid overlay
+  private gridOverlayLayer?: L.LayerGroup;
+  gridOverlayVisible: boolean = false;
+  gridPrecision: number = 4;
+
   // Map state
   currentZoom: number = 4;
   isLoading: boolean = false;
@@ -47,7 +55,10 @@ export class QSOMapComponent implements OnInit, OnDestroy {
   private defaultCenter: L.LatLngExpression = [39.8283, -98.5795];
   private defaultZoom: number = 4;
 
-  constructor(private mapService: MapService) {}
+  constructor(
+    private mapService: MapService,
+    private gridOverlayService: GridOverlayService
+  ) {}
 
   ngOnInit(): void {
     this.initializeMap();
@@ -375,5 +386,63 @@ export class QSOMapComponent implements OnInit, OnDestroy {
    */
   fitBounds(bounds: L.LatLngBoundsExpression): void {
     this.map.fitBounds(bounds, { padding: [50, 50] });
+  }
+
+  /**
+   * Toggle grid overlay visibility
+   */
+  async toggleGridOverlay(): Promise<void> {
+    if (this.gridOverlayVisible) {
+      // Hide grid overlay
+      if (this.gridOverlayLayer) {
+        this.gridOverlayService.clearGridOverlays(this.map);
+        this.gridOverlayLayer = undefined;
+      }
+      this.gridOverlayVisible = false;
+    } else {
+      // Show grid overlay
+      if (!this.logId) {
+        console.warn('No logId provided for grid overlay');
+        return;
+      }
+
+      try {
+        this.gridOverlayLayer = await this.gridOverlayService.addGridOverlay(
+          this.map,
+          this.logId,
+          this.gridPrecision,
+          true // include neighbors
+        );
+        this.gridOverlayVisible = true;
+      } catch (error) {
+        console.error('Error loading grid overlay:', error);
+      }
+    }
+  }
+
+  /**
+   * Change grid precision and reload overlay if visible
+   */
+  async setGridPrecision(precision: number): Promise<void> {
+    this.gridPrecision = precision;
+
+    if (this.gridOverlayVisible) {
+      // Reload overlay with new precision
+      if (this.gridOverlayLayer) {
+        this.gridOverlayService.clearGridOverlays(this.map);
+        this.gridOverlayLayer = undefined;
+      }
+
+      try {
+        this.gridOverlayLayer = await this.gridOverlayService.addGridOverlay(
+          this.map,
+          this.logId,
+          this.gridPrecision,
+          true
+        );
+      } catch (error) {
+        console.error('Error reloading grid overlay:', error);
+      }
+    }
   }
 }

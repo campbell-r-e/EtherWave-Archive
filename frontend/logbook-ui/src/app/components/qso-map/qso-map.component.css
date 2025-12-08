@@ -61,6 +61,23 @@
 .map-controls {
   display: flex;
   gap: 8px;
+  align-items: center;
+}
+
+.map-controls .form-select {
+  max-width: 150px;
+  border: 1px solid #ddd;
+  font-size: 0.85rem;
+}
+
+.dark-theme .map-controls .form-select {
+  background-color: rgba(50, 50, 50, 0.95);
+  border-color: #555;
+  color: #ffffff;
+}
+
+.dark-theme .map-controls .form-select option {
+  background-color: #2a2a2a;
 }
 
 /* Loading Overlay */

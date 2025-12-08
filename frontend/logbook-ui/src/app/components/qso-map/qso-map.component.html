@@ -22,8 +22,33 @@
     </div>
 
     <div class="map-controls">
+      <!-- Grid Precision Selector (visible when grid overlay is on) -->
+      <select
+        *ngIf="gridOverlayVisible"
+        class="form-select form-select-sm me-2"
+        [(ngModel)]="gridPrecision"
+        (change)="setGridPrecision(gridPrecision)"
+        title="Grid precision">
+        <option [value]="2">Field (2-char)</option>
+        <option [value]="4">Square (4-char)</option>
+        <option [value]="6">Subsquare (6-char)</option>
+        <option [value]="8">Extended (8-char)</option>
+      </select>
+
+      <!-- Grid Overlay Toggle -->
       <button
-        class="btn btn-sm btn-outline-secondary"
+        class="btn btn-sm"
+        [class.btn-primary]="gridOverlayVisible"
+        [class.btn-outline-secondary]="!gridOverlayVisible"
+        (click)="toggleGridOverlay()"
+        [disabled]="isLoading"
+        title="Toggle grid square overlay">
+        <i class="bi bi-grid-3x3"></i>
+      </button>
+
+      <!-- Refresh Button -->
+      <button
+        class="btn btn-sm btn-outline-secondary ms-2"
         (click)="refresh()"
         [disabled]="isLoading"
         title="Refresh map data">
