@@ -1,0 +1,54 @@
+<!-- QSO Map Container -->
+<div class="qso-map-wrapper">
+  <!-- Map Info Bar -->
+  <div class="map-info-bar" *ngIf="totalQSOs > 0">
+    <div class="map-stats">
+      <span class="stat-item">
+        <i class="bi bi-geo-alt-fill"></i>
+        <strong>{{ displayedPoints }}</strong> points
+      </span>
+      <span class="stat-item">
+        <i class="bi bi-broadcast"></i>
+        <strong>{{ totalQSOs }}</strong> QSOs
+      </span>
+      <span class="stat-item" *ngIf="clustered">
+        <i class="bi bi-bullseye"></i>
+        Clustered view
+      </span>
+      <span class="stat-item" *ngIf="!clustered">
+        <i class="bi bi-pin-map-fill"></i>
+        Individual markers
+      </span>
+    </div>
+
+    <div class="map-controls">
+      <button
+        class="btn btn-sm btn-outline-secondary"
+        (click)="refresh()"
+        [disabled]="isLoading"
+        title="Refresh map data">
+        <i class="bi bi-arrow-clockwise" [class.spin]="isLoading"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading QSO locations...</p>
+  </div>
+
+  <!-- Leaflet Map Container -->
+  <div #mapContainer class="map-container"></div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="totalQSOs === 0 && !isLoading">
+    <i class="bi bi-map"></i>
+    <h5>No QSO Locations</h5>
+    <p class="text-muted">
+      QSO locations will appear here when grid squares or coordinates are available.
+    </p>
+  </div>
+</div>
