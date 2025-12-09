@@ -1,57 +1,98 @@
-<!-- Navigation Bar -->
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #003F87;" role="navigation" aria-label="Main navigation">
+<!-- Navigation Bar - EtherWave Styled -->
+<nav class="ew-navbar navbar navbar-expand-lg navbar-dark signal-pattern" role="navigation" aria-label="Main navigation">
   <div class="container-fluid">
     <!-- EtherWave Archive Logo -->
-    <a class="navbar-brand d-flex align-items-center" href="#" aria-label="EtherWave Archive Home">
+    <a class="navbar-brand d-flex align-items-center ew-brand" href="#" aria-label="EtherWave Archive Home">
       <img [src]="themeService.isDarkTheme() ? 'assets/branding/logo-dark.png' : 'assets/branding/logo.png'"
            alt="EtherWave Archive"
-           height="45"
-           class="d-inline-block align-text-top me-2">
+           height="48"
+           class="d-inline-block align-text-top me-2 ew-logo">
+      <span class="ew-brand-text">
+        Ether<span class="ew-wave">Wave</span>
+      </span>
     </a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+    <button class="navbar-toggler glass-button" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation menu">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto align-items-center">
+      <ul class="navbar-nav ms-auto align-items-center gap-2">
         @if (currentUser) {
           <li class="nav-item">
-            <span class="navbar-text text-light me-3">
-              Welcome, <strong>{{ currentUser.username }}</strong>
+            <div class="user-info-panel glass-panel">
+              <div class="user-welcome">
+                <span class="text-muted-light">Operator</span>
+                <strong class="user-name">{{ currentUser.username }}</strong>
+              </div>
               @if (currentUser.callsign) {
-                <span class="badge bg-light text-dark ms-2">{{ currentUser.callsign }}</span>
+                <span class="callsign-badge badge-glow">
+                  {{ currentUser.callsign }}
+                </span>
               }
               @if (getStationAssignmentText()) {
-                <span class="badge ms-2"
-                      [style.background-color]="getStationAssignmentColor()"
-                      [style.color]="'white'">
+                <span class="station-badge"
+                      [style.background]="'linear-gradient(135deg, ' + getStationAssignmentColor() + ' 0%, ' + getStationAssignmentColor() + 'dd 100%)'"
+                      [style.box-shadow]="'0 0 15px ' + getStationAssignmentColor() + '66'">
                   {{ getStationAssignmentText() }}
                 </span>
               }
-            </span>
+            </div>
           </li>
         }
 
+        <!-- Map Toggle Button -->
+        <li class="nav-item">
+          <button class="btn ew-btn-icon"
+                  (click)="toggleMap()"
+                  [class.active]="isMapOpen"
+                  [attr.aria-label]="isMapOpen ? 'Close map view' : 'Open map view'"
+                  title="Toggle map view">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/>
+            </svg>
+            Maps
+          </button>
+        </li>
+
         <!-- Theme Toggle Button -->
-        <li class="nav-item me-2">
-          <button class="btn btn-outline-light btn-sm"
+        <li class="nav-item">
+          <button class="btn ew-btn-icon"
                   (click)="themeService.toggleTheme()"
                   [attr.aria-label]="themeService.isDarkTheme() ? 'Switch to light mode' : 'Switch to dark mode'"
                   title="Toggle dark/light mode">
             @if (themeService.isDarkTheme()) {
-              ☀️ Light
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/>
+                <line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+              </svg>
+              Light
             } @else {
-              🌙 Dark
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+              Dark
             }
           </button>
         </li>
 
         <!-- Logout Button -->
         <li class="nav-item">
-          <button class="btn btn-outline-light btn-sm" (click)="logout()" aria-label="Logout from your account">
-            🚪 Logout
+          <button class="btn ew-btn-danger" (click)="logout()" aria-label="Logout from your account">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Logout
           </button>
         </li>
       </ul>
@@ -61,6 +102,11 @@
 
 <!-- Log Selector Bar -->
 <app-log-selector></app-log-selector>
+
+<!-- Fullscreen Map View (Conditionally Rendered) -->
+@if (isMapOpen) {
+  <app-fullscreen-map-view (closeMap)="closeMap()"></app-fullscreen-map-view>
+}
 
 <!-- Main Dashboard Container -->
 <div class="dashboard-container">
@@ -96,42 +142,57 @@
             <app-rig-status></app-rig-status>
           </div>
         </div>
-        <!-- Row 3: Contest Selection and Station Management -->
-        <div class="row mb-4">
-          <div class="col-lg-6">
-            <app-contest-selection></app-contest-selection>
+        <!-- Row 3: Contest Selection and Station Management (Creator/Operator Only) -->
+        @if (permissions?.canManageContests || permissions?.canManageStations) {
+          <div class="row mb-4">
+            @if (permissions?.canManageContests) {
+              <div class="col-lg-6">
+                <app-contest-selection></app-contest-selection>
+              </div>
+            }
+            @if (permissions?.canManageStations) {
+              <div class="col-lg-6">
+                <app-station-management></app-station-management>
+              </div>
+            }
           </div>
-          <div class="col-lg-6">
-            <app-station-management></app-station-management>
+        }
+        <!-- Row 3.5: Participant Management (Creator Only) -->
+        @if (permissions?.canInviteUsers) {
+          <div class="row mb-4">
+            <div class="col-12">
+              <app-participant-management></app-participant-management>
+            </div>
           </div>
-        </div>
-        <!-- Row 3.5: Participant Management (Shared Logs Only) -->
-        <div class="row mb-4">
-          <div class="col-12">
-            <app-participant-management></app-participant-management>
+        }
+        <!-- Row 3.6: Station Color Settings (Creator/Operator Only) -->
+        @if (permissions?.canManageStations) {
+          <div class="row mb-4">
+            <div class="col-12">
+              <app-station-color-settings></app-station-color-settings>
+            </div>
           </div>
-        </div>
+        }
         <!-- Row 4: QSO List (Full Width) -->
         <div class="row mb-4">
           <div class="col-12">
             <app-qso-list></app-qso-list>
           </div>
         </div>
-        <!-- Row 5: Map Visualization and Export -->
+        <!-- Row 5: Export Panel -->
         <div class="row mb-4">
-          <div class="col-lg-8">
-            <app-map-visualization></app-map-visualization>
-          </div>
-          <div class="col-lg-4">
+          <div class="col-12">
             <app-export-panel></app-export-panel>
           </div>
         </div>
-        <!-- Row 6: Import Panel -->
-        <div class="row mb-4">
-          <div class="col-12">
-            <app-import-panel></app-import-panel>
+        <!-- Row 6: Import Panel (Creator Only) -->
+        @if (permissions?.canImportData) {
+          <div class="row mb-4">
+            <div class="col-12">
+              <app-import-panel></app-import-panel>
+            </div>
           </div>
-        </div>
+        }
       </div>
     }
     <!-- End Dashboard Content -->

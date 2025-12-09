@@ -1,0 +1,433 @@
+/* ============================================================================
+   EtherWave Station Color Settings - Glassmorphism Design
+   ============================================================================ */
+
+.station-color-settings {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+  overflow: hidden;
+}
+
+[data-theme="dark"] .station-color-settings {
+  background: var(--glass-bg-dark);
+  border-color: var(--glass-border-dark);
+}
+
+/* Settings Header */
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px 24px;
+  background: var(--ew-gradient-primary);
+  color: white;
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+}
+
+.header-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex: 1;
+}
+
+.header-content svg {
+  flex-shrink: 0;
+  margin-top: 4px;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+}
+
+.header-text {
+  flex: 1;
+}
+
+.header-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.header-description {
+  margin: 4px 0 0 0;
+  font-size: 0.9rem;
+  opacity: 0.95;
+  font-weight: 400;
+}
+
+/* Reset Section */
+.reset-section {
+  flex-shrink: 0;
+}
+
+.reset-confirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 8px 12px;
+  border-radius: 8px;
+  animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.confirm-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* Color Grid */
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  padding: 24px;
+}
+
+/* Color Item */
+.color-item {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(0, 128, 255, 0.2);
+  border-radius: 10px;
+  padding: 16px;
+  transition: all var(--transition-fast);
+}
+
+[data-theme="dark"] .color-item {
+  background: rgba(58, 58, 58, 0.5);
+  border-color: rgba(0, 212, 255, 0.3);
+}
+
+.color-item:hover {
+  border-color: var(--ew-signal-blue);
+  box-shadow: 0 4px 12px rgba(0, 128, 255, 0.15), 0 0 16px rgba(0, 212, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+[data-theme="dark"] .color-item:hover {
+  border-color: var(--ew-signal-cyan);
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2), 0 0 16px rgba(0, 212, 255, 0.15);
+}
+
+.color-item-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+/* Station Icon */
+.station-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 0 12px rgba(255, 255, 255, 0.2);
+  transition: all var(--transition-fast);
+}
+
+.color-item:hover .station-icon {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 0 16px rgba(255, 255, 255, 0.3);
+}
+
+.color-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.color-label {
+  display: block;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin: 0;
+  cursor: pointer;
+}
+
+[data-theme="dark"] .color-label {
+  color: var(--text-primary-dark);
+}
+
+.color-description {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+[data-theme="dark"] .color-description {
+  color: var(--text-muted-dark);
+}
+
+/* Color Controls */
+.color-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Color Preview */
+.color-preview {
+  flex: 1;
+  height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .color-preview {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.color-preview::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.color-item:hover .color-preview::before {
+  left: 100%;
+}
+
+.color-hex {
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  letter-spacing: 1px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Color Picker */
+.color-picker {
+  width: 60px;
+  height: 48px;
+  border: 2px solid rgba(0, 128, 255, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background: transparent;
+  padding: 4px;
+}
+
+[data-theme="dark"] .color-picker {
+  border-color: rgba(0, 212, 255, 0.4);
+}
+
+.color-picker:hover {
+  border-color: var(--ew-signal-blue);
+  box-shadow: 0 0 16px rgba(0, 128, 255, 0.3);
+  transform: scale(1.05);
+}
+
+[data-theme="dark"] .color-picker:hover {
+  border-color: var(--ew-signal-cyan);
+  box-shadow: 0 0 16px rgba(0, 212, 255, 0.4);
+}
+
+.color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.color-picker::-webkit-color-swatch {
+  border: none;
+  border-radius: 6px;
+}
+
+.color-picker::-moz-color-swatch {
+  border: none;
+  border-radius: 6px;
+}
+
+/* Settings Footer */
+.settings-footer {
+  padding: 16px 24px 20px;
+  background: rgba(0, 128, 255, 0.05);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-top: 1px solid rgba(0, 128, 255, 0.2);
+}
+
+[data-theme="dark"] .settings-footer {
+  background: rgba(0, 212, 255, 0.08);
+  border-top-color: rgba(0, 212, 255, 0.25);
+}
+
+.info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(0, 128, 255, 0.2);
+  border-radius: 8px;
+}
+
+[data-theme="dark"] .info-box {
+  background: rgba(58, 58, 58, 0.6);
+  border-color: rgba(0, 212, 255, 0.3);
+}
+
+.info-box svg {
+  flex-shrink: 0;
+  stroke: var(--ew-signal-blue);
+  margin-top: 2px;
+}
+
+[data-theme="dark"] .info-box svg {
+  stroke: var(--ew-signal-cyan);
+}
+
+.info-text {
+  flex: 1;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+[data-theme="dark"] .info-text {
+  color: var(--text-secondary-dark);
+}
+
+.info-text strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+[data-theme="dark"] .info-text strong {
+  color: var(--text-primary-dark);
+}
+
+.customized-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, var(--ew-signal-blue) 0%, var(--ew-signal-cyan) 100%);
+  color: white;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 128, 255, 0.3);
+}
+
+.customized-badge svg {
+  width: 14px;
+  height: 14px;
+  stroke: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .settings-header {
+    flex-direction: column;
+    padding: 16px 20px;
+  }
+
+  .header-content {
+    gap: 12px;
+  }
+
+  .header-title {
+    font-size: 1.1rem;
+  }
+
+  .header-description {
+    font-size: 0.85rem;
+  }
+
+  .color-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 20px;
+  }
+
+  .reset-confirm {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 576px) {
+  .settings-header {
+    padding: 12px 16px;
+  }
+
+  .header-content svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .header-title {
+    font-size: 1rem;
+  }
+
+  .header-description {
+    font-size: 0.8rem;
+  }
+
+  .color-grid {
+    padding: 16px;
+  }
+
+  .color-item {
+    padding: 12px;
+  }
+
+  .station-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+
+  .color-preview {
+    height: 44px;
+  }
+
+  .color-picker {
+    width: 56px;
+    height: 44px;
+  }
+
+  .info-text {
+    font-size: 0.85rem;
+  }
+}

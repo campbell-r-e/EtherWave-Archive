@@ -4,6 +4,8 @@ import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Log, LogRequest, LogType } from '../../../models/log.model';
 import { LogService } from '../../../services/log/log.service';
+import { AuthService } from '../../../services/auth/auth.service';
+import { User } from '../../../models/auth/user.model';
 
 @Component({
     selector: 'app-log-selector',
@@ -19,11 +21,13 @@ export class LogSelectorComponent implements OnInit {
   loading = false;
   error: string | null = null;
   pendingInvitationsCount = 0;
+  currentUser: User | null = null;
 
   LogType = LogType;
 
   constructor(
     private logService: LogService,
+    private authService: AuthService,
     private fb: FormBuilder
   ) {
     this.createLogForm = this.fb.group({
@@ -35,6 +39,11 @@ export class LogSelectorComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Subscribe to current user
+    this.authService.currentUser.subscribe(user => {
+      this.currentUser = user;
+    });
+
     // Subscribe to logs
     this.logService.logs$.subscribe(logs => {
       this.logs = logs;
@@ -55,6 +64,14 @@ export class LogSelectorComponent implements OnInit {
 
     // Load pending invitations
     this.logService.getPendingInvitations().subscribe();
+  }
+
+  /**
+   * Check if the log is owned by the current user
+   */
+  isOwnedLog(log: Log): boolean {
+    if (!this.currentUser) return false;
+    return log.creatorId === this.currentUser.id;
   }
 
   loadLogs(): void {

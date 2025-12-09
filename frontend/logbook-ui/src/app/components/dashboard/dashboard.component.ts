@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 import { LogService } from '../../services/log/log.service';
 import { ThemeService } from '../../services/theme/theme.service';
+import { PermissionsService, UserPermissions } from '../../services/permissions/permissions.service';
 import { User } from '../../models/auth/user.model';
 import { Log, LogParticipant } from '../../models/log.model';
 import { getStationColor } from '../../config/station-colors';
@@ -13,28 +15,31 @@ import { LogSelectorComponent } from '../log/log-selector/log-selector.component
 import { QsoEntryComponent } from '../qso-entry/qso-entry.component';
 import { QsoListComponent } from '../qso-list/qso-list.component';
 import { RigStatusComponent } from '../rig-status/rig-status.component';
-import { MapVisualizationComponent } from '../map-visualization/map-visualization.component';
 import { ContestSelectionComponent } from '../contest-selection/contest-selection.component';
 import { StationManagementComponent } from '../station-management/station-management.component';
 import { ParticipantManagementComponent } from '../participant-management/participant-management.component';
 import { ExportPanelComponent } from '../export-panel/export-panel.component';
 import { ImportPanelComponent } from '../import-panel/import-panel.component';
 import { ScoreSummaryComponent } from '../score-summary/score-summary.component';
+import { FullscreenMapViewComponent } from '../fullscreen-map-view/fullscreen-map-view.component';
+import { StationColorSettingsComponent } from '../station-color-settings/station-color-settings.component';
 
 @Component({
     selector: 'app-dashboard',
     imports: [
+    CommonModule,
     LogSelectorComponent,
     QsoEntryComponent,
     QsoListComponent,
     RigStatusComponent,
-    MapVisualizationComponent,
     ContestSelectionComponent,
     StationManagementComponent,
     ParticipantManagementComponent,
     ExportPanelComponent,
     ImportPanelComponent,
-    ScoreSummaryComponent
+    ScoreSummaryComponent,
+    FullscreenMapViewComponent,
+    StationColorSettingsComponent
 ],
     templateUrl: './dashboard.component.html',
     styleUrls: ['./dashboard.component.css']
@@ -43,11 +48,14 @@ export class DashboardComponent implements OnInit {
   currentUser: User | null = null;
   currentLog: Log | null = null;
   currentParticipant: LogParticipant | null = null;
+  isMapOpen = false;
+  permissions: UserPermissions | null = null;
 
   constructor(
     private authService: AuthService,
     private logService: LogService,
     public themeService: ThemeService,
+    private permissionsService: PermissionsService,
     private router: Router
   ) {}
 
@@ -72,6 +80,11 @@ export class DashboardComponent implements OnInit {
 
     // Load pending invitations count
     this.logService.getPendingInvitations().subscribe();
+
+    // Load permissions for current user and log
+    this.permissionsService.getCurrentPermissions().subscribe(permissions => {
+      this.permissions = permissions;
+    });
   }
 
   loadCurrentParticipant(): void {
@@ -120,6 +133,14 @@ export class DashboardComponent implements OnInit {
     }
 
     return '#9E9E9E'; // Gray for unassigned
+  }
+
+  toggleMap(): void {
+    this.isMapOpen = !this.isMapOpen;
+  }
+
+  closeMap(): void {
+    this.isMapOpen = false;
   }
 
   logout(): void {

@@ -1,20 +1,232 @@
+/* ============================================================================
+   EtherWave Dashboard Styles
+   ============================================================================ */
+
 .dashboard-container {
-  background-color: #f5f5f5;
-  min-height: calc(100vh - 56px);
+  background-color: var(--bg-primary);
+  min-height: calc(100vh - 80px);
+  padding: 0;
 }
 
-.navbar-brand {
-  font-weight: bold;
+/* ============================================================================
+   EtherWave Navbar Styling
+   ============================================================================ */
+
+.ew-navbar {
+  background: var(--ew-gradient-primary);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 0.75rem 0;
+  position: relative;
+  z-index: 1000;
+}
+
+.ew-brand {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  transition: all var(--transition-base);
+}
+
+.ew-brand:hover {
+  transform: scale(1.02);
+  filter: drop-shadow(0 0 10px var(--ew-signal-cyan));
+}
+
+.ew-logo {
+  transition: all var(--transition-base);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.ew-brand-text {
   font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.navbar-text {
-  font-size: 0.95rem;
+.ew-wave {
+  background: linear-gradient(135deg, #00d4ff 0%, #00ff88 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
 }
+
+/* User Info Panel */
+.user-info-panel {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  margin-right: 1rem;
+}
+
+.user-welcome {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  margin-right: 0.5rem;
+}
+
+.text-muted-light {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+.user-name {
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.callsign-badge {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+  backdrop-filter: blur(10px);
+  color: white;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+}
+
+.station-badge {
+  color: white;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Navigation Buttons */
+.ew-btn-icon {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.ew-btn-icon:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+  color: white;
+}
+
+.ew-btn-icon.active {
+  background: rgba(0, 212, 255, 0.3);
+  border-color: var(--ew-signal-cyan);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+}
+
+.ew-btn-icon svg {
+  flex-shrink: 0;
+}
+
+.ew-btn-danger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, rgba(255, 0, 136, 0.15) 0%, rgba(204, 0, 106, 0.15) 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 0, 136, 0.3);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all var(--transition-fast);
+}
+
+.ew-btn-danger:hover {
+  background: linear-gradient(135deg, rgba(255, 0, 136, 0.3) 0%, rgba(204, 0, 106, 0.3) 100%);
+  border-color: rgba(255, 0, 136, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 0, 136, 0.4);
+  color: white;
+}
+
+.glass-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.glass-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================================================
+   Responsive Adjustments
+   ============================================================================ */
 
 @media (max-width: 991px) {
-  .navbar-text {
-    display: block;
-    margin-bottom: 10px;
+  .user-info-panel {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-right: 0;
+    margin-bottom: 1rem;
+    width: 100%;
+  }
+
+  .ew-btn-icon,
+  .ew-btn-danger {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .navbar-nav {
+    width: 100%;
+  }
+
+  .navbar-nav .nav-item {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .ew-brand-text {
+    font-size: 1.25rem;
+  }
+
+  .ew-logo {
+    height: 40px !important;
+  }
+
+  .user-welcome {
+    width: 100%;
+  }
+
+  .callsign-badge,
+  .station-badge {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
   }
 }

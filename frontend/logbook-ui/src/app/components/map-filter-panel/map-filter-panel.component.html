@@ -13,9 +13,11 @@
     <div class="filter-title">
       <i class="bi bi-funnel"></i>
       <span>Map Filters</span>
-      <span class="badge bg-primary ms-2" *ngIf="activeFilterCount > 0">
-        {{ activeFilterCount }}
-      </span>
+      @if (activeFilterCount > 0) {
+        <span class="badge bg-primary ms-2">
+          {{ activeFilterCount }}
+        </span>
+      }
     </div>
     <button class="btn btn-sm btn-link toggle-btn" type="button">
       <i class="bi" [class.bi-chevron-down]="!isExpanded" [class.bi-chevron-up]="isExpanded"></i>
@@ -23,86 +25,110 @@
   </div>
 
   <!-- Active Filters Pills (always visible) -->
-  <div class="active-filters" *ngIf="hasActiveFilters()">
-    <div class="filter-pills">
-      <span class="filter-pill" *ngIf="filters.band">
-        <strong>{{ getFilterLabel('band') }}:</strong> {{ getFilterDisplayText('band') }}
-        <button class="btn-close-pill" (click)="removeFilter('band')" type="button">
-          <i class="bi bi-x"></i>
-        </button>
-      </span>
+  @if (hasActiveFilters()) {
+    <div class="active-filters">
+      <div class="filter-pills">
+        @if (filters.band) {
+          <span class="filter-pill">
+            <strong>{{ getFilterLabel('band') }}:</strong> {{ getFilterDisplayText('band') }}
+            <button class="btn-close-pill" (click)="removeFilter('band')" type="button">
+              <i class="bi bi-x"></i>
+            </button>
+          </span>
+        }
 
-      <span class="filter-pill" *ngIf="filters.mode">
-        <strong>{{ getFilterLabel('mode') }}:</strong> {{ getFilterDisplayText('mode') }}
-        <button class="btn-close-pill" (click)="removeFilter('mode')" type="button">
-          <i class="bi bi-x"></i>
-        </button>
-      </span>
+        @if (filters.mode) {
+          <span class="filter-pill">
+            <strong>{{ getFilterLabel('mode') }}:</strong> {{ getFilterDisplayText('mode') }}
+            <button class="btn-close-pill" (click)="removeFilter('mode')" type="button">
+              <i class="bi bi-x"></i>
+            </button>
+          </span>
+        }
 
-      <span class="filter-pill" *ngIf="filters.station">
-        <strong>{{ getFilterLabel('station') }}:</strong> {{ getFilterDisplayText('station') }}
-        <button class="btn-close-pill" (click)="removeFilter('station')" type="button">
-          <i class="bi bi-x"></i>
-        </button>
-      </span>
+        @if (filters.station) {
+          <span class="filter-pill">
+            <strong>{{ getFilterLabel('station') }}:</strong> {{ getFilterDisplayText('station') }}
+            <button class="btn-close-pill" (click)="removeFilter('station')" type="button">
+              <i class="bi bi-x"></i>
+            </button>
+          </span>
+        }
 
-      <span class="filter-pill" *ngIf="filters.operator">
-        <strong>{{ getFilterLabel('operator') }}:</strong> {{ getFilterDisplayText('operator') }}
-        <button class="btn-close-pill" (click)="removeFilter('operator')" type="button">
-          <i class="bi bi-x"></i>
-        </button>
-      </span>
+        @if (filters.operator) {
+          <span class="filter-pill">
+            <strong>{{ getFilterLabel('operator') }}:</strong> {{ getFilterDisplayText('operator') }}
+            <button class="btn-close-pill" (click)="removeFilter('operator')" type="button">
+              <i class="bi bi-x"></i>
+            </button>
+          </span>
+        }
 
-      <span class="filter-pill" *ngIf="filters.dxcc">
-        <strong>{{ getFilterLabel('dxcc') }}:</strong> {{ getFilterDisplayText('dxcc') }}
-        <button class="btn-close-pill" (click)="removeFilter('dxcc')" type="button">
-          <i class="bi bi-x"></i>
-        </button>
-      </span>
+        @if (filters.dxcc) {
+          <span class="filter-pill">
+            <strong>{{ getFilterLabel('dxcc') }}:</strong> {{ getFilterDisplayText('dxcc') }}
+            <button class="btn-close-pill" (click)="removeFilter('dxcc')" type="button">
+              <i class="bi bi-x"></i>
+            </button>
+          </span>
+        }
 
-      <span class="filter-pill" *ngIf="filters.dateFrom">
-        <strong>{{ getFilterLabel('dateFrom') }}:</strong> {{ getFilterDisplayText('dateFrom') }}
-        <button class="btn-close-pill" (click)="removeFilter('dateFrom')" type="button">
-          <i class="bi bi-x"></i>
-        </button>
-      </span>
+        @if (filters.dateFrom) {
+          <span class="filter-pill">
+            <strong>{{ getFilterLabel('dateFrom') }}:</strong> {{ getFilterDisplayText('dateFrom') }}
+            <button class="btn-close-pill" (click)="removeFilter('dateFrom')" type="button">
+              <i class="bi bi-x"></i>
+            </button>
+          </span>
+        }
 
-      <span class="filter-pill" *ngIf="filters.dateTo">
-        <strong>{{ getFilterLabel('dateTo') }}:</strong> {{ getFilterDisplayText('dateTo') }}
-        <button class="btn-close-pill" (click)="removeFilter('dateTo')" type="button">
-          <i class="bi bi-x"></i>
-        </button>
-      </span>
+        @if (filters.dateTo) {
+          <span class="filter-pill">
+            <strong>{{ getFilterLabel('dateTo') }}:</strong> {{ getFilterDisplayText('dateTo') }}
+            <button class="btn-close-pill" (click)="removeFilter('dateTo')" type="button">
+              <i class="bi bi-x"></i>
+            </button>
+          </span>
+        }
 
-      <span class="filter-pill" *ngIf="filters.confirmed !== undefined">
-        <strong>{{ getFilterLabel('confirmed') }}:</strong> {{ getFilterDisplayText('confirmed') }}
-        <button class="btn-close-pill" (click)="removeFilter('confirmed')" type="button">
-          <i class="bi bi-x"></i>
-        </button>
-      </span>
+        @if (filters.confirmed !== undefined) {
+          <span class="filter-pill">
+            <strong>{{ getFilterLabel('confirmed') }}:</strong> {{ getFilterDisplayText('confirmed') }}
+            <button class="btn-close-pill" (click)="removeFilter('confirmed')" type="button">
+              <i class="bi bi-x"></i>
+            </button>
+          </span>
+        }
 
-      <span class="filter-pill" *ngIf="filters.continent">
-        <strong>{{ getFilterLabel('continent') }}:</strong> {{ getFilterDisplayText('continent') }}
-        <button class="btn-close-pill" (click)="removeFilter('continent')" type="button">
-          <i class="bi bi-x"></i>
-        </button>
-      </span>
+        @if (filters.continent) {
+          <span class="filter-pill">
+            <strong>{{ getFilterLabel('continent') }}:</strong> {{ getFilterDisplayText('continent') }}
+            <button class="btn-close-pill" (click)="removeFilter('continent')" type="button">
+              <i class="bi bi-x"></i>
+            </button>
+          </span>
+        }
 
-      <span class="filter-pill" *ngIf="filters.state">
-        <strong>{{ getFilterLabel('state') }}:</strong> {{ getFilterDisplayText('state') }}
-        <button class="btn-close-pill" (click)="removeFilter('state')" type="button">
-          <i class="bi bi-x"></i>
-        </button>
-      </span>
+        @if (filters.state) {
+          <span class="filter-pill">
+            <strong>{{ getFilterLabel('state') }}:</strong> {{ getFilterDisplayText('state') }}
+            <button class="btn-close-pill" (click)="removeFilter('state')" type="button">
+              <i class="bi bi-x"></i>
+            </button>
+          </span>
+        }
 
-      <span class="filter-pill" *ngIf="filters.exchange">
-        <strong>{{ getFilterLabel('exchange') }}:</strong> {{ getFilterDisplayText('exchange') }}
-        <button class="btn-close-pill" (click)="removeFilter('exchange')" type="button">
-          <i class="bi bi-x"></i>
-        </button>
-      </span>
+        @if (filters.exchange) {
+          <span class="filter-pill">
+            <strong>{{ getFilterLabel('exchange') }}:</strong> {{ getFilterDisplayText('exchange') }}
+            <button class="btn-close-pill" (click)="removeFilter('exchange')" type="button">
+              <i class="bi bi-x"></i>
+            </button>
+          </span>
+        }
+      </div>
     </div>
-  </div>
+  }
 
   <!-- Filter Form (collapsible) -->
   <div class="filter-body" [class.expanded]="isExpanded">
@@ -115,7 +141,9 @@
           </label>
           <select id="bandFilter" class="form-select" [(ngModel)]="filters.band" name="band">
             <option [ngValue]="undefined">All Bands</option>
-            <option *ngFor="let band of availableBands" [value]="band">{{ band }}</option>
+            @for (band of availableBands; track band) {
+              <option [value]="band">{{ band }}</option>
+            }
           </select>
         </div>
 
@@ -126,7 +154,9 @@
           </label>
           <select id="modeFilter" class="form-select" [(ngModel)]="filters.mode" name="mode">
             <option [ngValue]="undefined">All Modes</option>
-            <option *ngFor="let mode of availableModes" [value]="mode">{{ mode }}</option>
+            @for (mode of availableModes; track mode) {
+              <option [value]="mode">{{ mode }}</option>
+            }
           </select>
         </div>
 
@@ -137,7 +167,9 @@
           </label>
           <select id="stationFilter" class="form-select" [(ngModel)]="filters.station" name="station">
             <option [ngValue]="undefined">All Stations</option>
-            <option *ngFor="let station of availableStations" [value]="station">Station {{ station }}</option>
+            @for (station of availableStations; track station) {
+              <option [value]="station">Station {{ station }}</option>
+            }
           </select>
         </div>
 
@@ -176,7 +208,9 @@
           </label>
           <select id="continentFilter" class="form-select" [(ngModel)]="filters.continent" name="continent">
             <option [ngValue]="undefined">All Continents</option>
-            <option *ngFor="let continent of availableContinents" [value]="continent">{{ continent }}</option>
+            @for (continent of availableContinents; track continent) {
+              <option [value]="continent">{{ continent }}</option>
+            }
           </select>
         </div>
 

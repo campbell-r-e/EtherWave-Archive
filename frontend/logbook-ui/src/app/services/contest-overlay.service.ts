@@ -21,7 +21,7 @@ export class ContestOverlayService {
     map: L.Map,
     logId: number
   ): Promise<L.LayerGroup> {
-    const response = await this.mapService.getCQZoneOverlay(logId).toPromise();
+    const response: any = await this.mapService.getContestOverlay(logId, 'CQ_ZONES').toPromise();
 
     if (!response) {
       throw new Error('Failed to load CQ zone data');
@@ -29,7 +29,7 @@ export class ContestOverlayService {
 
     const layerGroup = L.layerGroup();
 
-    response.zones.forEach(zone => {
+    response.zones.forEach((zone: any) => {
       const marker = this.createZoneMarker(
         zone.zone.toString(),
         zone.centerLat,
@@ -53,7 +53,7 @@ export class ContestOverlayService {
     map: L.Map,
     logId: number
   ): Promise<L.LayerGroup> {
-    const response = await this.mapService.getITUZoneOverlay(logId).toPromise();
+    const response: any = await this.mapService.getContestOverlay(logId, 'ITU_ZONES').toPromise();
 
     if (!response) {
       throw new Error('Failed to load ITU zone data');
@@ -61,7 +61,7 @@ export class ContestOverlayService {
 
     const layerGroup = L.layerGroup();
 
-    response.zones.forEach(zone => {
+    response.zones.forEach((zone: any) => {
       const marker = this.createZoneMarker(
         zone.zone.toString(),
         zone.centerLat,
@@ -85,7 +85,7 @@ export class ContestOverlayService {
     map: L.Map,
     logId: number
   ): Promise<L.LayerGroup> {
-    const response = await this.mapService.getARRLSectionsOverlay(logId).toPromise();
+    const response: any = await this.mapService.getContestOverlay(logId, 'ARRL_SECTIONS').toPromise();
 
     if (!response) {
       throw new Error('Failed to load ARRL sections data');
@@ -93,7 +93,7 @@ export class ContestOverlayService {
 
     const layerGroup = L.layerGroup();
 
-    response.sections.forEach(section => {
+    response.sections.forEach((section: any) => {
       const marker = this.createSectionMarker(
         section.section,
         section.centerLat,
@@ -117,7 +117,7 @@ export class ContestOverlayService {
     map: L.Map,
     logId: number
   ): Promise<L.LayerGroup> {
-    const response = await this.mapService.getDXCCOverlay(logId).toPromise();
+    const response: any = await this.mapService.getContestOverlay(logId, 'DXCC').toPromise();
 
     if (!response) {
       throw new Error('Failed to load DXCC data');
@@ -125,7 +125,7 @@ export class ContestOverlayService {
 
     const layerGroup = L.layerGroup();
 
-    response.entities.forEach(entity => {
+    response.entities.forEach((entity: any) => {
       const marker = this.createDXCCMarker(
         entity.dxccCode,
         entity.name,

@@ -3,8 +3,10 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { LogService } from '../../services/log/log.service';
+import { AuthService } from '../../services/auth/auth.service';
 import { QSORequest, QSO } from '../../models/qso.model';
 import { Station, Contest } from '../../models/station.model';
+import { User } from '../../models/auth/user.model';
 import { getAllBandNames, frequencyToBand } from '../../models/band.constants';
 
 @Component({
@@ -33,9 +35,14 @@ export class QsoEntryComponent implements OnInit {
   // Contest-specific fields
   contestDataFields: any = {};
 
+  // Current user for operator autofill
+  currentUser: User | null = null;
+  operatorCallsign: string = '';
+
   constructor(
     private apiService: ApiService,
-    private logService: LogService
+    private logService: LogService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -43,6 +50,18 @@ export class QsoEntryComponent implements OnInit {
     this.loadContests();
     this.setCurrentDateTime();
     this.loadStationAssignment();
+    this.loadCurrentUser();
+  }
+
+  loadCurrentUser(): void {
+    this.authService.currentUser.subscribe(user => {
+      this.currentUser = user;
+      if (user) {
+        // Autofill operator with current user's ID and callsign
+        this.qso.operatorId = user.id;
+        this.operatorCallsign = user.callsign || user.username;
+      }
+    });
   }
 
   getEmptyQSO(): QSORequest {

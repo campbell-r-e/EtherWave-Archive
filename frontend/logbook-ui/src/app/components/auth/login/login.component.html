@@ -1,33 +1,62 @@
-<div class="login-container">
-  <div class="login-card">
-    <div class="text-center mb-4">
+<div class="ew-login-container signal-pattern">
+  <!-- Animated background elements -->
+  <div class="ew-signal-waves"></div>
+
+  <div class="ew-login-card glass-card">
+    <!-- Header Section -->
+    <div class="ew-login-header text-center mb-4">
       <!-- EtherWave Archive Logo -->
-      <img [src]="themeService.isDarkTheme() ? 'assets/branding/logo-dark.png' : 'assets/branding/logo.png'"
-           alt="EtherWave Archive"
-           height="80"
-           class="mb-3">
-      <h1 class="h3" style="color: #003F87;">EtherWave Archive</h1>
-      <p class="text-muted">Sign in to your account</p>
+      <div class="ew-logo-wrapper mb-3">
+        <img [src]="themeService.isDarkTheme() ? 'assets/branding/logo-dark.png' : 'assets/branding/logo.png'"
+             alt="EtherWave Archive"
+             height="100"
+             class="ew-logo-img">
+      </div>
+      <h1 class="ew-title">
+        Ether<span class="ew-wave-accent">Wave</span> Archive
+      </h1>
+      <p class="ew-subtitle">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+          <polyline points="10 17 15 12 10 7"/>
+          <line x1="15" y1="12" x2="3" y2="12"/>
+        </svg>
+        Sign in to access your logbook
+      </p>
     </div>
 
+    <!-- Error Alert -->
     @if (error) {
-      <div class="alert alert-danger" role="alert" aria-live="polite" aria-atomic="true">
-        {{ error }}
+      <div class="ew-alert ew-alert-error mb-3" role="alert" aria-live="polite" aria-atomic="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span>{{ error }}</span>
       </div>
     }
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <!-- Login Form -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="ew-login-form">
       <!-- Username or Email -->
-      <div class="mb-3">
-        <label for="usernameOrEmail" class="form-label">Username or Email</label>
+      <div class="ew-form-group mb-3">
+        <label for="usernameOrEmail" class="ew-form-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          Username or Email
+        </label>
         <input type="text"
           id="usernameOrEmail"
-          class="form-control"
+          class="ew-form-control"
           formControlName="usernameOrEmail"
-          [class.is-invalid]="submitted && f['usernameOrEmail'].errors"
-          placeholder="Enter username or email">
+          [class.ew-invalid]="submitted && f['usernameOrEmail'].errors"
+          placeholder="Enter your username or email"
+          autocomplete="username">
         @if (submitted && f['usernameOrEmail'].errors) {
-          <div class="invalid-feedback">
+          <div class="ew-error-message">
             @if (f['usernameOrEmail'].errors['required']) {
               <div>Username or email is required</div>
             }
@@ -36,16 +65,23 @@
       </div>
 
       <!-- Password -->
-      <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
+      <div class="ew-form-group mb-4">
+        <label for="password" class="ew-form-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          Password
+        </label>
         <input type="password"
           id="password"
-          class="form-control"
+          class="ew-form-control"
           formControlName="password"
-          [class.is-invalid]="submitted && f['password'].errors"
-          placeholder="Enter password">
+          [class.ew-invalid]="submitted && f['password'].errors"
+          placeholder="Enter your password"
+          autocomplete="current-password">
         @if (submitted && f['password'].errors) {
-          <div class="invalid-feedback">
+          <div class="ew-error-message">
             @if (f['password'].errors['required']) {
               <div>Password is required</div>
             }
@@ -55,22 +91,44 @@
 
       <!-- Submit Button -->
       <button type="submit"
-        class="btn btn-primary w-100 mb-3"
+        class="ew-submit-btn w-100 mb-3"
         [disabled]="loading"
+        [class.loading]="loading"
         [attr.aria-busy]="loading">
         @if (loading) {
-          <span class="spinner-border spinner-border-sm me-2" role="status" aria-label="Loading"></span>
+          <span class="ew-spinner" role="status" aria-label="Loading"></span>
         }
-        {{ loading ? 'Signing in...' : 'Sign In' }}
+        @if (!loading) {
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+            <polyline points="10 17 15 12 10 7"/>
+            <line x1="15" y1="12" x2="3" y2="12"/>
+          </svg>
+        }
+        <span>{{ loading ? 'Signing in...' : 'Sign In' }}</span>
       </button>
 
       <!-- Register Link -->
-      <div class="text-center">
+      <div class="ew-footer-link text-center">
         <p class="mb-0">
           Don't have an account?
-          <a routerLink="/register" class="text-primary" aria-label="Register for a new account">Register here</a>
+          <a routerLink="/register" class="ew-link" aria-label="Register for a new account">
+            Create one now
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </a>
         </p>
       </div>
     </form>
+  </div>
+
+  <!-- Footer Badge -->
+  <div class="ew-login-footer">
+    <div class="ew-badge">
+      <span class="ew-badge-icon">📡</span>
+      <span>Amateur Radio Logging Platform</span>
+    </div>
   </div>
 </div>

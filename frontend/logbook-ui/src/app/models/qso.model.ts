@@ -1,9 +1,11 @@
 export interface QSO {
   id?: number;
+  logId?: number;
   stationId: number;
   stationName?: string;
   operatorId?: number;
   operatorCallsign?: string;
+  operator?: string;
   contestId?: number;
   contestCode?: string;
 
@@ -21,6 +23,8 @@ export interface QSO {
 
   // Location
   gridSquare?: string;
+  latitude?: number;
+  longitude?: number;
   county?: string;
   state?: string;
   country?: string;

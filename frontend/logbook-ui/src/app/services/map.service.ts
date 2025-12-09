@@ -186,14 +186,15 @@ export interface MapDataResponse {
 export interface MapMarker {
   lat: number;
   lon: number;
-  qsoId: number;
+  qsoId?: number;
   callsign: string;
-  grid: string;
+  grid?: string;
   distance?: number;
   bearing?: number;
   station?: number;
   band?: string;
   mode?: string;
+  timestamp?: string;
 }
 
 export interface MapCluster {

@@ -23,7 +23,10 @@
       "Bash(mvn compile:*)",
       "Bash(npm install:*)",
       "Bash(mvn test:*)",
-      "Bash(mvn clean test:*)"
+      "Bash(mvn clean test:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker-compose ps:*)",
+      "Bash(docker-compose build:*)"
     ],
     "deny": [],
     "ask": []

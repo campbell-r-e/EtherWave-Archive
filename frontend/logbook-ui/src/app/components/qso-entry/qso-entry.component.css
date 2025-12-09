@@ -1,13 +1,41 @@
+/* ============================================================================
+   EtherWave QSO Entry Styling
+   ============================================================================ */
+
 .form-control-lg {
   font-size: 1.5rem;
-  font-weight: bold;
+  font-weight: 700;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  transition: all var(--transition-fast);
+}
+
+.form-control-lg:focus {
+  border-color: var(--ew-signal-cyan);
+  box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.15), var(--shadow-glow);
+  background-color: var(--bg-elevated);
 }
 
 .btn-link {
   text-decoration: none;
   padding: 0.25rem 0;
+  color: var(--ew-signal-cyan);
+  font-weight: 600;
+  transition: all var(--transition-fast);
 }
 
 .btn-link:hover {
-  text-decoration: underline;
+  color: var(--ew-signal-blue);
+  text-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
+  text-decoration: none;
+}
+
+/* Glassmorphism for QSO entry card */
+.card {
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border) !important;
 }

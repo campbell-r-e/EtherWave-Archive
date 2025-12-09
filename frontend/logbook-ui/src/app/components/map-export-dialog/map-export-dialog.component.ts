@@ -62,14 +62,14 @@ export class MapExportDialogComponent {
     this.errorMessage = '';
 
     try {
-      const response = await this.mapService.exportMap(
+      const response = await this.mapService.exportMapData(
         this.logId,
-        this.selectedFormat,
+        this.selectedFormat.toUpperCase() as any,
         this.filters
       ).toPromise();
 
       if (!response || !response.success) {
-        throw new Error(response?.message || 'Export failed');
+        throw new Error(response?.error || 'Export failed');
       }
 
       // Create download link

@@ -1,0 +1,141 @@
+<!-- Contest Overlay Controls -->
+<div class="contest-overlay-controls">
+  <!-- Toggle Button -->
+  <button
+    type="button"
+    class="btn ew-btn-glass overlay-toggle-btn"
+    (click)="togglePanel()"
+    [class.active]="isExpanded"
+    [attr.aria-expanded]="isExpanded">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+      <circle cx="12" cy="10" r="3"/>
+    </svg>
+    Contest Overlays
+    @if (getActiveOverlayCount() > 0) {
+      <span class="badge bg-primary ms-2">{{ getActiveOverlayCount() }}</span>
+    }
+    <i class="bi ms-2" [class.bi-chevron-down]="!isExpanded" [class.bi-chevron-up]="isExpanded"></i>
+  </button>
+
+  <!-- Dropdown Panel -->
+  @if (isExpanded) {
+    <div class="overlay-panel glass-panel">
+      <div class="panel-header">
+        <span class="panel-title">
+          <i class="bi bi-trophy"></i>
+          Contest Overlay Layers
+        </span>
+        @if (hasActiveOverlays()) {
+          <button
+            type="button"
+            class="btn btn-sm btn-link clear-btn"
+            (click)="clearAll()">
+            <i class="bi bi-x-circle"></i> Clear All
+          </button>
+        }
+      </div>
+
+      <div class="panel-body">
+        <!-- CQ Zones -->
+        <div class="overlay-option">
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="cqZones"
+              [(ngModel)]="overlays.cqZones"
+              (change)="onOverlayChange()">
+            <label class="form-check-label" for="cqZones">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="2" x2="12" y2="22"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+              </svg>
+              <span class="overlay-name">CQ Zones</span>
+              <span class="overlay-count">40 zones</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- ITU Zones -->
+        <div class="overlay-option">
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="ituZones"
+              [(ngModel)]="overlays.ituZones"
+              (change)="onOverlayChange()">
+            <label class="form-check-label" for="ituZones">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              </svg>
+              <span class="overlay-name">ITU Zones</span>
+              <span class="overlay-count">90 zones</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- ARRL Sections -->
+        <div class="overlay-option">
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="arrlSections"
+              [(ngModel)]="overlays.arrlSections"
+              (change)="onOverlayChange()">
+            <label class="form-check-label" for="arrlSections">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"/>
+                <rect x="14" y="3" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/>
+              </svg>
+              <span class="overlay-name">ARRL Sections</span>
+              <span class="overlay-count">83 sections</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- DXCC Entities -->
+        <div class="overlay-option">
+          <div class="form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="dxccEntities"
+              [(ngModel)]="overlays.dxccEntities"
+              (change)="onOverlayChange()">
+            <label class="form-check-label" for="dxccEntities">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+              <span class="overlay-name">DXCC Entities</span>
+              <span class="overlay-count">340+ countries</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Color Legend -->
+        @if (hasActiveOverlays()) {
+          <div class="overlay-legend">
+            <div class="legend-title">Color Guide</div>
+            <div class="legend-items">
+              <div class="legend-item">
+                <span class="legend-color worked"></span>
+                <span class="legend-label">Worked</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color needed"></span>
+                <span class="legend-label">Needed</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

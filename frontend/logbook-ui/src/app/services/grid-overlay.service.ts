@@ -82,15 +82,15 @@ export class GridOverlayService {
     rectangle.bindPopup(popupContent);
 
     // Highlight on hover
-    rectangle.on('mouseover', function() {
-      this.setStyle({
+    rectangle.on('mouseover', () => {
+      rectangle.setStyle({
         weight: 3,
         fillOpacity: isWorked ? 0.7 : 0.2
       });
     });
 
-    rectangle.on('mouseout', function() {
-      this.setStyle({
+    rectangle.on('mouseout', () => {
+      rectangle.setStyle({
         weight: weight,
         fillOpacity: fillOpacity
       });

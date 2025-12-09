@@ -1,55 +1,355 @@
-.login-container {
+/* ============================================================================
+   EtherWave Login Page Styling
+   ============================================================================ */
+
+.ew-login-container {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--ew-gradient-signal);
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated Signal Wave Background */
+.ew-signal-waves {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 50% 20%, rgba(0, 128, 255, 0.1) 0%, transparent 50%);
+  animation: pulse-waves 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pulse-waves {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+/* Login Card */
+.ew-login-card {
+  max-width: 480px;
+  width: 100%;
+  padding: 2.5rem;
+  position: relative;
+  z-index: 10;
+  animation: fade-in 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Header Section */
+.ew-login-header {
+  margin-bottom: 2rem;
+}
+
+.ew-logo-wrapper {
+  display: inline-block;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.ew-logo-img {
+  filter: drop-shadow(0 4px 12px rgba(0, 212, 255, 0.3));
+  transition: all var(--transition-base);
+}
+
+.ew-logo-img:hover {
+  filter: drop-shadow(0 8px 24px rgba(0, 212, 255, 0.5));
+  transform: scale(1.05);
+}
+
+.ew-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.ew-wave-accent {
+  background: var(--ew-gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 900;
+}
+
+.ew-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+  gap: 0.25rem;
 }
 
-.login-card {
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  padding: 40px;
-  max-width: 450px;
+.ew-subtitle svg {
+  color: var(--ew-signal-cyan);
+}
+
+/* Alert Styling */
+.ew-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.ew-alert-error {
+  background: rgba(255, 0, 136, 0.1);
+  border-left-color: var(--accent-error);
+  color: var(--text-primary);
+}
+
+.ew-alert svg {
+  flex-shrink: 0;
+  color: var(--accent-error);
+}
+
+/* Form Styling */
+.ew-login-form {
+  margin-top: 1.5rem;
+}
+
+.ew-form-group {
+  position: relative;
+}
+
+.ew-form-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.ew-form-label svg {
+  color: var(--ew-signal-cyan);
+  flex-shrink: 0;
+}
+
+.ew-form-control {
   width: 100%;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  transition: all var(--transition-fast);
 }
 
-.login-card h2 {
-  color: #333;
-  margin-bottom: 10px;
+.ew-form-control:focus {
+  outline: none;
+  border-color: var(--ew-signal-cyan);
+  box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.1), var(--shadow-glow);
+  background-color: var(--bg-elevated);
 }
 
-.form-label {
-  font-weight: 600;
-  color: #555;
+.ew-form-control::placeholder {
+  color: var(--text-muted);
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.ew-form-control.ew-invalid {
+  border-color: var(--accent-error);
+  box-shadow: 0 0 0 4px rgba(255, 0, 136, 0.1);
+}
+
+.ew-error-message {
+  color: var(--accent-error);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+/* Submit Button */
+.ew-submit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--ew-gradient-primary);
   border: none;
-  padding: 12px;
+  color: white;
+  padding: 1rem;
+  border-radius: 8px;
   font-weight: 600;
-  transition: transform 0.2s;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
 }
 
-.btn-primary:hover:not(:disabled) {
+.ew-submit-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.ew-submit-btn:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.ew-submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: var(--shadow-lg), var(--shadow-glow-strong);
 }
 
-.btn-primary:disabled {
+.ew-submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.ew-submit-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }
 
-.text-primary {
-  color: #667eea !important;
-  text-decoration: none;
-  font-weight: 600;
+.ew-submit-btn.loading {
+  pointer-events: none;
 }
 
-.text-primary:hover {
-  text-decoration: underline;
+.ew-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Footer Link */
+.ew-footer-link {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.ew-link {
+  color: var(--ew-signal-cyan);
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all var(--transition-fast);
+}
+
+.ew-link:hover {
+  color: var(--ew-signal-blue);
+  text-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+  gap: 0.5rem;
+}
+
+.ew-link svg {
+  transition: transform var(--transition-fast);
+}
+
+.ew-link:hover svg {
+  transform: translateX(2px);
+}
+
+/* Login Footer Badge */
+.ew-login-footer {
+  margin-top: 2rem;
+  text-align: center;
+  position: relative;
+  z-index: 10;
+}
+
+.ew-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-md);
+}
+
+.ew-badge-icon {
+  font-size: 1.2rem;
+}
+
+/* Dark Theme Adjustments */
+body.dark-theme .ew-login-card {
+  box-shadow: var(--shadow-xl), 0 0 40px rgba(0, 212, 255, 0.15);
+}
+
+body.dark-theme .ew-form-control {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color-dark);
+}
+
+body.dark-theme .ew-form-control:focus {
+  background-color: var(--bg-elevated);
+  border-color: var(--ew-signal-cyan);
+}
+
+/* Responsive Design */
+@media (max-width: 576px) {
+  .ew-login-container {
+    padding: 1rem;
+  }
+
+  .ew-login-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .ew-title {
+    font-size: 1.75rem;
+  }
+
+  .ew-logo-img {
+    height: 80px !important;
+  }
+
+  .ew-subtitle {
+    font-size: 0.875rem;
+  }
+
+  .ew-form-control {
+    padding: 0.75rem 0.875rem;
+  }
+
+  .ew-submit-btn {
+    padding: 0.875rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .ew-logo-wrapper,
+  .ew-signal-waves {
+    animation: none;
+  }
 }

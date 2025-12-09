@@ -1,60 +1,133 @@
+/* ============================================================================
+   EtherWave Registration Page Styling
+   ============================================================================ */
+
 .register-container {
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+  background: var(--ew-gradient-signal);
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.register-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(0, 255, 136, 0.1) 0%, transparent 50%);
+  animation: pulse-waves 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pulse-waves {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
 }
 
 .register-card {
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  padding: 40px;
-  max-width: 800px;
+  max-width: 700px;
   width: 100%;
-  max-height: 95vh;
+  padding: 2.5rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  z-index: 10;
+  animation: fade-in 0.5s ease;
+  max-height: 90vh;
   overflow-y: auto;
 }
 
-.register-card h2 {
-  color: #333;
-  margin-bottom: 10px;
+.register-card h2,
+.register-card h1 {
+  color: var(--text-primary);
 }
 
 .form-label {
+  color: var(--text-primary);
   font-weight: 600;
-  color: #555;
-}
-
-.optional-section {
-  background-color: #f8f9fa;
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-}
-
-.optional-section h6 {
-  font-weight: bold;
-  margin-bottom: 15px;
+  font-size: 0.9rem;
 }
 
 .text-danger {
-  color: #dc3545;
+  color: var(--accent-error);
+}
+
+.form-control {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.875rem 1rem;
+  transition: all var(--transition-fast);
+}
+
+.form-control:focus {
+  border-color: var(--ew-signal-cyan);
+  box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.1), var(--shadow-glow);
+  background-color: var(--bg-elevated);
+}
+
+.form-control.is-invalid {
+  border-color: var(--accent-error);
+  box-shadow: 0 0 0 4px rgba(255, 0, 136, 0.1);
+}
+
+.invalid-feedback {
+  color: var(--accent-error);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: block;
+}
+
+.alert-danger {
+  background: rgba(255, 0, 136, 0.1);
+  border: none;
+  border-left: 4px solid var(--accent-error);
+  color: var(--text-primary);
+  backdrop-filter: blur(8px);
+}
+
+.optional-section {
+  background: rgba(0, 212, 255, 0.05);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.optional-section h6 {
+  color: var(--ew-signal-cyan);
+  font-weight: 700;
+  margin-bottom: 1rem;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--ew-gradient-primary);
   border: none;
-  padding: 12px;
+  color: white;
+  padding: 1rem;
   font-weight: 600;
-  transition: transform 0.2s;
+  border-radius: 8px;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-md);
 }
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: var(--shadow-lg), var(--shadow-glow-strong);
 }
 
 .btn-primary:disabled {
@@ -63,17 +136,33 @@
 }
 
 .text-primary {
-  color: #667eea !important;
-  text-decoration: none;
+  color: var(--ew-signal-cyan) !important;
   font-weight: 600;
+  text-decoration: none;
+  transition: all var(--transition-fast);
 }
 
 .text-primary:hover {
-  text-decoration: underline;
+  color: var(--ew-signal-blue) !important;
+  text-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+}
+
+body.dark-theme .register-card {
+  box-shadow: var(--shadow-xl), 0 0 40px rgba(0, 212, 255, 0.15);
 }
 
 @media (max-width: 768px) {
+  .register-container {
+    padding: 1rem;
+  }
+
   .register-card {
-    padding: 20px;
+    padding: 2rem 1.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .register-container::before {
+    animation: none;
   }
 }
