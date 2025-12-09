@@ -5,6 +5,7 @@
 .contest-overlay-controls {
   position: relative;
   display: inline-block;
+  z-index: 3000;
 }
 
 /* Toggle Button */
@@ -83,7 +84,7 @@
   border: 1px solid var(--glass-border);
   border-radius: 12px;
   box-shadow: var(--shadow-lg), var(--shadow-glow);
-  z-index: 1000;
+  z-index: 9999;
   animation: slideDown 0.2s ease-out;
 }
 
