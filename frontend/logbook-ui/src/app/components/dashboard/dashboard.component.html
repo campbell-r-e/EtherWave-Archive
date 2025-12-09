@@ -112,18 +112,6 @@
 <div class="dashboard-container">
   <div class="container-fluid py-4">
 
-    <!-- No Log Selected Warning -->
-    @if (!currentLog) {
-      <div class="row mb-4">
-        <div class="col-12">
-          <div class="alert alert-warning" role="alert" aria-live="polite">
-            <h2 class="alert-heading h4">No Log Selected</h2>
-            <p>Please select or create a logbook from the dropdown above to start logging QSOs.</p>
-          </div>
-        </div>
-      </div>
-    }
-
     <!-- Dashboard Content (Only show when log is selected) -->
     @if (currentLog) {
       <div>
@@ -196,6 +184,18 @@
       </div>
     }
     <!-- End Dashboard Content -->
+
+    <!-- No Log Selected Warning (positioned at bottom) -->
+    @if (!currentLog) {
+      <div class="row mb-4 mt-5">
+        <div class="col-12 d-flex justify-content-center">
+          <div class="alert alert-warning text-center" role="alert" aria-live="polite" style="max-width: 600px;">
+            <h2 class="alert-heading h4">No Log Selected</h2>
+            <p class="mb-0">Please select or create a logbook from the dropdown above to start logging QSOs.</p>
+          </div>
+        </div>
+      </div>
+    }
 
   </div>
 </div>
