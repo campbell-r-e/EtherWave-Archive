@@ -1,7 +1,7 @@
 <div class="card">
   <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
-    <h5 class="mb-0">🏆 Contest Selection</h5>
-    <button class="btn btn-sm btn-outline-dark" (click)="toggleShowAll()">
+    <h2 class="h5 mb-0"><span role="img" aria-label="Trophy">🏆</span> Contest Selection</h2>
+    <button class="btn btn-sm btn-outline-dark" (click)="toggleShowAll()" aria-label="{{ showAllContests ? 'Show active contests only' : 'Show all contests including past and future' }}">
       {{ showAllContests ? 'Show Active Only' : 'Show All Contests' }}
     </button>
   </div>
@@ -24,14 +24,14 @@
 
     <!-- Selected Contest Display -->
     @if (selectedContest) {
-      <div class="alert alert-info d-flex justify-content-between align-items-center mb-3">
+      <div class="alert alert-info d-flex justify-content-between align-items-center mb-3" role="status" aria-live="polite">
         <div>
           <strong>Selected Contest:</strong> {{ selectedContest.contestName }}
           <span class="ms-2" [class]="getContestBadgeClass(selectedContest)">
             {{ getContestStatusText(selectedContest) }}
           </span>
         </div>
-        <button class="btn btn-sm btn-outline-secondary" (click)="clearSelection()">
+        <button class="btn btn-sm btn-outline-secondary" (click)="clearSelection()" aria-label="Clear contest selection">
           Clear
         </button>
       </div>
@@ -39,15 +39,20 @@
 
     <!-- Contest List -->
     @if (!loading && getDisplayedContests().length > 0) {
-      <div class="contest-list">
+      <div class="contest-list" role="list">
         @for (contest of getDisplayedContests(); track contest) {
           <div
             class="contest-card"
+            role="listitem"
             [class.selected]="selectedContest?.id === contest.id"
-            (click)="selectContest(contest)">
+            (click)="selectContest(contest)"
+            (keydown.enter)="selectContest(contest)"
+            (keydown.space)="selectContest(contest)"
+            tabindex="0"
+            [attr.aria-label]="'Contest: ' + contest.contestName + ', ' + getContestStatusText(contest) + ', ' + getContestDateRange(contest)">
             <div class="contest-header">
               <div>
-                <h6 class="contest-name mb-1">{{ contest.contestName }}</h6>
+                <h3 class="h6 contest-name mb-1">{{ contest.contestName }}</h3>
                 <span class="contest-code text-muted">{{ contest.contestCode }}</span>
               </div>
               <span [class]="getContestBadgeClass(contest)">
@@ -86,7 +91,7 @@
     <!-- Contest Statistics (if selected) -->
     @if (selectedContest) {
       <div class="mt-3 p-3 bg-light border rounded">
-        <h6 class="text-muted mb-2">Contest Information</h6>
+        <h3 class="h6 text-muted mb-2">Contest Information</h3>
         <div class="row">
           <div class="col-md-6">
             <small class="d-block text-muted">Contest Code</small>

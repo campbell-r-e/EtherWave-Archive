@@ -1,39 +1,47 @@
 <!-- Map Export Dialog Modal -->
-<div class="modal fade" [class.show]="isVisible" [style.display]="isVisible ? 'block' : 'none'" tabindex="-1">
+<div class="modal fade" [class.show]="isVisible" [style.display]="isVisible ? 'block' : 'none'" role="dialog" aria-modal="true" aria-labelledby="export-dialog-title" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <!-- Modal Header -->
       <div class="modal-header">
-        <h5 class="modal-title">
-          <i class="bi bi-download"></i>
+        <h2 class="h5 modal-title" id="export-dialog-title">
+          <i class="bi bi-download" aria-hidden="true"></i>
           Export Map Data
-        </h5>
-        <button type="button" class="btn-close" (click)="hide()" [disabled]="isExporting"></button>
+        </h2>
+        <button type="button" class="btn-close" (click)="hide()" [disabled]="isExporting" aria-label="Close export dialog"></button>
       </div>
 
       <!-- Modal Body -->
       <div class="modal-body">
         <!-- Format Selection -->
         <div class="mb-4">
-          <label class="form-label fw-bold">Select Export Format</label>
-          <div class="format-options">
-            <div
-              *ngFor="let format of exportFormats"
-              class="format-option"
-              [class.selected]="selectedFormat === format.value"
-              (click)="selectedFormat = format.value">
-              <div class="format-icon">
-                <i class="bi" [ngClass]="format.icon"></i>
-              </div>
-              <div class="format-info">
-                <div class="format-label">{{ format.label }}</div>
-                <div class="format-description">{{ format.description }}</div>
-              </div>
-              <div class="format-check">
-                <i class="bi bi-check-circle-fill" *ngIf="selectedFormat === format.value"></i>
+          <fieldset>
+            <legend class="form-label fw-bold">Select Export Format</legend>
+            <div class="format-options" role="radiogroup" aria-label="Export format selection">
+              <div
+                *ngFor="let format of exportFormats"
+                class="format-option"
+                [class.selected]="selectedFormat === format.value"
+                (click)="selectedFormat = format.value"
+                (keydown.enter)="selectedFormat = format.value"
+                (keydown.space)="selectedFormat = format.value"
+                tabindex="0"
+                role="radio"
+                [attr.aria-checked]="selectedFormat === format.value"
+                [attr.aria-label]="format.label + ': ' + format.description">
+                <div class="format-icon" aria-hidden="true">
+                  <i class="bi" [ngClass]="format.icon"></i>
+                </div>
+                <div class="format-info">
+                  <div class="format-label">{{ format.label }}</div>
+                  <div class="format-description">{{ format.description }}</div>
+                </div>
+                <div class="format-check" aria-hidden="true">
+                  <i class="bi bi-check-circle-fill" *ngIf="selectedFormat === format.value"></i>
+                </div>
               </div>
             </div>
-          </div>
+          </fieldset>
         </div>
 
         <!-- Export Info -->
@@ -63,13 +71,14 @@
           type="button"
           class="btn btn-primary"
           (click)="exportMap()"
-          [disabled]="isExporting">
+          [disabled]="isExporting"
+          [attr.aria-busy]="isExporting ? 'true' : 'false'">
           <span *ngIf="!isExporting">
-            <i class="bi bi-download"></i>
+            <i class="bi bi-download" aria-hidden="true"></i>
             Export {{ getSelectedFormatDetails()?.label }}
           </span>
           <span *ngIf="isExporting">
-            <span class="spinner-border spinner-border-sm me-2"></span>
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-label="Exporting"></span>
             Exporting...
           </span>
         </button>

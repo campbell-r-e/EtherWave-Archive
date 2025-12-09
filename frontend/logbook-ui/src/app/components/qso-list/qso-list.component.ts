@@ -100,6 +100,42 @@ export class QsoListComponent implements OnInit, OnDestroy {
     this.applyStationFilter();
   }
 
+  /**
+   * Handle keyboard navigation for tabs (Left/Right arrows)
+   */
+  onTabKeydown(event: KeyboardEvent, currentTab: string): void {
+    const tabs = this.getAllTabIds();
+    const currentIndex = tabs.indexOf(currentTab);
+
+    if (event.key === 'ArrowLeft' && currentIndex > 0) {
+      event.preventDefault();
+      const previousTab = tabs[currentIndex - 1];
+      this.selectTab(previousTab);
+      // Focus the previous tab button
+      const tabButton = document.querySelector(`[data-tab-id="${previousTab}"]`) as HTMLElement;
+      if (tabButton) tabButton.focus();
+    } else if (event.key === 'ArrowRight' && currentIndex < tabs.length - 1) {
+      event.preventDefault();
+      const nextTab = tabs[currentIndex + 1];
+      this.selectTab(nextTab);
+      // Focus the next tab button
+      const tabButton = document.querySelector(`[data-tab-id="${nextTab}"]`) as HTMLElement;
+      if (tabButton) tabButton.focus();
+    }
+  }
+
+  /**
+   * Get all available tab IDs in order
+   */
+  getAllTabIds(): string[] {
+    const tabs = ['all'];
+    tabs.push(...this.availableStations.map(s => s.toString()));
+    if (this.hasGotaQsos) {
+      tabs.push('gota');
+    }
+    return tabs;
+  }
+
   applyStationFilter(): void {
     if (this.activeTab === 'all') {
       this.qsos = [...this.allQsos];

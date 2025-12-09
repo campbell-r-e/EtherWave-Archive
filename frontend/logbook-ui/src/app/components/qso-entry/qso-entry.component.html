@@ -3,7 +3,7 @@
     <div class="col-md-8">
       <div class="card">
         <div class="card-header bg-primary text-white">
-          <h4 class="mb-0">Log QSO</h4>
+          <h2 class="h4 mb-0">Log QSO</h2>
         </div>
         <div class="card-body">
           <!-- Alert messages -->
@@ -97,10 +97,10 @@
               <div class="col-md-6">
                 <label for="qso-callsign" class="form-label">Callsign <span aria-label="required">*</span></label>
                 <div class="input-group">
-                  <input id="qso-callsign" type="text" class="form-control form-control-lg"
+                  <input #callsignInput id="qso-callsign" type="text" class="form-control form-control-lg"
                     [(ngModel)]="qso.callsign" name="callsign"
                     (blur)="onCallsignChange()"
-                    style="text-transform: uppercase" required aria-required="true">
+                    style="text-transform: uppercase" required aria-required="true" autocomplete="off">
                   <button class="btn btn-outline-secondary" type="button"
                     (click)="onCallsignChange()" [disabled]="lookupInProgress"
                     aria-label="Lookup callsign information" [attr.aria-busy]="lookupInProgress">
@@ -249,17 +249,17 @@
     <div class="col-md-4">
       <div class="card">
         <div class="card-header bg-info text-white">
-          <h6 class="mb-0">Quick Reference</h6>
+          <h2 class="h6 mb-0">Quick Reference</h2>
         </div>
         <div class="card-body">
-          <h6>Common Bands (kHz)</h6>
+          <h3 class="h6">Common Bands (kHz)</h3>
           <ul class="list-unstyled small">
-            <li><button class="btn btn-sm btn-link" (click)="qso.frequencyKhz = 1840; onFrequencyChange()">160m: 1800-2000</button></li>
-            <li><button class="btn btn-sm btn-link" (click)="qso.frequencyKhz = 3700; onFrequencyChange()">80m: 3500-4000</button></li>
-            <li><button class="btn btn-sm btn-link" (click)="qso.frequencyKhz = 7200; onFrequencyChange()">40m: 7000-7300</button></li>
-            <li><button class="btn btn-sm btn-link" (click)="qso.frequencyKhz = 14250; onFrequencyChange()">20m: 14000-14350</button></li>
-            <li><button class="btn btn-sm btn-link" (click)="qso.frequencyKhz = 21300; onFrequencyChange()">15m: 21000-21450</button></li>
-            <li><button class="btn btn-sm btn-link" (click)="qso.frequencyKhz = 28500; onFrequencyChange()">10m: 28000-29700</button></li>
+            <li><button class="btn btn-sm btn-link" (click)="qso.frequencyKhz = 1840; onFrequencyChange()" aria-label="Set frequency to 160 meter band, 1840 kilohertz">160m: 1800-2000</button></li>
+            <li><button class="btn btn-sm btn-link" (click)="qso.frequencyKhz = 3700; onFrequencyChange()" aria-label="Set frequency to 80 meter band, 3700 kilohertz">80m: 3500-4000</button></li>
+            <li><button class="btn btn-sm btn-link" (click)="qso.frequencyKhz = 7200; onFrequencyChange()" aria-label="Set frequency to 40 meter band, 7200 kilohertz">40m: 7000-7300</button></li>
+            <li><button class="btn btn-sm btn-link" (click)="qso.frequencyKhz = 14250; onFrequencyChange()" aria-label="Set frequency to 20 meter band, 14250 kilohertz">20m: 14000-14350</button></li>
+            <li><button class="btn btn-sm btn-link" (click)="qso.frequencyKhz = 21300; onFrequencyChange()" aria-label="Set frequency to 15 meter band, 21300 kilohertz">15m: 21000-21450</button></li>
+            <li><button class="btn btn-sm btn-link" (click)="qso.frequencyKhz = 28500; onFrequencyChange()" aria-label="Set frequency to 10 meter band, 28500 kilohertz">10m: 28000-29700</button></li>
           </ul>
 
           @if (lastSavedQSO) {

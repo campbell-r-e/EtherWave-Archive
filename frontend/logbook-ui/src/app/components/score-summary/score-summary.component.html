@@ -1,6 +1,6 @@
 <div class="card">
   <div class="card-header bg-success text-white">
-    <h5 class="mb-0">📊 Contest Score Summary</h5>
+    <h2 class="h5 mb-0"><span role="img" aria-label="Chart">📊</span> Contest Score Summary</h2>
   </div>
   <div class="card-body">
     @if (loading) {
@@ -16,25 +16,25 @@
       <div class="row mb-4">
         <div class="col-md-3">
           <div class="stat-card bg-primary text-white text-center p-3 rounded">
-            <h3 class="mb-0">{{ summary.mainTotal.qsoCount || 0 }}</h3>
+            <div class="h3 mb-0" aria-label="{{ summary.mainTotal.qsoCount || 0 }} Main QSOs">{{ summary.mainTotal.qsoCount || 0 }}</div>
             <small>Main QSOs</small>
           </div>
         </div>
         <div class="col-md-3">
           <div class="stat-card bg-info text-white text-center p-3 rounded">
-            <h3 class="mb-0">{{ summary.mainTotal.points || 0 }}</h3>
+            <div class="h3 mb-0" aria-label="{{ summary.mainTotal.points || 0 }} Main Points">{{ summary.mainTotal.points || 0 }}</div>
             <small>Main Points</small>
           </div>
         </div>
         <div class="col-md-3">
           <div class="stat-card bg-warning text-dark text-center p-3 rounded">
-            <h3 class="mb-0">{{ currentLog.totalMultipliers || 0 }}</h3>
+            <div class="h3 mb-0" aria-label="{{ currentLog.totalMultipliers || 0 }} Multipliers">{{ currentLog.totalMultipliers || 0 }}</div>
             <small>Multipliers</small>
           </div>
         </div>
         <div class="col-md-3">
           <div class="stat-card bg-success text-white text-center p-3 rounded">
-            <h3 class="mb-0">{{ currentLog.calculatedScore || 0 }}</h3>
+            <div class="h3 mb-0" aria-label="{{ currentLog.calculatedScore || 0 }} Final Score">{{ currentLog.calculatedScore || 0 }}</div>
             <small>Final Score</small>
           </div>
         </div>
@@ -43,17 +43,18 @@
       <!-- Multi-Station Breakdown -->
       @if (hasMultipleStations()) {
         <div class="mb-4">
-          <h6 class="text-muted mb-3">🏆 Station Leaderboard</h6>
+          <h3 class="h6 text-muted mb-3"><span role="img" aria-label="Trophy">🏆</span> Station Leaderboard</h3>
           <div class="table-responsive">
             <table class="table table-sm table-hover">
+              <caption class="visually-hidden">Station leaderboard showing {{ summary.mainStations.length }} stations ranked by performance</caption>
               <thead class="table-light">
                 <tr>
-                  <th>Rank</th>
-                  <th>Station</th>
-                  <th class="text-center">QSOs</th>
-                  <th class="text-center">Points</th>
-                  <th class="text-center">Rate (QSOs/hr)</th>
-                  <th>Performance</th>
+                  <th scope="col">Rank</th>
+                  <th scope="col">Station</th>
+                  <th scope="col" class="text-center">QSOs</th>
+                  <th scope="col" class="text-center">Points</th>
+                  <th scope="col" class="text-center">Rate (QSOs/hr)</th>
+                  <th scope="col">Performance</th>
                 </tr>
               </thead>
               <tbody>
@@ -88,7 +89,8 @@
                           [style.background-color]="getStationColor(station.stationNumber, station.isGota)"
                           [attr.aria-valuenow]="station.points"
                           [attr.aria-valuemin]="0"
-                          [attr.aria-valuemax]="summary.mainTotal.points">
+                          [attr.aria-valuemax]="summary.mainTotal.points"
+                          [attr.aria-label]="station.stationLabel + ' performance: ' + getScorePercentage(station.points, summary.mainTotal.points) + ' percent of total points'">
                           {{ getScorePercentage(station.points, summary.mainTotal.points) }}%
                         </div>
                       </div>
@@ -127,7 +129,7 @@
       <!-- GOTA Station Stats -->
       @if (hasGotaStation()) {
         <div class="alert alert-success">
-          <h6 class="alert-heading">🟢 GOTA (Get On The Air) Statistics</h6>
+          <h3 class="h6 alert-heading"><span role="img" aria-label="Green circle">🟢</span> GOTA (Get On The Air) Statistics</h3>
           <hr>
           <div class="row">
             <div class="col-md-3">

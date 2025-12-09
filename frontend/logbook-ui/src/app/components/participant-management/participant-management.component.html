@@ -1,7 +1,7 @@
 @if (shouldShowComponent()) {
   <div class="card">
     <div class="card-header bg-primary text-white">
-      <h5 class="mb-0">👥 Participant Station Assignments</h5>
+      <h2 class="h5 mb-0"><span role="img" aria-label="People">👥</span> Participant Station Assignments</h2>
     </div>
     <div class="card-body">
       <p class="text-muted">
@@ -22,13 +22,14 @@
       } @else {
         <div class="table-responsive">
           <table class="table table-hover">
+            <caption class="visually-hidden">Participant station assignments - {{ participants.length }} participants</caption>
             <thead>
               <tr>
-                <th>Operator</th>
-                <th>Callsign</th>
-                <th>Role</th>
-                <th>Station Assignment</th>
-                <th>Actions</th>
+                <th scope="col">Operator</th>
+                <th scope="col">Callsign</th>
+                <th scope="col">Role</th>
+                <th scope="col">Station Assignment</th>
+                <th scope="col">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -61,20 +62,25 @@
                                  class="form-check-input"
                                  id="gota-{{participant.id}}"
                                  [(ngModel)]="editIsGota"
-                                 [disabled]="editStationNumber !== null">
+                                 [disabled]="editStationNumber !== null"
+                                 [attr.aria-label]="'Assign ' + participant.username + ' to GOTA station'">
                           <label class="form-check-label" for="gota-{{participant.id}}">
                             GOTA
                           </label>
                         </div>
-                        <span class="text-muted">OR</span>
+                        <span class="text-muted" aria-hidden="true">OR</span>
+                        <label for="station-num-{{participant.id}}" class="visually-hidden">Station number for {{ participant.username }}</label>
                         <input type="number"
+                               id="station-num-{{participant.id}}"
                                class="form-control form-control-sm"
                                style="width: 100px;"
                                [(ngModel)]="editStationNumber"
                                placeholder="1-1000"
                                min="1"
                                max="1000"
-                               [disabled]="editIsGota">
+                               [disabled]="editIsGota"
+                               aria-describedby="station-num-help-{{participant.id}}">
+                        <span id="station-num-help-{{participant.id}}" class="visually-hidden">Enter a station number between 1 and 1000</span>
                       </div>
                     } @else {
                       <!-- View Mode -->
@@ -88,16 +94,16 @@
                   <td>
                     @if (editingParticipantId === participant.id) {
                       <!-- Save/Cancel buttons -->
-                      <button class="btn btn-sm btn-success me-1" (click)="saveAssignment(participant)">
-                        ✓ Save
+                      <button class="btn btn-sm btn-success me-1" (click)="saveAssignment(participant)" [attr.aria-label]="'Save assignment for ' + participant.username">
+                        <span aria-hidden="true">✓</span> Save
                       </button>
-                      <button class="btn btn-sm btn-secondary" (click)="cancelEditing()">
-                        ✗ Cancel
+                      <button class="btn btn-sm btn-secondary" (click)="cancelEditing()" aria-label="Cancel editing">
+                        <span aria-hidden="true">✗</span> Cancel
                       </button>
                     } @else {
                       <!-- Edit button -->
-                      <button class="btn btn-sm btn-primary" (click)="startEditing(participant)">
-                        ✏️ Assign
+                      <button class="btn btn-sm btn-primary" (click)="startEditing(participant)" [attr.aria-label]="'Assign station to ' + participant.username">
+                        <span aria-hidden="true">✏️</span> Assign
                       </button>
                     }
                   </td>
@@ -109,7 +115,7 @@
 
         <!-- Legend -->
         <div class="mt-3">
-          <h6 class="mb-2">Station Colors:</h6>
+          <h3 class="h6 mb-2">Station Colors:</h3>
           <div class="d-flex flex-wrap gap-2">
             <span class="badge" style="background-color: #1E88E5; color: white;">Station 1</span>
             <span class="badge" style="background-color: #E53935; color: white;">Station 2</span>

@@ -6,32 +6,34 @@
     class="btn ew-btn-glass overlay-toggle-btn"
     (click)="togglePanel()"
     [class.active]="isExpanded"
-    [attr.aria-expanded]="isExpanded">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    [attr.aria-expanded]="isExpanded"
+    [attr.aria-label]="isExpanded ? 'Collapse contest overlay options' : 'Expand contest overlay options'">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
       <circle cx="12" cy="10" r="3"/>
     </svg>
     Contest Overlays
     @if (getActiveOverlayCount() > 0) {
-      <span class="badge bg-primary ms-2">{{ getActiveOverlayCount() }}</span>
+      <span class="badge bg-primary ms-2" role="status" aria-label="{{ getActiveOverlayCount() }} active overlays">{{ getActiveOverlayCount() }}</span>
     }
-    <i class="bi ms-2" [class.bi-chevron-down]="!isExpanded" [class.bi-chevron-up]="isExpanded"></i>
+    <i class="bi ms-2" [class.bi-chevron-down]="!isExpanded" [class.bi-chevron-up]="isExpanded" aria-hidden="true"></i>
   </button>
 
   <!-- Dropdown Panel -->
   @if (isExpanded) {
-    <div class="overlay-panel glass-panel">
+    <div class="overlay-panel glass-panel" role="group" aria-label="Contest overlay layer options">
       <div class="panel-header">
-        <span class="panel-title">
-          <i class="bi bi-trophy"></i>
+        <h2 class="h6 panel-title mb-0">
+          <i class="bi bi-trophy" aria-hidden="true"></i>
           Contest Overlay Layers
-        </span>
+        </h2>
         @if (hasActiveOverlays()) {
           <button
             type="button"
             class="btn btn-sm btn-link clear-btn"
-            (click)="clearAll()">
-            <i class="bi bi-x-circle"></i> Clear All
+            (click)="clearAll()"
+            aria-label="Clear all active contest overlays">
+            <i class="bi bi-x-circle" aria-hidden="true"></i> Clear All
           </button>
         }
       </div>
@@ -121,15 +123,15 @@
 
         <!-- Color Legend -->
         @if (hasActiveOverlays()) {
-          <div class="overlay-legend">
-            <div class="legend-title">Color Guide</div>
+          <div class="overlay-legend" role="group" aria-label="Contest overlay color legend">
+            <h3 class="h6 legend-title">Color Guide</h3>
             <div class="legend-items">
               <div class="legend-item">
-                <span class="legend-color worked"></span>
+                <span class="legend-color worked" aria-hidden="true"></span>
                 <span class="legend-label">Worked</span>
               </div>
               <div class="legend-item">
-                <span class="legend-color needed"></span>
+                <span class="legend-color needed" aria-hidden="true"></span>
                 <span class="legend-label">Needed</span>
               </div>
             </div>

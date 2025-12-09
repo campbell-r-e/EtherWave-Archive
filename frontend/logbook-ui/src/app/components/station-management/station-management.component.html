@@ -1,9 +1,9 @@
 <div class="card">
   <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-    <h5 class="mb-0">📡 Station Management</h5>
+    <h2 class="h5 mb-0"><span role="img" aria-label="Antenna">📡</span> Station Management</h2>
     @if (!showForm) {
-      <button class="btn btn-sm btn-light" (click)="showAddForm()">
-        ➕ Add Station
+      <button class="btn btn-sm btn-light" (click)="showAddForm()" aria-label="Add new station">
+        <span aria-hidden="true">➕</span> Add Station
       </button>
     }
   </div>
@@ -20,36 +20,44 @@
     <!-- Add/Edit Form -->
     @if (showForm) {
       <div class="station-form mb-4">
-        <h6 class="mb-3">{{ editMode ? 'Edit Station' : 'Add New Station' }}</h6>
+        <h3 class="h6 mb-3">{{ editMode ? 'Edit Station' : 'Add New Station' }}</h3>
         <div class="row g-3">
           <!-- Station Name -->
           <div class="col-md-6">
-            <label class="form-label">Station Name <span class="text-danger">*</span></label>
+            <label for="station-name" class="form-label">Station Name <span class="text-danger">*</span></label>
             <input type="text"
+              id="station-name"
               class="form-control"
               [(ngModel)]="currentStation.name"
+              required
+              aria-required="true"
               placeholder="e.g., Home Station, Field Day 2A">
           </div>
           <!-- Callsign -->
           <div class="col-md-6">
-            <label class="form-label">Callsign <span class="text-danger">*</span></label>
+            <label for="station-callsign" class="form-label">Callsign <span class="text-danger">*</span></label>
             <input type="text"
+              id="station-callsign"
               class="form-control"
               [(ngModel)]="currentStation.callsign"
+              required
+              aria-required="true"
               placeholder="e.g., W1ABC">
           </div>
           <!-- Grid Square -->
           <div class="col-md-4">
-            <label class="form-label">Grid Square</label>
+            <label for="station-grid" class="form-label">Grid Square</label>
             <input type="text"
+              id="station-grid"
               class="form-control"
               [(ngModel)]="currentStation.gridSquare"
               placeholder="e.g., FN31pr">
           </div>
           <!-- Latitude -->
           <div class="col-md-4">
-            <label class="form-label">Latitude</label>
+            <label for="station-lat" class="form-label">Latitude</label>
             <input type="number"
+              id="station-lat"
               class="form-control"
               [(ngModel)]="currentStation.latitude"
               step="0.000001"
@@ -57,8 +65,9 @@
           </div>
           <!-- Longitude -->
           <div class="col-md-4">
-            <label class="form-label">Longitude</label>
+            <label for="station-lon" class="form-label">Longitude</label>
             <input type="number"
+              id="station-lon"
               class="form-control"
               [(ngModel)]="currentStation.longitude"
               step="0.000001"
@@ -66,30 +75,34 @@
           </div>
           <!-- Power -->
           <div class="col-md-6">
-            <label class="form-label">Power (Watts)</label>
+            <label for="station-power" class="form-label">Power (Watts)</label>
             <input type="number"
+              id="station-power"
               class="form-control"
               [(ngModel)]="currentStation.power"
               placeholder="e.g., 100">
           </div>
           <!-- Antenna -->
           <div class="col-md-6">
-            <label class="form-label">Antenna</label>
+            <label for="station-antenna" class="form-label">Antenna</label>
             <input type="text"
+              id="station-antenna"
               class="form-control"
               [(ngModel)]="currentStation.antenna"
               placeholder="e.g., Dipole, Yagi">
           </div>
           <!-- Station Number -->
           <div class="col-md-4">
-            <label class="form-label">Station Number</label>
+            <label for="station-number" class="form-label">Station Number</label>
             <input type="number"
+              id="station-number"
               class="form-control"
               [(ngModel)]="currentStation.stationNumber"
               min="1"
               max="20"
-              placeholder="e.g., 1, 2, 3">
-            <small class="text-muted">For multi-station contests (1=Blue, 2=Red)</small>
+              placeholder="e.g., 1, 2, 3"
+              aria-describedby="station-number-help">
+            <small id="station-number-help" class="text-muted">For multi-station contests (1=Blue, 2=Red)</small>
           </div>
           <!-- GOTA Station -->
           <div class="col-md-4">
@@ -120,11 +133,12 @@
           </div>
           <!-- Comments -->
           <div class="col-12">
-            <label class="form-label">Comments</label>
-            <textarea class="form-control"
+            <label for="station-comments" class="form-label">Comments</label>
+            <textarea id="station-comments"
+              class="form-control"
               [(ngModel)]="currentStation.comments"
               rows="3"
-            placeholder="Additional notes..."></textarea>
+              placeholder="Additional notes..."></textarea>
           </div>
           <!-- Form Actions -->
           <div class="col-12">
@@ -171,13 +185,13 @@
               <div class="station-actions">
                 <button class="btn btn-sm btn-outline-primary me-2"
                   (click)="editStation(station)"
-                  title="Edit Station">
-                  ✏️ Edit
+                  [attr.aria-label]="'Edit station ' + station.name">
+                  <span aria-hidden="true">✏️</span> Edit
                 </button>
                 <button class="btn btn-sm btn-outline-danger"
                   (click)="deleteStation(station)"
-                  title="Delete Station">
-                  🗑️ Delete
+                  [attr.aria-label]="'Delete station ' + station.name">
+                  <span aria-hidden="true">🗑️</span> Delete
                 </button>
               </div>
             </div>

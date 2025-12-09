@@ -59,13 +59,13 @@
   </div>
 </nav>
 
-<div class="container mt-4">
+<main id="main-content" class="container mt-4">
   <div class="row">
     <div class="col-md-12">
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Invitations</h2>
-        <button type="button" class="btn btn-primary" (click)="openCreateModal()">
-          <i class="bi bi-plus-circle me-2"></i>Send Invitation
+        <h1 class="h2">Invitations</h1>
+        <button type="button" class="btn btn-primary" (click)="openCreateModal()" aria-label="Send new invitation">
+          <i class="bi bi-plus-circle me-2" aria-hidden="true"></i>Send Invitation
         </button>
       </div>
 
@@ -77,47 +77,56 @@
       }
 
       <!-- Tabs -->
-      <ul class="nav nav-tabs mb-3">
-        <li class="nav-item">
-          <a
+      <ul class="nav nav-tabs mb-3" role="tablist" aria-label="Invitations view">
+        <li class="nav-item" role="presentation">
+          <button
             class="nav-link"
             [class.active]="activeTab === 'received'"
             (click)="setActiveTab('received')"
-            style="cursor: pointer;">
+            type="button"
+            role="tab"
+            [attr.aria-selected]="activeTab === 'received'"
+            [attr.aria-controls]="'received-panel'"
+            [attr.tabindex]="activeTab === 'received' ? '0' : '-1'">
             Received
             @if (pendingInvitations.length > 0) {
-              <span class="badge bg-danger ms-2">
+              <span class="badge bg-danger ms-2" role="status" aria-label="{{ pendingInvitations.length }} pending invitations">
                 {{ pendingInvitations.length }}
               </span>
             }
-          </a>
+          </button>
         </li>
-        <li class="nav-item">
-          <a
+        <li class="nav-item" role="presentation">
+          <button
             class="nav-link"
             [class.active]="activeTab === 'sent'"
             (click)="setActiveTab('sent')"
-            style="cursor: pointer;">
+            type="button"
+            role="tab"
+            [attr.aria-selected]="activeTab === 'sent'"
+            [attr.aria-controls]="'sent-panel'"
+            [attr.tabindex]="activeTab === 'sent' ? '0' : '-1'">
             Sent
-          </a>
+          </button>
         </li>
       </ul>
 
       <!-- Received Invitations Tab -->
       @if (activeTab === 'received') {
-        <div>
+        <div id="received-panel" role="tabpanel" aria-label="Received invitations">
           @if (pendingInvitations.length === 0 && !loading) {
             <div class="alert alert-info">
               You have no pending invitations.
             </div>
           }
-          <div class="list-group">
+          <div class="list-group" role="list">
             @for (invitation of pendingInvitations; track invitation) {
               <div
-                class="list-group-item">
+                class="list-group-item"
+                role="listitem">
                 <div class="d-flex w-100 justify-content-between align-items-start">
                   <div class="flex-grow-1">
-                    <h5 class="mb-1">{{ invitation.logName }}</h5>
+                    <h2 class="h5 mb-1">{{ invitation.logName }}</h2>
                     <p class="mb-1">
                       <strong>From:</strong> {{ invitation.inviterUsername }}
                       <br>
@@ -151,20 +160,22 @@
                                 }
                               </p>
                             </div>
-                            <div class="btn-group">
+                            <div class="btn-group" role="group" [attr.aria-label]="'Actions for invitation to ' + invitation.logName">
                               <button
                                 type="button"
                                 class="btn btn-success btn-sm"
                                 (click)="acceptInvitation(invitation)"
-                                [disabled]="loading || !invitation.canRespond">
-                                <i class="bi bi-check-circle me-1"></i>Accept
+                                [disabled]="loading || !invitation.canRespond"
+                                [attr.aria-label]="'Accept invitation to ' + invitation.logName">
+                                <i class="bi bi-check-circle me-1" aria-hidden="true"></i>Accept
                               </button>
                               <button
                                 type="button"
                                 class="btn btn-danger btn-sm"
                                 (click)="declineInvitation(invitation)"
-                                [disabled]="loading || !invitation.canRespond">
-                                <i class="bi bi-x-circle me-1"></i>Decline
+                                [disabled]="loading || !invitation.canRespond"
+                                [attr.aria-label]="'Decline invitation to ' + invitation.logName">
+                                <i class="bi bi-x-circle me-1" aria-hidden="true"></i>Decline
                               </button>
                             </div>
                           </div>
@@ -176,19 +187,20 @@
 
                 <!-- Sent Invitations Tab -->
                 @if (activeTab === 'sent') {
-                  <div>
+                  <div id="sent-panel" role="tabpanel" aria-label="Sent invitations">
                     @if (sentInvitations.length === 0 && !loading) {
                       <div class="alert alert-info">
                         You have not sent any invitations.
                       </div>
                     }
-                    <div class="list-group">
+                    <div class="list-group" role="list">
                       @for (invitation of sentInvitations; track invitation) {
                         <div
-                          class="list-group-item">
+                          class="list-group-item"
+                          role="listitem">
                           <div class="d-flex w-100 justify-content-between align-items-start">
                             <div class="flex-grow-1">
-                              <h5 class="mb-1">{{ invitation.logName }}</h5>
+                              <h2 class="h5 mb-1">{{ invitation.logName }}</h2>
                               <p class="mb-1">
                                 <strong>To:</strong> {{ invitation.inviteeUsername }}
                                 @if (invitation.inviteeCallsign) {
@@ -236,8 +248,9 @@
                                               type="button"
                                               class="btn btn-warning btn-sm"
                                               (click)="cancelInvitation(invitation)"
-                                              [disabled]="loading">
-                                              <i class="bi bi-x-circle me-1"></i>Cancel
+                                              [disabled]="loading"
+                                              [attr.aria-label]="'Cancel invitation to ' + invitation.inviteeUsername">
+                                              <i class="bi bi-x-circle me-1" aria-hidden="true"></i>Cancel
                                             </button>
                                           }
                                         </div>
@@ -265,21 +278,28 @@
                         class="modal fade"
                         [class.show]="showCreateModal"
                         [style.display]="showCreateModal ? 'block' : 'none'"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="invite-modal-title"
                         tabindex="-1">
                         <div class="modal-dialog">
                           <div class="modal-content">
                             <div class="modal-header">
-                              <h5 class="modal-title">Send Invitation</h5>
-                              <button type="button" class="btn-close" (click)="closeCreateModal()"></button>
+                              <h2 class="h5 modal-title" id="invite-modal-title">Send Invitation</h2>
+                              <button type="button" class="btn-close" (click)="closeCreateModal()" aria-label="Close invitation dialog"></button>
                             </div>
                             <div class="modal-body">
                               <form [formGroup]="createInvitationForm">
                                 <div class="mb-3">
-                                  <label for="logId" class="form-label">Log *</label>
+                                  <label for="logId" class="form-label">Log <span class="text-danger">*</span></label>
                                   <select
                                     class="form-select"
                                     id="logId"
                                     formControlName="logId"
+                                    required
+                                    aria-required="true"
+                                    [attr.aria-invalid]="createInvitationForm.get('logId')?.invalid && createInvitationForm.get('logId')?.touched ? 'true' : 'false'"
+                                    [attr.aria-describedby]="createInvitationForm.get('logId')?.invalid && createInvitationForm.get('logId')?.touched ? 'logId-error logId-help' : 'logId-help'"
                                     [class.is-invalid]="createInvitationForm.get('logId')?.invalid && createInvitationForm.get('logId')?.touched">
                                     <option value="">Select a log</option>
                                     @for (log of logs; track log) {
@@ -288,24 +308,28 @@
                                       </option>
                                     }
                                   </select>
-                                  <div class="invalid-feedback">
+                                  <div id="logId-error" class="invalid-feedback">
                                     Please select a log
                                   </div>
-                                  <small class="form-text text-muted">
+                                  <small id="logId-help" class="form-text text-muted">
                                     You can only send invitations for logs you created
                                   </small>
                                 </div>
 
                                 <div class="mb-3">
-                                  <label for="inviteeUsername" class="form-label">Username, Email, or Callsign *</label>
+                                  <label for="inviteeUsername" class="form-label">Username, Email, or Callsign <span class="text-danger">*</span></label>
                                   <input
                                     type="text"
                                     class="form-control"
                                     id="inviteeUsername"
                                     formControlName="inviteeUsername"
                                     placeholder="Enter username, email, or callsign"
+                                    required
+                                    aria-required="true"
+                                    [attr.aria-invalid]="createInvitationForm.get('inviteeUsername')?.invalid && createInvitationForm.get('inviteeUsername')?.touched ? 'true' : 'false'"
+                                    [attr.aria-describedby]="createInvitationForm.get('inviteeUsername')?.invalid && createInvitationForm.get('inviteeUsername')?.touched ? 'inviteeUsername-error' : null"
                                     [class.is-invalid]="createInvitationForm.get('inviteeUsername')?.invalid && createInvitationForm.get('inviteeUsername')?.touched">
-                                  <div class="invalid-feedback">
+                                  <div id="inviteeUsername-error" class="invalid-feedback">
                                     Username, email, or callsign is required
                                   </div>
                                 </div>

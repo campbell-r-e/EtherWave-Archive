@@ -11,16 +11,16 @@
   <!-- Panel Header -->
   <div class="filter-header" (click)="togglePanel()">
     <div class="filter-title">
-      <i class="bi bi-funnel"></i>
-      <span>Map Filters</span>
+      <i class="bi bi-funnel" aria-hidden="true"></i>
+      <h2 class="h6 d-inline mb-0">Map Filters</h2>
       @if (activeFilterCount > 0) {
-        <span class="badge bg-primary ms-2">
+        <span class="badge bg-primary ms-2" role="status" aria-label="{{ activeFilterCount }} active filters">
           {{ activeFilterCount }}
         </span>
       }
     </div>
-    <button class="btn btn-sm btn-link toggle-btn" type="button">
-      <i class="bi" [class.bi-chevron-down]="!isExpanded" [class.bi-chevron-up]="isExpanded"></i>
+    <button class="btn btn-sm btn-link toggle-btn" type="button" [attr.aria-label]="isExpanded ? 'Collapse filters' : 'Expand filters'" [attr.aria-expanded]="isExpanded">
+      <i class="bi" [class.bi-chevron-down]="!isExpanded" [class.bi-chevron-up]="isExpanded" aria-hidden="true"></i>
     </button>
   </div>
 
@@ -31,8 +31,8 @@
         @if (filters.band) {
           <span class="filter-pill">
             <strong>{{ getFilterLabel('band') }}:</strong> {{ getFilterDisplayText('band') }}
-            <button class="btn-close-pill" (click)="removeFilter('band')" type="button">
-              <i class="bi bi-x"></i>
+            <button class="btn-close-pill" (click)="removeFilter('band')" type="button" [attr.aria-label]="'Remove ' + getFilterLabel('band') + ' filter'">
+              <i class="bi bi-x" aria-hidden="true"></i>
             </button>
           </span>
         }
@@ -283,11 +283,11 @@
 
       <!-- Action Buttons -->
       <div class="filter-actions">
-        <button type="button" class="btn btn-primary" (click)="applyFilters()">
-          <i class="bi bi-check-circle"></i> Apply Filters
+        <button type="button" class="btn btn-primary" (click)="applyFilters()" aria-label="Apply selected filters to map">
+          <i class="bi bi-check-circle" aria-hidden="true"></i> Apply Filters
         </button>
-        <button type="button" class="btn btn-outline-secondary" (click)="clearFilters()">
-          <i class="bi bi-x-circle"></i> Clear All
+        <button type="button" class="btn btn-outline-secondary" (click)="clearFilters()" aria-label="Clear all map filters">
+          <i class="bi bi-x-circle" aria-hidden="true"></i> Clear All
         </button>
       </div>
     </form>

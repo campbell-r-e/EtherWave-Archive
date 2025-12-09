@@ -3,11 +3,11 @@
   <!-- Header -->
   <div class="settings-header">
     <div class="header-content">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
       </svg>
       <div class="header-text">
-        <h3 class="header-title">Station Color Preferences</h3>
+        <h2 class="h3 header-title">Station Color Preferences</h2>
         <p class="header-description">Customize colors for each station across maps, charts, and visualizations</p>
       </div>
     </div>
@@ -18,21 +18,23 @@
           <button
             type="button"
             class="btn ew-btn-outline-secondary btn-sm"
-            (click)="resetToDefaults()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            (click)="resetToDefaults()"
+            aria-label="Reset all station colors to default values">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <polyline points="1 4 1 10 7 10"/>
               <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
             </svg>
             Reset to Defaults
           </button>
         } @else {
-          <div class="reset-confirm">
+          <div class="reset-confirm" role="alert">
             <span class="confirm-text">Reset all colors?</span>
             <button
               type="button"
               class="btn btn-sm ew-btn-danger"
-              (click)="resetToDefaults()">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              (click)="resetToDefaults()"
+              aria-label="Confirm reset all colors to defaults">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <polyline points="20 6 9 17 4 12"/>
               </svg>
               Confirm
@@ -40,8 +42,9 @@
             <button
               type="button"
               class="btn btn-sm ew-btn-outline-secondary"
-              (click)="cancelReset()">
-              ✕
+              (click)="cancelReset()"
+              aria-label="Cancel color reset">
+              <span aria-hidden="true">✕</span>
             </button>
           </div>
         }

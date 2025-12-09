@@ -1,6 +1,6 @@
-<div class="ew-login-container signal-pattern">
+<main id="main-content" class="ew-login-container signal-pattern">
   <!-- Animated background elements -->
-  <div class="ew-signal-waves"></div>
+  <div class="ew-signal-waves" aria-hidden="true"></div>
 
   <div class="ew-login-card glass-card">
     <!-- Header Section -->
@@ -16,7 +16,7 @@
         Ether<span class="ew-wave-accent">Wave</span> Archive
       </h1>
       <p class="ew-subtitle">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1" aria-hidden="true">
           <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
           <polyline points="10 17 15 12 10 7"/>
           <line x1="15" y1="12" x2="3" y2="12"/>
@@ -38,11 +38,11 @@
     }
 
     <!-- Login Form -->
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="ew-login-form">
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="ew-login-form" novalidate>
       <!-- Username or Email -->
       <div class="ew-form-group mb-3">
         <label for="usernameOrEmail" class="ew-form-label">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
             <circle cx="12" cy="7" r="4"/>
           </svg>
@@ -53,10 +53,14 @@
           class="ew-form-control"
           formControlName="usernameOrEmail"
           [class.ew-invalid]="submitted && f['usernameOrEmail'].errors"
+          [attr.aria-invalid]="submitted && f['usernameOrEmail'].errors ? 'true' : 'false'"
+          [attr.aria-describedby]="submitted && f['usernameOrEmail'].errors ? 'usernameOrEmail-error' : null"
           placeholder="Enter your username or email"
-          autocomplete="username">
+          autocomplete="username"
+          required
+          aria-required="true">
         @if (submitted && f['usernameOrEmail'].errors) {
-          <div class="ew-error-message">
+          <div id="usernameOrEmail-error" class="ew-error-message" role="alert" aria-live="polite">
             @if (f['usernameOrEmail'].errors['required']) {
               <div>Username or email is required</div>
             }
@@ -67,7 +71,7 @@
       <!-- Password -->
       <div class="ew-form-group mb-4">
         <label for="password" class="ew-form-label">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
             <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
           </svg>
@@ -78,10 +82,14 @@
           class="ew-form-control"
           formControlName="password"
           [class.ew-invalid]="submitted && f['password'].errors"
+          [attr.aria-invalid]="submitted && f['password'].errors ? 'true' : 'false'"
+          [attr.aria-describedby]="submitted && f['password'].errors ? 'password-error' : null"
           placeholder="Enter your password"
-          autocomplete="current-password">
+          autocomplete="current-password"
+          required
+          aria-required="true">
         @if (submitted && f['password'].errors) {
-          <div class="ew-error-message">
+          <div id="password-error" class="ew-error-message" role="alert" aria-live="polite">
             @if (f['password'].errors['required']) {
               <div>Password is required</div>
             }
@@ -94,12 +102,12 @@
         class="ew-submit-btn w-100 mb-3"
         [disabled]="loading"
         [class.loading]="loading"
-        [attr.aria-busy]="loading">
+        [attr.aria-busy]="loading ? 'true' : 'false'">
         @if (loading) {
-          <span class="ew-spinner" role="status" aria-label="Loading"></span>
+          <span class="ew-spinner" role="status" aria-label="Signing in"></span>
         }
         @if (!loading) {
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
             <polyline points="10 17 15 12 10 7"/>
             <line x1="15" y1="12" x2="3" y2="12"/>
@@ -112,9 +120,9 @@
       <div class="ew-footer-link text-center">
         <p class="mb-0">
           Don't have an account?
-          <a routerLink="/register" class="ew-link" aria-label="Register for a new account">
+          <a routerLink="/register" class="ew-link">
             Create one now
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <line x1="5" y1="12" x2="19" y2="12"/>
               <polyline points="12 5 19 12 12 19"/>
             </svg>
@@ -127,8 +135,8 @@
   <!-- Footer Badge -->
   <div class="ew-login-footer">
     <div class="ew-badge">
-      <span class="ew-badge-icon">📡</span>
+      <span class="ew-badge-icon" role="img" aria-label="Radio antenna">📡</span>
       <span>Amateur Radio Logging Platform</span>
     </div>
   </div>
-</div>
+</main>

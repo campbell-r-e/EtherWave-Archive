@@ -1,6 +1,6 @@
 <div class="card">
   <div class="card-header bg-primary text-white">
-    <h5 class="mb-0">📥 Import Logbook</h5>
+    <h2 class="h5 mb-0"><span role="img" aria-label="Inbox">📥</span> Import Logbook</h2>
   </div>
   <div class="card-body">
     <p class="text-muted">
@@ -11,7 +11,7 @@
     <div class="import-section">
       <div class="import-header">
         <div>
-          <h6 class="import-title">ADIF Import</h6>
+          <h3 class="h6 import-title">ADIF Import</h3>
           <p class="import-description">
             Amateur Data Interchange Format - Standard format for ham radio logging.
             @if (currentLog) {
@@ -26,27 +26,34 @@
         <div class="row g-3">
           <!-- Station Selection -->
           <div class="col-md-6">
-            <label class="form-label">Default Station <span class="text-danger">*</span></label>
-            <select class="form-select" [(ngModel)]="selectedStation">
+            <label for="import-station" class="form-label">Default Station <span class="text-danger">*</span></label>
+            <select id="import-station"
+              class="form-select"
+              [(ngModel)]="selectedStation"
+              required
+              aria-required="true"
+              aria-describedby="import-station-help">
               <option [value]="null">Select a station...</option>
               @for (station of stations; track station.id) {
                 <option [value]="station.id">{{ station.callsign }} - {{ station.stationName }}</option>
               }
             </select>
-            <small class="form-text text-muted">
+            <small id="import-station-help" class="form-text text-muted">
               Used for QSOs that don't specify a station
             </small>
           </div>
 
           <!-- File Selection -->
           <div class="col-md-6">
-            <label class="form-label">ADIF File <span class="text-danger">*</span></label>
+            <label for="adifFileInput" class="form-label">ADIF File <span class="text-danger">*</span></label>
             <input type="file"
                    id="adifFileInput"
                    class="form-control"
                    accept=".adi,.adif"
                    (change)="onFileSelected($event)"
-                   [disabled]="importing">
+                   [disabled]="importing"
+                   required
+                   aria-required="true">
             @if (selectedFile) {
               <small class="form-text text-success">
                 ✓ Selected: {{ selectedFile.name }} ({{ (selectedFile.size / 1024).toFixed(2) }} KB)
@@ -58,15 +65,16 @@
           <div class="col-12">
             <button class="btn btn-primary me-2"
                     (click)="previewAndMapStations()"
-                    [disabled]="!currentLog || !selectedStation || !selectedFile || importing || previewing">
+                    [disabled]="!currentLog || !selectedStation || !selectedFile || importing || previewing"
+                    [attr.aria-busy]="previewing || importing ? 'true' : 'false'">
               @if (previewing) {
-                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-label="Loading"></span>
                 Previewing...
               } @else if (importing) {
-                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-label="Loading"></span>
                 Importing...
               } @else {
-                🔍 Preview & Map Stations
+                <span aria-hidden="true">🔍</span> Preview & Map Stations
               }
             </button>
             @if (selectedFile || importResult) {
@@ -81,9 +89,9 @@
       <!-- Station Mapping UI -->
       @if (showStationMapping && previewResult) {
         <div class="station-mapping-section mt-4 p-3 border rounded bg-light">
-          <h6 class="mb-3">📋 Station Mapping</h6>
+          <h3 class="h6 mb-3"><span role="img" aria-label="Clipboard">📋</span> Station Mapping</h3>
 
-          <div class="alert alert-info mb-3">
+          <div class="alert alert-info mb-3" role="status">
             <strong>Preview Results:</strong> Found {{ previewResult.totalRecords }} total records
             @if (previewResult.stationCallsigns && previewResult.stationCallsigns.length > 0) {
               with {{ previewResult.stationCallsigns.length }} unique station callsign(s).
@@ -94,10 +102,11 @@
           @if (previewResult.stationCallsigns && previewResult.stationCallsigns.length > 0) {
             <div class="table-responsive mb-3">
               <table class="table table-bordered table-sm bg-white">
+                <caption class="visually-hidden">Map {{ previewResult.stationCallsigns.length }} imported station callsigns to local stations</caption>
                 <thead class="table-light">
                   <tr>
-                    <th style="width: 40%">Imported Station Callsign</th>
-                    <th style="width: 60%">Map to Local Station</th>
+                    <th scope="col" style="width: 40%">Imported Station Callsign</th>
+                    <th scope="col" style="width: 60%">Map to Local Station</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -108,7 +117,8 @@
                       </td>
                       <td>
                         <select class="form-select form-select-sm"
-                                [(ngModel)]="stationMapping[callsign]">
+                                [(ngModel)]="stationMapping[callsign]"
+                                [attr.aria-label]="'Map ' + callsign + ' to local station'">
                           @for (station of stations; track station.id) {
                             <option [value]="station.id">
                               {{ station.callsign }} - {{ station.stationName }}
@@ -169,16 +179,17 @@
         <!-- Show imported QSOs summary -->
         @if (importResult.importedQSOs && importResult.importedQSOs.length > 0) {
           <div class="mt-3">
-            <h6>Imported QSOs ({{ importResult.importedQSOs.length }}):</h6>
+            <h3 class="h6">Imported QSOs ({{ importResult.importedQSOs.length }}):</h3>
             <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
               <table class="table table-sm table-striped">
+                <caption class="visually-hidden">{{ importResult.importedQSOs.length }} successfully imported QSOs</caption>
                 <thead>
                   <tr>
-                    <th>Callsign</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Mode</th>
-                    <th>Band</th>
+                    <th scope="col">Callsign</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">Mode</th>
+                    <th scope="col">Band</th>
                   </tr>
                 </thead>
                 <tbody>

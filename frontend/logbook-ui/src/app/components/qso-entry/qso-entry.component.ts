@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
@@ -18,6 +18,8 @@ import { getAllBandNames, frequencyToBand } from '../../models/band.constants';
 })
 export class QsoEntryComponent implements OnInit {
     public Object = Object;
+  @ViewChild('callsignInput') callsignInput!: ElementRef;
+
   qso: QSORequest = this.getEmptyQSO();
   stations: Station[] = [];
   contests: Contest[] = [];
@@ -249,6 +251,13 @@ export class QsoEntryComponent implements OnInit {
     if (contestId) {
       this.onContestChange();
     }
+
+    // Focus callsign input for rapid logging (accessibility + UX)
+    setTimeout(() => {
+      if (this.callsignInput) {
+        this.callsignInput.nativeElement.focus();
+      }
+    }, 0);
   }
 
   clearMessages(): void {

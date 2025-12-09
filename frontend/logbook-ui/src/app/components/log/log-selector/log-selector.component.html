@@ -147,12 +147,15 @@
       class="modal fade"
       [class.show]="showCreateModal"
       [style.display]="showCreateModal ? 'block' : 'none'"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="create-log-title"
       tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Create New Log</h5>
-            <button type="button" class="btn-close" (click)="closeCreateModal()"></button>
+            <h2 class="modal-title h5" id="create-log-title">Create New Log</h2>
+            <button type="button" class="btn-close" (click)="closeCreateModal()" aria-label="Close create log dialog"></button>
           </div>
           <div class="modal-body">
             <form [formGroup]="createLogForm">

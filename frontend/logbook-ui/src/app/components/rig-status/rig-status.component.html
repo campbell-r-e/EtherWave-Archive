@@ -1,35 +1,40 @@
 <div class="card">
   <div class="card-header d-flex justify-content-between align-items-center"
     [class]="getConnectionStatusClass() + ' text-white'">
-    <h6 class="mb-0">📡 Rig Status</h6>
-    <span class="badge bg-light text-dark">
+    <h2 class="h6 mb-0"><span role="img" aria-label="Antenna">📡</span> Rig Status</h2>
+    <span class="badge bg-light text-dark" role="status">
       {{ rigStatus?.connected ? 'Connected' : 'Disconnected' }}
     </span>
   </div>
   <div class="card-body">
     @if (!rigStatus) {
       <div class="text-center">
-        <div class="spinner-border spinner-border-sm" role="status"></div>
+        <div class="spinner-border spinner-border-sm" role="status" aria-label="Connecting to rig"></div>
         <p class="mb-0 mt-2 small">Connecting...</p>
       </div>
     }
 
     @if (rigStatus && !rigStatus.connected) {
-      <div class="text-center text-muted">
-        <p>⚠️ Rig control service not available</p>
+      <div class="text-center text-muted" role="alert">
+        <p><span role="img" aria-label="Warning">⚠️</span> Rig control service not available</p>
         <p class="small">{{ rigStatus.error }}</p>
-        <button class="btn btn-sm btn-primary" (click)="checkRigConnection()">
-          🔄 Retry
+        <button class="btn btn-sm btn-primary" (click)="checkRigConnection()" aria-label="Retry rig connection">
+          <span aria-hidden="true">🔄</span> Retry
         </button>
       </div>
     }
 
     @if (rigStatus && rigStatus.connected) {
+      <!-- Live region for frequency/mode updates -->
+      <div aria-live="polite" aria-atomic="true" class="visually-hidden">
+        Rig frequency {{ formatFrequency(rigStatus.frequencyHz) }}, mode {{ rigStatus.mode || 'unknown' }}
+      </div>
+
       <div>
         <!-- Frequency Display -->
         <div class="mb-3">
-          <label class="small text-muted d-block">Frequency</label>
-          <div class="display-6 text-primary">
+          <label class="small text-muted d-block" id="frequency-label">Frequency</label>
+          <div class="display-6 text-primary" aria-labelledby="frequency-label">
             {{ formatFrequency(rigStatus.frequencyHz) }}
           </div>
         </div>
@@ -61,11 +66,15 @@
         <!-- S-Meter -->
         @if (rigStatus.sMeter !== undefined) {
           <div class="mb-3">
-            <label class="small text-muted d-block">S-Meter</label>
-            <div class="progress" style="height: 25px;">
+            <label class="small text-muted d-block" id="smeter-label">S-Meter</label>
+            <div class="progress" style="height: 25px;" role="group" aria-labelledby="smeter-label">
               <div class="progress-bar bg-success"
                 [style.width.%]="((rigStatus.sMeter + 150) / 150) * 100"
-                role="progressbar">
+                role="progressbar"
+                [attr.aria-valuenow]="rigStatus.sMeter"
+                aria-valuemin="-150"
+                aria-valuemax="0"
+                [attr.aria-label]="'Signal strength ' + rigStatus.sMeter + ' decibels'">
                 {{ rigStatus.sMeter }} dB
               </div>
             </div>

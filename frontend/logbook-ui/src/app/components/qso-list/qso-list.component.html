@@ -1,22 +1,27 @@
 <div class="card">
   <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-    <h5 class="mb-0">📻 Live QSO Feed</h5>
+    <h2 class="h5 mb-0"><span role="img" aria-label="Radio">📻</span> Live QSO Feed</h2>
     <span class="badge bg-light text-dark">{{ qsos.length }} QSOs</span>
   </div>
 
   <!-- Station Tabs -->
   <div class="card-body pb-0">
-    <ul class="nav nav-tabs" role="tablist">
+    <ul class="nav nav-tabs" role="tablist" aria-label="Filter QSOs by station">
       <!-- All Tab -->
       <li class="nav-item" role="presentation">
         <button
           class="nav-link"
           [class.active]="activeTab === 'all'"
           (click)="selectTab('all')"
+          (keydown)="onTabKeydown($event, 'all')"
           type="button"
-          role="tab">
+          role="tab"
+          [attr.data-tab-id]="'all'"
+          [attr.aria-selected]="activeTab === 'all'"
+          [attr.aria-controls]="'qso-tabpanel'"
+          [attr.tabindex]="activeTab === 'all' ? '0' : '-1'">
           <strong>All</strong>
-          <span class="badge bg-secondary ms-2">{{ allQsos.length }}</span>
+          <span class="badge bg-secondary ms-2" aria-label="{{ allQsos.length }} QSOs">{{ allQsos.length }}</span>
         </button>
       </li>
 
@@ -27,10 +32,16 @@
             class="nav-link"
             [class.active]="activeTab === stationNum.toString()"
             (click)="selectTab(stationNum.toString())"
+            (keydown)="onTabKeydown($event, stationNum.toString())"
             type="button"
             role="tab"
+            [attr.data-tab-id]="stationNum.toString()"
+            [attr.aria-selected]="activeTab === stationNum.toString()"
+            [attr.aria-controls]="'qso-tabpanel'"
+            [attr.tabindex]="activeTab === stationNum.toString() ? '0' : '-1'"
+            [attr.aria-label]="'Station ' + stationNum"
             [style.border-bottom-color]="activeTab === stationNum.toString() ? getStationColorForQSO({stationNumber: stationNum, isGota: false}) : ''">
-            <span class="me-1" [style.color]="getStationColorForQSO({stationNumber: stationNum, isGota: false})">●</span>
+            <span class="me-1" [style.color]="getStationColorForQSO({stationNumber: stationNum, isGota: false})" aria-hidden="true">●</span>
             <strong>Station {{ stationNum }}</strong>
           </button>
         </li>
@@ -43,22 +54,28 @@
             class="nav-link"
             [class.active]="activeTab === 'gota'"
             (click)="selectTab('gota')"
+            (keydown)="onTabKeydown($event, 'gota')"
             type="button"
             role="tab"
+            [attr.data-tab-id]="'gota'"
+            [attr.aria-selected]="activeTab === 'gota'"
+            [attr.aria-controls]="'qso-tabpanel'"
+            [attr.tabindex]="activeTab === 'gota' ? '0' : '-1'"
+            aria-label="Get On The Air Station"
             [style.border-bottom-color]="activeTab === 'gota' ? getStationColorForQSO({isGota: true}) : ''">
-            <span class="me-1" [style.color]="getStationColorForQSO({isGota: true})">●</span>
-            <strong>GOTA</strong> 🟢
+            <span class="me-1" [style.color]="getStationColorForQSO({isGota: true})" aria-hidden="true">●</span>
+            <strong>GOTA</strong> <span role="img" aria-label="indicator">🟢</span>
           </button>
         </li>
       }
     </ul>
   </div>
 
-  <div class="card-body p-0">
+  <div class="card-body p-0" id="qso-tabpanel" role="tabpanel" [attr.aria-labelledby]="'tab-' + activeTab">
     @if (loading) {
       <div class="text-center p-4">
         <div class="spinner-border" role="status">
-          <span class="visually-hidden">Loading...</span>
+          <span class="visually-hidden">Loading QSOs...</span>
         </div>
       </div>
     }
@@ -76,18 +93,27 @@
     @if (!loading && qsos.length > 0) {
       <div class="table-responsive">
         <table class="table table-hover table-sm mb-0">
+          <caption class="visually-hidden">
+            @if (activeTab === 'all') {
+              All QSOs - {{ qsos.length }} contacts
+            } @else if (activeTab === 'gota') {
+              GOTA QSOs - {{ qsos.length }} contacts
+            } @else {
+              Station {{ activeTab }} QSOs - {{ qsos.length }} contacts
+            }
+          </caption>
           <thead class="table-light">
             <tr>
-              <th>Time (UTC)</th>
-              <th>Callsign</th>
-              <th>Frequency</th>
-              <th>Mode</th>
-              <th>Points</th>
-              <th>RST</th>
-              <th>Name</th>
-              <th>State</th>
-              <th>Station</th>
-              <th>Actions</th>
+              <th scope="col">Time (UTC)</th>
+              <th scope="col">Callsign</th>
+              <th scope="col">Frequency</th>
+              <th scope="col">Mode</th>
+              <th scope="col">Points</th>
+              <th scope="col">RST</th>
+              <th scope="col">Name</th>
+              <th scope="col">State</th>
+              <th scope="col">Station</th>
+              <th scope="col">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -153,8 +179,10 @@
                   }
                 </td>
                 <td>
-                  <button class="btn btn-sm btn-outline-danger" (click)="deleteQSO(qso)" title="Delete QSO">
-                    🗑️
+                  <button class="btn btn-sm btn-outline-danger"
+                    (click)="deleteQSO(qso)"
+                    [attr.aria-label]="'Delete QSO with ' + qso.callsign">
+                    <span aria-hidden="true">🗑️</span>
                   </button>
                 </td>
               </tr>

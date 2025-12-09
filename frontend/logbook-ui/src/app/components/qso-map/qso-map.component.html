@@ -1,34 +1,37 @@
 <!-- QSO Map Container -->
 <div class="qso-map-wrapper">
+  <h1 class="visually-hidden">QSO Interactive Map</h1>
   <!-- Map Info Bar -->
-  <div class="map-info-bar" *ngIf="totalQSOs > 0">
+  <div class="map-info-bar" *ngIf="totalQSOs > 0" role="status" aria-live="polite">
     <div class="map-stats">
       <span class="stat-item">
-        <i class="bi bi-geo-alt-fill"></i>
+        <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
         <strong>{{ displayedPoints }}</strong> points
       </span>
       <span class="stat-item">
-        <i class="bi bi-broadcast"></i>
+        <i class="bi bi-broadcast" aria-hidden="true"></i>
         <strong>{{ totalQSOs }}</strong> QSOs
       </span>
       <span class="stat-item" *ngIf="clustered">
-        <i class="bi bi-bullseye"></i>
+        <i class="bi bi-bullseye" aria-hidden="true"></i>
         Clustered view
       </span>
       <span class="stat-item" *ngIf="!clustered">
-        <i class="bi bi-pin-map-fill"></i>
+        <i class="bi bi-pin-map-fill" aria-hidden="true"></i>
         Individual markers
       </span>
     </div>
 
     <div class="map-controls">
       <!-- Grid Precision Selector (visible when grid overlay is on) -->
+      <label for="grid-precision" class="visually-hidden">Grid square precision</label>
       <select
         *ngIf="gridOverlayVisible"
+        id="grid-precision"
         class="form-select form-select-sm me-2"
         [(ngModel)]="gridPrecision"
         (change)="setGridPrecision(gridPrecision)"
-        title="Grid precision">
+        aria-label="Select grid square precision level">
         <option [value]="2">Field (2-char)</option>
         <option [value]="4">Square (4-char)</option>
         <option [value]="6">Subsquare (6-char)</option>
@@ -37,16 +40,21 @@
 
       <!-- Heatmap Radius Slider (visible when heatmap is on) -->
       <div *ngIf="heatmapVisible" class="heatmap-radius-control me-2">
+        <label for="heatmap-radius" class="visually-hidden">Heatmap radius in pixels</label>
         <input
           type="range"
+          id="heatmap-radius"
           class="form-range"
           [(ngModel)]="heatmapRadius"
           (change)="setHeatmapRadius(heatmapRadius)"
           min="10"
           max="50"
           step="5"
-          title="Heatmap radius">
-        <small class="text-muted">{{ heatmapRadius }}px</small>
+          [attr.aria-valuenow]="heatmapRadius"
+          aria-valuemin="10"
+          aria-valuemax="50"
+          aria-label="Adjust heatmap radius">
+        <small class="text-muted" aria-live="polite">{{ heatmapRadius }}px</small>
       </div>
 
       <!-- Grid Overlay Toggle -->
@@ -56,8 +64,9 @@
         [class.btn-outline-secondary]="!gridOverlayVisible"
         (click)="toggleGridOverlay()"
         [disabled]="isLoading"
-        title="Toggle grid square overlay">
-        <i class="bi bi-grid-3x3"></i>
+        [attr.aria-label]="gridOverlayVisible ? 'Hide grid square overlay' : 'Show grid square overlay'"
+        [attr.aria-pressed]="gridOverlayVisible">
+        <i class="bi bi-grid-3x3" aria-hidden="true"></i>
       </button>
 
       <!-- Heatmap Toggle -->
@@ -67,8 +76,9 @@
         [class.btn-outline-secondary]="!heatmapVisible"
         (click)="toggleHeatmap()"
         [disabled]="isLoading"
-        title="Toggle heatmap density layer">
-        <i class="bi bi-fire"></i>
+        [attr.aria-label]="heatmapVisible ? 'Hide heatmap density layer' : 'Show heatmap density layer'"
+        [attr.aria-pressed]="heatmapVisible">
+        <i class="bi bi-fire" aria-hidden="true"></i>
       </button>
 
       <!-- Contest Overlays Dropdown -->
@@ -115,8 +125,9 @@
         [class.btn-success]="realtimeEnabled"
         [class.btn-outline-secondary]="!realtimeEnabled"
         (click)="toggleRealtimeUpdates()"
-        title="Toggle real-time updates">
-        <i class="bi" [class.bi-broadcast]="realtimeEnabled" [class.bi-broadcast-pin]="!realtimeEnabled"></i>
+        [attr.aria-label]="realtimeEnabled ? 'Disable real-time map updates' : 'Enable real-time map updates'"
+        [attr.aria-pressed]="realtimeEnabled">
+        <i class="bi" [class.bi-broadcast]="realtimeEnabled" [class.bi-broadcast-pin]="!realtimeEnabled" aria-hidden="true"></i>
       </button>
 
       <!-- Export Button -->
@@ -124,8 +135,8 @@
         class="btn btn-sm btn-outline-secondary ms-2"
         (click)="openExportDialog()"
         [disabled]="isLoading || totalQSOs === 0"
-        title="Export map data">
-        <i class="bi bi-download"></i>
+        aria-label="Export map data to file">
+        <i class="bi bi-download" aria-hidden="true"></i>
       </button>
 
       <!-- Refresh Button -->
@@ -133,8 +144,8 @@
         class="btn btn-sm btn-outline-secondary ms-2"
         (click)="refresh()"
         [disabled]="isLoading"
-        title="Refresh map data">
-        <i class="bi bi-arrow-clockwise" [class.spin]="isLoading"></i>
+        [attr.aria-label]="isLoading ? 'Refreshing map data' : 'Refresh map data'">
+        <i class="bi bi-arrow-clockwise" [class.spin]="isLoading" aria-hidden="true"></i>
       </button>
     </div>
   </div>
@@ -148,12 +159,12 @@
   </div>
 
   <!-- Leaflet Map Container -->
-  <div #mapContainer class="map-container"></div>
+  <div #mapContainer class="map-container" role="img" aria-label="Interactive map showing QSO locations"></div>
 
   <!-- Empty State -->
-  <div class="empty-state" *ngIf="totalQSOs === 0 && !isLoading">
-    <i class="bi bi-map"></i>
-    <h5>No QSO Locations</h5>
+  <div class="empty-state" *ngIf="totalQSOs === 0 && !isLoading" role="status">
+    <i class="bi bi-map" aria-hidden="true"></i>
+    <h2 class="h5">No QSO Locations</h2>
     <p class="text-muted">
       QSO locations will appear here when grid squares or coordinates are available.
     </p>
