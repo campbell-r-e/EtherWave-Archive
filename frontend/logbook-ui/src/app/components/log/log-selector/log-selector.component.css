@@ -22,6 +22,8 @@
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-lg);
   border-radius: 8px;
+  z-index: 1060;
+  position: relative;
 }
 
 .dropdown-item {

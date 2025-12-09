@@ -10,7 +10,7 @@
   border-radius: 12px;
   box-shadow: var(--shadow-md), var(--shadow-glow);
   margin-bottom: 20px;
-  overflow: hidden;
+  overflow: visible;
   transition: all var(--transition-normal);
 }
 
@@ -26,12 +26,13 @@
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 1050;
+    z-index: 1055;
     margin: 0;
     border-radius: 16px 16px 0 0;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
     max-height: 80vh;
     overflow-y: auto;
+    overflow-x: visible;
     transform: translateY(calc(100% - 60px));
   }
 
@@ -210,6 +211,7 @@
 
 .filter-body.expanded {
   max-height: 1000px;
+  overflow: visible;
   transition: max-height 0.5s ease-in;
 }
 
@@ -257,6 +259,8 @@
   font-size: 0.9rem;
   color: var(--text-primary);
   transition: all var(--transition-fast);
+  position: relative;
+  z-index: 1;
 }
 
 [data-theme="dark"] .form-control,
