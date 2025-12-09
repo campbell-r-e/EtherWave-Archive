@@ -21,7 +21,9 @@
       "Bash(git remote set-url:*)",
       "Bash(ls:*)",
       "Bash(mvn compile:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(mvn test:*)",
+      "Bash(mvn clean test:*)"
     ],
     "deny": [],
     "ask": []
