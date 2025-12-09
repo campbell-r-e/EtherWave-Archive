@@ -10,7 +10,8 @@
   border-radius: 12px;
   box-shadow: var(--shadow-md), var(--shadow-glow);
   margin-bottom: 20px;
-  overflow: visible;
+  overflow-y: visible;
+  overflow-x: visible;
   transition: all var(--transition-normal);
 }
 
@@ -210,8 +211,9 @@
 }
 
 .filter-body.expanded {
-  max-height: 1000px;
-  overflow: visible;
+  max-height: 600px;
+  overflow-y: auto;
+  overflow-x: visible;
   transition: max-height 0.5s ease-in;
 }
 
