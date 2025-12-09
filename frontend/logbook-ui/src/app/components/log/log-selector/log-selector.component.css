@@ -5,7 +5,7 @@
 .log-selector {
   margin-bottom: 0;
   position: relative;
-  z-index: 2000;
+  z-index: 100;
 }
 
 .current-log-bar {
@@ -61,10 +61,12 @@
   display: block;
   background-color: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
+  z-index: 1050;
 }
 
 .modal-backdrop.show {
   opacity: 0.6;
+  z-index: 1040;
 }
 
 /* Modal glassmorphism */
@@ -74,6 +76,7 @@
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
   box-shadow: var(--shadow-xl);
+  z-index: 1060;
 }
 
 .modal-header {
