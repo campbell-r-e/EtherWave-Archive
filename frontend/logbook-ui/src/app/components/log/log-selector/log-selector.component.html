@@ -68,14 +68,14 @@
                               <i class="bi bi-broadcast me-1"></i>{{ log.qsoCount }}
                             </span>
                           </div>
-                          <div class="btn-group btn-group-sm">
+                          <div class="btn-group btn-group-sm" role="group" [attr.aria-label]="'Actions for ' + log.name">
                             @if (canDelete(log)) {
                               <button
                                 type="button"
                                 class="btn btn-outline-danger btn-sm"
                                 (click)="deleteLog(log, $event)"
-                                title="Delete log">
-                                <i class="bi bi-trash"></i>
+                                [attr.aria-label]="'Delete log ' + log.name">
+                                <i class="bi bi-trash" aria-hidden="true"></i>
                               </button>
                             }
                             @if (canLeave(log)) {
@@ -83,8 +83,8 @@
                                 type="button"
                                 class="btn btn-outline-warning btn-sm"
                                 (click)="leaveLog(log, $event)"
-                                title="Leave log">
-                                <i class="bi bi-box-arrow-right"></i>
+                                [attr.aria-label]="'Leave log ' + log.name">
+                                <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
                               </button>
                             }
                           </div>

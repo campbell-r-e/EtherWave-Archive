@@ -41,7 +41,7 @@
 
           <!-- Scoring Indicators (after QSO is saved) -->
           @if (lastSavedQSO) {
-            <div class="alert alert-info d-flex align-items-center gap-3">
+            <div class="alert alert-info d-flex align-items-center gap-3" role="status" aria-live="polite" aria-atomic="true">
               <div>
                 <strong>Last QSO:</strong> {{ lastSavedQSO.callsign }}
               </div>
@@ -49,10 +49,10 @@
                 <span class="badge bg-primary">{{ lastSavedQSO.points }} points</span>
               }
               @if (lastSavedQSO.isDuplicate) {
-                <span class="badge bg-warning text-dark">⚠️ DUPLICATE</span>
+                <span class="badge bg-warning text-dark"><span role="img" aria-label="Warning">⚠️</span> DUPLICATE</span>
               }
               @if (lastSavedQSO.isMultiplier && !lastSavedQSO.isDuplicate) {
-                <span class="badge bg-success">⭐ NEW MULTIPLIER!</span>
+                <span class="badge bg-success"><span role="img" aria-label="Star">⭐</span> NEW MULTIPLIER!</span>
               }
             </div>
           }
@@ -154,24 +154,24 @@
             <!-- Date and Time -->
             <div class="row mb-3">
               <div class="col-md-6">
-                <label class="form-label">Date (UTC) *</label>
-                <input type="date" class="form-control" [(ngModel)]="qso.qsoDate" name="qsoDate" required>
+                <label for="qso-date" class="form-label">Date (UTC) <span aria-label="required">*</span></label>
+                <input type="date" id="qso-date" class="form-control" [(ngModel)]="qso.qsoDate" name="qsoDate" required aria-required="true">
               </div>
               <div class="col-md-6">
-                <label class="form-label">Time (UTC) *</label>
-                <input type="time" class="form-control" [(ngModel)]="qso.timeOn" name="timeOn" step="1" required>
+                <label for="qso-time" class="form-label">Time (UTC) <span aria-label="required">*</span></label>
+                <input type="time" id="qso-time" class="form-control" [(ngModel)]="qso.timeOn" name="timeOn" step="1" required aria-required="true">
               </div>
             </div>
 
             <!-- RST Reports -->
             <div class="row mb-3">
               <div class="col-md-6">
-                <label class="form-label">RST Sent</label>
-                <input type="text" class="form-control" [(ngModel)]="qso.rstSent" name="rstSent">
+                <label for="qso-rst-sent" class="form-label">RST Sent</label>
+                <input type="text" id="qso-rst-sent" class="form-control" [(ngModel)]="qso.rstSent" name="rstSent">
               </div>
               <div class="col-md-6">
-                <label class="form-label">RST Received</label>
-                <input type="text" class="form-control" [(ngModel)]="qso.rstRcvd" name="rstRcvd">
+                <label for="qso-rst-rcvd" class="form-label">RST Received</label>
+                <input type="text" id="qso-rst-rcvd" class="form-control" [(ngModel)]="qso.rstRcvd" name="rstRcvd">
               </div>
             </div>
 

@@ -56,10 +56,10 @@
           <label class="small text-muted d-block">PTT Status</label>
           <h4 [class]="getPTTClass()">
             @if (rigStatus.pttActive) {
-              <span>🔴 TRANSMITTING</span>
+              <span><span role="img" aria-label="Red circle">🔴</span> TRANSMITTING</span>
             }
             @if (!rigStatus.pttActive) {
-              <span>⚪ Receiving</span>
+              <span><span role="img" aria-label="White circle">⚪</span> Receiving</span>
             }
           </h4>
         </div>

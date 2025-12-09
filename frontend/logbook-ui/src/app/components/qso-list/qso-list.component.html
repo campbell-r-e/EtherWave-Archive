@@ -130,17 +130,16 @@
                 <td>
                   <strong class="text-primary">{{ qso.callsign }}</strong>
                   @if (qso.isDuplicate) {
-                    <span class="badge bg-warning text-dark ms-1" title="Duplicate QSO">⚠️ DUPE</span>
+                    <span class="badge bg-warning text-dark ms-1" role="status" aria-label="Duplicate QSO"><span role="img" aria-hidden="true">⚠️</span> DUPE</span>
                   }
                   @if (qso.isMultiplier && !qso.isDuplicate) {
-                    <span class="badge bg-success ms-1" title="New Multiplier">⭐</span>
+                    <span class="badge bg-success ms-1" role="status" aria-label="New Multiplier"><span role="img" aria-hidden="true">⭐</span></span>
                   }
                   @if (!qso.isValid) {
-                    <span class="badge bg-danger ms-1">Invalid</span>
+                    <span class="badge bg-danger ms-1" role="status">Invalid</span>
                   }
                   @if (qso.isValid && qso.validationErrors) {
-                    <span class="badge bg-warning ms-1"
-                    [title]="qso.validationErrors">⚠️</span>
+                    <span class="badge bg-warning ms-1" role="status" [attr.aria-label]="'Validation warning: ' + qso.validationErrors"><span role="img" aria-hidden="true">⚠️</span></span>
                   }
                 </td>
                 <td class="text-nowrap">
