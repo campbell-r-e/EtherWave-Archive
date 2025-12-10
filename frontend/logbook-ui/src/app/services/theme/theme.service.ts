@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-export type Theme = 'light' | 'dark';
+export type Theme = 'light' | 'dark' | 'high-contrast';
 
 /**
  * GEKHoosier QSO Suite - Theme Management Service
@@ -64,7 +64,7 @@ export class ThemeService {
     const body = document.body;
 
     // Remove existing theme classes
-    body.classList.remove('light-theme', 'dark-theme');
+    body.classList.remove('light-theme', 'dark-theme', 'high-contrast-theme');
 
     // Add new theme class
     body.classList.add(`${theme}-theme`);
@@ -82,7 +82,17 @@ export class ThemeService {
   private updateMetaThemeColor(theme: Theme): void {
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
-      const color = theme === 'dark' ? '#1A1A1A' : '#003F87';
+      let color: string;
+      switch (theme) {
+        case 'dark':
+          color = '#1A1A1A';
+          break;
+        case 'high-contrast':
+          color = '#000000';
+          break;
+        default:
+          color = '#003F87';
+      }
       metaThemeColor.setAttribute('content', color);
     }
   }
@@ -104,8 +114,8 @@ export class ThemeService {
   private getSavedTheme(): Theme {
     try {
       const saved = localStorage.getItem(this.THEME_KEY);
-      if (saved === 'light' || saved === 'dark') {
-        return saved;
+      if (saved === 'light' || saved === 'dark' || saved === 'high-contrast') {
+        return saved as Theme;
       }
     } catch (e) {
       console.warn('Failed to load theme preference:', e);

@@ -71,6 +71,14 @@ export class QSOMapComponent implements OnInit, OnDestroy {
   displayedPoints: number = 0;
   clustered: boolean = false;
 
+  // View toggle (map vs table)
+  viewMode: 'map' | 'table' = 'map';
+
+  // Table data
+  tableMarkers: MapMarker[] = [];
+  sortColumn: 'callsign' | 'grid' | 'band' | 'mode' | 'distance' | 'station' = 'callsign';
+  sortDirection: 'asc' | 'desc' = 'asc';
+
   // Real-time updates
   realtimeEnabled: boolean = true;
   private wsSubscription?: Subscription;
@@ -190,6 +198,9 @@ export class QSOMapComponent implements OnInit, OnDestroy {
    * Render individual QSO markers
    */
   private renderMarkers(markers: MapMarker[]): void {
+    // Store markers for table view
+    this.tableMarkers = markers;
+
     markers.forEach(marker => {
       const leafletMarker = L.marker([marker.lat, marker.lon], {
         icon: this.createQSOIcon(marker)
@@ -782,5 +793,66 @@ export class QSOMapComponent implements OnInit, OnDestroy {
     if (this.exportDialog) {
       this.exportDialog.show();
     }
+  }
+
+  /**
+   * Toggle between map and table view
+   */
+  toggleViewMode(): void {
+    this.viewMode = this.viewMode === 'map' ? 'table' : 'map';
+  }
+
+  /**
+   * Get sorted markers for table view
+   */
+  getSortedMarkers(): MapMarker[] {
+    return [...this.tableMarkers].sort((a, b) => {
+      let comparison = 0;
+
+      switch (this.sortColumn) {
+        case 'callsign':
+          comparison = (a.callsign || '').localeCompare(b.callsign || '');
+          break;
+        case 'grid':
+          comparison = (a.grid || '').localeCompare(b.grid || '');
+          break;
+        case 'band':
+          comparison = (a.band || '').localeCompare(b.band || '');
+          break;
+        case 'mode':
+          comparison = (a.mode || '').localeCompare(b.mode || '');
+          break;
+        case 'distance':
+          comparison = (a.distance || 0) - (b.distance || 0);
+          break;
+        case 'station':
+          comparison = (a.station || 0) - (b.station || 0);
+          break;
+      }
+
+      return this.sortDirection === 'asc' ? comparison : -comparison;
+    });
+  }
+
+  /**
+   * Sort table by column
+   */
+  sortByColumn(column: 'callsign' | 'grid' | 'band' | 'mode' | 'distance' | 'station'): void {
+    if (this.sortColumn === column) {
+      // Toggle direction if same column
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      // New column, default to ascending
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+  }
+
+  /**
+   * Get sort indicator for table header
+   */
+  getSortIndicatorForColumn(column: 'callsign' | 'grid' | 'band' | 'mode' | 'distance' | 'station'): string {
+    if (this.sortColumn !== column) return '';
+    return this.sortDirection === 'asc' ? '▲' : '▼';
   }
 }

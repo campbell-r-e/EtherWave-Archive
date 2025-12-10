@@ -1,6 +1,14 @@
 <div class="card">
-  <div class="card-header bg-primary text-white">
+  <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
     <h2 class="h5 mb-0"><span role="img" aria-label="Map">🗺️</span> State/Province Map</h2>
+    <button
+      class="btn btn-sm btn-light"
+      (click)="toggleView()"
+      [attr.aria-label]="viewMode === 'grid' ? 'Switch to accessible table view' : 'Switch to visual grid view'"
+      [attr.aria-pressed]="viewMode === 'table'">
+      <i class="bi" [class.bi-table]="viewMode === 'grid'" [class.bi-grid-3x3]="viewMode === 'table'" aria-hidden="true"></i>
+      {{ viewMode === 'grid' ? 'Table View' : 'Grid View' }}
+    </button>
   </div>
   <div class="card-body">
     <!-- Summary Stats -->
@@ -19,6 +27,74 @@
       </div>
     </div>
 
+    <!-- Accessible Table View -->
+    @if (viewMode === 'table') {
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <caption class="visually-hidden">
+            States and Provinces worked with QSO counts - {{ getTotalStatesWorked() }} total worked
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">
+                <button
+                  type="button"
+                  class="btn btn-link text-decoration-none text-dark p-0"
+                  (click)="sortBy('state')"
+                  [attr.aria-label]="'Sort by abbreviation ' + (sortColumn === 'state' ? (sortDirection === 'asc' ? 'descending' : 'ascending') : 'ascending')">
+                  Abbreviation {{ getSortIndicator('state') }}
+                </button>
+              </th>
+              <th scope="col">
+                <button
+                  type="button"
+                  class="btn btn-link text-decoration-none text-dark p-0"
+                  (click)="sortBy('stateName')"
+                  [attr.aria-label]="'Sort by full name ' + (sortColumn === 'stateName' ? (sortDirection === 'asc' ? 'descending' : 'ascending') : 'ascending')">
+                  Full Name {{ getSortIndicator('stateName') }}
+                </button>
+              </th>
+              <th scope="col">
+                <button
+                  type="button"
+                  class="btn btn-link text-decoration-none text-dark p-0"
+                  (click)="sortBy('count')"
+                  [attr.aria-label]="'Sort by QSO count ' + (sortColumn === 'count' ? (sortDirection === 'asc' ? 'descending' : 'ascending') : 'ascending')">
+                  QSO Count {{ getSortIndicator('count') }}
+                </button>
+              </th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (state of getSortedStates(); track state.state) {
+              <tr [class.table-success]="state.count > 0">
+                <td><strong>{{ state.state }}</strong></td>
+                <td>{{ state.stateName }}</td>
+                <td class="text-end">{{ state.count }}</td>
+                <td>
+                  @if (state.count > 0) {
+                    <span class="badge bg-success">Worked</span>
+                  } @else {
+                    <span class="badge bg-secondary">Not Worked</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr class="table-primary">
+              <td colspan="2"><strong>Total</strong></td>
+              <td class="text-end"><strong>{{ getTotalQSOs() }}</strong></td>
+              <td><strong>{{ getTotalStatesWorked() }} worked</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    }
+
+    <!-- Visual Grid View -->
+    @if (viewMode === 'grid') {
     <!-- Color Legend -->
     <div class="mb-4">
       <h6 class="text-muted mb-2">Color Key (QSO Intensity)</h6>
@@ -132,5 +208,7 @@
         }
       </div>
     </div>
+    }
+    <!-- End Grid View -->
   </div>
 </div>

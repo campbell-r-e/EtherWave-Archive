@@ -162,10 +162,13 @@
               <div class="mb-3">
                 <label for="logName" class="form-label">Log Name *</label>
                 <input
+                  #logNameInput
                   type="text"
                   class="form-control"
                   id="logName"
                   formControlName="name"
+                  required
+                  aria-required="true"
                   [class.is-invalid]="createLogForm.get('name')?.invalid && createLogForm.get('name')?.touched">
                 <div class="invalid-feedback">
                   Log name is required (max 100 characters)

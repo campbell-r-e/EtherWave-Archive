@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -24,6 +24,9 @@ export class InvitationsComponent implements OnInit {
   error: string | null = null;
   activeTab: 'received' | 'sent' = 'received';
   currentUser: User | null = null;
+  private modalTriggerElement: HTMLElement | null = null;
+
+  @ViewChild('logIdInput') logIdInput!: ElementRef;
 
   ParticipantRole = ParticipantRole;
   InvitationStatus = InvitationStatus;
@@ -158,17 +161,35 @@ export class InvitationsComponent implements OnInit {
   }
 
   openCreateModal(): void {
+    // Store the element that triggered the modal for focus return
+    this.modalTriggerElement = document.activeElement as HTMLElement;
+
     this.showCreateModal = true;
     this.createInvitationForm.reset({
       proposedRole: ParticipantRole.STATION
     });
     this.error = null;
+
+    // Focus first input when modal opens
+    setTimeout(() => {
+      if (this.logIdInput) {
+        this.logIdInput.nativeElement.focus();
+      }
+    }, 100);
   }
 
   closeCreateModal(): void {
     this.showCreateModal = false;
     this.createInvitationForm.reset();
     this.error = null;
+
+    // Return focus to trigger element
+    setTimeout(() => {
+      if (this.modalTriggerElement) {
+        this.modalTriggerElement.focus();
+        this.modalTriggerElement = null;
+      }
+    }, 100);
   }
 
   createInvitation(): void {

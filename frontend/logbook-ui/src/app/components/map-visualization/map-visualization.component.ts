@@ -21,6 +21,13 @@ export class MapVisualizationComponent implements OnInit, OnDestroy {
   maxCount = 0;
   private wsSubscription: Subscription | null = null;
 
+  // View toggle (grid vs table)
+  viewMode: 'grid' | 'table' = 'grid';
+
+  // Table sorting
+  sortColumn: 'state' | 'stateName' | 'count' = 'count';
+  sortDirection: 'asc' | 'desc' = 'desc';
+
   // US States organized by region for grid layout
   usStates = {
     northeast: ['ME', 'NH', 'VT', 'MA', 'RI', 'CT', 'NY', 'NJ', 'PA'],
@@ -146,5 +153,66 @@ export class MapVisualizationComponent implements OnInit, OnDestroy {
       { color: '#4a9f4d', label: '61-80%' },
       { color: '#2d7a2e', label: '81-100%' }
     ];
+  }
+
+  /**
+   * Toggle between grid and table view
+   */
+  toggleView(): void {
+    this.viewMode = this.viewMode === 'grid' ? 'table' : 'grid';
+  }
+
+  /**
+   * Get all states/provinces as sorted array for table view
+   */
+  getSortedStates(): StateStats[] {
+    const allStates = Array.from(this.stateStats.values());
+
+    return allStates.sort((a, b) => {
+      let comparison = 0;
+
+      switch (this.sortColumn) {
+        case 'state':
+          comparison = a.state.localeCompare(b.state);
+          break;
+        case 'stateName':
+          comparison = a.stateName.localeCompare(b.stateName);
+          break;
+        case 'count':
+          comparison = a.count - b.count;
+          break;
+      }
+
+      return this.sortDirection === 'asc' ? comparison : -comparison;
+    });
+  }
+
+  /**
+   * Sort table by column
+   */
+  sortBy(column: 'state' | 'stateName' | 'count'): void {
+    if (this.sortColumn === column) {
+      // Toggle direction if same column
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      // New column, default to descending for count, ascending for text
+      this.sortColumn = column;
+      this.sortDirection = column === 'count' ? 'desc' : 'asc';
+    }
+  }
+
+  /**
+   * Get sort indicator for table header
+   */
+  getSortIndicator(column: 'state' | 'stateName' | 'count'): string {
+    if (this.sortColumn !== column) return '';
+    return this.sortDirection === 'asc' ? '▲' : '▼';
+  }
+
+  /**
+   * Get status text for state (Worked/Not Worked)
+   */
+  getStateStatus(state: string): string {
+    return this.getStateCount(state) > 0 ? 'Worked' : 'Not Worked';
   }
 }

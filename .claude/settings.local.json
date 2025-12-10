@@ -26,7 +26,11 @@
       "Bash(mvn clean test:*)",
       "Bash(docker-compose up:*)",
       "Bash(docker-compose ps:*)",
-      "Bash(docker-compose build:*)"
+      "Bash(docker-compose build:*)",
+      "Bash(cat:*)",
+      "Bash(docker stats:*)",
+      "Bash(du:*)",
+      "Bash(docker-compose logs:*)"
     ],
     "deny": [],
     "ask": []

@@ -40,8 +40,8 @@
         @if (filters.mode) {
           <span class="filter-pill">
             <strong>{{ getFilterLabel('mode') }}:</strong> {{ getFilterDisplayText('mode') }}
-            <button class="btn-close-pill" (click)="removeFilter('mode')" type="button">
-              <i class="bi bi-x"></i>
+            <button class="btn-close-pill" (click)="removeFilter('mode')" type="button" [attr.aria-label]="'Remove ' + getFilterLabel('mode') + ' filter'">
+              <i class="bi bi-x" aria-hidden="true"></i>
             </button>
           </span>
         }
@@ -49,8 +49,8 @@
         @if (filters.station) {
           <span class="filter-pill">
             <strong>{{ getFilterLabel('station') }}:</strong> {{ getFilterDisplayText('station') }}
-            <button class="btn-close-pill" (click)="removeFilter('station')" type="button">
-              <i class="bi bi-x"></i>
+            <button class="btn-close-pill" (click)="removeFilter('station')" type="button" [attr.aria-label]="'Remove ' + getFilterLabel('station') + ' filter'">
+              <i class="bi bi-x" aria-hidden="true"></i>
             </button>
           </span>
         }
@@ -58,8 +58,8 @@
         @if (filters.operator) {
           <span class="filter-pill">
             <strong>{{ getFilterLabel('operator') }}:</strong> {{ getFilterDisplayText('operator') }}
-            <button class="btn-close-pill" (click)="removeFilter('operator')" type="button">
-              <i class="bi bi-x"></i>
+            <button class="btn-close-pill" (click)="removeFilter('operator')" type="button" [attr.aria-label]="'Remove ' + getFilterLabel('operator') + ' filter'">
+              <i class="bi bi-x" aria-hidden="true"></i>
             </button>
           </span>
         }
@@ -67,8 +67,8 @@
         @if (filters.dxcc) {
           <span class="filter-pill">
             <strong>{{ getFilterLabel('dxcc') }}:</strong> {{ getFilterDisplayText('dxcc') }}
-            <button class="btn-close-pill" (click)="removeFilter('dxcc')" type="button">
-              <i class="bi bi-x"></i>
+            <button class="btn-close-pill" (click)="removeFilter('dxcc')" type="button" [attr.aria-label]="'Remove ' + getFilterLabel('dxcc') + ' filter'">
+              <i class="bi bi-x" aria-hidden="true"></i>
             </button>
           </span>
         }
@@ -76,8 +76,8 @@
         @if (filters.dateFrom) {
           <span class="filter-pill">
             <strong>{{ getFilterLabel('dateFrom') }}:</strong> {{ getFilterDisplayText('dateFrom') }}
-            <button class="btn-close-pill" (click)="removeFilter('dateFrom')" type="button">
-              <i class="bi bi-x"></i>
+            <button class="btn-close-pill" (click)="removeFilter('dateFrom')" type="button" [attr.aria-label]="'Remove ' + getFilterLabel('dateFrom') + ' filter'">
+              <i class="bi bi-x" aria-hidden="true"></i>
             </button>
           </span>
         }
@@ -85,8 +85,8 @@
         @if (filters.dateTo) {
           <span class="filter-pill">
             <strong>{{ getFilterLabel('dateTo') }}:</strong> {{ getFilterDisplayText('dateTo') }}
-            <button class="btn-close-pill" (click)="removeFilter('dateTo')" type="button">
-              <i class="bi bi-x"></i>
+            <button class="btn-close-pill" (click)="removeFilter('dateTo')" type="button" [attr.aria-label]="'Remove ' + getFilterLabel('dateTo') + ' filter'">
+              <i class="bi bi-x" aria-hidden="true"></i>
             </button>
           </span>
         }
@@ -94,8 +94,8 @@
         @if (filters.confirmed !== undefined) {
           <span class="filter-pill">
             <strong>{{ getFilterLabel('confirmed') }}:</strong> {{ getFilterDisplayText('confirmed') }}
-            <button class="btn-close-pill" (click)="removeFilter('confirmed')" type="button">
-              <i class="bi bi-x"></i>
+            <button class="btn-close-pill" (click)="removeFilter('confirmed')" type="button" [attr.aria-label]="'Remove ' + getFilterLabel('confirmed') + ' filter'">
+              <i class="bi bi-x" aria-hidden="true"></i>
             </button>
           </span>
         }
@@ -103,8 +103,8 @@
         @if (filters.continent) {
           <span class="filter-pill">
             <strong>{{ getFilterLabel('continent') }}:</strong> {{ getFilterDisplayText('continent') }}
-            <button class="btn-close-pill" (click)="removeFilter('continent')" type="button">
-              <i class="bi bi-x"></i>
+            <button class="btn-close-pill" (click)="removeFilter('continent')" type="button" [attr.aria-label]="'Remove ' + getFilterLabel('continent') + ' filter'">
+              <i class="bi bi-x" aria-hidden="true"></i>
             </button>
           </span>
         }
@@ -112,8 +112,8 @@
         @if (filters.state) {
           <span class="filter-pill">
             <strong>{{ getFilterLabel('state') }}:</strong> {{ getFilterDisplayText('state') }}
-            <button class="btn-close-pill" (click)="removeFilter('state')" type="button">
-              <i class="bi bi-x"></i>
+            <button class="btn-close-pill" (click)="removeFilter('state')" type="button" [attr.aria-label]="'Remove ' + getFilterLabel('state') + ' filter'">
+              <i class="bi bi-x" aria-hidden="true"></i>
             </button>
           </span>
         }
@@ -121,8 +121,8 @@
         @if (filters.exchange) {
           <span class="filter-pill">
             <strong>{{ getFilterLabel('exchange') }}:</strong> {{ getFilterDisplayText('exchange') }}
-            <button class="btn-close-pill" (click)="removeFilter('exchange')" type="button">
-              <i class="bi bi-x"></i>
+            <button class="btn-close-pill" (click)="removeFilter('exchange')" type="button" [attr.aria-label]="'Remove ' + getFilterLabel('exchange') + ' filter'">
+              <i class="bi bi-x" aria-hidden="true"></i>
             </button>
           </span>
         }

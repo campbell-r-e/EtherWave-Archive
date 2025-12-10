@@ -41,15 +41,14 @@
     @if (!loading && getDisplayedContests().length > 0) {
       <div class="contest-list" role="list">
         @for (contest of getDisplayedContests(); track contest) {
-          <div
+          <button
+            type="button"
             class="contest-card"
             role="listitem"
             [class.selected]="selectedContest?.id === contest.id"
             (click)="selectContest(contest)"
-            (keydown.enter)="selectContest(contest)"
-            (keydown.space)="selectContest(contest)"
-            tabindex="0"
-            [attr.aria-label]="'Contest: ' + contest.contestName + ', ' + getContestStatusText(contest) + ', ' + getContestDateRange(contest)">
+            [attr.aria-label]="'Contest: ' + contest.contestName + ', ' + getContestStatusText(contest) + ', ' + getContestDateRange(contest)"
+            [attr.aria-pressed]="selectedContest?.id === contest.id">
             <div class="contest-header">
               <div>
                 <h3 class="h6 contest-name mb-1">{{ contest.contestName }}</h3>
@@ -61,18 +60,18 @@
             </div>
             <div class="contest-details">
               <div class="detail-row">
-                <span class="detail-label">📅 Dates:</span>
+                <span class="detail-label"><span role="img" aria-label="Calendar">📅</span> Dates:</span>
                 <span class="detail-value">{{ getContestDateRange(contest) }}</span>
               </div>
               @if (contest.description) {
                 <div class="detail-row">
-                  <span class="detail-label">📝 Description:</span>
+                  <span class="detail-label"><span role="img" aria-label="Note">📝</span> Description:</span>
                   <span class="detail-value">{{ contest.description }}</span>
                 </div>
               }
               @if (contest.rulesConfig) {
                 <div class="detail-row">
-                  <span class="detail-label">📋 Rules:</span>
+                  <span class="detail-label"><span role="img" aria-label="Rules">📋</span> Rules:</span>
                   <span class="detail-value">{{ contest.rulesConfig }}</span>
                 </div>
               }
@@ -80,10 +79,10 @@
             <!-- Selection Indicator -->
             @if (selectedContest?.id === contest.id) {
               <div class="selected-indicator">
-                ✓ Selected
+                <span role="img" aria-label="Check mark">✓</span> Selected
               </div>
             }
-          </div>
+          </button>
         }
       </div>
     }

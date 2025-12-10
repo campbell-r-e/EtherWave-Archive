@@ -23,6 +23,16 @@
     </div>
 
     <div class="map-controls">
+      <!-- View Toggle Button -->
+      <button
+        class="btn btn-sm btn-outline-primary me-2"
+        (click)="toggleViewMode()"
+        [attr.aria-label]="viewMode === 'map' ? 'Switch to accessible table view' : 'Switch to interactive map view'"
+        [attr.aria-pressed]="viewMode === 'table'">
+        <i class="bi" [class.bi-table]="viewMode === 'map'" [class.bi-map]="viewMode === 'table'" aria-hidden="true"></i>
+        {{ viewMode === 'map' ? 'Table View' : 'Map View' }}
+      </button>
+
       <!-- Grid Precision Selector (visible when grid overlay is on) -->
       <label for="grid-precision" class="visually-hidden">Grid square precision</label>
       <select
@@ -93,28 +103,32 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
           <li>
-            <a class="dropdown-item" href="javascript:void(0)" (click)="toggleContestOverlay('cqZones')">
-              <i class="bi" [class.bi-check-square]="contestOverlayVisible['cqZones']" [class.bi-square]="!contestOverlayVisible['cqZones']"></i>
+            <button type="button" class="dropdown-item" (click)="toggleContestOverlay('cqZones')" role="menuitemcheckbox" [attr.aria-checked]="contestOverlayVisible['cqZones']">
+              <i class="bi bi-check-square" *ngIf="contestOverlayVisible['cqZones']" aria-hidden="true"></i>
+              <i class="bi bi-square" *ngIf="!contestOverlayVisible['cqZones']" aria-hidden="true"></i>
               CQ Zones
-            </a>
+            </button>
           </li>
           <li>
-            <a class="dropdown-item" href="javascript:void(0)" (click)="toggleContestOverlay('ituZones')">
-              <i class="bi" [class.bi-check-square]="contestOverlayVisible['ituZones']" [class.bi-square]="!contestOverlayVisible['ituZones']"></i>
+            <button type="button" class="dropdown-item" (click)="toggleContestOverlay('ituZones')" role="menuitemcheckbox" [attr.aria-checked]="contestOverlayVisible['ituZones']">
+              <i class="bi bi-check-square" *ngIf="contestOverlayVisible['ituZones']" aria-hidden="true"></i>
+              <i class="bi bi-square" *ngIf="!contestOverlayVisible['ituZones']" aria-hidden="true"></i>
               ITU Zones
-            </a>
+            </button>
           </li>
           <li>
-            <a class="dropdown-item" href="javascript:void(0)" (click)="toggleContestOverlay('arrlSections')">
-              <i class="bi" [class.bi-check-square]="contestOverlayVisible['arrlSections']" [class.bi-square]="!contestOverlayVisible['arrlSections']"></i>
+            <button type="button" class="dropdown-item" (click)="toggleContestOverlay('arrlSections')" role="menuitemcheckbox" [attr.aria-checked]="contestOverlayVisible['arrlSections']">
+              <i class="bi bi-check-square" *ngIf="contestOverlayVisible['arrlSections']" aria-hidden="true"></i>
+              <i class="bi bi-square" *ngIf="!contestOverlayVisible['arrlSections']" aria-hidden="true"></i>
               ARRL Sections
-            </a>
+            </button>
           </li>
           <li>
-            <a class="dropdown-item" href="javascript:void(0)" (click)="toggleContestOverlay('dxcc')">
-              <i class="bi" [class.bi-check-square]="contestOverlayVisible['dxcc']" [class.bi-square]="!contestOverlayVisible['dxcc']"></i>
+            <button type="button" class="dropdown-item" (click)="toggleContestOverlay('dxcc')" role="menuitemcheckbox" [attr.aria-checked]="contestOverlayVisible['dxcc']">
+              <i class="bi bi-check-square" *ngIf="contestOverlayVisible['dxcc']" aria-hidden="true"></i>
+              <i class="bi bi-square" *ngIf="!contestOverlayVisible['dxcc']" aria-hidden="true"></i>
               DXCC Entities
-            </a>
+            </button>
           </li>
         </ul>
       </div>
@@ -158,8 +172,111 @@
     <p class="mt-2">Loading QSO locations...</p>
   </div>
 
+  <!-- Accessible Table View -->
+  @if (viewMode === 'table' && !clustered) {
+    <div class="table-responsive p-3">
+      <table class="table table-striped table-hover">
+        <caption class="visually-hidden">
+          QSO locations - {{ tableMarkers.length }} contacts with location data
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">
+              <button
+                type="button"
+                class="btn btn-link text-decoration-none text-dark p-0"
+                (click)="sortByColumn('callsign')"
+                [attr.aria-label]="'Sort by callsign ' + (sortColumn === 'callsign' ? (sortDirection === 'asc' ? 'descending' : 'ascending') : 'ascending')">
+                Callsign {{ getSortIndicatorForColumn('callsign') }}
+              </button>
+            </th>
+            <th scope="col">
+              <button
+                type="button"
+                class="btn btn-link text-decoration-none text-dark p-0"
+                (click)="sortByColumn('grid')"
+                [attr.aria-label]="'Sort by grid square ' + (sortColumn === 'grid' ? (sortDirection === 'asc' ? 'descending' : 'ascending') : 'ascending')">
+                Grid {{ getSortIndicatorForColumn('grid') }}
+              </button>
+            </th>
+            <th scope="col">
+              <button
+                type="button"
+                class="btn btn-link text-decoration-none text-dark p-0"
+                (click)="sortByColumn('band')"
+                [attr.aria-label]="'Sort by band ' + (sortColumn === 'band' ? (sortDirection === 'asc' ? 'descending' : 'ascending') : 'ascending')">
+                Band {{ getSortIndicatorForColumn('band') }}
+              </button>
+            </th>
+            <th scope="col">
+              <button
+                type="button"
+                class="btn btn-link text-decoration-none text-dark p-0"
+                (click)="sortByColumn('mode')"
+                [attr.aria-label]="'Sort by mode ' + (sortColumn === 'mode' ? (sortDirection === 'asc' ? 'descending' : 'ascending') : 'ascending')">
+                Mode {{ getSortIndicatorForColumn('mode') }}
+              </button>
+            </th>
+            <th scope="col">
+              <button
+                type="button"
+                class="btn btn-link text-decoration-none text-dark p-0"
+                (click)="sortByColumn('distance')"
+                [attr.aria-label]="'Sort by distance ' + (sortColumn === 'distance' ? (sortDirection === 'asc' ? 'descending' : 'ascending') : 'ascending')">
+                Distance (km) {{ getSortIndicatorForColumn('distance') }}
+              </button>
+            </th>
+            <th scope="col">
+              <button
+                type="button"
+                class="btn btn-link text-decoration-none text-dark p-0"
+                (click)="sortByColumn('station')"
+                [attr.aria-label]="'Sort by station ' + (sortColumn === 'station' ? (sortDirection === 'asc' ? 'descending' : 'ascending') : 'ascending')">
+                Station {{ getSortIndicatorForColumn('station') }}
+              </button>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (marker of getSortedMarkers(); track marker.callsign) {
+            <tr>
+              <td><strong>{{ marker.callsign }}</strong></td>
+              <td>{{ marker.grid || 'N/A' }}</td>
+              <td>{{ marker.band || 'N/A' }}</td>
+              <td>{{ marker.mode || 'N/A' }}</td>
+              <td class="text-end">{{ marker.distance ? marker.distance.toFixed(0) : 'N/A' }}</td>
+              <td>{{ marker.station ? 'Station ' + marker.station : 'N/A' }}</td>
+            </tr>
+          }
+          @if (tableMarkers.length === 0) {
+            <tr>
+              <td colspan="6" class="text-center text-muted py-4">
+                No QSO location data available. Zoom in to see individual contacts.
+              </td>
+            </tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr class="table-primary">
+            <td colspan="6">
+              <strong>Total: {{ tableMarkers.length }} QSOs with location data displayed</strong>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  }
+
+  @if (viewMode === 'table' && clustered) {
+    <div class="alert alert-info m-3" role="status">
+      <i class="bi bi-info-circle" aria-hidden="true"></i>
+      <strong>Table view unavailable in clustered mode.</strong>
+      Zoom in on the map to see individual QSO locations, then switch to table view for an accessible list.
+    </div>
+  }
+
   <!-- Leaflet Map Container -->
-  <div #mapContainer class="map-container" role="img" aria-label="Interactive map showing QSO locations"></div>
+  <div #mapContainer class="map-container" [class.d-none]="viewMode === 'table'" role="img" aria-label="Interactive map showing QSO locations"></div>
 
   <!-- Empty State -->
   <div class="empty-state" *ngIf="totalQSOs === 0 && !isLoading" role="status">

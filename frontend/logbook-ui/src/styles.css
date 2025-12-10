@@ -145,6 +145,105 @@ body.dark-theme {
   --shadow-glow-strong: 0 0 40px rgba(0, 212, 255, 0.6);
 }
 
+/* ===== High Contrast Theme (Accessibility) ===== */
+body.high-contrast-theme {
+  /* ===== High Contrast Colors ===== */
+  --bg-primary: #000000;
+  --bg-secondary: #000000;
+  --bg-tertiary: #1A1A1A;
+  --bg-elevated: #0A0A0A;
+  --bg-overlay: rgba(0, 0, 0, 0.95);
+
+  --text-primary: #FFFFFF;
+  --text-secondary: #FFFFFF;
+  --text-muted: #CCCCCC;
+  --text-inverse: #000000;
+
+  --border-color: #FFFFFF;
+  --border-color-dark: #CCCCCC;
+
+  /* ===== Interactive (Maximum Contrast) ===== */
+  --link-color: #FFFF00;
+  --link-hover: #00FFFF;
+
+  /* ===== Glassmorphism Disabled ===== */
+  --glass-bg: rgba(0, 0, 0, 0.95);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: rgba(255, 255, 255, 0.3);
+  --glass-blur: 0px;
+
+  /* ===== Shadows (High Contrast) ===== */
+  --shadow-sm: 0 0 0 2px #FFFFFF;
+  --shadow-md: 0 0 0 3px #FFFFFF;
+  --shadow-lg: 0 0 0 4px #FFFFFF;
+  --shadow-xl: 0 0 0 5px #FFFFFF;
+  --shadow-glow: 0 0 10px #FFFF00;
+  --shadow-glow-strong: 0 0 20px #FFFF00;
+
+  /* ===== Accent Colors (High Contrast) ===== */
+  --accent-success: #00FF00;
+  --accent-warning: #FFFF00;
+  --accent-error: #FF0000;
+  --accent-info: #00FFFF;
+  --accent-rig-online: #00FF00;
+  --accent-multiplier: #FFFF00;
+
+  /* ===== Station Colors (High Contrast) ===== */
+  --station-1-primary: #FFFF00;
+  --station-2-primary: #00FFFF;
+  --station-3-primary: #00FF00;
+  --station-4-primary: #FF00FF;
+  --station-5-primary: #FF0000;
+  --station-6-primary: #FFA500;
+  --station-gota-primary: #00FF00;
+  --station-viewer-primary: #FFFFFF;
+}
+
+/* High Contrast Focus Indicators */
+body.high-contrast-theme *:focus-visible,
+body.high-contrast-theme a:focus-visible,
+body.high-contrast-theme button:focus-visible {
+  outline: 4px solid #FFFF00 !important;
+  outline-offset: 4px;
+  box-shadow: 0 0 0 8px rgba(255, 255, 0, 0.5) !important;
+}
+
+body.high-contrast-theme .form-control:focus-visible,
+body.high-contrast-theme .form-select:focus-visible {
+  border-color: #FFFF00 !important;
+  border-width: 3px;
+  box-shadow: 0 0 0 0.5rem rgba(255, 255, 0, 0.5) !important;
+}
+
+/* High Contrast Buttons */
+body.high-contrast-theme .btn {
+  border-width: 2px !important;
+  font-weight: bold;
+}
+
+body.high-contrast-theme .btn-primary {
+  background-color: #FFFF00 !important;
+  border-color: #FFFF00 !important;
+  color: #000000 !important;
+}
+
+body.high-contrast-theme .btn-primary:hover {
+  background-color: #00FFFF !important;
+  border-color: #00FFFF !important;
+}
+
+/* High Contrast Links */
+body.high-contrast-theme a {
+  color: #FFFF00 !important;
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+body.high-contrast-theme a:hover {
+  color: #00FFFF !important;
+  text-decoration: underline;
+}
+
 /* ============================================================================
    Base Styles
    ============================================================================ */

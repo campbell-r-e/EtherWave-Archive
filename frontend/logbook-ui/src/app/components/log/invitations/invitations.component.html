@@ -257,9 +257,6 @@
                                       </div>
                                     </div>
                                   }
-                                </div>
-                              </div>
-                            }
 
                             <!-- Loading Spinner -->
                             @if (loading) {
@@ -271,7 +268,7 @@
                             }
                           </div>
                         </div>
-                      </div>
+                }
 
                       <!-- Create Invitation Modal -->
                       <div
@@ -293,6 +290,7 @@
                                 <div class="mb-3">
                                   <label for="logId" class="form-label">Log <span class="text-danger">*</span></label>
                                   <select
+                                    #logIdInput
                                     class="form-select"
                                     id="logId"
                                     formControlName="logId"

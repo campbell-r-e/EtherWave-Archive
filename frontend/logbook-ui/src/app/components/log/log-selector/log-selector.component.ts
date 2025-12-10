@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 
 import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -22,6 +22,9 @@ export class LogSelectorComponent implements OnInit {
   error: string | null = null;
   pendingInvitationsCount = 0;
   currentUser: User | null = null;
+  private modalTriggerElement: HTMLElement | null = null;
+
+  @ViewChild('logNameInput') logNameInput!: ElementRef;
 
   LogType = LogType;
 
@@ -100,18 +103,36 @@ export class LogSelectorComponent implements OnInit {
   }
 
   openCreateModal(): void {
+    // Store the element that triggered the modal for focus return
+    this.modalTriggerElement = document.activeElement as HTMLElement;
+
     this.showCreateModal = true;
     this.createLogForm.reset({
       type: LogType.PERSONAL,
       isPublic: false
     });
     this.error = null;
+
+    // Focus first input when modal opens
+    setTimeout(() => {
+      if (this.logNameInput) {
+        this.logNameInput.nativeElement.focus();
+      }
+    }, 100);
   }
 
   closeCreateModal(): void {
     this.showCreateModal = false;
     this.createLogForm.reset();
     this.error = null;
+
+    // Return focus to trigger element
+    setTimeout(() => {
+      if (this.modalTriggerElement) {
+        this.modalTriggerElement.focus();
+        this.modalTriggerElement = null;
+      }
+    }, 100);
   }
 
   createLog(): void {
