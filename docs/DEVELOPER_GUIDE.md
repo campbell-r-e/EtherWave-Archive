@@ -29,7 +29,7 @@ Complete technical guide for developers working on the Ham Radio Contest Logbook
 ┌─────────────────────────────────────────────────────────────┐
 │                    Client Browser                            │
 │  ┌────────────────────────────────────────────────────┐     │
-│  │              Angular 17 SPA                         │     │
+│  │        Angular 21 SPA (Standalone Components)       │     │
 │  │  ┌──────────┐ ┌──────────┐ ┌──────────┐           │     │
 │  │  │Components│ │ Services │ │  Guards  │           │     │
 │  │  └──────────┘ └──────────┘ └──────────┘           │     │
@@ -225,82 +225,143 @@ docker run -d --name rigctld \
 
 ### Package Structure
 
+The backend contains **110 Java classes** organized as follows:
+
 ```
 com.hamradio.logbook/
-├── config/                    # Configuration classes
+├── config/ (5 classes)        # Configuration classes
 │   ├── SecurityConfig.java    # Spring Security setup
+│   ├── JwtAuthenticationFilter.java  # JWT token filtering
 │   ├── WebSocketConfig.java   # WebSocket configuration
-│   └── CorsConfig.java        # CORS settings
+│   ├── WebConfig.java         # Web configuration
+│   └── AsyncConfig.java       # Async task configuration
 │
-├── controller/                # REST controllers
+├── controller/ (14 classes)   # REST controllers
 │   ├── AuthController.java    # Login/register endpoints
 │   ├── LogController.java     # Log CRUD operations
 │   ├── QSOController.java     # QSO operations
-│   ├── InvitationController.java
-│   ├── StationController.java
-│   ├── ContestController.java
-│   └── ExportController.java
+│   ├── InvitationController.java  # Invitation management
+│   ├── StationController.java     # Station management
+│   ├── OperatorController.java    # Operator management
+│   ├── ContestController.java     # Contest management
+│   ├── ExportController.java      # Log export (ADIF/Cabrillo)
+│   ├── ImportController.java      # Log import
+│   ├── CallsignController.java    # Callsign lookup/validation
+│   ├── DXCCController.java        # DXCC country data
+│   ├── MapController.java         # Map data/visualization
+│   ├── StationStatisticsController.java  # Statistics/analytics
+│   └── TelemetryController.java   # Telemetry data endpoints
 │
-├── dto/                       # Data Transfer Objects
+├── dto/ (13+ classes)         # Data Transfer Objects
 │   ├── auth/
 │   │   ├── LoginRequest.java
 │   │   ├── RegisterRequest.java
-│   │   └── AuthResponse.java
+│   │   ├── AuthResponse.java
+│   │   └── UserResponse.java
 │   ├── log/
 │   │   ├── LogRequest.java
 │   │   ├── LogResponse.java
+│   │   ├── LogParticipantResponse.java
 │   │   ├── InvitationRequest.java
-│   │   └── InvitationResponse.java
+│   │   ├── InvitationResponse.java
+│   │   └── StationAssignmentRequest.java
 │   ├── QSORequest.java
-│   └── QSOResponse.java
+│   ├── QSOResponse.java
+│   ├── TelemetryRequest.java
+│   ├── CallsignInfo.java
+│   ├── StationStatistics.java
+│   └── StationStatsSummary.java
 │
-├── entity/                    # JPA Entities
+├── entity/ (15+ classes)      # JPA Entities
 │   ├── User.java
 │   ├── Log.java
 │   ├── LogParticipant.java
 │   ├── Invitation.java
 │   ├── QSO.java
+│   ├── QSOLocation.java
 │   ├── Station.java
 │   ├── Operator.java
-│   └── Contest.java
+│   ├── Contest.java
+│   ├── RigTelemetry.java
+│   ├── DXCCPrefix.java
+│   ├── CallsignCache.java
+│   ├── LogMultiplier.java
+│   ├── MaidenheadGrid.java
+│   └── MapCluster.java
 │
-├── repository/                # Spring Data repositories
+├── repository/ (15+ classes)  # Spring Data repositories
 │   ├── UserRepository.java
 │   ├── LogRepository.java
 │   ├── LogParticipantRepository.java
 │   ├── InvitationRepository.java
 │   ├── QSORepository.java
-│   └── ContestRepository.java
+│   ├── QSOLocationRepository.java
+│   ├── StationRepository.java
+│   ├── OperatorRepository.java
+│   ├── ContestRepository.java
+│   ├── RigTelemetryRepository.java
+│   ├── DXCCPrefixRepository.java
+│   ├── CallsignCacheRepository.java
+│   ├── LogMultiplierRepository.java
+│   ├── MaidenheadGridRepository.java
+│   └── MapClusterRepository.java
 │
-├── service/                   # Business logic
+├── service/ (32 classes)      # Business logic
 │   ├── AuthService.java
+│   ├── CustomUserDetailsService.java
+│   ├── UserService.java
 │   ├── LogService.java
 │   ├── InvitationService.java
 │   ├── QSOService.java
 │   ├── QSOValidationService.java
+│   ├── DuplicateDetectionService.java
 │   ├── ContestService.java
-│   └── AdminInitializationService.java
+│   ├── ContestValidatorRegistry.java
+│   ├── ContestOverlayService.java
+│   ├── ScoringService.java
+│   ├── ScoringJobService.java
+│   ├── MultiplierTrackingService.java
+│   ├── StationService.java
+│   ├── OperatorService.java
+│   ├── StationStatisticsService.java
+│   ├── AdifExportService.java
+│   ├── AdifImportService.java
+│   ├── CabrilloExportService.java
+│   ├── DXCCLoaderService.java
+│   ├── DXCCLookupService.java
+│   ├── CallsignValidationService.java
+│   ├── TelemetryService.java
+│   ├── MapDataService.java
+│   ├── MapExportService.java
+│   ├── GridCoverageService.java
+│   ├── HeatmapService.java
+│   ├── LocationManagementService.java
+│   ├── SessionLocationService.java
+│   ├── DistanceCalculator.java
+│   ├── MaidenheadConverter.java
+│   ├── AdminInitializationService.java
+│   └── DataInitializationService.java
 │
-├── actuator/                  # Spring Boot Actuator endpoints
-│   ├── /health               # Health check endpoint
-│   ├── /health/liveness      # Liveness probe
-│   ├── /health/readiness     # Readiness probe
-│   ├── /info                 # Application information
-│   └── /metrics              # Application metrics
+├── util/ (2 classes)          # Utility classes
+│   ├── JwtUtil.java
+│   └── UserPrincipal.java
 │
-├── util/                      # Utility classes
-│   ├── security/
-│   │   ├── JwtUtil.java
-│   │   └── JwtAuthenticationFilter.java
-│   └── DateTimeUtil.java
+├── validation/ (6 classes)    # Contest validators
+│   ├── ContestValidator.java      # Interface
+│   ├── FieldDayValidator.java     # ARRL Field Day
+│   ├── POTAValidator.java         # Parks on the Air
+│   ├── SOTAValidator.java         # Summits on the Air
+│   ├── WinterFieldDayValidator.java  # Winter Field Day
+│   └── ValidationResult.java      # Result holder
 │
-└── validation/                # Contest validators
-    ├── ContestValidator.java      # Interface
-    ├── CqwwValidator.java
-    ├── ArrlSweepstakesValidator.java
-    ├── PotaValidator.java
-    └── FieldDayValidator.java
+├── exception/ (2 classes)     # Exception handling
+│   ├── GlobalExceptionHandler.java
+│   └── ResourceNotFoundException.java
+│
+└── LogbookApplication.java    # Main Spring Boot application
 ```
+
+**Note**: Spring Boot Actuator endpoints (/actuator/health, /actuator/metrics, etc.) are provided by Spring Boot and don't require separate classes.
 
 ### Core Services Explained
 

@@ -69,10 +69,14 @@ This system provides amateur radio operators with a modern, feature-rich logging
 - Grid square, DXCC, CQ/ITU zone support
 
 ### Rig Control
-- Hamlib integration via rigctld
-- Real-time frequency and mode updates
-- WebSocket-based communication
-- Per-user rig control containers
+- **Multi-Client Support** - Multiple users/apps control the same rig simultaneously
+- **Real-Time Updates** - Status broadcasts every 100ms (frequency, mode, PTT, S-meter)
+- **PTT Safety** - First-come-first-served exclusive transmission locking
+- **Event Broadcasting** - All clients notified of rig changes in real-time
+- **WebSocket API** - Three-channel architecture (command, status, events)
+- **Performance** - <50ms latency via smart caching and request coalescing
+- **Hamlib Integration** - Compatible with 300+ radio models via rigctld
+- **External Integration** - Well-documented API for third-party applications
 
 ### Contest Support
 - Plugin-based validation architecture
@@ -171,9 +175,12 @@ Frontend runs at: **http://localhost:4200**
 
 For detailed installation and configuration instructions, see:
 
+- **[START_HERE.md](START_HERE.md)** - Brand new? Start here!
 - **[QUICKSTART.md](QUICKSTART.md)** - 5-minute quick start for beginners
 - **[SETUP.md](SETUP.md)** - Comprehensive setup and configuration guide
+- **[REGISTRATION_GUIDE.md](REGISTRATION_GUIDE.md)** - User registration walkthrough
 - **[RIG_CONTROL_GUIDE.md](RIG_CONTROL_GUIDE.md)** - Complete rig control setup
+- **[CONFIGURATION.md](CONFIGURATION.md)** - System configuration options
 - **[docs/USER_GUIDE.md](docs/USER_GUIDE.md)** - How to use the system
 - **[docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md)** - Development guide
 
@@ -220,34 +227,70 @@ For detailed installation and configuration instructions, see:
 
 ┌─────────────────────────────────────────────────────────────┐
 │                    Rig Control Service                       │
-│  Java Spring Boot Service + Hamlib rigctld                  │
-│  - TCP socket communication with rigctld                    │
-│  - Frequency/Mode polling                                   │
-│  - WebSocket broadcast to backend                           │
-│  - Per-user Docker containers                               │
+│  Multi-Client WebSocket Broker + Hamlib rigctld            │
+│  - 3 WebSocket endpoints (command, status, events)         │
+│  - Real-time status broadcasting (100ms)                    │
+│  - PTT locking (first-come-first-served)                   │
+│  - Command serialization & request coalescing              │
+│  - Smart caching (<50ms latency)                           │
+│  - Multi-user coordination & safety                         │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ## Documentation
 
-Comprehensive documentation is available:
+Comprehensive documentation is available - see **[docs/README.md](docs/README.md)** for the complete documentation index.
 
-### Getting Started
-- **[QUICKSTART.md](QUICKSTART.md)** - 5-minute quick start guide (START HERE!)
+### Getting Started (Choose Your Path)
+- **[START_HERE.md](START_HERE.md)** - Absolute beginner? Start here!
+- **[QUICKSTART.md](QUICKSTART.md)** - 5-minute Docker quick start
 - **[SETUP.md](SETUP.md)** - Detailed installation and configuration
-- **[RIG_CONTROL_GUIDE.md](RIG_CONTROL_GUIDE.md)** - Complete rig control setup
-- **[BRANDING.md](BRANDING.md)** - EtherWave Archive branding guidelines, colors, and UI components
+- **[SYSTEM_REQUIREMENTS.md](SYSTEM_REQUIREMENTS.md)** - Hardware and software requirements
+- **[REGISTRATION_GUIDE.md](REGISTRATION_GUIDE.md)** - User registration walkthrough
 
 ### Using the System
-- **[User Guide](docs/USER_GUIDE.md)** - How to use the system as an operator
-- **[API Reference](docs/API_REFERENCE.md)** - Complete REST API documentation
+- **[User Guide](docs/USER_GUIDE.md)** - Complete user manual for operators
+- **[KEYBOARD_SHORTCUTS.md](KEYBOARD_SHORTCUTS.md)** - Keyboard navigation reference
+- **[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** - Common issues and solutions
+
+#### Rig Control Documentation
+The system includes comprehensive multi-client rig control capabilities. Documentation is organized by audience:
+
+**For Logbook Users:**
+- **[Rig Control User Guide](docs/RIG_CONTROL_USER_GUIDE.md)** - How to use rig control in the logbook
+  - Multi-user operations and PTT locking
+  - Auto-populating QSO fields from rig
+  - Troubleshooting common issues
+- **[Quick Start Guide](RIG_CONTROL_QUICKSTART.md)** - Get rig control running in 5 minutes
+
+**For Application Developers:**
+- **[Developer Integration Guide](docs/RIG_CONTROL_DEVELOPER_GUIDE.md)** - Integrate your app with rig control
+  - Complete WebSocket API reference
+  - Code examples (JavaScript, Python, Java)
+  - Multi-client patterns and best practices
+- **[API Quick Reference](docs/RIG_CONTROL_API_REFERENCE.md)** - Fast API lookup
+
+**Technical Documentation:**
+- **[Integration Overview](RIG_CONTROL_INTEGRATION.md)** - Technical architecture and components
+- **[Integration Example](INTEGRATION_EXAMPLE.md)** - Step-by-step code examples
+- **[Documentation Index](docs/RIG_CONTROL_INDEX.md)** - Complete rig control documentation index
 
 ### For Developers
 - **[Developer Guide](docs/DEVELOPER_GUIDE.md)** - Architecture, APIs, and development
+- **[API Reference](docs/API_REFERENCE.md)** - Complete REST API documentation
 - **[Database Schema](docs/DATABASE_SCHEMA.md)** - Entity relationship diagrams
+- **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - How to run and write tests
+- **[docs/TEST_STRATEGY.md](docs/TEST_STRATEGY.md)** - Testing approach and guidelines
 
-### Deployment
+### Configuration & Deployment
+- **[CONFIGURATION.md](CONFIGURATION.md)** - System configuration options
 - **[DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md)** - Production deployment with Docker
+- **[UPGRADE_GUIDE.md](UPGRADE_GUIDE.md)** - Version upgrade procedures
+
+### Additional Resources
+- **[BRANDING.md](BRANDING.md)** - EtherWave Archive branding guidelines
+- **[ACCESSIBILITY_REPORT.md](ACCESSIBILITY_REPORT.md)** - Accessibility compliance
+- **[AGILE_PRODUCT_SPECIFICATION.md](AGILE_PRODUCT_SPECIFICATION.md)** - Product specifications
 
 ## Technology Stack
 

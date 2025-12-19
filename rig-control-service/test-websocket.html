@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rig Control WebSocket Test</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        h1, h2 {
+            color: #4ec9b0;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .panel {
+            background: #252526;
+            border: 1px solid #3e3e42;
+            border-radius: 5px;
+            padding: 15px;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        button {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1177bb;
+        }
+        button.danger {
+            background: #c5302f;
+        }
+        button.danger:hover {
+            background: #e03e3d;
+        }
+        button:disabled {
+            background: #3e3e42;
+            cursor: not-allowed;
+        }
+        .status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .status.connected {
+            background: #4ec9b0;
+        }
+        .status.disconnected {
+            background: #f48771;
+        }
+        .log {
+            background: #1e1e1e;
+            border: 1px solid #3e3e42;
+            border-radius: 3px;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px 5px;
+        }
+        .log-command {
+            color: #4ec9b0;
+        }
+        .log-event {
+            color: #dcdcaa;
+        }
+        .log-status {
+            color: #569cd6;
+        }
+        .log-error {
+            color: #f48771;
+        }
+        input, select {
+            background: #3c3c3c;
+            border: 1px solid #3e3e42;
+            color: #d4d4d4;
+            padding: 5px;
+            border-radius: 3px;
+            margin: 5px;
+        }
+        .info {
+            background: #1e3a4f;
+            border-left: 3px solid #4ec9b0;
+            padding: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎛️ Rig Control WebSocket Test Client</h1>
+
+    <div class="info">
+        <strong>Note:</strong> This test client works without a physical radio.
+        Connections will succeed, but commands will fail until rigctld is running.
+    </div>
+
+    <div class="container">
+        <!-- Connection Status -->
+        <div class="panel full-width">
+            <h2>Connection Status</h2>
+            <div>
+                <span class="status" id="commandStatus"></span>
+                <strong>Command WebSocket:</strong> <span id="commandStatusText">Disconnected</span>
+                <button onclick="connectCommand()">Connect</button>
+                <button onclick="disconnectCommand()" class="danger">Disconnect</button>
+            </div>
+            <div style="margin-top: 10px;">
+                <span class="status" id="statusStatus"></span>
+                <strong>Status WebSocket:</strong> <span id="statusStatusText">Disconnected</span>
+                <button onclick="connectStatus()">Connect</button>
+                <button onclick="disconnectStatus()" class="danger">Disconnect</button>
+            </div>
+            <div style="margin-top: 10px;">
+                <span class="status" id="eventsStatus"></span>
+                <strong>Events WebSocket:</strong> <span id="eventsStatusText">Disconnected</span>
+                <button onclick="connectEvents()">Connect</button>
+                <button onclick="disconnectEvents()" class="danger">Disconnect</button>
+            </div>
+            <div style="margin-top: 10px;">
+                <label>Client Name: <input type="text" id="clientName" value="WebTestClient" /></label>
+            </div>
+        </div>
+
+        <!-- Command Controls -->
+        <div class="panel">
+            <h2>Send Commands</h2>
+            <button onclick="sendGetStatus()">Get Status</button>
+            <button onclick="sendSetFrequency()">Set Frequency</button>
+            <button onclick="sendSetMode()">Set Mode</button>
+            <br>
+            <button onclick="sendPTTOn()">PTT ON</button>
+            <button onclick="sendPTTOff()" class="danger">PTT OFF</button>
+
+            <h3>Custom Command</h3>
+            <select id="customCommand">
+                <option value="getStatus">getStatus</option>
+                <option value="setFrequency">setFrequency</option>
+                <option value="setMode">setMode</option>
+                <option value="setPTT">setPTT</option>
+            </select>
+            <button onclick="sendCustomCommand()">Send</button>
+        </div>
+
+        <!-- Current Status -->
+        <div class="panel">
+            <h2>Current Rig Status</h2>
+            <div id="currentStatus">
+                <p>Not connected - Connect to Status WebSocket to receive updates</p>
+            </div>
+        </div>
+
+        <!-- Command Responses -->
+        <div class="panel full-width">
+            <h2>Command Responses</h2>
+            <button onclick="clearLog('commandLog')">Clear</button>
+            <div class="log" id="commandLog"></div>
+        </div>
+
+        <!-- Events -->
+        <div class="panel full-width">
+            <h2>Events Stream</h2>
+            <button onclick="clearLog('eventsLog')">Clear</button>
+            <div class="log" id="eventsLog"></div>
+        </div>
+    </div>
+
+    <script>
+        let commandWs = null;
+        let statusWs = null;
+        let eventsWs = null;
+        let requestCounter = 0;
+
+        // WebSocket connection functions
+        function connectCommand() {
+            const clientName = document.getElementById('clientName').value;
+            commandWs = new WebSocket(`ws://localhost:8081/ws/rig/command?clientName=${clientName}`);
+
+            commandWs.onopen = () => {
+                updateStatus('command', true);
+                logCommand('Connected to command WebSocket');
+            };
+
+            commandWs.onmessage = (event) => {
+                const response = JSON.parse(event.data);
+                logCommand(`Response: ${JSON.stringify(response, null, 2)}`, response.success ? '' : 'error');
+            };
+
+            commandWs.onerror = (error) => {
+                logCommand('WebSocket error', 'error');
+            };
+
+            commandWs.onclose = () => {
+                updateStatus('command', false);
+                logCommand('Disconnected from command WebSocket');
+            };
+        }
+
+        function connectStatus() {
+            statusWs = new WebSocket('ws://localhost:8081/ws/rig/status');
+
+            statusWs.onopen = () => {
+                updateStatus('status', true);
+                logStatus('Connected to status WebSocket');
+            };
+
+            statusWs.onmessage = (event) => {
+                const status = JSON.parse(event.data);
+                updateRigStatus(status);
+            };
+
+            statusWs.onerror = (error) => {
+                logStatus('WebSocket error', 'error');
+            };
+
+            statusWs.onclose = () => {
+                updateStatus('status', false);
+                logStatus('Disconnected from status WebSocket');
+            };
+        }
+
+        function connectEvents() {
+            eventsWs = new WebSocket('ws://localhost:8081/ws/rig/events');
+
+            eventsWs.onopen = () => {
+                updateStatus('events', true);
+                logEvent('Connected to events WebSocket');
+            };
+
+            eventsWs.onmessage = (event) => {
+                const evt = JSON.parse(event.data);
+                logEvent(`[${evt.eventType}] ${evt.message} (client: ${evt.clientId})`);
+            };
+
+            eventsWs.onerror = (error) => {
+                logEvent('WebSocket error', 'error');
+            };
+
+            eventsWs.onclose = () => {
+                updateStatus('events', false);
+                logEvent('Disconnected from events WebSocket');
+            };
+        }
+
+        function disconnectCommand() {
+            if (commandWs) commandWs.close();
+        }
+
+        function disconnectStatus() {
+            if (statusWs) statusWs.close();
+        }
+
+        function disconnectEvents() {
+            if (eventsWs) eventsWs.close();
+        }
+
+        // Command functions
+        function sendGetStatus() {
+            if (!commandWs || commandWs.readyState !== WebSocket.OPEN) {
+                alert('Please connect to command WebSocket first');
+                return;
+            }
+
+            const cmd = {
+                id: `req-${++requestCounter}`,
+                command: 'getStatus',
+                params: {}
+            };
+
+            commandWs.send(JSON.stringify(cmd));
+            logCommand(`Sent: ${JSON.stringify(cmd)}`);
+        }
+
+        function sendSetFrequency() {
+            if (!commandWs || commandWs.readyState !== WebSocket.OPEN) {
+                alert('Please connect to command WebSocket first');
+                return;
+            }
+
+            const freq = prompt('Enter frequency in Hz:', '14250000');
+            if (!freq) return;
+
+            const cmd = {
+                id: `req-${++requestCounter}`,
+                command: 'setFrequency',
+                params: { hz: parseInt(freq) }
+            };
+
+            commandWs.send(JSON.stringify(cmd));
+            logCommand(`Sent: ${JSON.stringify(cmd)}`);
+        }
+
+        function sendSetMode() {
+            if (!commandWs || commandWs.readyState !== WebSocket.OPEN) {
+                alert('Please connect to command WebSocket first');
+                return;
+            }
+
+            const mode = prompt('Enter mode (USB, LSB, CW, etc):', 'USB');
+            if (!mode) return;
+
+            const cmd = {
+                id: `req-${++requestCounter}`,
+                command: 'setMode',
+                params: { mode: mode, bandwidth: 0 }
+            };
+
+            commandWs.send(JSON.stringify(cmd));
+            logCommand(`Sent: ${JSON.stringify(cmd)}`);
+        }
+
+        function sendPTTOn() {
+            if (!commandWs || commandWs.readyState !== WebSocket.OPEN) {
+                alert('Please connect to command WebSocket first');
+                return;
+            }
+
+            const cmd = {
+                id: `req-${++requestCounter}`,
+                command: 'setPTT',
+                params: { enable: true }
+            };
+
+            commandWs.send(JSON.stringify(cmd));
+            logCommand(`Sent: ${JSON.stringify(cmd)}`);
+        }
+
+        function sendPTTOff() {
+            if (!commandWs || commandWs.readyState !== WebSocket.OPEN) {
+                alert('Please connect to command WebSocket first');
+                return;
+            }
+
+            const cmd = {
+                id: `req-${++requestCounter}`,
+                command: 'setPTT',
+                params: { enable: false }
+            };
+
+            commandWs.send(JSON.stringify(cmd));
+            logCommand(`Sent: ${JSON.stringify(cmd)}`);
+        }
+
+        function sendCustomCommand() {
+            if (!commandWs || commandWs.readyState !== WebSocket.OPEN) {
+                alert('Please connect to command WebSocket first');
+                return;
+            }
+
+            const command = document.getElementById('customCommand').value;
+            // Build params based on command
+            let params = {};
+
+            const cmd = {
+                id: `req-${++requestCounter}`,
+                command: command,
+                params: params
+            };
+
+            commandWs.send(JSON.stringify(cmd));
+            logCommand(`Sent: ${JSON.stringify(cmd)}`);
+        }
+
+        // UI update functions
+        function updateStatus(type, connected) {
+            const statusEl = document.getElementById(`${type}Status`);
+            const textEl = document.getElementById(`${type}StatusText`);
+
+            if (connected) {
+                statusEl.className = 'status connected';
+                textEl.textContent = 'Connected';
+            } else {
+                statusEl.className = 'status disconnected';
+                textEl.textContent = 'Disconnected';
+            }
+        }
+
+        function updateRigStatus(status) {
+            const html = `
+                <strong>Frequency:</strong> ${status.frequency ? (status.frequency / 1000000).toFixed(3) + ' MHz' : 'N/A'}<br>
+                <strong>Mode:</strong> ${status.mode || 'N/A'}<br>
+                <strong>PTT:</strong> ${status.ptt ? 'ON' : 'OFF'}<br>
+                <strong>S-Meter:</strong> ${status.sMeter || 0}<br>
+                <strong>Connected:</strong> ${status.connected ? 'Yes' : 'No'}<br>
+                <strong>Last Update:</strong> ${new Date().toLocaleTimeString()}
+            `;
+            document.getElementById('currentStatus').innerHTML = html;
+        }
+
+        function logCommand(message, type = '') {
+            addLogEntry('commandLog', message, type || 'command');
+        }
+
+        function logStatus(message, type = '') {
+            addLogEntry('commandLog', message, type || 'status');
+        }
+
+        function logEvent(message, type = '') {
+            addLogEntry('eventsLog', message, type || 'event');
+        }
+
+        function addLogEntry(logId, message, type) {
+            const log = document.getElementById(logId);
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog(logId) {
+            document.getElementById(logId).innerHTML = '';
+        }
+
+        // Initialize status indicators
+        updateStatus('command', false);
+        updateStatus('status', false);
+        updateStatus('events', false);
+    </script>
+</body>
+</html>

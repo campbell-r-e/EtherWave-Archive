@@ -30,7 +30,14 @@
       "Bash(cat:*)",
       "Bash(docker stats:*)",
       "Bash(du:*)",
-      "Bash(docker-compose logs:*)"
+      "Bash(docker-compose logs:*)",
+      "Bash(mvn:*)",
+      "Bash(curl:*)",
+      "Bash(open:*)",
+      "Bash(python3:*)",
+      "Bash(timeout 120 mvn test:*)",
+      "Bash(lsof:*)",
+      "Bash(npm test:*)"
     ],
     "deny": [],
     "ask": []

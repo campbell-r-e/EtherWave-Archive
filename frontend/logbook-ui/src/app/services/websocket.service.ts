@@ -3,6 +3,7 @@ import { Observable, Subject } from 'rxjs';
 import SockJS from 'sockjs-client';
 import { Client, Message, StompSubscription } from '@stomp/stompjs';
 import { QSO } from '../models/qso.model';
+import { RigControlService } from './rig-control.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,9 +14,14 @@ export class WebSocketService {
 
   private qsoSubject = new Subject<QSO>();
   private telemetrySubject = new Subject<any>();
+  private rigControlService?: RigControlService;
 
   constructor() {
     this.connect();
+  }
+
+  setRigControlService(service: RigControlService) {
+    this.rigControlService = service;
   }
 
   private connect(): void {
@@ -77,6 +83,30 @@ export class WebSocketService {
     return this.client.subscribe(`/topic/telemetry/${stationId}`, (message: Message) => {
       const telemetry = JSON.parse(message.body);
       callback(telemetry);
+    });
+  }
+
+  // Subscribe to rig control status updates for a specific station
+  subscribeToRigStatus(stationId: number): StompSubscription | null {
+    if (!this.client || !this.connected) return null;
+
+    return this.client.subscribe(`/topic/rig/status/${stationId}`, (message: Message) => {
+      const status = JSON.parse(message.body);
+      if (this.rigControlService) {
+        this.rigControlService.handleStatusUpdate(stationId, status);
+      }
+    });
+  }
+
+  // Subscribe to rig control events for a specific station
+  subscribeToRigEvents(stationId: number): StompSubscription | null {
+    if (!this.client || !this.connected) return null;
+
+    return this.client.subscribe(`/topic/rig/events/${stationId}`, (message: Message) => {
+      const event = JSON.parse(message.body);
+      if (this.rigControlService) {
+        this.rigControlService.handleEvent(stationId, event);
+      }
     });
   }
 

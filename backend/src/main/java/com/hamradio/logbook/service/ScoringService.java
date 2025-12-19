@@ -309,8 +309,8 @@ public class ScoringService {
             multiplierTrackingService.updateMultipliersForQso(qso);
         }
 
-        // Save QSO with updated scoring fields
-        qsoRepository.save(qso);
+        // Note: No need to save QSO explicitly - it's already managed by JPA
+        // The changes will be persisted when the transaction commits
 
         // Update log aggregate (quick update, not full recalc)
         updateLogAggregates(qso.getLog().getId());

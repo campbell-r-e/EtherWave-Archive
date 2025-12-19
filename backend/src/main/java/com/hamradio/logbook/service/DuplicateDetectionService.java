@@ -58,6 +58,7 @@ public class DuplicateDetectionService {
 
         // Check if any existing QSO matches (excluding self)
         return existing.stream()
+                .filter(q -> q != null) // Filter out null QSOs
                 .filter(q -> !q.getId().equals(qso.getId()))
                 .anyMatch(q -> {
                     LocalDateTime existingTime = LocalDateTime.of(q.getQsoDate(), q.getTimeOn());
@@ -135,6 +136,7 @@ public class DuplicateDetectionService {
         );
 
         return existing.stream()
+                .filter(q -> q != null) // Filter out null QSOs
                 .filter(q -> !q.getId().equals(qso.getId()))
                 .filter(q -> q.getMode().equalsIgnoreCase(qso.getMode()))
                 .anyMatch(q -> {
@@ -160,6 +162,7 @@ public class DuplicateDetectionService {
         );
 
         return existing.stream()
+                .filter(q -> q != null) // Filter out null QSOs
                 .filter(q -> !q.getId().equals(qso.getId()))
                 .anyMatch(q -> {
                     LocalDateTime existingTime = LocalDateTime.of(q.getQsoDate(), q.getTimeOn());
@@ -183,6 +186,7 @@ public class DuplicateDetectionService {
         );
 
         return existing.stream()
+                .filter(q -> q != null) // Filter out null QSOs
                 .filter(q -> !q.getId().equals(qso.getId()))
                 .anyMatch(q -> {
                     LocalDateTime existingTime = LocalDateTime.of(q.getQsoDate(), q.getTimeOn());

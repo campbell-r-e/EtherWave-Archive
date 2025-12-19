@@ -1,0 +1,131 @@
+<div class="rig-control-panel">
+  <div class="panel-header">
+    <h3>🎛️ Rig Control - {{ stationName }}</h3>
+    <div class="connection-status">
+      <span class="status-indicator" [class.connected]="connected" [class.disconnected]="!connected"></span>
+      <span class="status-text">{{ connected ? 'Connected' : 'Disconnected' }}</span>
+    </div>
+  </div>
+
+  <!-- Connection Controls -->
+  <div class="connection-controls">
+    <button
+      *ngIf="!connected"
+      class="btn btn-primary"
+      (click)="connect()"
+      [disabled]="connecting">
+      {{ connecting ? 'Connecting...' : 'Connect to Rig' }}
+    </button>
+    <button
+      *ngIf="connected"
+      class="btn btn-danger"
+      (click)="disconnect()">
+      Disconnect
+    </button>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error-message">
+    <strong>Error:</strong> {{ errorMessage }}
+    <button class="btn-close" (click)="errorMessage = null">×</button>
+  </div>
+
+  <!-- Rig Controls (only shown when connected) -->
+  <div *ngIf="connected" class="rig-controls">
+    <!-- Current Status Display -->
+    <div class="status-display">
+      <h4>Current Status</h4>
+      <div class="status-grid">
+        <div class="status-item">
+          <label>Frequency:</label>
+          <span class="value">{{ formatFrequency(currentStatus.frequency) }}</span>
+        </div>
+        <div class="status-item">
+          <label>Mode:</label>
+          <span class="value">{{ currentStatus.mode || 'N/A' }}</span>
+        </div>
+        <div class="status-item">
+          <label>PTT:</label>
+          <span class="value" [class.ptt-active]="currentStatus.ptt">
+            {{ currentStatus.ptt ? 'TRANSMITTING' : 'Receiving' }}
+          </span>
+        </div>
+        <div class="status-item">
+          <label>S-Meter:</label>
+          <span class="value">S{{ currentStatus.sMeter || 0 }}</span>
+        </div>
+      </div>
+      <button class="btn btn-sm btn-secondary" (click)="refreshStatus()">
+        🔄 Refresh
+      </button>
+    </div>
+
+    <!-- Frequency Control -->
+    <div class="control-group">
+      <h4>Frequency</h4>
+      <div class="input-group">
+        <input
+          type="number"
+          [(ngModel)]="frequencyMhz"
+          step="0.001"
+          min="0.1"
+          max="1000"
+          placeholder="14.250">
+        <span class="input-suffix">MHz</span>
+        <button class="btn btn-primary" (click)="setFrequency()">Set</button>
+      </div>
+    </div>
+
+    <!-- Mode Control -->
+    <div class="control-group">
+      <h4>Mode</h4>
+      <div class="input-group">
+        <select [(ngModel)]="selectedMode">
+          <option *ngFor="let mode of modes" [value]="mode">{{ mode }}</option>
+        </select>
+        <button class="btn btn-primary" (click)="setMode()">Set</button>
+      </div>
+    </div>
+
+    <!-- PTT Control -->
+    <div class="control-group">
+      <h4>Push-to-Talk</h4>
+      <button
+        class="btn btn-ptt"
+        [class.ptt-active]="pttActive"
+        (click)="togglePTT()">
+        {{ pttActive ? '🔴 TRANSMIT' : '⚪ PTT OFF' }}
+      </button>
+      <p class="help-text">
+        <small>⚠️ PTT is locked to first client. Others will be denied if held by another station.</small>
+      </p>
+    </div>
+
+    <!-- Recent Events -->
+    <div class="events-panel" *ngIf="recentEvents.length > 0">
+      <h4>Recent Events</h4>
+      <div class="events-list">
+        <div *ngFor="let event of recentEvents" class="event-item" [class]="'event-' + event.eventType">
+          <span class="event-time">{{ formatEventTime(event.timestamp) }}</span>
+          <span class="event-type">{{ event.eventType }}</span>
+          <span class="event-message">{{ event.message }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help Text (shown when disconnected) -->
+  <div *ngIf="!connected && !connecting" class="help-panel">
+    <h4>About Rig Control</h4>
+    <ul>
+      <li>Connect to control your radio remotely via the rig control service</li>
+      <li>Change frequency and mode in real-time</li>
+      <li>PTT locking prevents conflicts with other operators</li>
+      <li>Receive live status updates every 100ms</li>
+      <li>See events from all connected clients</li>
+    </ul>
+    <p class="note">
+      <strong>Note:</strong> Ensure the rig control service is running and rigctld is connected to your radio.
+    </p>
+  </div>
+</div>

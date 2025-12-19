@@ -285,7 +285,15 @@ public class QSOService {
         }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return qsoRepository.findByLogId(logId, pageable).map(this::toResponse);
+        Page<QSO> qsoPage = qsoRepository.findByLogId(logId, pageable);
+
+        // Log any null QSOs found
+        qsoPage.getContent().stream()
+                .filter(qso -> qso == null)
+                .forEach(qso -> log.error("Found null QSO in page for log ID: {}", logId));
+
+        // Map to response (null check handled in toResponse method)
+        return qsoPage.map(this::toResponse);
     }
 
     /**
@@ -344,6 +352,10 @@ public class QSOService {
      * Convert QSO entity to response DTO
      */
     private QSOResponse toResponse(QSO qso) {
+        if (qso == null) {
+            log.warn("Attempted to convert null QSO to response");
+            return null;
+        }
         return QSOResponse.builder()
                 .id(qso.getId())
                 .stationId(qso.getStation().getId())

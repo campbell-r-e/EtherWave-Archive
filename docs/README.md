@@ -1,26 +1,26 @@
-# Ham Radio Contest Logbook System
+# EtherWave Archive - Documentation Index
 
 A comprehensive, multi-user web-based logbook application for amateur radio operators with support for contests, rig control, real-time collaboration, and advanced features.
 
-## Table of Contents
+## Quick Links
 
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [System Architecture](#system-architecture)
-- [Getting Started](#getting-started)
-- [Documentation](#documentation)
-- [Technology Stack](#technology-stack)
+**New Users**: Start with [QUICKSTART.md](../QUICKSTART.md) or [START_HERE.md](../START_HERE.md)
+
+**Operators**: See [USER_GUIDE.md](USER_GUIDE.md) for complete usage instructions
+
+**Developers**: See [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) for architecture and development
 
 ## Overview
 
-This system provides amateur radio operators with a modern, feature-rich logging solution that supports:
+EtherWave Archive provides amateur radio operators with a modern, feature-rich logging solution that supports:
 
 - **Personal and Shared Logbooks** - Individual logs or multi-operator contest stations
 - **Real-time Rig Control** - Integration with Hamlib for radio control and automatic frequency/mode detection
-- **Contest Validation** - Automated validation for major contests (CQ WW, ARRL, Field Day, POTA, etc.)
+- **Contest Validation** - Automated validation for major contests (Field Day, POTA, SOTA, Winter Field Day, etc.)
 - **Multi-user Collaboration** - Role-based access control for team operations
 - **Advanced Analytics** - QSO maps, statistics, and visualizations
 - **Standards Compliance** - ADIF 3.1.4 and Cabrillo export formats
+- **Modern UI/UX** - Dark/Light theme support, accessibility features, keyboard shortcuts
 
 ## Key Features
 
@@ -192,16 +192,61 @@ ADMIN_EMAIL=admin@hamradio.local
 QRZ_API_KEY=your-qrz-api-key
 ```
 
-## Documentation
+## Documentation Structure
 
-Detailed documentation is available in the `/docs` folder:
+### Getting Started Guides (in root directory)
 
-- **[User Guide](USER_GUIDE.md)** - How to use the system as an operator
-- **[Developer Guide](DEVELOPER_GUIDE.md)** - Architecture, APIs, and development
-- **[API Reference](API_REFERENCE.md)** - Complete REST API documentation
-- **[Database Schema](DATABASE_SCHEMA.md)** - Entity relationship diagrams and schema
-- **[Deployment Guide](DEPLOYMENT.md)** - Production deployment instructions
-- **[Contest Validation](CONTEST_VALIDATION.md)** - How to add new contest validators
+- **[START_HERE.md](../START_HERE.md)** - Absolute beginner's first steps
+- **[QUICKSTART.md](../QUICKSTART.md)** - 5-minute quick start guide
+- **[SETUP.md](../SETUP.md)** - Comprehensive installation and configuration
+- **[REGISTRATION_GUIDE.md](../REGISTRATION_GUIDE.md)** - User registration walkthrough
+- **[RIG_CONTROL_GUIDE.md](../RIG_CONTROL_GUIDE.md)** - Complete rig control setup
+
+### User Documentation (in docs/ folder)
+
+- **[USER_GUIDE.md](USER_GUIDE.md)** - Complete user manual for operators
+- **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Common issues and solutions
+
+### Developer Documentation (in docs/ folder)
+
+- **[DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)** - Architecture, APIs, and development guide
+- **[API_REFERENCE.md](API_REFERENCE.md)** - Complete REST API documentation
+- **[DATABASE_SCHEMA.md](DATABASE_SCHEMA.md)** - Entity relationship diagrams and schema
+- **[TEST_STRATEGY.md](TEST_STRATEGY.md)** - Testing approach and guidelines
+- **[TEST_IMPLEMENTATION_GUIDE.md](TEST_IMPLEMENTATION_GUIDE.md)** - Test implementation details
+- **[MAPS_ARCHITECTURE.md](MAPS_ARCHITECTURE.md)** - Map visualization system design
+- **[IMPLEMENTATION_PROGRESS.md](IMPLEMENTATION_PROGRESS.md)** - Development progress tracking
+
+### Feature-Specific Documentation (in root directory)
+
+- **[BRANDING.md](../BRANDING.md)** - EtherWave Archive branding guidelines
+- **[KEYBOARD_SHORTCUTS.md](../KEYBOARD_SHORTCUTS.md)** - Keyboard navigation and shortcuts
+- **[ACCESSIBILITY_REPORT.md](../ACCESSIBILITY_REPORT.md)** - Accessibility compliance details
+- **[ACCESSIBILITY_AUDIT_FIXES.md](../ACCESSIBILITY_AUDIT_FIXES.md)** - Accessibility improvements made
+- **[MULTI_STATION_PLAN.md](../MULTI_STATION_PLAN.md)** - Multi-station feature design
+- **[MULTI_STATION_IMPLEMENTATION_COMPLETE.md](../MULTI_STATION_IMPLEMENTATION_COMPLETE.md)** - Implementation details
+
+### Configuration & Deployment (in root directory)
+
+- **[CONFIGURATION.md](../CONFIGURATION.md)** - System configuration options
+- **[DOCKER_DEPLOYMENT.md](../DOCKER_DEPLOYMENT.md)** - Docker deployment guide
+- **[SYSTEM_REQUIREMENTS.md](../SYSTEM_REQUIREMENTS.md)** - Hardware and software requirements
+
+### Project Management (in root directory)
+
+- **[AGILE_PRODUCT_SPECIFICATION.md](../AGILE_PRODUCT_SPECIFICATION.md)** - Product requirements and specifications
+- **[UPGRADE_GUIDE.md](../UPGRADE_GUIDE.md)** - Version upgrade procedures
+- **[TESTING_GUIDE.md](../TESTING_GUIDE.md)** - How to run and write tests
+- **[TEST_RESTORATION_SUMMARY.md](../TEST_RESTORATION_SUMMARY.md)** - Test suite restoration details
+
+### Quality Assurance (in docs/ folder)
+
+- **[QA_DELIVERABLES_SUMMARY.md](QA_DELIVERABLES_SUMMARY.md)** - QA testing deliverables
+
+### Internal/Technical Notes (in root directory)
+
+- **[DEBUG_LOGS_DROPDOWN.md](../DEBUG_LOGS_DROPDOWN.md)** - Debug information for log dropdown
+- **[STATION_ASSIGNMENT_DISPLAY_FIX.md](../STATION_ASSIGNMENT_DISPLAY_FIX.md)** - Station assignment bug fixes
 
 ## Technology Stack
 
