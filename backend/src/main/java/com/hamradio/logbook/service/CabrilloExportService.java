@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
@@ -43,6 +44,7 @@ public class CabrilloExportService {
      * Export QSOs for a log in Cabrillo format (backward compatible)
      * Handles both contest and personal logs appropriately
      */
+    @Transactional(readOnly = true)
     public byte[] exportLog(Long logId, String callsign, String operators, String category) {
         return exportLog(logId, callsign, operators, category, null, null, null, null, null, null);
     }
@@ -52,17 +54,14 @@ public class CabrilloExportService {
      * Handles both contest and personal logs appropriately
      * Supports full Cabrillo 3.0 category specification
      */
+    @Transactional(readOnly = true)
     public byte[] exportLog(Long logId, String callsign, String operators, String category,
                             String categoryBand, String categoryMode, String categoryPower,
                             String categoryOperator, String categoryTransmitter, String categoryOverlay) {
         Log qsoLog = logRepository.findById(logId)
                 .orElseThrow(() -> new IllegalArgumentException("Log not found: " + logId));
 
-        List<QSO> qsos = qsoRepository.findByLogIdAndDateRange(
-                logId,
-                null,
-                null
-        );
+        List<QSO> qsos = qsoRepository.findAllByLogId(logId);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintWriter writer = new PrintWriter(baos, false, StandardCharsets.UTF_8);
@@ -90,6 +89,7 @@ public class CabrilloExportService {
      * Export combined Cabrillo (all QSOs including GOTA)
      * This is the same as exportLog() but with clearer naming
      */
+    @Transactional(readOnly = true)
     public byte[] exportCombined(Long logId, String callsign, String operators, String category) {
         return exportLog(logId, callsign, operators, category, null, null, null, null, null, null);
     }
@@ -97,6 +97,7 @@ public class CabrilloExportService {
     /**
      * Export GOTA QSOs only in Cabrillo format
      */
+    @Transactional(readOnly = true)
     public byte[] exportGotaQSOs(Long logId, String callsign, String operators, String category) {
         Log qsoLog = logRepository.findById(logId)
                 .orElseThrow(() -> new IllegalArgumentException("Log not found: " + logId));
@@ -137,6 +138,7 @@ public class CabrilloExportService {
     /**
      * Export non-GOTA QSOs only in Cabrillo format
      */
+    @Transactional(readOnly = true)
     public byte[] exportNonGotaQSOs(Long logId, String callsign, String operators, String category) {
         Log qsoLog = logRepository.findById(logId)
                 .orElseThrow(() -> new IllegalArgumentException("Log not found: " + logId));
@@ -151,7 +153,7 @@ public class CabrilloExportService {
                 .collect(Collectors.toList());
 
         // Get all QSOs for this log
-        List<QSO> allQsos = qsoRepository.findByLogIdAndDateRange(logId, null, null);
+        List<QSO> allQsos = qsoRepository.findAllByLogId(logId);
 
         // Filter out GOTA QSOs
         List<QSO> nonGotaQsos = allQsos.stream()

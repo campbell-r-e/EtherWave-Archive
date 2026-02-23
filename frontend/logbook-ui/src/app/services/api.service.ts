@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { QSO, QSORequest } from '../models/qso.model';
 import { Station, Contest, Operator, CallsignInfo, RigStatus } from '../models/station.model';
 
@@ -120,32 +121,58 @@ export class ApiService {
   }
 
   // Export endpoints
+  // All export methods use HttpClient so the JWT interceptor can add the Authorization header.
+  // The response blob is downloaded via a temporary <a> element.
+
+  private triggerDownload(blob: Blob, filename: string): void {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  private downloadFromUrl(url: string, fallbackFilename: string): void {
+    this.http.get(url, { responseType: 'blob', observe: 'response' }).pipe(
+      tap(response => {
+        const blob = response.body!;
+        const disposition = response.headers.get('content-disposition') ?? '';
+        const match = disposition.match(/filename="([^"]+)"/);
+        const filename = match ? match[1] : fallbackFilename;
+        this.triggerDownload(blob, filename);
+      })
+    ).subscribe({ error: err => console.error('Export failed:', err) });
+  }
+
   /**
    * Export ADIF by log ID (all QSOs)
    */
   exportAdifByLog(logId: number): void {
-    window.open(`${this.baseUrl}/export/adif/log/${logId}`, '_blank');
+    this.downloadFromUrl(`${this.baseUrl}/export/adif/log/${logId}`, `log_${logId}.adi`);
   }
 
   /**
    * Export ADIF combined (all QSOs including GOTA)
    */
   exportAdifCombined(logId: number): void {
-    window.open(`${this.baseUrl}/export/adif/log/${logId}/combined`, '_blank');
+    this.downloadFromUrl(`${this.baseUrl}/export/adif/log/${logId}/combined`, `log_${logId}_combined.adi`);
   }
 
   /**
    * Export ADIF GOTA QSOs only
    */
   exportAdifGota(logId: number): void {
-    window.open(`${this.baseUrl}/export/adif/log/${logId}/gota`, '_blank');
+    this.downloadFromUrl(`${this.baseUrl}/export/adif/log/${logId}/gota`, `log_${logId}_gota.adi`);
   }
 
   /**
    * Export ADIF non-GOTA QSOs only
    */
   exportAdifNonGota(logId: number): void {
-    window.open(`${this.baseUrl}/export/adif/log/${logId}/non-gota`, '_blank');
+    this.downloadFromUrl(`${this.baseUrl}/export/adif/log/${logId}/non-gota`, `log_${logId}_non_gota.adi`);
   }
 
   /**
@@ -153,47 +180,47 @@ export class ApiService {
    * @deprecated Use exportAdifByLog instead
    */
   exportADIF(): void {
-    window.open(`${this.baseUrl}/export/adif`, '_blank');
+    this.downloadFromUrl(`${this.baseUrl}/export/adif`, 'logbook.adi');
   }
 
   /**
    * Export Cabrillo by log ID (supports both contest and personal logs)
    */
   exportCabrilloByLog(logId: number, callsign: string, operators?: string, category?: string): void {
-    let url = `${this.baseUrl}/export/cabrillo/log/${logId}?callsign=${callsign}`;
-    if (operators) url += `&operators=${operators}`;
-    if (category) url += `&category=${category}`;
-    window.open(url, '_blank');
+    let url = `${this.baseUrl}/export/cabrillo/log/${logId}?callsign=${encodeURIComponent(callsign)}`;
+    if (operators) url += `&operators=${encodeURIComponent(operators)}`;
+    if (category) url += `&category=${encodeURIComponent(category)}`;
+    this.downloadFromUrl(url, `log_${logId}.log`);
   }
 
   /**
    * Export Cabrillo combined (all QSOs including GOTA)
    */
   exportCabrilloCombined(logId: number, callsign: string, operators?: string, category?: string): void {
-    let url = `${this.baseUrl}/export/cabrillo/log/${logId}/combined?callsign=${callsign}`;
-    if (operators) url += `&operators=${operators}`;
-    if (category) url += `&category=${category}`;
-    window.open(url, '_blank');
+    let url = `${this.baseUrl}/export/cabrillo/log/${logId}/combined?callsign=${encodeURIComponent(callsign)}`;
+    if (operators) url += `&operators=${encodeURIComponent(operators)}`;
+    if (category) url += `&category=${encodeURIComponent(category)}`;
+    this.downloadFromUrl(url, `log_${logId}_combined.log`);
   }
 
   /**
    * Export Cabrillo GOTA QSOs only
    */
   exportCabrilloGota(logId: number, callsign: string, operators?: string, category?: string): void {
-    let url = `${this.baseUrl}/export/cabrillo/log/${logId}/gota?callsign=${callsign}`;
-    if (operators) url += `&operators=${operators}`;
-    if (category) url += `&category=${category}`;
-    window.open(url, '_blank');
+    let url = `${this.baseUrl}/export/cabrillo/log/${logId}/gota?callsign=${encodeURIComponent(callsign)}`;
+    if (operators) url += `&operators=${encodeURIComponent(operators)}`;
+    if (category) url += `&category=${encodeURIComponent(category)}`;
+    this.downloadFromUrl(url, `log_${logId}_gota.log`);
   }
 
   /**
    * Export Cabrillo non-GOTA QSOs only
    */
   exportCabrilloNonGota(logId: number, callsign: string, operators?: string, category?: string): void {
-    let url = `${this.baseUrl}/export/cabrillo/log/${logId}/non-gota?callsign=${callsign}`;
-    if (operators) url += `&operators=${operators}`;
-    if (category) url += `&category=${category}`;
-    window.open(url, '_blank');
+    let url = `${this.baseUrl}/export/cabrillo/log/${logId}/non-gota?callsign=${encodeURIComponent(callsign)}`;
+    if (operators) url += `&operators=${encodeURIComponent(operators)}`;
+    if (category) url += `&category=${encodeURIComponent(category)}`;
+    this.downloadFromUrl(url, `log_${logId}_non_gota.log`);
   }
 
   /**
@@ -201,10 +228,10 @@ export class ApiService {
    * @deprecated Use exportCabrilloByLog instead
    */
   exportCabrillo(contestId: number, callsign: string, operators?: string, category?: string): void {
-    let url = `${this.baseUrl}/export/cabrillo/${contestId}?callsign=${callsign}`;
-    if (operators) url += `&operators=${operators}`;
-    if (category) url += `&category=${category}`;
-    window.open(url, '_blank');
+    let url = `${this.baseUrl}/export/cabrillo/${contestId}?callsign=${encodeURIComponent(callsign)}`;
+    if (operators) url += `&operators=${encodeURIComponent(operators)}`;
+    if (category) url += `&category=${encodeURIComponent(category)}`;
+    this.downloadFromUrl(url, `cabrillo_${contestId}.log`);
   }
 
   // Log participant endpoints

@@ -9,6 +9,7 @@ import com.hamradio.logbook.repository.StationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
@@ -39,6 +40,7 @@ public class AdifExportService {
     /**
      * Export all QSOs to ADIF format
      */
+    @Transactional(readOnly = true)
     public byte[] exportAllQSOs() {
         List<QSO> qsos = qsoRepository.findAll();
         return exportQSOs(qsos);
@@ -47,6 +49,7 @@ public class AdifExportService {
     /**
      * Export QSOs for a specific log to ADIF format
      */
+    @Transactional(readOnly = true)
     public byte[] exportQSOsByLog(Long logId) {
         List<QSO> qsos = qsoRepository.findAllByLogId(logId);
         return exportQSOs(qsos);
@@ -55,6 +58,7 @@ public class AdifExportService {
     /**
      * Export QSOs for a date range to ADIF format
      */
+    @Transactional(readOnly = true)
     public byte[] exportQSOsByDateRange(LocalDate startDate, LocalDate endDate) {
         List<QSO> qsos = qsoRepository.findByDateRange(startDate, endDate);
         return exportQSOs(qsos);
@@ -63,6 +67,7 @@ public class AdifExportService {
     /**
      * Export QSOs for a specific log and date range to ADIF format
      */
+    @Transactional(readOnly = true)
     public byte[] exportQSOsByLogAndDateRange(Long logId, LocalDate startDate, LocalDate endDate) {
         List<QSO> qsos = qsoRepository.findByLogIdAndDateRange(logId, startDate, endDate);
         return exportQSOs(qsos);
@@ -71,6 +76,7 @@ public class AdifExportService {
     /**
      * Export GOTA QSOs only for a specific log
      */
+    @Transactional(readOnly = true)
     public byte[] exportGotaQSOs(Long logId) {
         // Find all GOTA stations
         List<Station> gotaStations = stationRepository.findAll().stream()
@@ -96,6 +102,7 @@ public class AdifExportService {
     /**
      * Export non-GOTA QSOs only for a specific log
      */
+    @Transactional(readOnly = true)
     public byte[] exportNonGotaQSOs(Long logId) {
         // Find all GOTA stations
         List<Station> gotaStations = stationRepository.findAll().stream()
