@@ -169,6 +169,7 @@ public class QSOService {
     /**
      * Get QSO by ID with permission check
      */
+    @Transactional(readOnly = true)
     public QSOResponse getQSO(Long id, String username) {
         User user = getUserByUsername(username);
         QSO qso = qsoRepository.findById(id)
@@ -275,6 +276,7 @@ public class QSOService {
     /**
      * Get all QSOs for a specific log with pagination
      */
+    @Transactional(readOnly = true)
     public Page<QSOResponse> getAllQSOs(Long logId, int page, int size, String username) {
         User user = getUserByUsername(username);
         Log qsoLog = getLogByIdOrThrow(logId);
@@ -299,6 +301,7 @@ public class QSOService {
     /**
      * Get recent QSOs for a specific log (for live feed)
      */
+    @Transactional(readOnly = true)
     public List<QSOResponse> getRecentQSOs(Long logId, int limit, String username) {
         User user = getUserByUsername(username);
         Log qsoLog = getLogByIdOrThrow(logId);
@@ -318,6 +321,7 @@ public class QSOService {
     /**
      * Get QSOs by date range for a specific log
      */
+    @Transactional(readOnly = true)
     public List<QSOResponse> getQSOsByDateRange(Long logId, LocalDate startDate, LocalDate endDate, String username) {
         User user = getUserByUsername(username);
         Log qsoLog = getLogByIdOrThrow(logId);
