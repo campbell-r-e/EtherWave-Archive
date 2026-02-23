@@ -35,7 +35,14 @@ git clone https://github.com/campbell-r-e/Hamradiologbook.git
 cd Hamradiologbook
 ```
 
-**2. Start everything with one command**
+**2. Create your `.env` file**
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and set secure values for `POSTGRES_PASSWORD`, `JWT_SECRET`, and `ADMIN_PASSWORD`. Use `DDL_AUTO=update` on first deploy (switch to `validate` after the schema is created).
+
+**3. Start everything with one command**
 ```bash
 docker-compose up -d
 ```
@@ -58,7 +65,7 @@ You should see:
 NAME                STATUS                 PORTS
 hamradio-backend    Up (healthy)           :8080
 hamradio-frontend   Up                     :80
-hamradio-postgres   Up (healthy)           :5432
+hamradio-postgres   Up (healthy)
 ```
 
 **4. Open your browser**
@@ -169,13 +176,15 @@ Go to: **http://localhost:4200**
 
 ## Default Admin Account
 
-If you configure the environment variables (see Configuration below), the system creates an admin account on first startup:
+The admin account is created automatically on first startup using the credentials you set in `.env`:
 
-**Default credentials:**
-- Username: `admin` (or your ADMIN_USERNAME)
-- Password: `admin` (or your ADMIN_PASSWORD)
+```env
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=YourSecurePassword
+ADMIN_EMAIL=admin@hamradio.local
+```
 
- **Change these in production!**
+**Set a strong password in `.env` before first startup.**
 
 ---
 
@@ -183,22 +192,27 @@ If you configure the environment variables (see Configuration below), the system
 
 ### Docker Setup
 
-Edit `docker-compose.yml`:
+All configuration is done via the `.env` file in the project root:
 
-```yaml
-environment:
-  # Admin Account (created on first startup)
-  ADMIN_USERNAME: admin
-  ADMIN_PASSWORD: ChangeMe123!
-  ADMIN_EMAIL: admin@hamradio.local
+```env
+# Database
+POSTGRES_PASSWORD=<strong-password>
 
-  # Security
-  JWT_SECRET: YourVeryLongRandomSecretKeyHere256BitsMinimum
-  JWT_EXPIRATION_MS: 86400000  # 24 hours
+# Security - generate with: openssl rand -base64 64
+JWT_SECRET=<generated-key>
+JWT_EXPIRATION_MS=86400000
 
-  # Optional: QRZ.com API
-  QRZ_USERNAME: your-qrz-username
-  QRZ_PASSWORD: your-qrz-password
+# Admin account (created on first startup)
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=<strong-password>
+ADMIN_EMAIL=admin@hamradio.local
+
+# Schema management
+DDL_AUTO=update   # First deploy only, then change to "validate"
+
+# Optional: QRZ.com callsign lookups
+QRZ_USERNAME=your-qrz-username
+QRZ_PASSWORD=your-qrz-password
 ```
 
 ### Local Development Setup
@@ -233,7 +247,8 @@ qrz.password=your-qrz-password
 | **Frontend** | http://localhost | http://localhost:4200 | Main user interface |
 | **Backend API** | http://localhost:8080 | http://localhost:8080 | REST API |
 | **Health Check** | http://localhost:8080/actuator/health | http://localhost:8080/actuator/health | System status |
-| **Database** | localhost:5432 | localhost:5432 | PostgreSQL (if used) |
+
+The PostgreSQL database is internal to the Docker network and not accessible from the host directly. Use `docker exec -it hamradio-postgres psql -U hamradio hamradio_logbook` for direct access.
 
 ---
 
@@ -432,7 +447,7 @@ After getting the system running:
                   │
 ┌─────────────────▼───────────────────────────┐
 │      Database (PostgreSQL 16)               │
-│        localhost:5432                       │
+│     (internal Docker network only)          │
 │  - Users, Logs, QSOs                        │
 │  - Stations, Contests                       │
 └─────────────────────────────────────────────┘

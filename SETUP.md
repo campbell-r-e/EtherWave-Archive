@@ -47,12 +47,14 @@ Complete setup instructions for the professional ham radio logging system with d
    cd Hamradiologbook
    ```
 
-2. **Configure environment** (optional)
+2. **Configure environment**
    ```bash
-   # Edit docker-compose.yml to set:
-   # - ADMIN_USERNAME
-   # - ADMIN_PASSWORD
-   # - JWT_SECRET (use a strong random string)
+   cp .env.example .env
+   # Edit .env and set:
+   # - POSTGRES_PASSWORD (strong password)
+   # - JWT_SECRET (generate: openssl rand -base64 64)
+   # - ADMIN_USERNAME and ADMIN_PASSWORD
+   # - DDL_AUTO=update (for first deploy; switch to "validate" after)
    ```
 
 3. **Start services**
@@ -67,7 +69,7 @@ Complete setup instructions for the professional ham radio logging system with d
    # Should show:
    # hamradio-backend    (healthy)   :8080
    # hamradio-frontend                :80
-   # hamradio-postgres   (healthy)   :5432
+   # hamradio-postgres   (healthy)
    ```
 
 5. **Access the application**
@@ -247,15 +249,15 @@ No setup required! The database file `logbook.db` will be created automatically 
 
 2. **Configure production settings**
    ```bash
-   # Edit docker-compose.yml
-   vim docker-compose.yml
+   cp .env.example .env
+   nano .env
    ```
 
-   Update these critical settings:
-   - `JWT_SECRET` - Use a strong random 256-bit key
-   - `ADMIN_PASSWORD` - Set a secure admin password
-   - `POSTGRES_PASSWORD` - Set a secure database password
-   - `SPRING_DATASOURCE_URL` - Update with production database details
+   Set these critical values in `.env`:
+   - `POSTGRES_PASSWORD` - Strong database password
+   - `JWT_SECRET` - Generate with `openssl rand -base64 64`
+   - `ADMIN_PASSWORD` - Secure admin password
+   - `DDL_AUTO=update` - For first deploy; change to `validate` after schema is created
 
 3. **Build and deploy**
    ```bash
@@ -427,23 +429,16 @@ export const environment = {
 
 ### Docker Compose Configuration
 
-**docker-compose.yml** - Production with PostgreSQL
+All credentials are sourced from the `.env` file. Variables marked with `:?` are required — the compose command will fail with a clear error if they are missing or empty.
 
-```yaml
-services:
-  postgres:
-    environment:
-      POSTGRES_USER: hamradio
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hamradio}  # Change in production
-      POSTGRES_DB: hamradio_logbook
-
-  backend:
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/hamradio_logbook
-      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
-      JWT_SECRET: ${JWT_SECRET:-YourSecretKeyHere}  # MUST change in production
-      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin}  # Change in production
+**`.env`** (create from `.env.example`):
+```env
+POSTGRES_PASSWORD=<strong-password>
+JWT_SECRET=<output of: openssl rand -base64 64>
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=<strong-password>
+ADMIN_EMAIL=admin@hamradio.local
+DDL_AUTO=update
 ```
 
 **docker-compose.field.yml** - Field deployment with SQLite

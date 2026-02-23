@@ -12,6 +12,7 @@ All initial configuration files have been created. Your EtherWave Archive is rea
 
 **Production Mode (PostgreSQL):**
 ```bash
+cp .env.example .env   # Edit .env to set passwords and JWT_SECRET
 docker-compose up -d
 ```
 
@@ -51,9 +52,9 @@ npm start
 
 | File | Purpose |
 |------|---------|
-| `backend/.env` | Backend configuration (database, JWT, admin user) |
-| `frontend/logbook-ui/src/environments/environment.prod.ts` | Production frontend config |
-| `.env.example` | Template for environment variables |
+| `.env` | Docker deployment configuration (database, JWT, admin user) |
+| `.env.example` | Template - copy to `.env` and fill in values |
+| `frontend/logbook-ui/src/environments/environment.prod.ts` | Production frontend config (nginx proxy) |
 | `.java-version` | Java version specification (25) |
 | `setup.sh` | Automated setup script |
 
@@ -61,20 +62,25 @@ npm start
 
 ##  Important Configuration
 
-### 1. Backend Environment (`backend/.env`)
+### 1. Docker Deployment (`.env`)
 
-**Current Settings:**
-- **Database:** SQLite (development mode)
-- **Admin User:** admin / admin123
-- **JWT Secret:** Development key (change for production!)
+For Docker, all configuration lives in the `.env` file at the project root:
 
-**To customize:**
 ```bash
-nano backend/.env
+cp .env.example .env
+nano .env
 ```
 
-**Switch to PostgreSQL:**
-Uncomment PostgreSQL lines and comment out SQLite lines in `backend/.env`
+Key settings to configure:
+- **`POSTGRES_PASSWORD`** - Database password (required)
+- **`JWT_SECRET`** - Generate with `openssl rand -base64 64` (required)
+- **`ADMIN_USERNAME` / `ADMIN_PASSWORD`** - Admin account credentials
+- **`DDL_AUTO`** - Use `update` on first deploy, then change to `validate`
+
+**Switch to field/portable mode (SQLite):**
+```bash
+docker-compose -f docker-compose.field.yml up -d
+```
 
 ### 2. Admin Credentials
 

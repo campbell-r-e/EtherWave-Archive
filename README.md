@@ -105,10 +105,11 @@ This system provides amateur radio operators with a modern, feature-rich logging
 **1. Install Prerequisites:**
 - [Docker Desktop](https://www.docker.com/products/docker-desktop) (Windows/Mac/Linux)
 
-**2. Clone and Start:**
+**2. Clone, Configure, and Start:**
 ```bash
 git clone https://github.com/campbell-r-e/Hamradiologbook.git
 cd Hamradiologbook
+cp .env.example .env   # Edit .env to set passwords and JWT_SECRET
 docker-compose up -d
 ```
 
@@ -207,7 +208,7 @@ For detailed installation and configuration instructions, see:
                             ↕ HTTP/WebSocket
 ┌─────────────────────────────────────────────────────────────┐
 │                         Backend                              │
-│  Spring Boot 3.2.0 + Spring Security + JWT                  │
+│  Spring Boot 4.0.0 + Spring Security + JWT                  │
 │  - REST API Controllers                                      │
 │  - Service Layer (Business Logic)                           │
 │  - Permission Checking (LogService)                         │
@@ -373,39 +374,27 @@ Frontend tests require updates to match current API (similar to backend disabled
 
 ## Environment Configuration
 
-### Backend Configuration
+### Docker Deployment
 
-Create `.env` file or set environment variables:
+Copy `.env.example` to `.env` and set values before running `docker-compose up -d`:
 
 ```env
-# Database Configuration
-SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hamradio_logbook
-SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
-
-# For SQLite (field deployment)
-# SPRING_DATASOURCE_URL=jdbc:sqlite:logbook.db
-# SPRING_JPA_DATABASE_PLATFORM=org.hibernate.community.dialect.SQLiteDialect
-
-# JWT Configuration
-JWT_SECRET=YourSecretKeyMinimum256BitsForHS512Algorithm
+POSTGRES_PASSWORD=<strong-password>
+JWT_SECRET=<output of: openssl rand -base64 64>
 JWT_EXPIRATION_MS=86400000
-
-# Admin User (created on first startup)
 ADMIN_USERNAME=admin
-ADMIN_PASSWORD=SecurePassword123
+ADMIN_PASSWORD=<strong-password>
 ADMIN_EMAIL=admin@hamradio.local
-
-# QRZ API (optional)
-QRZ_USERNAME=your-qrz-username
-QRZ_PASSWORD=your-qrz-password
-
-# Actuator Configuration (exposed endpoints)
-MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,metrics
+DDL_AUTO=update        # First deploy only; change to "validate" after schema is created
+QRZ_USERNAME=          # Optional: QRZ.com callsign lookup
+QRZ_PASSWORD=
 ```
 
-### Docker Compose Variables
+See `.env.example` for descriptions of each variable.
 
-See `docker-compose.yml` for production setup and `docker-compose.field.yml` for portable deployment.
+### Local Development
+
+For local development without Docker, configure `backend/src/main/resources/application.properties` directly or set environment variables before running `mvn spring-boot:run`.
 
 ## Project Structure
 

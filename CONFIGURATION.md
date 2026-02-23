@@ -87,9 +87,9 @@ SPRING_JPA_DATABASE_PLATFORM=org.hibernate.community.dialect.SQLiteDialect
 
 **PostgreSQL (Production/Multi-User)**
 ```env
-SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/hamradio_logbook
+SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hamradio_logbook
 SPRING_DATASOURCE_USERNAME=hamradio
-SPRING_DATASOURCE_PASSWORD=changeme
+SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}   # Set in .env
 SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
 ```
 
@@ -159,9 +159,7 @@ File: `frontend/logbook-ui/src/environments/environment.prod.ts`
 ```typescript
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:8080/api'
-  // Update for production deployment:
-  // apiUrl: 'https://api.yourhamradio.com/api'
+  apiUrl: '/api'   // Relative URL - routed through nginx to backend
 };
 ```
 
@@ -239,15 +237,15 @@ SPRING_JPA_DATABASE_PLATFORM=org.hibernate.community.dialect.SQLiteDialect
 -  Advanced features
 -  Production-grade reliability
 
-**Configuration:**
+**Configuration (Docker deployment):**
 ```env
-SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/hamradio_logbook
+SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hamradio_logbook
 SPRING_DATASOURCE_USERNAME=hamradio
-SPRING_DATASOURCE_PASSWORD=changeme
+SPRING_DATASOURCE_PASSWORD=<set in .env as POSTGRES_PASSWORD>
 SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
 ```
 
-**Setup PostgreSQL:**
+**Setup PostgreSQL (standalone):**
 
 Using Docker:
 ```bash
@@ -255,7 +253,7 @@ docker run -d \
   --name postgres-hamradio \
   -e POSTGRES_DB=hamradio_logbook \
   -e POSTGRES_USER=hamradio \
-  -e POSTGRES_PASSWORD=changeme \
+  -e POSTGRES_PASSWORD=<strong-password> \
   -p 5432:5432 \
   postgres:16-alpine
 ```
@@ -351,15 +349,13 @@ File: `docker-compose.yml`
 
 Uses PostgreSQL database for production multi-user setup.
 
-**Start:**
+**Setup:**
 ```bash
+cp .env.example .env   # Edit .env with your passwords and JWT_SECRET
 docker-compose up -d
 ```
 
-**Environment variables in docker-compose.yml:**
-- Database credentials
-- Backend API configuration
-- QRZ API credentials (optional)
+All secrets are read from `.env`. See `.env.example` for available variables.
 
 ### Field Deployment
 

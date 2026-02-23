@@ -1,45 +1,109 @@
-# Docker Deployment - EtherWave Archive 
+# Docker Deployment - EtherWave Archive
 
-**Date**: 2025-12-05  
-**Status**:  **RUNNING**
+## Quick Summary
 
----
+Runs three containers via Docker Compose:
 
-##  Quick Summary
+- Frontend (Angular + Nginx) on http://localhost (port 80)
+- Backend API (Spring Boot) on http://localhost:8080
+- PostgreSQL 16 database (internal only, not exposed to host)
 
-The multi-station contest logging system is now running in Docker with:
--  Frontend (Angular + Nginx) on http://localhost
--  Backend API (Spring Boot) on http://localhost:8080  
--  PostgreSQL database on localhost:5432
--  All multi-station features operational
+All containers restart automatically unless manually stopped.
 
 ---
 
-##  Access Points
+## Prerequisites
 
-| Service | URL | Status |
-|---------|-----|--------|
-| **Application** | http://localhost |  Running |
-| **API** | http://localhost:8080 |  Healthy |
-| **Health Check** | http://localhost:8080/actuator/health |  UP |
-| **Database** | localhost:5432 |  Healthy |
+- Docker Engine 20.10+
+- Docker Compose (v1 or v2)
 
 ---
 
-##  Quick Commands
+## First-Time Setup
+
+**1. Clone the repository**
+```bash
+git clone https://github.com/campbell-r-e/Hamradiologbook.git
+cd Hamradiologbook
+```
+
+**2. Create your `.env` file**
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and set strong values for:
+```env
+POSTGRES_PASSWORD=<strong-password>
+JWT_SECRET=<output-of: openssl rand -base64 64>
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=<strong-password>
+ADMIN_EMAIL=admin@hamradio.local
+DDL_AUTO=update        # Use "update" for first deploy, then switch to "validate"
+```
+
+**3. Start services**
+```bash
+docker-compose up -d
+```
+
+**4. Check status**
+```bash
+docker-compose ps
+# All services should show "Up" or "Up (healthy)"
+```
+
+**5. Open browser**
+- Application: http://localhost
+- Backend API: http://localhost:8080
+- Health Check: http://localhost:8080/actuator/health
+
+---
+
+## Access Points
+
+| Service | URL |
+|---------|-----|
+| Application | http://localhost |
+| API | http://localhost:8080 |
+| Health Check | http://localhost:8080/actuator/health |
+
+PostgreSQL runs on the internal Docker network only and is not accessible from the host.
+
+---
+
+## LAN / Network Access
+
+The application is accessible from any device on the local network:
+
+```
+http://<host-ip>
+```
+
+Replace `<host-ip>` with the IP address of the machine running Docker. No additional configuration is required.
+
+---
+
+## Quick Commands
 
 ```bash
 # Start services
 docker-compose up -d
 
-# Stop services  
+# Stop services
 docker-compose down
 
 # View logs
 docker-compose logs -f
 
-# Rebuild after changes
+# View specific service logs
+docker-compose logs -f backend
+
+# Rebuild after code changes
 docker-compose build && docker-compose up -d
+
+# Remove containers and database volume (destructive)
+docker-compose down -v
 
 # Check status
 docker-compose ps
@@ -47,41 +111,57 @@ docker-compose ps
 
 ---
 
-##  Database
+## Database
 
-**PostgreSQL 16** (production-grade)
+**PostgreSQL 16** is used for production.
+
 - Database: `hamradio_logbook`
 - User: `hamradio`
-- Password: `changeme` ( change in production!)
+- Password: set via `POSTGRES_PASSWORD` in `.env`
 - Persistent volume: `postgres_data`
 
+The database port is not exposed to the host. If you need direct access for maintenance:
+```bash
+docker exec -it hamradio-postgres psql -U hamradio hamradio_logbook
+```
+
 ---
 
-##  Deployed Features
+## DDL Auto Setting
 
-- Multi-station contest logging
-- Auto-tagging with station assignments
-- **Station assignment display fix** (shows immediately on login)
-- Real-time leaderboards with medals 
+On first deployment, use `DDL_AUTO=update` in `.env` to let Hibernate create the schema automatically.
+
+After the schema is created, change it to `DDL_AUTO=validate` to prevent accidental schema modifications:
+
+```bash
+# Edit .env
+DDL_AUTO=validate
+
+# Restart backend to apply
+docker-compose restart backend
+```
+
+---
+
+## Deployed Features
+
+- Multi-user logbook with role-based access
+- Multi-station contest logging with auto-tagging
+- Real-time leaderboards and scoring
 - GOTA support with separate scoring
 - Color-coded station badges
-- Tabbed QSO filtering
 - WebSocket real-time updates
+- ADIF 3.1.4 and Cabrillo export
 
 ---
 
-##  What's New vs Local Development
+## What's Different from Local Development
 
 | Feature | Local Dev | Docker |
 |---------|-----------|--------|
 | Database | SQLite | PostgreSQL 16 |
-| Port 80 | Angular dev server | Nginx production |
+| Port 80 | Angular dev server | Nginx production build |
 | Port 8080 | Maven | Containerized JAR |
-| Data | Local file | Docker volume |
+| Data persistence | Local file | Docker volume |
 | Multi-user | Limited | Full support |
-
----
-
-**Deployment Complete!**   
-Access the application at http://localhost
-
+| Auto-restart | No | Yes (unless-stopped) |
