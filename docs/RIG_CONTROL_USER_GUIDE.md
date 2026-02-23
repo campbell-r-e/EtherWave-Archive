@@ -41,7 +41,7 @@ Your Browser → Logbook → Rig Control Service → rigctld → Your Radio
 
 Navigate to **Settings → Stations** and verify your station has rig control enabled:
 
-- ✅ **Rig Control Enabled** checkbox is checked
+-  **Rig Control Enabled** checkbox is checked
 - **Rig Control Host** is set (usually `localhost` or the server IP)
 - **Rig Control Port** is set (default: `8081`)
 
@@ -66,7 +66,7 @@ To enable rig control for a station:
 2. Select the station to edit
 3. Enable rig control:
    ```
-   Rig Control Enabled: ✓
+   Rig Control Enabled: 
    Rig Control Host: localhost (or IP address of rig control service)
    Rig Control Port: 8081
    ```
@@ -139,7 +139,7 @@ The rig control panel displays:
 3. **Click again** to stop transmitting (or "PTT OFF")
 4. Button returns to normal state
 
-⚠️ **Important:** Only one user can hold PTT at a time (see Multi-User Operations below)
+ **Important:** Only one user can hold PTT at a time (see Multi-User Operations below)
 
 ### Auto-Populating QSO Fields
 
@@ -163,10 +163,10 @@ Some pages may auto-populate continuously as you tune your rig.
 
 Multiple operators can connect to the same station simultaneously:
 
-- ✅ **All users see real-time updates** (frequency, mode, S-meter)
-- ✅ **All users can change frequency and mode**
-- ✅ **Events are broadcast to everyone** ("User A changed frequency")
-- ⚠️ **Only ONE user can hold PTT** at a time (safety feature)
+-  **All users see real-time updates** (frequency, mode, S-meter)
+-  **All users can change frequency and mode**
+-  **Events are broadcast to everyone** ("User A changed frequency")
+-  **Only ONE user can hold PTT** at a time (safety feature)
 
 ### PTT Locking Explained
 
@@ -192,13 +192,13 @@ PTT (Push-To-Talk) locking prevents multiple users from transmitting at the same
 
 **Operator A wants to transmit:**
 - Clicks "PTT ON"
-- ✅ **SUCCESS** - Button turns RED
+-  **SUCCESS** - Button turns RED
 - Event: "PTT activated by Operator A"
 - Operators B and C see this event
 
 **Operator B tries to transmit (while A is transmitting):**
 - Clicks "PTT ON"
-- ❌ **DENIED** - Error message appears
+-  **DENIED** - Error message appears
 - Message: "PTT denied: currently held by Operator A"
 - Event: "PTT denied for Operator B"
 
@@ -504,4 +504,4 @@ Events you may see in the panel:
 **Version:** 1.0
 **For:** Ham Radio Logbook Users
 
-Happy logging! 73! 📻
+Happy logging! 73! 

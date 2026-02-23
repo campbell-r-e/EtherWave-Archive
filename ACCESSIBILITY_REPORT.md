@@ -13,10 +13,10 @@
 This report documents the comprehensive accessibility improvements made to the EtherWave Archive ham radio logbook application. The project establishes a solid foundation for WCAG 2.1 AA compliance with focus on blind and low-vision users.
 
 ### Completion Status
-- ✅ **Infrastructure:** 100% Complete
-- ✅ **Core Components:** 11 of 27 components (41%)
-- ✅ **Critical User Workflows:** 90% Accessible
-- 📋 **Remaining Work:** Implementation patterns established for remaining components
+-  **Infrastructure:** 100% Complete
+-  **Core Components:** 11 of 27 components (41%)
+-  **Critical User Workflows:** 90% Accessible
+-  **Remaining Work:** Implementation patterns established for remaining components
 
 ---
 
@@ -363,7 +363,7 @@ getAllTabIds(): string[] {
    ```html
    <button class="btn btn-sm btn-outline-danger"
      [attr.aria-label]="'Delete QSO with ' + qso.callsign">
-     <span aria-hidden="true">🗑️</span>
+     <span aria-hidden="true"></span>
    </button>
    ```
 
@@ -550,63 +550,63 @@ For each remaining component:
 
 | Criterion | Status | Notes |
 |-----------|--------|-------|
-| 1.1.1 Non-text Content | ✅ Complete | All images have alt text, decorative content marked aria-hidden |
-| 1.3.1 Info and Relationships | ✅ Complete | Semantic HTML, landmarks, ARIA roles |
-| 1.3.2 Meaningful Sequence | ✅ Complete | Logical DOM order maintained |
-| 1.3.3 Sensory Characteristics | ✅ Complete | Instructions don't rely on shape/color alone |
-| 1.3.4 Orientation | ✅ Complete | Responsive design works in all orientations |
-| 1.3.5 Identify Input Purpose | ✅ Complete | Autocomplete attributes on forms |
-| 1.4.1 Use of Color | ✅ Complete | Validation uses icons + color |
-| 1.4.3 Contrast (Minimum) | ⚠️ Assumed | Existing theme colors assumed accessible |
-| 1.4.10 Reflow | ✅ Complete | Bootstrap responsive grid |
-| 1.4.11 Non-text Contrast | ✅ Complete | Focus indicators high contrast |
-| 1.4.12 Text Spacing | ✅ Complete | CSS supports text spacing adjustments |
-| 1.4.13 Content on Hover/Focus | ✅ Complete | Tooltips accessible |
+| 1.1.1 Non-text Content |  Complete | All images have alt text, decorative content marked aria-hidden |
+| 1.3.1 Info and Relationships |  Complete | Semantic HTML, landmarks, ARIA roles |
+| 1.3.2 Meaningful Sequence |  Complete | Logical DOM order maintained |
+| 1.3.3 Sensory Characteristics |  Complete | Instructions don't rely on shape/color alone |
+| 1.3.4 Orientation |  Complete | Responsive design works in all orientations |
+| 1.3.5 Identify Input Purpose |  Complete | Autocomplete attributes on forms |
+| 1.4.1 Use of Color |  Complete | Validation uses icons + color |
+| 1.4.3 Contrast (Minimum) |  Assumed | Existing theme colors assumed accessible |
+| 1.4.10 Reflow |  Complete | Bootstrap responsive grid |
+| 1.4.11 Non-text Contrast |  Complete | Focus indicators high contrast |
+| 1.4.12 Text Spacing |  Complete | CSS supports text spacing adjustments |
+| 1.4.13 Content on Hover/Focus |  Complete | Tooltips accessible |
 
 ### 5.2 Principle 2: Operable
 
 | Criterion | Status | Notes |
 |-----------|--------|-------|
-| 2.1.1 Keyboard | ✅ Complete | Full keyboard navigation, arrow keys for tabs |
-| 2.1.2 No Keyboard Trap | ✅ Complete | Focus management in modals |
-| 2.1.4 Character Key Shortcuts | ✅ N/A | No character shortcuts implemented |
-| 2.2.1 Timing Adjustable | ✅ Complete | No time limits on user actions |
-| 2.2.2 Pause, Stop, Hide | ✅ Complete | Reduced motion support, no auto-play |
-| 2.3.1 Three Flashes | ✅ Complete | No flashing content |
-| 2.4.1 Bypass Blocks | ✅ Complete | Skip to main content link |
-| 2.4.2 Page Titled | ✅ Complete | Document title set in index.html |
-| 2.4.3 Focus Order | ✅ Complete | Logical tab order, focus management |
-| 2.4.4 Link Purpose | ✅ Complete | All links have descriptive text |
-| 2.4.5 Multiple Ways | ✅ Complete | Navigation + routing |
-| 2.4.6 Headings and Labels | ✅ Complete | Semantic headings, descriptive labels |
-| 2.4.7 Focus Visible | ✅ Complete | High-contrast focus indicators |
-| 2.5.1 Pointer Gestures | ✅ N/A | No complex gestures |
-| 2.5.2 Pointer Cancellation | ✅ Complete | Click events on up |
-| 2.5.3 Label in Name | ✅ Complete | Visible labels match accessible names |
-| 2.5.4 Motion Actuation | ✅ N/A | No motion-based controls |
+| 2.1.1 Keyboard |  Complete | Full keyboard navigation, arrow keys for tabs |
+| 2.1.2 No Keyboard Trap |  Complete | Focus management in modals |
+| 2.1.4 Character Key Shortcuts |  N/A | No character shortcuts implemented |
+| 2.2.1 Timing Adjustable |  Complete | No time limits on user actions |
+| 2.2.2 Pause, Stop, Hide |  Complete | Reduced motion support, no auto-play |
+| 2.3.1 Three Flashes |  Complete | No flashing content |
+| 2.4.1 Bypass Blocks |  Complete | Skip to main content link |
+| 2.4.2 Page Titled |  Complete | Document title set in index.html |
+| 2.4.3 Focus Order |  Complete | Logical tab order, focus management |
+| 2.4.4 Link Purpose |  Complete | All links have descriptive text |
+| 2.4.5 Multiple Ways |  Complete | Navigation + routing |
+| 2.4.6 Headings and Labels |  Complete | Semantic headings, descriptive labels |
+| 2.4.7 Focus Visible |  Complete | High-contrast focus indicators |
+| 2.5.1 Pointer Gestures |  N/A | No complex gestures |
+| 2.5.2 Pointer Cancellation |  Complete | Click events on up |
+| 2.5.3 Label in Name |  Complete | Visible labels match accessible names |
+| 2.5.4 Motion Actuation |  N/A | No motion-based controls |
 
 ### 5.3 Principle 3: Understandable
 
 | Criterion | Status | Notes |
 |-----------|--------|-------|
-| 3.1.1 Language of Page | ✅ Complete | `<html lang="en">` |
-| 3.1.2 Language of Parts | ✅ N/A | Content is English only |
-| 3.2.1 On Focus | ✅ Complete | No context changes on focus |
-| 3.2.2 On Input | ✅ Complete | Predictable behavior |
-| 3.2.3 Consistent Navigation | ✅ Complete | Consistent nav structure |
-| 3.2.4 Consistent Identification | ✅ Complete | Consistent labeling |
-| 3.3.1 Error Identification | ✅ Complete | Errors announced and linked |
-| 3.3.2 Labels or Instructions | ✅ Complete | All inputs labeled |
-| 3.3.3 Error Suggestion | ✅ Complete | Helpful error messages |
-| 3.3.4 Error Prevention | ⚠️ Partial | Confirmation needed for delete actions (TODO) |
+| 3.1.1 Language of Page |  Complete | `<html lang="en">` |
+| 3.1.2 Language of Parts |  N/A | Content is English only |
+| 3.2.1 On Focus |  Complete | No context changes on focus |
+| 3.2.2 On Input |  Complete | Predictable behavior |
+| 3.2.3 Consistent Navigation |  Complete | Consistent nav structure |
+| 3.2.4 Consistent Identification |  Complete | Consistent labeling |
+| 3.3.1 Error Identification |  Complete | Errors announced and linked |
+| 3.3.2 Labels or Instructions |  Complete | All inputs labeled |
+| 3.3.3 Error Suggestion |  Complete | Helpful error messages |
+| 3.3.4 Error Prevention |  Partial | Confirmation needed for delete actions (TODO) |
 
 ### 5.4 Principle 4: Robust
 
 | Criterion | Status | Notes |
 |-----------|--------|-------|
-| 4.1.1 Parsing | ✅ Complete | Valid HTML5 |
-| 4.1.2 Name, Role, Value | ✅ Complete | Full ARIA implementation |
-| 4.1.3 Status Messages | ✅ Complete | aria-live regions for updates |
+| 4.1.1 Parsing |  Complete | Valid HTML5 |
+| 4.1.2 Name, Role, Value |  Complete | Full ARIA implementation |
+| 4.1.3 Status Messages |  Complete | aria-live regions for updates |
 
 **Overall Compliance:** ~95% WCAG 2.1 AA compliant for completed components
 
@@ -800,10 +800,10 @@ Reviewers should verify:
 
 The EtherWave Archive ham radio logbook application has achieved substantial accessibility improvements:
 
-- ✅ **11 of 27 components** fully accessible
-- ✅ **Critical user workflows** (login, QSO entry, QSO list) 90% accessible
-- ✅ **Solid foundation** established with reusable patterns
-- ✅ **~95% WCAG 2.1 AA compliance** for completed components
+-  **11 of 27 components** fully accessible
+-  **Critical user workflows** (login, QSO entry, QSO list) 90% accessible
+-  **Solid foundation** established with reusable patterns
+-  **~95% WCAG 2.1 AA compliance** for completed components
 
 ### Impact
 
@@ -842,6 +842,6 @@ Blind and low-vision users can now:
 
 ---
 
-**Report Prepared By:** Claude Sonnet 4.5
+**Report Prepared By:** EtherWave Development Team
 **For:** EtherWave Archive Ham Radio Logbook
 **Date:** December 2025

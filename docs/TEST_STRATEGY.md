@@ -1,4 +1,4 @@
-# 🧪 Test Strategy - Ham Radio Contest Logbook System
+#  Test Strategy - Ham Radio Contest Logbook System
 
 ## Executive Summary
 
@@ -74,14 +74,14 @@ This document outlines the comprehensive testing strategy for the Ham Radio Cont
 **Test Pattern**: MockMvc + Service Mocking
 
 **Coverage Areas**:
-- ✅ HTTP endpoint validation (GET, POST, PUT, DELETE)
-- ✅ Request/Response serialization
-- ✅ Input validation (@Valid, @RequestBody)
-- ✅ HTTP status codes (200, 201, 400, 401, 403, 404, 500)
-- ✅ Error handling (@ExceptionHandler)
-- ✅ Security (@PreAuthorize, JWT validation)
-- ✅ Pagination, sorting, filtering
-- ✅ CORS headers
+-  HTTP endpoint validation (GET, POST, PUT, DELETE)
+-  Request/Response serialization
+-  Input validation (@Valid, @RequestBody)
+-  HTTP status codes (200, 201, 400, 401, 403, 404, 500)
+-  Error handling (@ExceptionHandler)
+-  Security (@PreAuthorize, JWT validation)
+-  Pagination, sorting, filtering
+-  CORS headers
 
 **Example Test Structure**:
 ```java
@@ -117,13 +117,13 @@ class QSOControllerTest {
 **Test Pattern**: Mockito + Repository Mocking
 
 **Coverage Areas**:
-- ✅ Business logic correctness
-- ✅ Data transformation
-- ✅ Error handling & exceptions
-- ✅ Transaction boundaries
-- ✅ External API integration (mocked)
-- ✅ Validation rules
-- ✅ Security checks
+-  Business logic correctness
+-  Data transformation
+-  Error handling & exceptions
+-  Transaction boundaries
+-  External API integration (mocked)
+-  Validation rules
+-  Security checks
 
 **Example Test Structure**:
 ```java
@@ -158,10 +158,10 @@ class QSOServiceTest {
 **Test Pattern**: Direct instantiation + edge cases
 
 **Coverage Areas**:
-- ✅ Contest-specific rules
-- ✅ Exchange format validation
-- ✅ Required field checking
-- ✅ Edge cases & boundary values
+-  Contest-specific rules
+-  Exchange format validation
+-  Required field checking
+-  Edge cases & boundary values
 
 **Example Test Structure**:
 ```java
@@ -186,11 +186,11 @@ class FieldDayValidatorTest {
 **Test Pattern**: @DataJpaTest + Testcontainers (PostgreSQL)
 
 **Coverage Areas**:
-- ✅ Custom queries (@Query)
-- ✅ Entity relationships
-- ✅ Pagination & sorting
-- ✅ Filtering & search
-- ✅ Multi-tenant isolation (log_id filtering)
+-  Custom queries (@Query)
+-  Entity relationships
+-  Pagination & sorting
+-  Filtering & search
+-  Multi-tenant isolation (log_id filtering)
 
 **Example Test Structure**:
 ```java
@@ -224,12 +224,12 @@ class QSORepositoryTest {
 **Test Pattern**: Integration tests with MockMvc
 
 **Coverage Areas**:
-- ✅ JWT generation & validation
-- ✅ Token expiration
-- ✅ Authentication filter chain
-- ✅ Authorization rules (@PreAuthorize)
-- ✅ Password encryption (BCrypt)
-- ✅ CORS configuration
+-  JWT generation & validation
+-  Token expiration
+-  Authentication filter chain
+-  Authorization rules (@PreAuthorize)
+-  Password encryption (BCrypt)
+-  CORS configuration
 
 **Security to Test**:
 1. `JwtUtil` - Token lifecycle
@@ -288,12 +288,12 @@ class QSORepositoryTest {
 **Test Pattern**: Spring WebSocket Test + StompJS
 
 **Coverage Areas**:
-- ✅ Connection establishment
-- ✅ Authentication (JWT in handshake)
-- ✅ Message publishing
-- ✅ Subscription handling
-- ✅ Broadcast to multiple clients
-- ✅ Disconnection handling
+-  Connection establishment
+-  Authentication (JWT in handshake)
+-  Message publishing
+-  Subscription handling
+-  Broadcast to multiple clients
+-  Disconnection handling
 
 **WebSocket Endpoints to Test**:
 1. `/ws/rig-updates` - Rig frequency/mode updates
@@ -309,13 +309,13 @@ class QSORepositoryTest {
 **Framework**: Jasmine + TestBed
 
 **Coverage Areas**:
-- ✅ Component initialization
-- ✅ Input/Output bindings
-- ✅ Template rendering
-- ✅ Event handling
-- ✅ Form validation
-- ✅ Lifecycle hooks (ngOnInit, ngOnDestroy)
-- ✅ Conditional rendering (@if, @for)
+-  Component initialization
+-  Input/Output bindings
+-  Template rendering
+-  Event handling
+-  Form validation
+-  Lifecycle hooks (ngOnInit, ngOnDestroy)
+-  Conditional rendering (@if, @for)
 
 **Example Test Structure**:
 ```typescript
@@ -368,12 +368,12 @@ describe('QsoEntryComponent', () => {
 **Framework**: Jasmine + HttpClientTestingModule
 
 **Coverage Areas**:
-- ✅ HTTP requests (GET, POST, PUT, DELETE)
-- ✅ Request headers (JWT token)
-- ✅ Query parameters
-- ✅ Error handling (HTTP 4xx, 5xx)
-- ✅ Response transformation
-- ✅ Observable chains
+-  HTTP requests (GET, POST, PUT, DELETE)
+-  Request headers (JWT token)
+-  Query parameters
+-  Error handling (HTTP 4xx, 5xx)
+-  Response transformation
+-  Observable chains
 
 **Example Test Structure**:
 ```typescript
@@ -419,11 +419,11 @@ describe('ApiService', () => {
 ### 5.1 E2E Framework: Playwright
 
 **Why Playwright**:
-- ✅ Multi-browser (Chromium, Firefox, WebKit)
-- ✅ Auto-wait for elements
-- ✅ Screenshot/video recording
-- ✅ Network interception
-- ✅ Accessibility testing integration
+-  Multi-browser (Chromium, Firefox, WebKit)
+-  Auto-wait for elements
+-  Screenshot/video recording
+-  Network interception
+-  Accessibility testing integration
 
 ### 5.2 E2E Test Scenarios (10% of total tests)
 
@@ -490,11 +490,11 @@ And the user can export ADIF without internet
 ### 5.3 Accessibility Testing (Axe-core)
 
 **WCAG 2.1 AA Compliance**:
-- ✅ Keyboard navigation (Tab, Enter, Esc)
-- ✅ Screen reader compatibility (aria-labels)
-- ✅ Color contrast ratios
-- ✅ Focus indicators
-- ✅ Form labels and error messages
+-  Keyboard navigation (Tab, Enter, Esc)
+-  Screen reader compatibility (aria-labels)
+-  Color contrast ratios
+-  Focus indicators
+-  Form labels and error messages
 
 ---
 
@@ -637,7 +637,7 @@ export const mockQSO: QSO = {
 
 ## 11. Testing Anti-Patterns to Avoid
 
-❌ **Don't**:
+ **Don't**:
 - Test framework internals (e.g., testing Spring's `@Autowired`)
 - Test getters/setters only
 - Use `Thread.sleep()` in tests (use proper waits)
@@ -645,7 +645,7 @@ export const mockQSO: QSO = {
 - Ignore flaky tests
 - Test implementation details instead of behavior
 
-✅ **Do**:
+ **Do**:
 - Test public API contracts
 - Use meaningful test names (`should...when...`)
 - Keep tests independent and isolated
@@ -718,7 +718,7 @@ export const mockQSO: QSO = {
 
 ## 15. Success Criteria
 
-✅ **Test suite is successful when**:
+ **Test suite is successful when**:
 1. 80%+ code coverage across all tiers
 2. All critical user journeys covered by E2E tests
 3. CI pipeline runs in <20 minutes

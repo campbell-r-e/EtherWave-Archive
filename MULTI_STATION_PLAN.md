@@ -6,13 +6,13 @@
 
 ---
 
-## 📋 Overview
+##  Overview
 
 Transform the EtherWave Archive into a comprehensive multi-station contest logging system for club operations, Field Day, and other multi-operator events. Support up to 1000 stations plus separate GOTA (Get On The Air) operations.
 
 ---
 
-## ✅ Design Decisions
+##  Design Decisions
 
 ### 1. QSO Storage & Tagging
 **Decision:** Auto-tag every QSO with operator's assigned station/GOTA
@@ -79,11 +79,11 @@ Total QSOs:     95 (GOTA not scored)
 **Display:**
 ```
 ╔═══════════════════════════════════════════════╗
-║  📊 CONTEST SCORE SUMMARY - Field Day 2025    ║
+║   CONTEST SCORE SUMMARY - Field Day 2025    ║
 ╠═══════════════════════════════════════════════╣
 ║  Main Contest Score:                          ║
-║    Station 1: 45 QSOs | 230 pts | 15/hr  🥇   ║
-║    Station 2: 38 QSOs | 190 pts | 12/hr  🥈   ║
+║    Station 1: 45 QSOs | 230 pts | 15/hr     ║
+║    Station 2: 38 QSOs | 190 pts | 12/hr     ║
 ║    Station 3: 22 QSOs | 110 pts |  8/hr       ║
 ║    ─────────────────────────────────────────  ║
 ║    Total:    105 QSOs | 530 pts | 35/hr       ║
@@ -98,7 +98,7 @@ Total QSOs:     95 (GOTA not scored)
 
 **Features:**
 - Per-station performance metrics
-- Leaderboard medals (🥇🥈🥉)
+- Leaderboard medals ()
 - Main vs GOTA separation
 - Real-time rate calculation
 
@@ -106,7 +106,7 @@ Total QSOs:     95 (GOTA not scored)
 
 ---
 
-## 🔧 Technical Implementation
+##  Technical Implementation
 
 ### Phase 1: Backend - QSO Entity & Auto-Tagging
 
@@ -244,7 +244,7 @@ getGotaStats(logId: number): Observable<StationStatistics>
 Enhancements:
 - Load station statistics from new service
 - Display per-station breakdown
-- Show leaderboard medals (🥇🥈🥉)
+- Show leaderboard medals ()
 - Separate main vs GOTA totals
 - Real-time updates
 
@@ -324,7 +324,7 @@ Add read-only display:
 
 ---
 
-## 🎨 UI/UX Design Guidelines
+##  UI/UX Design Guidelines
 
 ### Color Coding
 - **Station 1:** Blue (#1E88E5)
@@ -347,19 +347,19 @@ Use colored badges consistently:
 
 ---
 
-## 📊 Export Compliance
+##  Export Compliance
 
 ### Current Implementation (Already Compliant)
-✅ **Non-GOTA Export** - Official contest submission (excludes all GOTA QSOs)
-✅ **GOTA Only Export** - Separate GOTA submission
-✅ **Combined Export** - Backup/review only (includes everything)
+ **Non-GOTA Export** - Official contest submission (excludes all GOTA QSOs)
+ **GOTA Only Export** - Separate GOTA submission
+ **Combined Export** - Backup/review only (includes everything)
 
 ### No Changes Required
 The export system is already contest-legal. GOTA will never be mixed into the main contest log export.
 
 ---
 
-## 🧪 Testing Plan
+##  Testing Plan
 
 ### Unit Tests
 - QSO auto-tagging logic
@@ -395,7 +395,7 @@ The export system is already contest-legal. GOTA will never be mixed into the ma
 
 ---
 
-## 📅 Implementation Phases
+##  Implementation Phases
 
 ### Phase 1: Backend Foundation (2-3 hours)
 - Update QSO entity with station fields
@@ -446,7 +446,7 @@ The export system is already contest-legal. GOTA will never be mixed into the ma
 
 ---
 
-## 🚀 Deployment Considerations
+##  Deployment Considerations
 
 ### Database Migration
 - Add `station_number` column to `qsos` table (nullable Integer)
@@ -465,7 +465,7 @@ The export system is already contest-legal. GOTA will never be mixed into the ma
 
 ---
 
-## 📖 User Documentation Updates Needed
+##  User Documentation Updates Needed
 
 ### Update Files:
 - `docs/USER_GUIDE.md` - Add multi-station operations section
@@ -491,33 +491,33 @@ The export system is already contest-legal. GOTA will never be mixed into the ma
 
 ---
 
-## ✅ Success Criteria
+##  Success Criteria
 
 ### Functional Requirements
-✅ QSOs automatically tagged with operator's station/GOTA
-✅ Per-station statistics (QSO count, points, band, mode, rate)
-✅ Tabbed QSO list (All, Station 1, Station 2, GOTA)
-✅ Enhanced score summary with per-station breakdown
-✅ Leaderboard ranking with medals
-✅ GOTA separated in scoring, integrated in QSO list
-✅ Export compliance (GOTA never in main contest log)
+ QSOs automatically tagged with operator's station/GOTA
+ Per-station statistics (QSO count, points, band, mode, rate)
+ Tabbed QSO list (All, Station 1, Station 2, GOTA)
+ Enhanced score summary with per-station breakdown
+ Leaderboard ranking with medals
+ GOTA separated in scoring, integrated in QSO list
+ Export compliance (GOTA never in main contest log)
 
 ### Performance Requirements
-✅ Statistics update in < 1 second
-✅ Tab switching instant (client-side filtering)
-✅ Real-time rate calculations
-✅ Handle 1000+ QSOs without lag
+ Statistics update in < 1 second
+ Tab switching instant (client-side filtering)
+ Real-time rate calculations
+ Handle 1000+ QSOs without lag
 
 ### UX Requirements
-✅ No extra clicks for operators (auto-tagging)
-✅ Clear visual station identification (color badges)
-✅ Intuitive tabbed navigation
-✅ Mobile-responsive design
-✅ Competitive leaderboard motivation
+ No extra clicks for operators (auto-tagging)
+ Clear visual station identification (color badges)
+ Intuitive tabbed navigation
+ Mobile-responsive design
+ Competitive leaderboard motivation
 
 ---
 
-## 🎯 Future Enhancements (Post-MVP)
+##  Future Enhancements (Post-MVP)
 
 ### Potential Additions:
 1. **Band/Mode Matrix View** - Visual grid showing coverage
@@ -531,7 +531,7 @@ The export system is already contest-legal. GOTA will never be mixed into the ma
 
 ---
 
-## 📝 Notes & Decisions Log
+##  Notes & Decisions Log
 
 ### Design Decisions
 - **Why auto-tag instead of manual?** Fast workflow, prevents errors, matches industry standard
@@ -553,6 +553,4 @@ The export system is already contest-legal. GOTA will never be mixed into the ma
 
 ---
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
-Co-Authored-By: Claude <noreply@anthropic.com>

@@ -197,7 +197,7 @@ eventsWs.onmessage = (event) => {
 }
 ```
 
-⚠️ **PTT is exclusive** - only one client can transmit at a time
+ **PTT is exclusive** - only one client can transmit at a time
 
 ### Get S-Meter
 

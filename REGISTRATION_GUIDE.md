@@ -1,12 +1,12 @@
 # Registration & Login Guide
 
-## ✅ Registration Successfully Tested!
+##  Registration Successfully Tested!
 
 Both registration and login are working correctly in the production environment.
 
 ---
 
-## 🌐 Method 1: Web Interface (Recommended)
+##  Method 1: Web Interface (Recommended)
 
 ### Step-by-Step Registration
 
@@ -36,7 +36,7 @@ Both registration and login are working correctly in the production environment.
 
 ---
 
-## 🔧 Method 2: API Testing (For Developers)
+##  Method 2: API Testing (For Developers)
 
 ### Registration via API
 
@@ -144,7 +144,7 @@ curl -X POST http://localhost:8080/api/auth/login \
 
 ---
 
-## 📋 Field Requirements
+##  Field Requirements
 
 ### Username
 - **Required**: Yes
@@ -190,7 +190,7 @@ curl -X POST http://localhost:8080/api/auth/login \
 
 ---
 
-## 🔐 Using the JWT Token
+##  Using the JWT Token
 
 After successful login/registration, use the token in API requests:
 
@@ -212,7 +212,7 @@ curl -X POST http://localhost:8080/api/logs \
 
 ---
 
-## 📊 Current Users in Database
+##  Current Users in Database
 
 To check registered users (for testing):
 
@@ -231,7 +231,7 @@ Current users:
 
 ---
 
-## 🧪 Testing Registration Flow
+##  Testing Registration Flow
 
 ### Test Case 1: Basic Registration
 ```bash
@@ -282,7 +282,7 @@ curl -X POST http://localhost:8080/api/auth/register \
 
 ---
 
-## ⚠️ Common Issues
+##  Common Issues
 
 ### 1. JSON Parse Error
 **Error:** `Unrecognized character escape '!' (code 33)`
@@ -305,7 +305,7 @@ curl -X POST http://localhost:8080/api/auth/register \
 
 ---
 
-## 🎯 Next Steps After Registration
+##  Next Steps After Registration
 
 1. **Login to the web interface** at http://localhost
 2. **Create a logbook:**
@@ -324,7 +324,7 @@ curl -X POST http://localhost:8080/api/auth/register \
 
 ---
 
-## 📞 Support
+##  Support
 
 **Web Interface:** http://localhost
 **API Health:** http://localhost:8080/actuator/health
@@ -337,4 +337,4 @@ docker-compose logs -f backend
 
 ---
 
-**Happy logging! 73!** 📻
+**Happy logging! 73!** 

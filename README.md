@@ -98,7 +98,7 @@ This system provides amateur radio operators with a modern, feature-rich logging
 
 ## Quick Start
 
-**🚀 New to the system? See [QUICKSTART.md](QUICKSTART.md) for a complete beginner's guide!**
+** New to the system? See [QUICKSTART.md](QUICKSTART.md) for a complete beginner's guide!**
 
 ### Using Docker (Recommended - 2 Minutes)
 
@@ -137,18 +137,18 @@ docker-compose -f docker-compose.field.yml up -d
 ```
 
 **Advantages:**
-- ✅ No PostgreSQL dependency
-- ✅ Single SQLite database file (easy backup)
-- ✅ Perfect for offline operations
-- ✅ Smaller resource footprint
+-  No PostgreSQL dependency
+-  Single SQLite database file (easy backup)
+-  Perfect for offline operations
+-  Smaller resource footprint
 
 ### Local Development
 
 **Prerequisites:**
-- ☕ Java 25 or higher ([Download](https://adoptium.net/))
-- 🟢 Node.js 24 or higher ([Download](https://nodejs.org/))
-- 📦 Maven 3.9+ ([Download](https://maven.apache.org/))
-- 🐳 Docker (optional, for rig control)
+-  Java 25 or higher ([Download](https://adoptium.net/))
+-  Node.js 24 or higher ([Download](https://nodejs.org/))
+-  Maven 3.9+ ([Download](https://maven.apache.org/))
+-  Docker (optional, for rig control)
 
 **Backend Setup:**
 ```bash
@@ -167,9 +167,9 @@ npm start            # Start dev server
 Frontend runs at: **http://localhost:4200**
 
 **Verify Setup:**
-- ✅ Backend health: http://localhost:8080/actuator/health
-- ✅ Frontend: http://localhost:4200
-- ✅ Create account and start logging
+-  Backend health: http://localhost:8080/actuator/health
+-  Frontend: http://localhost:4200
+-  Create account and start logging
 
 ## Complete Setup Guide
 
@@ -329,7 +329,7 @@ The system includes comprehensive multi-client rig control capabilities. Documen
 
 ## Testing
 
-### Backend Tests: 100% Passing ✅
+### Backend Tests: 100% Passing 
 
 **Test Suite Status**: 131/131 tests passing (100%)
 
@@ -365,7 +365,7 @@ Complete testing documentation including:
 - TestDataBuilder usage guide
 - Troubleshooting guide
 
-📖 **[Full Testing Guide](backend/TESTING.md)**
+ **[Full Testing Guide](backend/TESTING.md)**
 
 ### Frontend Tests
 
@@ -528,4 +528,4 @@ Contributions are welcome! Please:
 
 ---
 
-**EtherWave Archive - Built with ❤️ for the Amateur Radio Community in Indiana and beyond - 73!**
+**EtherWave Archive - Built with  for the Amateur Radio Community in Indiana and beyond - 73!**

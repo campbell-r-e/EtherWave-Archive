@@ -1,6 +1,6 @@
 # Testing Guide - Ham Radio Logbook System
 
-## 📊 Test Coverage Overview
+##  Test Coverage Overview
 
 This project has achieved comprehensive test coverage with **2,000+ tests** across all layers:
 
@@ -13,7 +13,7 @@ This project has achieved comprehensive test coverage with **2,000+ tests** acro
 
 ---
 
-## 🚀 Running Tests
+##  Running Tests
 
 ### Backend Tests (Java/Spring Boot)
 
@@ -124,7 +124,7 @@ mvn clean test
 
 ---
 
-## 📈 Coverage Reports
+##  Coverage Reports
 
 ### Backend Coverage (JaCoCo)
 
@@ -163,7 +163,7 @@ mvn clean test
 
 ---
 
-## 🧬 Mutation Testing
+##  Mutation Testing
 
 Mutation testing ensures test quality by introducing small changes (mutations) to the code and verifying that tests catch them.
 
@@ -217,7 +217,7 @@ Open: `frontend/logbook-ui/reports/mutation/index.html`
 
 ---
 
-## 🎯 Test Categories
+##  Test Categories
 
 ### Unit Tests
 Test individual components in isolation with mocked dependencies.
@@ -260,7 +260,7 @@ Test complete user workflows from UI to database.
 
 ---
 
-## ✅ Test Quality Standards
+##  Test Quality Standards
 
 All tests follow these standards:
 
@@ -306,7 +306,7 @@ assertThat(qso)
 
 ---
 
-## 🔧 CI/CD Integration
+##  CI/CD Integration
 
 ### GitHub Actions Workflow
 
@@ -364,7 +364,7 @@ jobs:
 
 ---
 
-## 📝 Adding New Tests
+##  Adding New Tests
 
 ### Backend Test Template
 ```java
@@ -422,7 +422,7 @@ describe('YourComponent', () => {
 
 ---
 
-## 🐛 Debugging Failing Tests
+##  Debugging Failing Tests
 
 ### Backend
 ```bash
@@ -453,7 +453,7 @@ npx playwright test --trace on
 
 ---
 
-## 📊 Test Metrics
+##  Test Metrics
 
 ### Current Test Statistics
 - **Total Tests**: 2,015+
@@ -469,7 +469,7 @@ npx playwright test --trace on
 
 ---
 
-## 🎓 Best Practices
+##  Best Practices
 
 1. **Test Independence**: Each test should run independently
 2. **Fast Tests**: Keep unit tests under 100ms each
@@ -482,7 +482,7 @@ npx playwright test --trace on
 
 ---
 
-## 📚 Resources
+##  Resources
 
 - [JUnit 5 Documentation](https://junit.org/junit5/docs/current/user-guide/)
 - [Jasmine Documentation](https://jasmine.github.io/)
@@ -493,7 +493,7 @@ npx playwright test --trace on
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 When adding new features:
 1. Write tests FIRST (TDD approach)
@@ -504,8 +504,8 @@ When adding new features:
 
 ---
 
-## ✨ Achievement Unlocked!
+##  Achievement Unlocked!
 
-**🏆 100% Test Coverage Champion**
+** 100% Test Coverage Champion**
 
 This project demonstrates professional-grade testing practices with comprehensive coverage across all layers of a complex multi-user system.

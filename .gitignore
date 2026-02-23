@@ -29,6 +29,9 @@ yarn-debug.log*
 yarn-error.log*
 .angular/
 
+# === Claude Code ===
+.claude/
+
 # === VS Code ===
 .vscode/
 

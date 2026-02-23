@@ -1,12 +1,12 @@
-# 🚀 START HERE - EtherWave Archive Quick Reference
+#  START HERE - EtherWave Archive Quick Reference
 
-## ✅ Configuration Complete!
+##  Configuration Complete!
 
 All initial configuration files have been created. Your EtherWave Archive is ready to run with an professional professional interface featuring dark mode support!
 
 ---
 
-## 🎯 Choose Your Setup Method
+##  Choose Your Setup Method
 
 ### Option 1: Docker (Easiest - 2 Minutes)
 
@@ -47,7 +47,7 @@ npm start
 
 ---
 
-## ⚙️ Configuration Files Created
+##  Configuration Files Created
 
 | File | Purpose |
 |------|---------|
@@ -59,7 +59,7 @@ npm start
 
 ---
 
-## 🔧 Important Configuration
+##  Important Configuration
 
 ### 1. Backend Environment (`backend/.env`)
 
@@ -78,7 +78,7 @@ Uncomment PostgreSQL lines and comment out SQLite lines in `backend/.env`
 
 ### 2. Admin Credentials
 
-**⚠️ CHANGE BEFORE PRODUCTION!**
+** CHANGE BEFORE PRODUCTION!**
 
 Edit `backend/.env`:
 ```env
@@ -99,7 +99,7 @@ Get credentials at: https://www.qrz.com/
 
 ---
 
-## 🏃 Quick Start Commands
+##  Quick Start Commands
 
 **Start everything (Docker):**
 ```bash
@@ -128,7 +128,7 @@ curl http://localhost:8080/actuator/health
 
 ---
 
-## 📚 Documentation
+##  Documentation
 
 | Document | Description |
 |----------|-------------|
@@ -142,7 +142,7 @@ curl http://localhost:8080/actuator/health
 
 ---
 
-## ✨ First Time Usage
+##  First Time Usage
 
 1. **Start the application** (choose method above)
 
@@ -161,14 +161,14 @@ curl http://localhost:8080/actuator/health
    - Choose contest type (optional)
 
 5. **Customize your experience:**
-   - Toggle dark/light mode using the theme button (☀️/🌙) in the navbar
+   - Toggle dark/light mode using the theme button (/) in the navbar
    - Theme preference is saved automatically
 
 6. **Start logging QSOs!**
 
 ---
 
-## 🔍 Verify Installation
+##  Verify Installation
 
 ```bash
 # Check Java version
@@ -190,7 +190,7 @@ curl http://localhost:8080/actuator/health
 
 ---
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### Java Version Issues
 
@@ -232,7 +232,7 @@ kill -9 <PID>
 
 ---
 
-## 🎓 Learning Resources
+##  Learning Resources
 
 - **Spring Boot:** https://spring.io/projects/spring-boot
 - **Angular:** https://angular.io/
@@ -241,7 +241,7 @@ kill -9 <PID>
 
 ---
 
-## 📞 Support
+##  Support
 
 - **Issues:** Create issue on GitHub
 - **Documentation:** See `docs/` folder
@@ -249,7 +249,7 @@ kill -9 <PID>
 
 ---
 
-## ✅ Next Steps
+##  Next Steps
 
 1. **Configure backend/.env** with your preferences
 2. **Choose deployment method** (Docker or Local)
@@ -259,4 +259,4 @@ kill -9 <PID>
 
 ---
 
-**EtherWave Archive - 73 and happy logging from Indiana and beyond! 📻**
+**EtherWave Archive - 73 and happy logging from Indiana and beyond! **

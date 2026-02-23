@@ -26,11 +26,11 @@ As a radio operator, I need a robust logging system to record, manage, and searc
 **So that** I can keep my station operations organized and track performance individually
 
 **Acceptance Criteria:**
-- ✅ System supports unlimited logs per user
-- ✅ Each log has unique identifier and metadata (name, description, callsign)
-- ✅ Logs can be created, edited, and deleted
-- ✅ Station-specific configuration (station ID 1-6 supported)
-- ✅ Access control: only log creator can view/edit their logs in shared mode
+-  System supports unlimited logs per user
+-  Each log has unique identifier and metadata (name, description, callsign)
+-  Logs can be created, edited, and deleted
+-  Station-specific configuration (station ID 1-6 supported)
+-  Access control: only log creator can view/edit their logs in shared mode
 
 **Technical Implementation:**
 - Entity: `Log` (JPA)
@@ -47,13 +47,13 @@ As a radio operator, I need a robust logging system to record, manage, and searc
 **So that** I can maintain accurate records for awards and statistics
 
 **Acceptance Criteria:**
-- ✅ Capture essential QSO fields: callsign, frequency/band, mode, date/time, RST
-- ✅ Optional fields: operator name, QTH, grid square, notes, exchange data
-- ✅ Support for 9+ bands (160M to 70CM)
-- ✅ Support for 8+ modes (SSB, CW, FT8, FT4, RTTY, PSK31, FM, AM)
-- ✅ Real-time validation of callsigns and grid squares
-- ✅ Quick entry mode for contest logging
-- ✅ Edit and delete capabilities with confirmation
+-  Capture essential QSO fields: callsign, frequency/band, mode, date/time, RST
+-  Optional fields: operator name, QTH, grid square, notes, exchange data
+-  Support for 9+ bands (160M to 70CM)
+-  Support for 8+ modes (SSB, CW, FT8, FT4, RTTY, PSK31, FM, AM)
+-  Real-time validation of callsigns and grid squares
+-  Quick entry mode for contest logging
+-  Edit and delete capabilities with confirmation
 
 **Technical Implementation:**
 - Entity: `QSO` (JPA) with 25+ fields
@@ -70,12 +70,12 @@ As a radio operator, I need a robust logging system to record, manage, and searc
 **So that** I can migrate data between logging applications
 
 **Acceptance Criteria:**
-- ✅ Import ADIF 3.1.4 files
-- ✅ Export logs to ADIF 3.1.4 format
-- ✅ Parse all standard ADIF fields
-- ✅ Handle custom/vendor-specific fields gracefully
-- ✅ Validate data integrity during import
-- ✅ Report import statistics (success/failure counts)
+-  Import ADIF 3.1.4 files
+-  Export logs to ADIF 3.1.4 format
+-  Parse all standard ADIF fields
+-  Handle custom/vendor-specific fields gracefully
+-  Validate data integrity during import
+-  Report import statistics (success/failure counts)
 
 **Technical Implementation:**
 - Service: `ADIFService` with parser and generator
@@ -98,14 +98,14 @@ As a radio operator, I need advanced mapping capabilities to visualize my contac
 **So that** I can visualize my global communications and identify coverage gaps
 
 **Acceptance Criteria:**
-- ✅ Interactive Leaflet.js map with pan and zoom
-- ✅ QSO markers showing contact locations
-- ✅ Adaptive server-side clustering (>10,000 QSO threshold)
-- ✅ Click markers to view QSO details
-- ✅ Color-coded by station (6 distinct colors)
-- ✅ Dark/light theme tile layers (CartoDB)
-- ✅ Center map on user location by default
-- ✅ Empty state when no location data available
+-  Interactive Leaflet.js map with pan and zoom
+-  QSO markers showing contact locations
+-  Adaptive server-side clustering (>10,000 QSO threshold)
+-  Click markers to view QSO details
+-  Color-coded by station (6 distinct colors)
+-  Dark/light theme tile layers (CartoDB)
+-  Center map on user location by default
+-  Empty state when no location data available
 
 **Technical Implementation:**
 - Backend: `MapDataService`, `QSOLocation` entity
@@ -129,13 +129,13 @@ As a radio operator, I need advanced mapping capabilities to visualize my contac
 **So that** I can track which grids I've worked and identify needed grids
 
 **Acceptance Criteria:**
-- ✅ Toggle grid square overlay on/off
-- ✅ Support 4 precision levels: Field (2-char), Square (4-char), Subsquare (6-char), Extended (8-char)
-- ✅ Color-coded grid squares based on activity (5 levels: blue → green)
-- ✅ Show worked grids with QSO counts
-- ✅ Show neighboring unworked grids
-- ✅ Interactive popups with grid statistics
-- ✅ Grid precision selector in UI
+-  Toggle grid square overlay on/off
+-  Support 4 precision levels: Field (2-char), Square (4-char), Subsquare (6-char), Extended (8-char)
+-  Color-coded grid squares based on activity (5 levels: blue → green)
+-  Show worked grids with QSO counts
+-  Show neighboring unworked grids
+-  Interactive popups with grid statistics
+-  Grid precision selector in UI
 
 **Color Scheme:**
 - 50+ QSOs: #00ff88 (Green - very active)
@@ -166,12 +166,12 @@ As a radio operator, I need advanced mapping capabilities to visualize my contac
 **So that** I can identify areas of high activity and propagation corridors
 
 **Acceptance Criteria:**
-- ✅ Toggle heatmap overlay on/off
-- ✅ Adjustable radius (10-50px slider)
-- ✅ Real-time radius adjustment without reload
-- ✅ Multiple gradient themes (default, warm, cool, monochrome)
-- ✅ EtherWave theme gradient (blue → cyan → green → orange → pink)
-- ✅ Intensity based on QSO count per location
+-  Toggle heatmap overlay on/off
+-  Adjustable radius (10-50px slider)
+-  Real-time radius adjustment without reload
+-  Multiple gradient themes (default, warm, cool, monochrome)
+-  EtherWave theme gradient (blue → cyan → green → orange → pink)
+-  Intensity based on QSO count per location
 
 **Technical Implementation:**
 - Backend: `HeatmapService` with point aggregation
@@ -193,13 +193,13 @@ As a radio operator, I need advanced mapping capabilities to visualize my contac
 **So that** I can visualize which stations contributed to each cluster
 
 **Acceptance Criteria:**
-- ✅ Clusters with multiple stations display as pie charts
-- ✅ Each slice color-coded by station (6 colors)
-- ✅ Center count badge shows total QSOs
-- ✅ Slices sorted by count (largest first)
-- ✅ Single-station clusters show solid color
-- ✅ Hover effects on pie chart markers
-- ✅ SVG-generated charts for crisp rendering
+-  Clusters with multiple stations display as pie charts
+-  Each slice color-coded by station (6 colors)
+-  Center count badge shows total QSOs
+-  Slices sorted by count (largest first)
+-  Single-station clusters show solid color
+-  Hover effects on pie chart markers
+-  SVG-generated charts for crisp rendering
 
 **Station Colors:**
 1. #0080ff (Blue)
@@ -222,11 +222,11 @@ As a radio operator, I need advanced mapping capabilities to visualize my contac
 **So that** I can quickly identify new contacts on the map
 
 **Acceptance Criteria:**
-- ✅ QSOs within last 15 minutes show pulse animation
-- ✅ Expanding blue ring effect (2-second cycle)
-- ✅ Infinite loop while QSO remains recent
-- ✅ Timestamp-based automatic detection
-- ✅ Animation syncs with real-time updates
+-  QSOs within last 15 minutes show pulse animation
+-  Expanding blue ring effect (2-second cycle)
+-  Infinite loop while QSO remains recent
+-  Timestamp-based automatic detection
+-  Animation syncs with real-time updates
 
 **Technical Implementation:**
 - CSS: `@keyframes pulse` animation
@@ -241,14 +241,14 @@ As a radio operator, I need advanced mapping capabilities to visualize my contac
 **So that** I can track multipliers and identify needed entities
 
 **Acceptance Criteria:**
-- ✅ CQ Zones (40 zones worldwide)
-- ✅ ITU Zones (90 zones worldwide)
-- ✅ ARRL Sections (83 US/Canada sections)
-- ✅ DXCC Entities (340+ countries/territories)
-- ✅ Dropdown menu with checkboxes for each overlay
-- ✅ Color-coded: worked (green/blue/cyan) vs. needed (red/orange/purple)
-- ✅ Interactive popups with zone/section details
-- ✅ Toggle individual overlays independently
+-  CQ Zones (40 zones worldwide)
+-  ITU Zones (90 zones worldwide)
+-  ARRL Sections (83 US/Canada sections)
+-  DXCC Entities (340+ countries/territories)
+-  Dropdown menu with checkboxes for each overlay
+-  Color-coded: worked (green/blue/cyan) vs. needed (red/orange/purple)
+-  Interactive popups with zone/section details
+-  Toggle individual overlays independently
 
 **Technical Implementation:**
 - Backend: `ContestOverlayService` with zone databases
@@ -268,13 +268,13 @@ As a radio operator, I need advanced mapping capabilities to visualize my contac
 **So that** I can use my data in other GIS and mapping tools
 
 **Acceptance Criteria:**
-- ✅ Export formats: GeoJSON, KML, CSV, ADIF
-- ✅ Modal dialog with format selection
-- ✅ Format descriptions and icons
-- ✅ Apply current filters to export
-- ✅ Automatic file download
-- ✅ Proper MIME types and file extensions
-- ✅ Loading state during export
+-  Export formats: GeoJSON, KML, CSV, ADIF
+-  Modal dialog with format selection
+-  Format descriptions and icons
+-  Apply current filters to export
+-  Automatic file download
+-  Proper MIME types and file extensions
+-  Loading state during export
 
 **Export Formats:**
 - **GeoJSON**: Geographic data for GIS tools (application/geo+json)
@@ -296,13 +296,13 @@ As a radio operator, I need advanced mapping capabilities to visualize my contac
 **So that** I don't need to manually refresh to see current activity
 
 **Acceptance Criteria:**
-- ✅ WebSocket connection to backend
-- ✅ Automatic marker addition for new QSOs
-- ✅ Filter incoming QSOs by current filters
-- ✅ Cluster recalculation in clustered mode
-- ✅ Toggle button to enable/disable real-time updates
-- ✅ Visual indicator (green=enabled, gray=disabled)
-- ✅ Console notifications for debugging
+-  WebSocket connection to backend
+-  Automatic marker addition for new QSOs
+-  Filter incoming QSOs by current filters
+-  Cluster recalculation in clustered mode
+-  Toggle button to enable/disable real-time updates
+-  Visual indicator (green=enabled, gray=disabled)
+-  Console notifications for debugging
 
 **Technical Implementation:**
 - Backend: WebSocket with STOMP protocol
@@ -326,20 +326,20 @@ As a radio operator, I need powerful filtering capabilities to find specific con
 **So that** I can focus on specific subsets of contacts
 
 **Acceptance Criteria:**
-- ✅ Filter by Band (160M, 80M, 40M, 20M, 15M, 10M, 6M, 2M, 70CM)
-- ✅ Filter by Mode (SSB, CW, FT8, FT4, RTTY, PSK31, FM, AM)
-- ✅ Filter by Station (1-6)
-- ✅ Filter by Operator (text search)
-- ✅ Filter by DXCC Entity (country name or prefix)
-- ✅ Filter by Continent (NA, SA, EU, AF, AS, OC)
-- ✅ Filter by State/Province (text input)
-- ✅ Filter by Exchange (contest data)
-- ✅ Filter by Date Range (from/to dates)
-- ✅ Filter by Confirmation Status (confirmed/unconfirmed/all)
-- ✅ Active filter pills showing current selections
-- ✅ Remove individual filters with X button
-- ✅ Clear all filters button
-- ✅ Apply filters button
+-  Filter by Band (160M, 80M, 40M, 20M, 15M, 10M, 6M, 2M, 70CM)
+-  Filter by Mode (SSB, CW, FT8, FT4, RTTY, PSK31, FM, AM)
+-  Filter by Station (1-6)
+-  Filter by Operator (text search)
+-  Filter by DXCC Entity (country name or prefix)
+-  Filter by Continent (NA, SA, EU, AF, AS, OC)
+-  Filter by State/Province (text input)
+-  Filter by Exchange (contest data)
+-  Filter by Date Range (from/to dates)
+-  Filter by Confirmation Status (confirmed/unconfirmed/all)
+-  Active filter pills showing current selections
+-  Remove individual filters with X button
+-  Clear all filters button
+-  Apply filters button
 
 **Technical Implementation:**
 - Component: `MapFilterPanelComponent` (176 LOC)
@@ -355,15 +355,15 @@ As a radio operator, I need powerful filtering capabilities to find specific con
 **So that** I can use the full system on any device
 
 **Acceptance Criteria:**
-- ✅ Bottom sheet UI on mobile (<768px)
-- ✅ Fixed position at bottom of screen
-- ✅ Swipe handle indicator
-- ✅ Touch gesture support (swipe up/down)
-- ✅ Collapsed state (60px visible - header only)
-- ✅ Expanded state (80vh max height)
-- ✅ Auto-scrolling when content overflows
-- ✅ Smooth CSS transitions
-- ✅ Desktop: standard panel above map
+-  Bottom sheet UI on mobile (<768px)
+-  Fixed position at bottom of screen
+-  Swipe handle indicator
+-  Touch gesture support (swipe up/down)
+-  Collapsed state (60px visible - header only)
+-  Expanded state (80vh max height)
+-  Auto-scrolling when content overflows
+-  Smooth CSS transitions
+-  Desktop: standard panel above map
 
 **Technical Implementation:**
 - CSS media queries at 768px breakpoint
@@ -386,14 +386,14 @@ As a radio operator tracking DXCC awards, I need comprehensive country prefix ma
 **So that** I can track my DXCC entity progress
 
 **Acceptance Criteria:**
-- ✅ Load CTY.DAT file (standard amateur radio country file)
-- ✅ Parse 340+ DXCC entities
-- ✅ Support primary and alternate prefixes
-- ✅ Exact match support (=W1AW format)
-- ✅ Longest-match algorithm for prefix lookup
-- ✅ Cache lookups for performance
-- ✅ Load default file or custom upload
-- ✅ API endpoints for lookup and management
+-  Load CTY.DAT file (standard amateur radio country file)
+-  Parse 340+ DXCC entities
+-  Support primary and alternate prefixes
+-  Exact match support (=W1AW format)
+-  Longest-match algorithm for prefix lookup
+-  Cache lookups for performance
+-  Load default file or custom upload
+-  API endpoints for lookup and management
 
 **Technical Implementation:**
 - Service: `DXCCLoaderService` with regex parser
@@ -428,12 +428,12 @@ As a radio operator, I need flexible location management for different operating
 4. Manual QSO-level entry (lowest priority)
 
 **Acceptance Criteria:**
-- ✅ Station-level location in station configuration
-- ✅ User-level location in user profile
-- ✅ Session temporary location with TTL
-- ✅ QSO-level manual override
-- ✅ Automatic Maidenhead grid calculation
-- ✅ Geocoding from QTH/address (future)
+-  Station-level location in station configuration
+-  User-level location in user profile
+-  Session temporary location with TTL
+-  QSO-level manual override
+-  Automatic Maidenhead grid calculation
+-  Geocoding from QTH/address (future)
 
 **Technical Implementation:**
 - Service: `LocationManagementService` with fallback logic
@@ -449,12 +449,12 @@ As a radio operator, I need flexible location management for different operating
 **So that** I don't need to change my permanent station location
 
 **Acceptance Criteria:**
-- ✅ Set session location with lat/lon or grid
-- ✅ 1-hour automatic expiration
-- ✅ Clear session location manually
-- ✅ View current session location
-- ✅ In-memory storage (no database persistence)
-- ✅ Thread-safe implementation
+-  Set session location with lat/lon or grid
+-  1-hour automatic expiration
+-  Clear session location manually
+-  View current session location
+-  In-memory storage (no database persistence)
+-  Thread-safe implementation
 
 **API Endpoints:**
 - `POST /api/maps/session-location/{logId}`
@@ -476,13 +476,13 @@ As a user, I need an intuitive, visually appealing interface that works across a
 **So that** the application feels professional and unique
 
 **Design Elements:**
-- ✅ Gradient colors: #0080ff → #00d4ff (blue to cyan)
-- ✅ Signal analysis aesthetic
-- ✅ Glassmorphism effects on panels
-- ✅ Smooth animations and transitions
-- ✅ Dark/light theme support
-- ✅ Custom icons and badges
-- ✅ Rounded corners and shadows
+-  Gradient colors: #0080ff → #00d4ff (blue to cyan)
+-  Signal analysis aesthetic
+-  Glassmorphism effects on panels
+-  Smooth animations and transitions
+-  Dark/light theme support
+-  Custom icons and badges
+-  Rounded corners and shadows
 
 **Technical Implementation:**
 - CSS: Linear gradients on primary elements
@@ -503,12 +503,12 @@ As a user, I need an intuitive, visually appealing interface that works across a
 - Mobile: ≤575px (stacked layout + bottom sheet)
 
 **Responsive Features:**
-- ✅ Mobile bottom sheet for filters
-- ✅ Stacked form fields on mobile
-- ✅ Touch-optimized controls
-- ✅ Collapsible sections
-- ✅ Responsive map sizing
-- ✅ Mobile-friendly buttons and inputs
+-  Mobile bottom sheet for filters
+-  Stacked form fields on mobile
+-  Touch-optimized controls
+-  Collapsible sections
+-  Responsive map sizing
+-  Mobile-friendly buttons and inputs
 
 ---
 
@@ -525,13 +525,13 @@ As a system administrator, I need the application to perform efficiently under l
 **So that** I can visualize my entire log without performance issues
 
 **Acceptance Criteria:**
-- ✅ Automatic clustering when zoom < threshold
-- ✅ Cluster threshold: 10,000 QSOs
-- ✅ Haversine distance calculation for grouping
-- ✅ Zoom-dependent pixel radius (e.g., 100px at zoom 4)
-- ✅ Station breakdown in cluster metadata
-- ✅ Band breakdown in cluster metadata
-- ✅ Click cluster to zoom to bounds
+-  Automatic clustering when zoom < threshold
+-  Cluster threshold: 10,000 QSOs
+-  Haversine distance calculation for grouping
+-  Zoom-dependent pixel radius (e.g., 100px at zoom 4)
+-  Station breakdown in cluster metadata
+-  Band breakdown in cluster metadata
+-  Click cluster to zoom to bounds
 
 **Performance Targets:**
 - Load time: <2 seconds for 10k QSOs
@@ -551,10 +551,10 @@ As a system administrator, I need the application to perform efficiently under l
 **So that** response times are minimized
 
 **Caching Layers:**
-- ✅ Spring Cache for DXCC lookups
-- ✅ In-memory session locations (1-hour TTL)
-- ✅ Browser caching for tile layers
-- ✅ Database query result caching
+-  Spring Cache for DXCC lookups
+-  In-memory session locations (1-hour TTL)
+-  Browser caching for tile layers
+-  Database query result caching
 
 **Technical Implementation:**
 - `@Cacheable` annotations on service methods
@@ -630,44 +630,44 @@ GET    /api/dxcc/location/{call}   # Get location by callsign
 ## Definition of Done (System-Wide)
 
 ### Code Quality
-- ✅ All code follows project conventions
-- ✅ No compiler warnings or errors
-- ✅ TypeScript strict mode enabled
-- ✅ Java 25 features utilized appropriately
-- ✅ Proper error handling implemented
-- ✅ Logging configured appropriately
+-  All code follows project conventions
+-  No compiler warnings or errors
+-  TypeScript strict mode enabled
+-  Java 25 features utilized appropriately
+-  Proper error handling implemented
+-  Logging configured appropriately
 
 ### Testing (Future Enhancement)
-- ⏳ Unit tests for business logic
-- ⏳ Integration tests for API endpoints
-- ⏳ E2E tests for critical user flows
-- ⏳ Performance tests for clustering algorithm
+-  Unit tests for business logic
+-  Integration tests for API endpoints
+-  E2E tests for critical user flows
+-  Performance tests for clustering algorithm
 
 ### Documentation
-- ✅ Code comments for complex logic
-- ✅ JSDoc/JavaDoc for public methods
-- ✅ README files for setup
-- ✅ This agile specification document
+-  Code comments for complex logic
+-  JSDoc/JavaDoc for public methods
+-  README files for setup
+-  This agile specification document
 
 ### Performance
-- ✅ Map loads in <2 seconds (10k QSOs)
-- ✅ No memory leaks in long sessions
-- ✅ Clustering algorithm <500ms
-- ✅ WebSocket reconnection works
-- ✅ Mobile performance acceptable
+-  Map loads in <2 seconds (10k QSOs)
+-  No memory leaks in long sessions
+-  Clustering algorithm <500ms
+-  WebSocket reconnection works
+-  Mobile performance acceptable
 
 ### Accessibility (Future Enhancement)
-- ⏳ WCAG 2.1 AA compliance
-- ⏳ Keyboard navigation
-- ⏳ Screen reader compatibility
-- ⏳ Color contrast ratios meet standards
+-  WCAG 2.1 AA compliance
+-  Keyboard navigation
+-  Screen reader compatibility
+-  Color contrast ratios meet standards
 
 ### Security (Future Enhancement)
-- ⏳ Authentication implemented
-- ⏳ Authorization rules enforced
-- ⏳ SQL injection prevention
-- ⏳ XSS prevention
-- ⏳ CSRF protection
+-  Authentication implemented
+-  Authorization rules enforced
+-  SQL injection prevention
+-  XSS prevention
+-  CSRF protection
 
 ---
 
@@ -705,7 +705,7 @@ GET    /api/dxcc/location/{call}   # Get location by callsign
 ## Release Notes - Version 1.0.0
 
 ### New Features
-✅ **Complete Mapping System**
+ **Complete Mapping System**
 - Interactive Leaflet maps with dark/light themes
 - Server-side adaptive clustering (10k threshold)
 - Maidenhead grid square overlay (4 precision levels)
@@ -716,19 +716,19 @@ GET    /api/dxcc/location/{call}   # Get location by callsign
 - Real-time WebSocket updates for live QSO tracking
 - Export functionality (GeoJSON, KML, CSV, ADIF)
 
-✅ **Advanced Filtering**
+ **Advanced Filtering**
 - 10-filter system (band, mode, station, operator, DXCC, dates, etc.)
 - Visual filter pills with individual removal
 - Apply/clear all functionality
 - Filter persistence across sessions
 
-✅ **Mobile Optimization**
+ **Mobile Optimization**
 - Responsive bottom sheet for filters on mobile
 - Touch gesture support (swipe up/down)
 - Optimized layouts for tablet and phone
 - Performance maintained on mobile devices
 
-✅ **DXCC Management**
+ **DXCC Management**
 - CTY.DAT file loading and parsing
 - 340+ DXCC entities with prefix lookup
 - Longest-match algorithm for accuracy

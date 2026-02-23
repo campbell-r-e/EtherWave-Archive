@@ -226,7 +226,7 @@ curl -s -X GET http://localhost:8080/api/logs \
   console.log('   User:', user ? JSON.parse(user).username : 'NOT LOGGED IN');
 
   if (!token) {
-    console.error('   ❌ NOT LOGGED IN! Please login first.');
+    console.error('    NOT LOGGED IN! Please login first.');
     return;
   }
 
@@ -241,17 +241,17 @@ curl -s -X GET http://localhost:8080/api/logs \
 
     if (response.ok) {
       const logs = await response.json();
-      console.log('   ✅ API works! Logs count:', logs.length);
+      console.log('    API works! Logs count:', logs.length);
       console.log('   Logs:', logs.map(l => l.name));
 
       if (logs.length === 0) {
-        console.warn('   ⚠️  No logs for this user. Try freshuser/FreshPass123');
+        console.warn('     No logs for this user. Try freshuser/FreshPass123');
       }
     } else {
-      console.error('   ❌ API error:', response.status);
+      console.error('    API error:', response.status);
     }
   } catch (err) {
-    console.error('   ❌ Network error:', err);
+    console.error('    Network error:', err);
   }
 
   console.log('\n=== END DEBUG ===');

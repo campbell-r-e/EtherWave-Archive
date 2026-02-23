@@ -34,7 +34,7 @@ npm start
 2. Navigate to Station Management
 3. Edit or create a station
 4. Set the following fields:
-   - **Rig Control Enabled**: ✓ (checked)
+   - **Rig Control Enabled**:  (checked)
    - **Rig Control Host**: `localhost` (or IP of rig control service)
    - **Rig Control Port**: `8081`
 5. Save the station
@@ -259,13 +259,13 @@ this.rigControl.getStatus(stationId).subscribe(response => {
 
 1. Open logbook in 2 browser tabs
 2. In Tab 1: Connect to rig, click "PTT ON"
-   - ✓ Should succeed, button turns red
+   -  Should succeed, button turns red
 3. In Tab 2: Connect to rig, click "PTT ON"
-   - ✗ Should fail with "PTT denied: held by {Tab1 station}"
+   -  Should fail with "PTT denied: held by {Tab1 station}"
 4. In Tab 1: Click "PTT OFF"
-   - ✓ PTT released
+   -  PTT released
 5. In Tab 2: Click "PTT ON"
-   - ✓ Now succeeds (lock was released)
+   -  Now succeeds (lock was released)
 
 ### Test Event Broadcasting
 
@@ -333,13 +333,13 @@ Rig Control Service (Port 8081)
 
 ## Next Steps
 
-1. ✅ Test basic connection
-2. ✅ Test frequency/mode changes
-3. ✅ Test PTT locking with multiple clients
-4. ✅ Review event stream
-5. 🚀 Integrate with your QSO logging workflow
-6. 🚀 Customize UI to match your needs
-7. 🚀 Add rig control to contest screens
+1.  Test basic connection
+2.  Test frequency/mode changes
+3.  Test PTT locking with multiple clients
+4.  Review event stream
+5.  Integrate with your QSO logging workflow
+6.  Customize UI to match your needs
+7.  Add rig control to contest screens
 
 ## Additional Resources
 
@@ -350,4 +350,4 @@ Rig Control Service (Port 8081)
 
 ---
 
-Happy contesting! 73! 📻
+Happy contesting! 73! 

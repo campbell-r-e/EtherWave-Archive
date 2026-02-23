@@ -1,12 +1,12 @@
 # EtherWave Archive - Branding Guidelines
 
-## 🎨 Overview
+##  Overview
 
 The EtherWave Archive is an open-source, professional, multi-station ham radio contest logging platform. Our branding reflects the professional, technical nature of amateur radio with a global perspective, emphasizing connectivity and communication across the airwaves.
 
 ---
 
-## 📐 Logo
+##  Logo
 
 ### Primary Logo
 ![EtherWave Archive Logo](frontend/logbook-ui/src/assets/branding/logo.png)
@@ -37,15 +37,15 @@ The EtherWave Archive is an open-source, professional, multi-station ham radio c
 Maintain a clear space around the logo equal to the height of the "E" in "ETHERWAVE" to ensure visibility and impact.
 
 ### Logo Don'ts
-❌ Do not stretch or distort the logo
-❌ Do not change the colors arbitrarily
-❌ Do not add effects (drop shadows, gradients, etc.)
-❌ Do not place on busy backgrounds without proper contrast
-❌ Do not rotate the logo
+ Do not stretch or distort the logo
+ Do not change the colors arbitrarily
+ Do not add effects (drop shadows, gradients, etc.)
+ Do not place on busy backgrounds without proper contrast
+ Do not rotate the logo
 
 ---
 
-## 🎨 Color Palette
+##  Color Palette
 
 ### Primary Brand Colors
 
@@ -106,7 +106,7 @@ const gotaColor = getStationColorByGotaStatus(true, null); // Returns #43A047
 ### Accent Colors
 
 ```css
---accent-ai: #7E57C2            /* AI assistance features */
+--accent-feature: #7E57C2       /* Feature highlights */
 --accent-rig-online: #00E5FF     /* Rig connection status */
 --accent-validation-error: #FF7043  /* Form errors, dupes */
 --accent-warning: #FFA726        /* Warnings */
@@ -152,7 +152,7 @@ const gotaColor = getStationColorByGotaStatus(true, null); // Returns #43A047
 
 ---
 
-## 🔤 Typography
+##  Typography
 
 ### Font Stack
 ```css
@@ -161,10 +161,10 @@ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
 ```
 
 This native font stack provides:
-- ✅ Excellent readability
-- ✅ System-native appearance
-- ✅ Fast loading (no web fonts)
-- ✅ Great accessibility
+-  Excellent readability
+-  System-native appearance
+-  Fast loading (no web fonts)
+-  Great accessibility
 
 ### Type Scale
 
@@ -187,7 +187,7 @@ This native font stack provides:
 
 ---
 
-## 🌓 Dark Mode
+##  Dark Mode
 
 ### Theme Toggle Implementation
 
@@ -229,7 +229,7 @@ Use CSS custom properties that automatically adjust:
 
 ---
 
-## 📏 Spacing System
+##  Spacing System
 
 Use consistent spacing throughout the application:
 
@@ -244,7 +244,7 @@ Use consistent spacing throughout the application:
 
 ---
 
-## 🔘 Components
+##  Components
 
 ### Buttons
 
@@ -298,7 +298,7 @@ Use consistent spacing throughout the application:
 
 ---
 
-## ♿ Accessibility
+##  Accessibility
 
 ### Color Contrast
 - **AAA (7:1):** All body text
@@ -311,15 +311,15 @@ Use consistent spacing throughout the application:
 - axe DevTools
 
 ### Requirements
-✅ Keyboard navigation for all interactive elements
-✅ Focus indicators visible in both themes
-✅ ARIA labels on icon-only buttons
-✅ Alt text on images
-✅ Semantic HTML structure
+ Keyboard navigation for all interactive elements
+ Focus indicators visible in both themes
+ ARIA labels on icon-only buttons
+ Alt text on images
+ Semantic HTML structure
 
 ---
 
-## 📱 Responsive Design
+##  Responsive Design
 
 ### Breakpoints
 
@@ -344,7 +344,7 @@ Use consistent spacing throughout the application:
 
 ---
 
-## 🎯 Usage Examples
+##  Usage Examples
 
 ### QSO List Station Coloring
 
@@ -362,7 +362,7 @@ getStationBorder(qso: QSO): string {
 ```html
 <div class="card">
   <div class="card-header bg-hoosier-blue text-white">
-    <h5>📊 Contest Statistics</h5>
+    <h5> Contest Statistics</h5>
   </div>
   <div class="card-body">
     <!-- Content -->
@@ -377,16 +377,16 @@ getStationBorder(qso: QSO): string {
         class="btn btn-outline-secondary"
         [attr.aria-label]="isDark() ? 'Switch to light mode' : 'Switch to dark mode'">
   @if (isDark()) {
-    ☀️ Light
+     Light
   } @else {
-    🌙 Dark
+     Dark
   }
 </button>
 ```
 
 ---
 
-## 📦 Asset Locations
+##  Asset Locations
 
 ```
 frontend/logbook-ui/src/assets/branding/
@@ -402,7 +402,7 @@ frontend/logbook-ui/src/assets/branding/
 
 ---
 
-## ✅ Checklist for New Components
+##  Checklist for New Components
 
 When creating new UI components:
 
@@ -419,7 +419,7 @@ When creating new UI components:
 
 ---
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Import Station Colors
 ```typescript
@@ -442,7 +442,7 @@ import { ThemeService } from './services/theme/theme.service';
 
 ---
 
-## 📞 Questions?
+##  Questions?
 
 For questions about branding, color usage, or accessibility:
 - Check this document first

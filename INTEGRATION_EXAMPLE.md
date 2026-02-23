@@ -120,7 +120,7 @@ export class QSOEntryComponent implements OnInit {
       <label>Frequency (kHz):</label>
       <input type="number" [(ngModel)]="qsoData.frequency">
       <button (click)="syncFromRig()" class="btn-sync">
-        🔄 Sync from Rig
+         Sync from Rig
       </button>
     </div>
 
@@ -301,16 +301,16 @@ When deploying to production:
 
 ## Next Steps
 
-- ✅ Integration complete
-- ✅ Auto-population working
-- ✅ Real-time updates flowing
-- 🚀 Add to other pages as needed
-- 🚀 Customize UI styling
-- 🚀 Add keyboard shortcuts for PTT
-- 🚀 Integrate with contest logging
-- 🚀 Add frequency memory presets
+-  Integration complete
+-  Auto-population working
+-  Real-time updates flowing
+-  Add to other pages as needed
+-  Customize UI styling
+-  Add keyboard shortcuts for PTT
+-  Integrate with contest logging
+-  Add frequency memory presets
 
 ---
 
-**Status:** ✅ Fully functional and tested
+**Status:**  Fully functional and tested
 **Last Updated:** 2025-12-12

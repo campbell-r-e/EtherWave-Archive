@@ -6,14 +6,14 @@ The **Rig Control Service** is a Spring Boot microservice that provides **shared
 
 ### Key Features
 
-✅ **Multi-Client Support** - Multiple applications can connect simultaneously
-✅ **Conflict Prevention** - Serialized command execution prevents race conditions
-✅ **Exclusive PTT Control** - First-come-first-served PTT locking with auto-release
-✅ **Near-Real-Time Performance** - <50ms latency target with smart caching
-✅ **WebSocket-Based** - Real-time bidirectional communication
-✅ **Status Broadcasting** - 100ms status updates to all connected clients
-✅ **Event Notifications** - Transparency about multi-client operations
-✅ **Hardware-Independent Tests** - Complete test coverage without physical radio
+ **Multi-Client Support** - Multiple applications can connect simultaneously
+ **Conflict Prevention** - Serialized command execution prevents race conditions
+ **Exclusive PTT Control** - First-come-first-served PTT locking with auto-release
+ **Near-Real-Time Performance** - <50ms latency target with smart caching
+ **WebSocket-Based** - Real-time bidirectional communication
+ **Status Broadcasting** - 100ms status updates to all connected clients
+ **Event Notifications** - Transparency about multi-client operations
+ **Hardware-Independent Tests** - Complete test coverage without physical radio
 
 ---
 
@@ -430,24 +430,24 @@ mvn test
 ```
 
 ### What Tests Cover
-- ✅ **PTTLockManager**: Exclusive PTT locking, concurrent access, safety
-- ✅ **RigCommandDispatcher**: Caching, coalescing, serialization, performance (<50ms)
-- ✅ **RigService**: High-level operations
-- ✅ **MockRigctlConnection**: No hardware required
+-  **PTTLockManager**: Exclusive PTT locking, concurrent access, safety
+-  **RigCommandDispatcher**: Caching, coalescing, serialization, performance (<50ms)
+-  **RigService**: High-level operations
+-  **MockRigctlConnection**: No hardware required
 
 ### Example Test Output
 ```
 PTTLockManagerTest
-  ✓ acquirePTT - No Active PTT - Success
-  ✓ acquirePTT - PTT Already Held - Denied
-  ✓ forceReleasePTT - Disconnected Client - Released
-  ✓ Concurrent Access - Only One Succeeds
+   acquirePTT - No Active PTT - Success
+   acquirePTT - PTT Already Held - Denied
+   forceReleasePTT - Disconnected Client - Released
+   Concurrent Access - Only One Succeeds
 
 RigCommandDispatcherTest
-  ✓ executeReadCommand - Cached Value - Under 10ms
-  ✓ executeReadCommand - Concurrent Requests - Coalesced
-  ✓ executePTTCommand - PTT Already Held - Denied
-  ✓ Performance - Cached Reads Under 10ms
+   executeReadCommand - Cached Value - Under 10ms
+   executeReadCommand - Concurrent Requests - Coalesced
+   executePTTCommand - PTT Already Held - Denied
+   Performance - Cached Reads Under 10ms
 ```
 
 All tests pass **without requiring physical radio hardware**.
@@ -594,4 +594,4 @@ Part of the EtherWave Archive Ham Radio Logbook System.
 
 ---
 
-**Refactored by Claude Code** - Transformed from single-client REST service to multi-client shared rig broker with WebSocket API, command serialization, request coalescing, smart caching, and exclusive PTT locking.
+**Refactored by the development team** - Transformed from single-client REST service to multi-client shared rig broker with WebSocket API, command serialization, request coalescing, smart caching, and exclusive PTT locking.

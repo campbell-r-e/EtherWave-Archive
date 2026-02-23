@@ -1,32 +1,32 @@
-# Docker Deployment - EtherWave Archive ✅
+# Docker Deployment - EtherWave Archive 
 
 **Date**: 2025-12-05  
-**Status**: 🟢 **RUNNING**
+**Status**:  **RUNNING**
 
 ---
 
-## 🚀 Quick Summary
+##  Quick Summary
 
 The multi-station contest logging system is now running in Docker with:
-- ✅ Frontend (Angular + Nginx) on http://localhost
-- ✅ Backend API (Spring Boot) on http://localhost:8080  
-- ✅ PostgreSQL database on localhost:5432
-- ✅ All multi-station features operational
+-  Frontend (Angular + Nginx) on http://localhost
+-  Backend API (Spring Boot) on http://localhost:8080  
+-  PostgreSQL database on localhost:5432
+-  All multi-station features operational
 
 ---
 
-## 🌐 Access Points
+##  Access Points
 
 | Service | URL | Status |
 |---------|-----|--------|
-| **Application** | http://localhost | ✅ Running |
-| **API** | http://localhost:8080 | ✅ Healthy |
-| **Health Check** | http://localhost:8080/actuator/health | ✅ UP |
-| **Database** | localhost:5432 | ✅ Healthy |
+| **Application** | http://localhost |  Running |
+| **API** | http://localhost:8080 |  Healthy |
+| **Health Check** | http://localhost:8080/actuator/health |  UP |
+| **Database** | localhost:5432 |  Healthy |
 
 ---
 
-## 📋 Quick Commands
+##  Quick Commands
 
 ```bash
 # Start services
@@ -47,22 +47,22 @@ docker-compose ps
 
 ---
 
-## 🗄️ Database
+##  Database
 
 **PostgreSQL 16** (production-grade)
 - Database: `hamradio_logbook`
 - User: `hamradio`
-- Password: `changeme` (⚠️ change in production!)
+- Password: `changeme` ( change in production!)
 - Persistent volume: `postgres_data`
 
 ---
 
-## ✅ Deployed Features
+##  Deployed Features
 
 - Multi-station contest logging
 - Auto-tagging with station assignments
 - **Station assignment display fix** (shows immediately on login)
-- Real-time leaderboards with medals 🥇🥈🥉
+- Real-time leaderboards with medals 
 - GOTA support with separate scoring
 - Color-coded station badges
 - Tabbed QSO filtering
@@ -70,7 +70,7 @@ docker-compose ps
 
 ---
 
-## 🎯 What's New vs Local Development
+##  What's New vs Local Development
 
 | Feature | Local Dev | Docker |
 |---------|-----------|--------|
@@ -82,6 +82,6 @@ docker-compose ps
 
 ---
 
-**Deployment Complete!** 🎊  
+**Deployment Complete!**   
 Access the application at http://localhost
 

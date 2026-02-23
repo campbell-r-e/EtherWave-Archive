@@ -6,15 +6,15 @@ This guide will get you up and running with the complete EtherWave Archive as qu
 
 ## What You'll Get
 
-- 🎨 **Professional EtherWave Archive UI** - professional interface with dark/light mode toggle
-- 📻 **Multi-user logbook system** - Create personal or shared contest logs
-- 🎯 **Real-time QSO entry** - Log contacts with instant validation
-- 🗺️ **Map visualization** - See your QSOs plotted on a world map
-- 📡 **Rig control** - Automatic frequency/mode detection via Hamlib
-- 🏆 **Contest support** - Built-in validators for CQ WW, ARRL, Field Day, POTA, SOTA
-- 📤 **Export** - ADIF 3.1.4 and Cabrillo formats
-- 👥 **Multi-operator** - Role-based access with station/operator management
-- 🌓 **Theme toggle** - Switch between light and dark modes with a single click
+-  **Professional EtherWave Archive UI** - professional interface with dark/light mode toggle
+-  **Multi-user logbook system** - Create personal or shared contest logs
+-  **Real-time QSO entry** - Log contacts with instant validation
+-  **Map visualization** - See your QSOs plotted on a world map
+-  **Rig control** - Automatic frequency/mode detection via Hamlib
+-  **Contest support** - Built-in validators for CQ WW, ARRL, Field Day, POTA, SOTA
+-  **Export** - ADIF 3.1.4 and Cabrillo formats
+-  **Multi-operator** - Role-based access with station/operator management
+-  **Theme toggle** - Switch between light and dark modes with a single click
 
 ---
 
@@ -88,7 +88,7 @@ Go to: **http://localhost**
 
 **7. Customize your experience**
 
-Toggle between light and dark modes using the theme button (☀️/🌙) in the top-right navbar. Your preference is saved automatically!
+Toggle between light and dark modes using the theme button (/) in the top-right navbar. Your preference is saved automatically!
 
 **8. Start logging QSOs!**
 
@@ -175,7 +175,7 @@ If you configure the environment variables (see Configuration below), the system
 - Username: `admin` (or your ADMIN_USERNAME)
 - Password: `admin` (or your ADMIN_PASSWORD)
 
-⚠️ **Change these in production!**
+ **Change these in production!**
 
 ---
 
@@ -442,19 +442,19 @@ After getting the system running:
 
 ## Success Checklist
 
-✅ Docker installed and running (for Docker setup)
-✅ Java 25, Node 24, Maven installed (for local dev)
-✅ All containers showing "healthy" status
-✅ Frontend loads at http://localhost
-✅ Backend health check shows "UP"
-✅ Can register a new account
-✅ Can login successfully
-✅ Can create a logbook
-✅ Can create a station
-✅ Can log a QSO
+ Docker installed and running (for Docker setup)
+ Java 25, Node 24, Maven installed (for local dev)
+ All containers showing "healthy" status
+ Frontend loads at http://localhost
+ Backend health check shows "UP"
+ Can register a new account
+ Can login successfully
+ Can create a logbook
+ Can create a station
+ Can log a QSO
 
 ---
 
-**73 and happy logging!** 📻
+**73 and happy logging!** 
 
-Built with ❤️ for the Amateur Radio Community
+Built with  for the Amateur Radio Community

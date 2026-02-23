@@ -24,10 +24,10 @@ Run the automated setup script:
 ```
 
 This will:
-- ✓ Check all prerequisites (Java, Node.js, Maven, Docker)
-- ✓ Create configuration files
-- ✓ Install dependencies
-- ✓ Provide next steps
+-  Check all prerequisites (Java, Node.js, Maven, Docker)
+-  Create configuration files
+-  Install dependencies
+-  Provide next steps
 
 ---
 
@@ -183,7 +183,7 @@ The application features a professional professional interface with dark/light m
 
 **Theme Management:**
 - Automatic theme detection from system preferences
-- Manual toggle via navbar button (☀️/🌙)
+- Manual toggle via navbar button (/)
 - localStorage persistence (`gekhoosier-theme` key)
 - Real-time theme switching without page reload
 
@@ -219,10 +219,10 @@ TypeScript utilities for consistent station color usage across components.
 ### SQLite (Recommended for Development)
 
 **Advantages:**
-- ✓ No separate database server needed
-- ✓ Single file database (easy backup)
-- ✓ Perfect for field operations
-- ✓ Zero configuration
+-  No separate database server needed
+-  Single file database (easy backup)
+-  Perfect for field operations
+-  Zero configuration
 
 **Configuration:**
 ```env
@@ -235,9 +235,9 @@ SPRING_JPA_DATABASE_PLATFORM=org.hibernate.community.dialect.SQLiteDialect
 ### PostgreSQL (Recommended for Production)
 
 **Advantages:**
-- ✓ Better performance for multi-user
-- ✓ Advanced features
-- ✓ Production-grade reliability
+-  Better performance for multi-user
+-  Advanced features
+-  Production-grade reliability
 
 **Configuration:**
 ```env
@@ -539,10 +539,10 @@ docker-compose restart
 
 ## Next Steps
 
-- ✓ Configuration complete? See [QUICKSTART.md](QUICKSTART.md)
-- ✓ Need detailed setup? See [SETUP.md](SETUP.md)
-- ✓ Want rig control? See [RIG_CONTROL_GUIDE.md](RIG_CONTROL_GUIDE.md)
-- ✓ Ready to use? See [docs/USER_GUIDE.md](docs/USER_GUIDE.md)
+-  Configuration complete? See [QUICKSTART.md](QUICKSTART.md)
+-  Need detailed setup? See [SETUP.md](SETUP.md)
+-  Want rig control? See [RIG_CONTROL_GUIDE.md](RIG_CONTROL_GUIDE.md)
+-  Ready to use? See [docs/USER_GUIDE.md](docs/USER_GUIDE.md)
 
 ---
 

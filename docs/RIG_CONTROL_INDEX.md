@@ -158,20 +158,20 @@ Radio Hardware
 ## Features
 
 ### For Users
-- ✅ Web-based rig control
-- ✅ Real-time frequency/mode display
-- ✅ Multi-user coordination
-- ✅ PTT safety (exclusive locking)
-- ✅ Auto-populate QSO fields
-- ✅ S-meter monitoring
+-  Web-based rig control
+-  Real-time frequency/mode display
+-  Multi-user coordination
+-  PTT safety (exclusive locking)
+-  Auto-populate QSO fields
+-  S-meter monitoring
 
 ### For Developers
-- ✅ Simple WebSocket API
-- ✅ JSON message format
-- ✅ Language-agnostic (JavaScript, Python, Java, etc.)
-- ✅ Request/response pattern
-- ✅ Real-time pub/sub for status and events
-- ✅ Hardware-independent testing
+-  Simple WebSocket API
+-  JSON message format
+-  Language-agnostic (JavaScript, Python, Java, etc.)
+-  Request/response pattern
+-  Real-time pub/sub for status and events
+-  Hardware-independent testing
 
 ## Getting Help
 
@@ -228,4 +228,4 @@ This documentation is part of the Ham Radio Logbook project.
 
 ---
 
-**Happy logging and integrating! 73! 📻**
+**Happy logging and integrating! 73! **

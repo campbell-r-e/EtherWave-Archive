@@ -2,7 +2,7 @@
 
 The rig control service is now running and fully functional, even without a physical radio connected. Here's what you can test and what to expect:
 
-## ✅ What Works Without a Radio
+##  What Works Without a Radio
 
 1. **WebSocket Connections**
    - All three WebSocket endpoints accept connections
@@ -32,7 +32,7 @@ The rig control service is now running and fully functional, even without a phys
    - Smart caching (50ms/20ms TTL)
    - Connection pooling
 
-## ⚠️ What Requires rigctld
+##  What Requires rigctld
 
 Commands that interact with the radio will fail gracefully with error messages:
 - `setFrequency` - "Failed to set frequency"
@@ -67,9 +67,9 @@ Commands that interact with the radio will fail gracefully with error messages:
 4. In Tab 3 (MobileApp), click **"PTT ON"**
 
 **Expected Result:**
-- Tab 1: ✓ PTT granted (first client wins)
-- Tab 2: ✗ PTT denied - "PTT denied: held by Logbook"
-- Tab 3: ✗ PTT denied - "PTT denied: held by Logbook"
+- Tab 1:  PTT granted (first client wins)
+- Tab 2:  PTT denied - "PTT denied: held by Logbook"
+- Tab 3:  PTT denied - "PTT denied: held by Logbook"
 
 **Events Panel Shows:**
 ```
@@ -234,19 +234,19 @@ Look for:
 ## Summary
 
 **Without Hardware, You Can Test:**
-✅ Multi-client WebSocket connections
-✅ PTT locking and conflict resolution
-✅ Auto-release on disconnect
-✅ Event broadcasting
-✅ Command serialization
-✅ Request coalescing
-✅ Client isolation
-✅ Concurrent access safety
+ Multi-client WebSocket connections
+ PTT locking and conflict resolution
+ Auto-release on disconnect
+ Event broadcasting
+ Command serialization
+ Request coalescing
+ Client isolation
+ Concurrent access safety
 
 **Requires rigctld (real or mock):**
-❌ Actual frequency/mode changes
-❌ Physical PTT activation
-❌ Real-time S-meter readings
-❌ Hardware status queries
+ Actual frequency/mode changes
+ Physical PTT activation
+ Real-time S-meter readings
+ Hardware status queries
 
 The architecture and multi-client safety mechanisms work perfectly without hardware - you're testing the broker's core functionality!

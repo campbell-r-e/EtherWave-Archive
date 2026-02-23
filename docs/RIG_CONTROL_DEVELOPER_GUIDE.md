@@ -16,13 +16,13 @@ The **Rig Control Service** is a multi-client WebSocket broker that allows multi
 
 ### Key Features
 
-- ✅ **Multi-Client Support** - Multiple apps control the same rig safely
-- ✅ **Real-Time Updates** - Status broadcasts every 100ms
-- ✅ **PTT Locking** - First-come-first-served exclusive transmission control
-- ✅ **Command Serialization** - No race conditions or conflicts
-- ✅ **Event Broadcasting** - All clients notified of changes
-- ✅ **Request Coalescing** - Optimized duplicate request handling
-- ✅ **Smart Caching** - Reduced rigctld load, improved performance
+-  **Multi-Client Support** - Multiple apps control the same rig safely
+-  **Real-Time Updates** - Status broadcasts every 100ms
+-  **PTT Locking** - First-come-first-served exclusive transmission control
+-  **Command Serialization** - No race conditions or conflicts
+-  **Event Broadcasting** - All clients notified of changes
+-  **Request Coalescing** - Optimized duplicate request handling
+-  **Smart Caching** - Reduced rigctld load, improved performance
 
 ### Use Cases
 
@@ -323,7 +323,7 @@ All commands follow this JSON structure:
   - `true` - Activate PTT (transmit)
   - `false` - Release PTT (receive)
 
-⚠️ **Important:** PTT is **exclusive** - only one client can hold PTT at a time (first-come-first-served)
+ **Important:** PTT is **exclusive** - only one client can hold PTT at a time (first-come-first-served)
 
 ##### Get S-Meter Reading
 
@@ -1573,4 +1573,4 @@ See `/docs/examples/` directory for:
 | `ptt_denied` | PTT request denied (held by another) |
 | `error` | Error occurs |
 
-Happy coding! 73! 📻
+Happy coding! 73! 

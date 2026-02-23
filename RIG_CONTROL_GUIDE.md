@@ -215,7 +215,7 @@ The following radios have been tested with this system:
    ```
 
 7. **Open frontend**: http://localhost
-   - Look for "📡 Rig Status" panel
+   - Look for " Rig Status" panel
    - Should show your current frequency and mode!
 
 ---

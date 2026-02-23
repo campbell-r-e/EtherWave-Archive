@@ -1,6 +1,6 @@
 # EtherWave Archive - Interactive Mapping System Architecture
 
-## 📋 Document Information
+##  Document Information
 
 **Version:** 1.0.0
 **Last Updated:** December 8, 2025
@@ -9,7 +9,7 @@
 
 ---
 
-## 🎯 System Overview
+##  System Overview
 
 The Interactive Mapping System provides WaveLog-style map visualization with EtherWave Archive branding and professional signal-analysis aesthetic. The system includes:
 
@@ -26,7 +26,7 @@ The Interactive Mapping System provides WaveLog-style map visualization with Eth
 
 ---
 
-## 🏗️ Architecture Principles
+##  Architecture Principles
 
 ### Design Goals
 
@@ -56,7 +56,7 @@ The Interactive Mapping System provides WaveLog-style map visualization with Eth
 
 ---
 
-## 🗄️ Database Schema
+##  Database Schema
 
 ### New Tables
 
@@ -231,7 +231,7 @@ No changes needed - use existing gridsquare field.
 
 ---
 
-## 🔌 Backend API Endpoints
+##  Backend API Endpoints
 
 ### Map Data Endpoints
 
@@ -495,7 +495,7 @@ Set temporary session location (override for current session).
 
 ---
 
-## 🎨 Frontend Architecture
+##  Frontend Architecture
 
 ### Component Structure
 
@@ -678,7 +678,7 @@ export class MapThemeService {
 
 ---
 
-## 🎭 UI/UX Design
+##  UI/UX Design
 
 ### Desktop Layout
 
@@ -689,12 +689,12 @@ export class MapThemeService {
 │                                                               │
 │  ┌──────────────────────┬──────────────────────────────┐    │
 │  │ Map Filters          │ Map Layers                   │    │
-│  │ □ Band: [20M ▼]     │ ☑ Worked but not confirmed  │    │
-│  │ □ Mode: [SSB ▼]     │ ☑ LoTW confirmed            │    │
-│  │ □ Station: [1 ▼]    │ ☑ Manual QSOs               │    │
-│  │ □ DXCC: [K ▼]       │ ☑ DXCC shading              │    │
-│  │ □ Date Range        │ ☑ CQ Zones                  │    │
-│  │ [Clear Filters]     │ ☑ ITU Zones                 │    │
+│  │ □ Band: [20M ▼]     │  Worked but not confirmed  │    │
+│  │ □ Mode: [SSB ▼]     │  LoTW confirmed            │    │
+│  │ □ Station: [1 ▼]    │  Manual QSOs               │    │
+│  │ □ DXCC: [K ▼]       │  DXCC shading              │    │
+│  │ □ Date Range        │  CQ Zones                  │    │
+│  │ [Clear Filters]     │  ITU Zones                 │    │
 │  └──────────────────────┴──────────────────────────────┘    │
 │                                                               │
 │  ┌─────────────────────────────────────────────────────┐    │
@@ -706,7 +706,7 @@ export class MapThemeService {
 │  │   ● Station 1 (Blue)  ● Station 2 (Red)           │    │
 │  │   ● GOTA (Green)      ○ Unconfirmed               │    │
 │  │                                                      │    │
-│  │   [Zoom Controls] [Layers] [Export] [📍My QTH]    │    │
+│  │   [Zoom Controls] [Layers] [Export] [My QTH]    │    │
 │  └─────────────────────────────────────────────────────┘    │
 │                                                               │
 │  Stats: 245 QSOs | 87 Grids | 45 DXCC | Longest: 1234 km   │
@@ -718,13 +718,13 @@ export class MapThemeService {
 
 ```
 ┌──────────────────────┐
-│ [☰] EtherWave  [⚙️]  │
+│ [] EtherWave  []  │
 ├──────────────────────┤
 │                      │
 │   MAP VIEW           │
 │   (Simplified)       │
 │                      │
-│   [📍] [Filters]     │
+│   [] [Filters]     │
 │                      │
 ├──────────────────────┤
 │ ═══ Drag Handle ═══  │  ← Draggable
@@ -782,7 +782,7 @@ export class MapThemeService {
 
 ---
 
-## ⚡ Performance Optimizations
+##  Performance Optimizations
 
 ### Server-Side Clustering
 
@@ -889,7 +889,7 @@ ngOnInit() {
 
 ---
 
-## 🔐 Access Control
+##  Access Control
 
 ### Permission System
 
@@ -928,7 +928,7 @@ export class MapAccessControl {
 <!-- Dashboard widget -->
 <div class="card" *ngIf="canViewMap(currentLog)">
   <div class="card-header">
-    <h5>📍 QSO Map</h5>
+    <h5> QSO Map</h5>
   </div>
   <div class="card-body">
     <app-qso-map [logId]="currentLog.id" [compact]="true"></app-qso-map>
@@ -945,7 +945,7 @@ export class MapAccessControl {
 
 ---
 
-## 📡 Real-Time Updates
+##  Real-Time Updates
 
 ### WebSocket Integration
 
@@ -991,7 +991,7 @@ export class MapWebSocketService {
 
 ---
 
-## 🗺️ Contest Overlay System
+##  Contest Overlay System
 
 ### ARRL Field Day Sections
 
@@ -1018,7 +1018,7 @@ export class ARRLSectionOverlay {
 
       polygon.bindPopup(`
         <strong>${section.name} (${section.code})</strong><br>
-        ${workedSections.includes(section.code) ? '✓ Worked' : '✗ Needed'}
+        ${workedSections.includes(section.code) ? ' Worked' : ' Needed'}
       `);
 
       polygon.addTo(map);
@@ -1055,7 +1055,7 @@ export class CQZoneOverlay {
       polygon.bindPopup(`
         <strong>CQ Zone ${zone.zone}</strong><br>
         ${zone.name}<br>
-        ${isWorked ? '✓ Worked' : isMultiplier ? '★ Needed Multiplier' : '✗ Needed'}
+        ${isWorked ? ' Worked' : isMultiplier ? ' Needed Multiplier' : ' Needed'}
       `);
 
       polygon.addTo(map);
@@ -1066,7 +1066,7 @@ export class CQZoneOverlay {
 
 ---
 
-## 💾 Offline Support
+##  Offline Support
 
 ### Service Worker Strategy
 
@@ -1115,7 +1115,7 @@ self.addEventListener('fetch', (event) => {
 @Component({
   template: `
     <div class="offline-banner" *ngIf="isOffline">
-      ⚠️ Offline Mode - Using cached map data
+       Offline Mode - Using cached map data
     </div>
   `
 })
@@ -1131,51 +1131,51 @@ export class MapComponent {
 
 ---
 
-## 📊 Implementation Phases
+##  Implementation Phases
 
 ### Phase 1: Foundation (Week 1)
-- ✅ Database schema creation
-- ✅ Maidenhead grid converter service
-- ✅ Distance calculation service
-- ✅ DXCC prefix database loader
-- ✅ Basic map component with Leaflet
-- ✅ Theme integration (dark/light tiles)
+-  Database schema creation
+-  Maidenhead grid converter service
+-  Distance calculation service
+-  DXCC prefix database loader
+-  Basic map component with Leaflet
+-  Theme integration (dark/light tiles)
 
 ### Phase 2: Core Features (Week 2)
-- ✅ QSO marker rendering
-- ✅ Server-side clustering API
-- ✅ Grid square coverage map
-- ✅ Heatmap overlay
-- ✅ Basic filter panel
-- ✅ Real-time WebSocket updates
+-  QSO marker rendering
+-  Server-side clustering API
+-  Grid square coverage map
+-  Heatmap overlay
+-  Basic filter panel
+-  Real-time WebSocket updates
 
 ### Phase 3: Advanced Features (Week 3)
-- ✅ Pie chart cluster markers
-- ✅ Pulsar animations for recent QSOs
-- ✅ All 10 filter types
-- ✅ All 6 layer types
-- ✅ Access control implementation
-- ✅ Mobile bottom sheet UI
+-  Pie chart cluster markers
+-  Pulsar animations for recent QSOs
+-  All 10 filter types
+-  All 6 layer types
+-  Access control implementation
+-  Mobile bottom sheet UI
 
 ### Phase 4: Contest Integration (Week 4)
-- ✅ Contest type detection
-- ✅ ARRL section overlay
-- ✅ CQ zone overlay
-- ✅ ITU zone overlay
-- ✅ Real-time multiplier tracking
-- ✅ Contest-specific coloring
+-  Contest type detection
+-  ARRL section overlay
+-  CQ zone overlay
+-  ITU zone overlay
+-  Real-time multiplier tracking
+-  Contest-specific coloring
 
 ### Phase 5: Polish & Export (Week 5)
-- ✅ Export functionality (PNG, SVG, KML, GeoJSON, CSV/ADIF)
-- ✅ Offline support (Service Worker)
-- ✅ Performance optimizations
-- ✅ Mobile responsiveness
-- ✅ Documentation
-- ✅ Testing
+-  Export functionality (PNG, SVG, KML, GeoJSON, CSV/ADIF)
+-  Offline support (Service Worker)
+-  Performance optimizations
+-  Mobile responsiveness
+-  Documentation
+-  Testing
 
 ---
 
-## 🧪 Testing Strategy
+##  Testing Strategy
 
 ### Unit Tests
 - Maidenhead converter accuracy
@@ -1208,7 +1208,7 @@ export class MapComponent {
 
 ---
 
-## 📚 Dependencies
+##  Dependencies
 
 ### Backend
 ```xml
@@ -1236,29 +1236,29 @@ export class MapComponent {
 
 ---
 
-## 🎯 Success Metrics
+##  Success Metrics
 
 ### Performance
-- ✅ Map loads in < 2 seconds for 100k QSO database
-- ✅ WebSocket latency < 100ms
-- ✅ Clustering computation < 500ms
-- ✅ Smooth animations at 60 FPS
+-  Map loads in < 2 seconds for 100k QSO database
+-  WebSocket latency < 100ms
+-  Clustering computation < 500ms
+-  Smooth animations at 60 FPS
 
 ### User Experience
-- ✅ Mobile-first responsive design
-- ✅ WCAG AA accessibility compliance
-- ✅ Offline functionality
-- ✅ Real-time updates feel instantaneous
+-  Mobile-first responsive design
+-  WCAG AA accessibility compliance
+-  Offline functionality
+-  Real-time updates feel instantaneous
 
 ### Contest Operations
-- ✅ Multiplier tracking accuracy: 100%
-- ✅ Automatic overlay switching
-- ✅ Visual needed/worked indication
-- ✅ Quick identification of strategic targets
+-  Multiplier tracking accuracy: 100%
+-  Automatic overlay switching
+-  Visual needed/worked indication
+-  Quick identification of strategic targets
 
 ---
 
-## 📞 Support & Maintenance
+##  Support & Maintenance
 
 ### Monitoring
 - Map API response times
