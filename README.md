@@ -498,4 +498,4 @@ Licensed under the Permissive Public License version 1.11. See [License.md](Lice
 
 ---
 
-**EtherWave Archive - Built with ♥ for the Amateur Radio Community - 73!**
+**EtherWave Archive - Built for the Amateur Radio Community - 73!**
