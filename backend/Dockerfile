@@ -15,7 +15,7 @@ RUN MAVEN_OPTS="--sun-misc-unsafe-memory-access=allow" mvn clean package -DskipT
 FROM eclipse-temurin:25-jre-noble
 
 # Install gosu for privilege dropping in entrypoint
-RUN apt-get update && apt-get install -y --no-install-recommends gosu && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends gosu curl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
