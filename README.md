@@ -504,7 +504,7 @@ Contributions are welcome! Please:
 ## Support
 
 - **Issues**: https://github.com/campbell-r-e/Hamradiologbook/issues
-- **Email**: support@hamradio.local
+- **Email**: campbell@indianahamradio.com
 - **Documentation**: See `/docs` folder
 
 ## Acknowledgments
@@ -517,4 +517,4 @@ Contributions are welcome! Please:
 
 ---
 
-**EtherWave Archive - Built with  for the Amateur Radio Community in Indiana and beyond - 73!**
+**EtherWave Archive - Built with  for the Amateur Radio Community - 73!**
