@@ -499,7 +499,8 @@ Contributions are welcome! Please:
 
 ## License
 
-[Specify your license here]
+Licensed the Permissive Public license version 1.11. See license for terms. 
+
 
 ## Support
 
