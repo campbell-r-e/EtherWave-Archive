@@ -61,13 +61,11 @@ class InvitationServiceTest {
         inviter = new User();
         inviter.setId(1L);
         inviter.setUsername("inviter");
-        inviter.setEmail("inviter@example.com");
         inviter.setCallsign("W1INV");
 
         invitee = new User();
         invitee.setId(2L);
         invitee.setUsername("invitee");
-        invitee.setEmail("invitee@example.com");
         invitee.setCallsign("W2INV");
 
         testLog = new Log();

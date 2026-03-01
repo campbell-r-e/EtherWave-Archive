@@ -41,7 +41,6 @@ class UserServiceTest {
         testUser = new User();
         testUser.setId(1L);
         testUser.setUsername("testuser");
-        testUser.setEmail("test@example.com");
         testUser.setPassword("rawPassword");
         testUser.setCallsign("W1TEST");
         testUser.setFullName("Test User");
@@ -53,7 +52,6 @@ class UserServiceTest {
     @DisplayName("Should register user successfully")
     void shouldRegisterUser() {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.empty());
-        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
         when(passwordEncoder.encode("rawPassword")).thenReturn("encodedPassword");
         when(userRepository.save(any(User.class))).thenReturn(testUser);
 
@@ -79,31 +77,14 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Should fail to register user when email exists")
-    void shouldFailToRegisterWhenEmailExists() {
-        when(userRepository.findByUsername("testuser")).thenReturn(Optional.empty());
-        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
-
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> userService.registerUser(testUser)
-        );
-
-        assertEquals("Email already exists", exception.getMessage());
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
     @DisplayName("Should register user with default role when no roles provided")
     void shouldRegisterUserWithDefaultRole() {
         User userWithoutRoles = new User();
         userWithoutRoles.setUsername("newuser");
-        userWithoutRoles.setEmail("new@example.com");
         userWithoutRoles.setPassword("password");
         userWithoutRoles.setCallsign("W2NEW");
 
         when(userRepository.findByUsername("newuser")).thenReturn(Optional.empty());
-        when(userRepository.findByEmail("new@example.com")).thenReturn(Optional.empty());
         when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
         when(userRepository.save(any(User.class))).thenReturn(userWithoutRoles);
 
@@ -162,35 +143,11 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Should get user by email successfully")
-    void shouldGetUserByEmail() {
-        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
-
-        Optional<User> result = userService.getUserByEmail("test@example.com");
-
-        assertTrue(result.isPresent());
-        assertEquals("test@example.com", result.get().getEmail());
-        verify(userRepository).findByEmail("test@example.com");
-    }
-
-    @Test
-    @DisplayName("Should return empty when user not found by email")
-    void shouldReturnEmptyWhenUserNotFoundByEmail() {
-        when(userRepository.findByEmail("nonexistent@example.com")).thenReturn(Optional.empty());
-
-        Optional<User> result = userService.getUserByEmail("nonexistent@example.com");
-
-        assertFalse(result.isPresent());
-        verify(userRepository).findByEmail("nonexistent@example.com");
-    }
-
-    @Test
     @DisplayName("Should get all users")
     void shouldGetAllUsers() {
         User user2 = new User();
         user2.setId(2L);
         user2.setUsername("user2");
-        user2.setEmail("user2@example.com");
 
         List<User> users = Arrays.asList(testUser, user2);
         when(userRepository.findAll()).thenReturn(users);
@@ -206,14 +163,12 @@ class UserServiceTest {
     @DisplayName("Should update user successfully")
     void shouldUpdateUser() {
         User updates = new User();
-        updates.setEmail("newemail@example.com");
         updates.setFullName("Updated Name");
         updates.setCallsign("W2UPD");
         updates.setGridSquare("FN42aa");
         updates.setQrzApiKey("new-api-key");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
-        when(userRepository.findByEmail("newemail@example.com")).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenReturn(testUser);
 
         User result = userService.updateUser(1L, updates);
@@ -234,28 +189,6 @@ class UserServiceTest {
         );
 
         assertEquals("User not found", exception.getMessage());
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("Should fail to update user when email already in use")
-    void shouldFailToUpdateWhenEmailInUse() {
-        User otherUser = new User();
-        otherUser.setId(2L);
-        otherUser.setEmail("other@example.com");
-
-        User updates = new User();
-        updates.setEmail("other@example.com");
-
-        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
-        when(userRepository.findByEmail("other@example.com")).thenReturn(Optional.of(otherUser));
-
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> userService.updateUser(1L, updates)
-        );
-
-        assertEquals("Email already in use", exception.getMessage());
         verify(userRepository, never()).save(any());
     }
 

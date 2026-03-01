@@ -20,7 +20,6 @@ public class TestDataBuilder {
     public static User.UserBuilder basicUser() {
         return User.builder()
             .username("testuser")
-            .email("test@example.com")
             .password("$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG") // "password"
             .callsign("W1TEST")
             .fullName("Test User")
@@ -35,7 +34,6 @@ public class TestDataBuilder {
     public static User.UserBuilder adminUser() {
         return User.builder()
             .username("admin")
-            .email("admin@example.com")
             .password("$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG") // "password"
             .callsign("W1ADMIN")
             .fullName("Admin User")
@@ -308,7 +306,6 @@ public class TestDataBuilder {
     public static User createPersistedUser(String username, String callsign) {
         return User.builder()
             .username(username)
-            .email(username + "@example.com")
             .password("$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
             .callsign(callsign)
             .fullName(username + " Full Name")

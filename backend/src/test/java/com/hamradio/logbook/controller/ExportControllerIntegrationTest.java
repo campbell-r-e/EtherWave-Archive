@@ -70,7 +70,6 @@ class ExportControllerIntegrationTest {
         // Create user
         User user = new User();
         user.setUsername("exportuser");
-        user.setEmail("export@example.com");
         user.setCallsign("W1EXP");
         user.setPassword(passwordEncoder.encode("password123"));
         user.addRole(User.Role.ROLE_USER);
@@ -85,7 +84,7 @@ class ExportControllerIntegrationTest {
 
         // Get token
         LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUsernameOrEmail("exportuser");
+        loginRequest.setUsername("exportuser");
         loginRequest.setPassword("password123");
 
         String response = mockMvc.perform(post("/api/auth/login")

@@ -17,61 +17,33 @@
     }
 
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
-      <div class="row">
-        <!-- Username -->
-        <div class="col-md-6 mb-3">
-          <label for="username" class="form-label">Username <span class="text-danger" aria-label="required">*</span></label>
-          <input type="text"
-            id="username"
-            class="form-control"
-            formControlName="username"
-            [class.is-invalid]="submitted && f['username'].errors"
-            [attr.aria-invalid]="submitted && f['username'].errors ? 'true' : 'false'"
-            [attr.aria-describedby]="submitted && f['username'].errors ? 'username-error' : null"
-            placeholder="username"
-            required
-            aria-required="true"
-            autocomplete="username">
-          @if (submitted && f['username'].errors) {
-            <div id="username-error" class="invalid-feedback" role="alert" aria-live="polite">
-              @if (f['username'].errors['required']) {
-                <div>Username is required</div>
-              }
-              @if (f['username'].errors['minlength']) {
-                <div>Username must be at least 3 characters</div>
-              }
-              @if (f['username'].errors['pattern']) {
-                <div>Only letters, numbers, underscores, and hyphens allowed</div>
-              }
-            </div>
-          }
-        </div>
-
-        <!-- Email -->
-        <div class="col-md-6 mb-3">
-          <label for="email" class="form-label">Email <span class="text-danger" aria-label="required">*</span></label>
-          <input type="email"
-            id="email"
-            class="form-control"
-            formControlName="email"
-            [class.is-invalid]="submitted && f['email'].errors"
-            [attr.aria-invalid]="submitted && f['email'].errors ? 'true' : 'false'"
-            [attr.aria-describedby]="submitted && f['email'].errors ? 'email-error' : null"
-            placeholder="email@example.com"
-            required
-            aria-required="true"
-            autocomplete="email">
-          @if (submitted && f['email'].errors) {
-            <div id="email-error" class="invalid-feedback" role="alert" aria-live="polite">
-              @if (f['email'].errors['required']) {
-                <div>Email is required</div>
-              }
-              @if (f['email'].errors['email']) {
-                <div>Please enter a valid email</div>
-              }
-            </div>
-          }
-        </div>
+      <!-- Username -->
+      <div class="mb-3">
+        <label for="username" class="form-label">Username <span class="text-danger" aria-label="required">*</span></label>
+        <input type="text"
+          id="username"
+          class="form-control"
+          formControlName="username"
+          [class.is-invalid]="submitted && f['username'].errors"
+          [attr.aria-invalid]="submitted && f['username'].errors ? 'true' : 'false'"
+          [attr.aria-describedby]="submitted && f['username'].errors ? 'username-error' : null"
+          placeholder="username"
+          required
+          aria-required="true"
+          autocomplete="username">
+        @if (submitted && f['username'].errors) {
+          <div id="username-error" class="invalid-feedback" role="alert" aria-live="polite">
+            @if (f['username'].errors['required']) {
+              <div>Username is required</div>
+            }
+            @if (f['username'].errors['minlength']) {
+              <div>Username must be at least 3 characters</div>
+            }
+            @if (f['username'].errors['pattern']) {
+              <div>Only letters, numbers, underscores, and hyphens allowed</div>
+            }
+          </div>
+        }
       </div>
 
       <div class="row">

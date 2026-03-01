@@ -22,7 +22,6 @@ public class InvitationResponse {
     private String inviterUsername;
     private Long inviteeId;
     private String inviteeUsername;
-    private String inviteeEmail;
     private String inviteeCallsign;
     private LogParticipant.ParticipantRole proposedRole;
     private String stationCallsign;
@@ -41,7 +40,6 @@ public class InvitationResponse {
                 .inviterUsername(invitation.getInviter().getUsername())
                 .inviteeId(invitation.getInvitee().getId())
                 .inviteeUsername(invitation.getInvitee().getUsername())
-                .inviteeEmail(invitation.getInvitee().getEmail())
                 .inviteeCallsign(invitation.getInvitee().getCallsign())
                 .proposedRole(invitation.getProposedRole())
                 .stationCallsign(invitation.getStationCallsign())

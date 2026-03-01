@@ -16,7 +16,6 @@ public class UserPrincipal implements UserDetails {
 
     private Long id;
     private String username;
-    private String email;
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
     private boolean enabled;
@@ -32,7 +31,6 @@ public class UserPrincipal implements UserDetails {
         return new UserPrincipal(
                 user.getId(),
                 user.getUsername(),
-                user.getEmail(),
                 user.getPassword(),
                 authorities,
                 user.getEnabled(),

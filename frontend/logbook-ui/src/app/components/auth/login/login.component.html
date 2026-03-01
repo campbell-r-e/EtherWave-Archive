@@ -39,30 +39,30 @@
 
     <!-- Login Form -->
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="ew-login-form" novalidate>
-      <!-- Username or Email -->
+      <!-- Username -->
       <div class="ew-form-group mb-3">
-        <label for="usernameOrEmail" class="ew-form-label">
+        <label for="username" class="ew-form-label">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
             <circle cx="12" cy="7" r="4"/>
           </svg>
-          Username or Email
+          Username
         </label>
         <input type="text"
-          id="usernameOrEmail"
+          id="username"
           class="ew-form-control"
-          formControlName="usernameOrEmail"
-          [class.ew-invalid]="submitted && f['usernameOrEmail'].errors"
-          [attr.aria-invalid]="submitted && f['usernameOrEmail'].errors ? 'true' : 'false'"
-          [attr.aria-describedby]="submitted && f['usernameOrEmail'].errors ? 'usernameOrEmail-error' : null"
-          placeholder="Enter your username or email"
+          formControlName="username"
+          [class.ew-invalid]="submitted && f['username'].errors"
+          [attr.aria-invalid]="submitted && f['username'].errors ? 'true' : 'false'"
+          [attr.aria-describedby]="submitted && f['username'].errors ? 'username-error' : null"
+          placeholder="Enter your username"
           autocomplete="username"
           required
           aria-required="true">
-        @if (submitted && f['usernameOrEmail'].errors) {
-          <div id="usernameOrEmail-error" class="ew-error-message" role="alert" aria-live="polite">
-            @if (f['usernameOrEmail'].errors['required']) {
-              <div>Username or email is required</div>
+        @if (submitted && f['username'].errors) {
+          <div id="username-error" class="ew-error-message" role="alert" aria-live="polite">
+            @if (f['username'].errors['required']) {
+              <div>Username is required</div>
             }
           </div>
         }

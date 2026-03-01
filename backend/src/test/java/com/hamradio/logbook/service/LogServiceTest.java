@@ -56,7 +56,6 @@ class LogServiceTest {
         testUser = new User();
         testUser.setId(1L);
         testUser.setUsername("testuser");
-        testUser.setEmail("test@example.com");
         testUser.setCallsign("W1TEST");
 
         testLog = new Log();

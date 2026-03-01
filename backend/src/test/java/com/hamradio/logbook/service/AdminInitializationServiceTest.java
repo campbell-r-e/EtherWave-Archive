@@ -35,7 +35,6 @@ class AdminInitializationServiceTest {
     void setUp() {
         ReflectionTestUtils.setField(adminInitializationService, "adminUsername", "admin");
         ReflectionTestUtils.setField(adminInitializationService, "adminPassword", "admin123");
-        ReflectionTestUtils.setField(adminInitializationService, "adminEmail", "admin@hamradio.local");
     }
 
     @Test
@@ -52,7 +51,6 @@ class AdminInitializationServiceTest {
 
         User savedUser = userCaptor.getValue();
         assertEquals("admin", savedUser.getUsername());
-        assertEquals("admin@hamradio.local", savedUser.getEmail());
         assertEquals("encodedPassword", savedUser.getPassword());
         assertEquals("System Administrator", savedUser.getFullName());
         assertTrue(savedUser.getEnabled());
@@ -175,24 +173,6 @@ class AdminInitializationServiceTest {
     }
 
     @Test
-    @DisplayName("Should use configured email address")
-    void shouldUseConfiguredEmailAddress() {
-        ReflectionTestUtils.setField(adminInitializationService, "adminEmail", "custom@example.com");
-
-        when(userRepository.existsByUsername("admin")).thenReturn(false);
-        when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        adminInitializationService.run();
-
-        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-        verify(userRepository).save(userCaptor.capture());
-
-        User savedUser = userCaptor.getValue();
-        assertEquals("custom@example.com", savedUser.getEmail());
-    }
-
-    @Test
     @DisplayName("Should set full name to System Administrator")
     void shouldSetFullNameToSystemAdministrator() {
         when(userRepository.existsByUsername("admin")).thenReturn(false);
@@ -240,20 +220,4 @@ class AdminInitializationServiceTest {
         assertEquals("superadmin", savedUser.getUsername());
     }
 
-    @Test
-    @DisplayName("Should use default email if not configured")
-    void shouldUseDefaultEmail() {
-        // Default email is set in @BeforeEach
-        when(userRepository.existsByUsername("admin")).thenReturn(false);
-        when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        adminInitializationService.run();
-
-        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-        verify(userRepository).save(userCaptor.capture());
-
-        User savedUser = userCaptor.getValue();
-        assertEquals("admin@hamradio.local", savedUser.getEmail());
-    }
 }

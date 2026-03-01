@@ -28,9 +28,6 @@ public class UserService {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
             throw new IllegalArgumentException("Username already exists");
         }
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("Email already exists");
-        }
 
         // Encrypt password
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -51,10 +48,6 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public Optional<User> getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
-
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
@@ -62,13 +55,6 @@ public class UserService {
     public User updateUser(Long id, User userUpdates) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        if (userUpdates.getEmail() != null && !userUpdates.getEmail().equals(user.getEmail())) {
-            if (userRepository.findByEmail(userUpdates.getEmail()).isPresent()) {
-                throw new IllegalArgumentException("Email already in use");
-            }
-            user.setEmail(userUpdates.getEmail());
-        }
 
         if (userUpdates.getFullName() != null) {
             user.setFullName(userUpdates.getFullName());

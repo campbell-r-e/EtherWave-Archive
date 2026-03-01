@@ -76,7 +76,6 @@ class QSOControllerIntegrationTest {
         // Create test user
         testUser = new User();
         testUser.setUsername("qsotest");
-        testUser.setEmail("qsotest@example.com");
         testUser.setCallsign("W1TEST");
         testUser.setPassword(passwordEncoder.encode("password123"));
         testUser.addRole(User.Role.ROLE_USER);
@@ -105,7 +104,7 @@ class QSOControllerIntegrationTest {
 
         // Get auth token
         LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUsernameOrEmail("qsotest");
+        loginRequest.setUsername("qsotest");
         loginRequest.setPassword("password123");
 
         String response = mockMvc.perform(post("/api/auth/login")

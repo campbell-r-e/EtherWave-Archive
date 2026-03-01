@@ -15,7 +15,6 @@ import java.util.Set;
 @Entity
 @Table(name = "users", indexes = {
     @Index(name = "idx_username", columnList = "username", unique = true),
-    @Index(name = "idx_email", columnList = "email", unique = true),
     @Index(name = "idx_callsign", columnList = "callsign")
 })
 @Data
@@ -30,9 +29,6 @@ public class User {
 
     @Column(nullable = false, unique = true, length = 50)
     private String username;
-
-    @Column(nullable = false, unique = true, length = 100)
-    private String email;
 
     @Column(nullable = false)
     private String password; // BCrypt encrypted

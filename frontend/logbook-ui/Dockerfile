@@ -1,18 +1,20 @@
 # Multi-stage build for Angular frontend
-FROM node:24-alpine AS build
+FROM node:22-alpine AS build
+
+RUN npm install -g npm@latest
 
 WORKDIR /app
 
 # Copy package files and install dependencies
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --prefer-offline
 
 # Copy source and build for production
 COPY . .
 RUN npm run build
 
 # Runtime stage with nginx
-FROM nginx:alpine
+FROM nginx:stable-alpine
 
 # Copy built app to nginx
 COPY --from=build /app/dist/logbook-ui/browser /usr/share/nginx/html

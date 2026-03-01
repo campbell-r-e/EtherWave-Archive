@@ -38,7 +38,7 @@ public class AuthService {
         // Authenticate user
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUsernameOrEmail(),
+                        loginRequest.getUsername(),
                         loginRequest.getPassword()
                 )
         );
@@ -61,7 +61,6 @@ public class AuthService {
                 jwt,
                 user.getId(),
                 user.getUsername(),
-                user.getEmail(),
                 user.getCallsign(),
                 user.getFullName(),
                 user.getRoles()
@@ -78,11 +77,6 @@ public class AuthService {
             throw new RuntimeException("Username is already taken");
         }
 
-        // Check if email already exists
-        if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            throw new RuntimeException("Email is already in use");
-        }
-
         // Check if callsign already exists (if provided)
         if (registerRequest.getCallsign() != null &&
                 !registerRequest.getCallsign().isEmpty() &&
@@ -93,7 +87,6 @@ public class AuthService {
         // Create new user
         User user = new User();
         user.setUsername(registerRequest.getUsername());
-        user.setEmail(registerRequest.getEmail());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         user.setFullName(registerRequest.getFullName());
         user.setCallsign(registerRequest.getCallsign() != null ?
@@ -132,7 +125,6 @@ public class AuthService {
                 jwt,
                 savedUser.getId(),
                 savedUser.getUsername(),
-                savedUser.getEmail(),
                 savedUser.getCallsign(),
                 savedUser.getFullName(),
                 savedUser.getRoles()

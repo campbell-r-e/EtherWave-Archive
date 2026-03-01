@@ -1,7 +1,6 @@
 export interface User {
   id: number;
   username: string;
-  email: string;
   callsign?: string;
   fullName?: string;
   gridSquare?: string;
@@ -19,13 +18,12 @@ export enum UserRole {
 }
 
 export interface LoginRequest {
-  usernameOrEmail: string;
+  username: string;
   password: string;
 }
 
 export interface RegisterRequest {
   username: string;
-  email: string;
   password: string;
   fullName?: string;
   callsign?: string;
@@ -38,7 +36,6 @@ export interface AuthResponse {
   type: string;
   userId: number;
   username: string;
-  email: string;
   callsign?: string;
   fullName?: string;
   roles: UserRole[];

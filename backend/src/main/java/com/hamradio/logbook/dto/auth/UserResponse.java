@@ -17,7 +17,6 @@ public class UserResponse {
 
     private Long id;
     private String username;
-    private String email;
     private String callsign;
     private String fullName;
     private String gridSquare;
@@ -30,7 +29,6 @@ public class UserResponse {
         return UserResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
-                .email(user.getEmail())
                 .callsign(user.getCallsign())
                 .fullName(user.getFullName())
                 .gridSquare(user.getGridSquare())

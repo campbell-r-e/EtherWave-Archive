@@ -35,7 +35,6 @@ export class RegisterComponent implements OnInit {
         Validators.maxLength(50),
         Validators.pattern(/^[a-zA-Z0-9_-]+$/)
       ]],
-      email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', Validators.required],
       fullName: [''],
@@ -84,7 +83,6 @@ export class RegisterComponent implements OnInit {
     // Prepare registration data
     const registerData = {
       username: this.registerForm.value.username,
-      email: this.registerForm.value.email,
       password: this.registerForm.value.password,
       fullName: this.registerForm.value.fullName || undefined,
       callsign: this.registerForm.value.callsign?.toUpperCase() || undefined,

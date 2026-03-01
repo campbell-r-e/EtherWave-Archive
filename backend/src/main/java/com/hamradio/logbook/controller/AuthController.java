@@ -33,7 +33,7 @@ public class AuthController {
             AuthResponse authResponse = authService.login(loginRequest);
             return ResponseEntity.ok(authResponse);
         } catch (Exception e) {
-            log.error("Login failed for user: {}", loginRequest.getUsernameOrEmail(), e);
+            log.error("Login failed for user: {}", loginRequest.getUsername(), e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(null);
         }

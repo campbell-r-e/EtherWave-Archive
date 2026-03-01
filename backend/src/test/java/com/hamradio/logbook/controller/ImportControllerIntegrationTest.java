@@ -63,7 +63,6 @@ class ImportControllerIntegrationTest {
         // Create user
         User user = new User();
         user.setUsername("importuser");
-        user.setEmail("import@example.com");
         user.setCallsign("W1IMP");
         user.setPassword(passwordEncoder.encode("password123"));
         user.addRole(User.Role.ROLE_USER);

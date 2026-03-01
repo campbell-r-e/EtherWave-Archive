@@ -18,17 +18,15 @@ public class AuthResponse {
     private String type = "Bearer";
     private Long userId;
     private String username;
-    private String email;
     private String callsign;
     private String fullName;
     private Set<User.Role> roles;
 
-    public AuthResponse(String token, Long userId, String username, String email,
+    public AuthResponse(String token, Long userId, String username,
                         String callsign, String fullName, Set<User.Role> roles) {
         this.token = token;
         this.userId = userId;
         this.username = username;
-        this.email = email;
         this.callsign = callsign;
         this.fullName = fullName;
         this.roles = roles;

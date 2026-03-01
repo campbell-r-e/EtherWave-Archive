@@ -66,7 +66,6 @@ class LogControllerIntegrationTest {
         // Create test user
         testUser = new User();
         testUser.setUsername("logtest");
-        testUser.setEmail("logtest@example.com");
         testUser.setCallsign("W1LOG");
         testUser.setPassword(passwordEncoder.encode("password123"));
         testUser.addRole(User.Role.ROLE_USER);
@@ -75,7 +74,6 @@ class LogControllerIntegrationTest {
         // Create second test user for multi-user tests
         secondUser = new User();
         secondUser.setUsername("logtest2");
-        secondUser.setEmail("logtest2@example.com");
         secondUser.setCallsign("W2LOG");
         secondUser.setPassword(passwordEncoder.encode("password123"));
         secondUser.addRole(User.Role.ROLE_USER);
@@ -83,7 +81,7 @@ class LogControllerIntegrationTest {
 
         // Get auth tokens
         LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUsernameOrEmail("logtest");
+        loginRequest.setUsername("logtest");
         loginRequest.setPassword("password123");
 
         String response = mockMvc.perform(post("/api/auth/login")
@@ -96,7 +94,7 @@ class LogControllerIntegrationTest {
         authToken = objectMapper.readTree(response).get("token").asText();
 
         // Get second user token
-        loginRequest.setUsernameOrEmail("logtest2");
+        loginRequest.setUsername("logtest2");
         response = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))

@@ -7,16 +7,25 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-hamradio_logbook}
       POSTGRES_USER: ${POSTGRES_USER:-hamradio}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
+      # Tune postgres for small-to-medium workloads
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hamradio}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hamradio} -d ${POSTGRES_DB:-hamradio_logbook}"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 20s
     networks:
       - hamradio-network
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
 
   # Backend API
   backend:
@@ -25,14 +34,17 @@ services:
       dockerfile: Dockerfile
     container_name: hamradio-backend
     ports:
-      - "8080:8080"
+      - "${BACKEND_PORT:-8080}:8080"
     environment:
       # Database
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-hamradio_logbook}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-hamradio}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
+      SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT: 30000
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: 10
       SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
-      SPRING_JPA_HIBERNATE_DDL_AUTO: ${DDL_AUTO:-validate}
+      # update: lets Hibernate evolve the schema without dropping data
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${DDL_AUTO:-update}
 
       # Disable dev-only settings
       SPRING_JPA_SHOW_SQL: "false"
@@ -46,11 +58,13 @@ services:
       # Admin user (auto-created on first startup if set)
       ADMIN_USERNAME: ${ADMIN_USERNAME:-}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
-      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
 
       # QRZ API (optional)
       QRZ_USERNAME: ${QRZ_USERNAME:-}
       QRZ_PASSWORD: ${QRZ_PASSWORD:-}
+
+      # Spring Boot actuator
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: never
     depends_on:
       postgres:
         condition: service_healthy
@@ -60,11 +74,17 @@ services:
       - hamradio-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:8080/actuator/health || exit 1"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 30s
+      retries: 5
+      start_period: 90s
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+        reservations:
+          memory: 256M
 
   # Frontend (Angular + Nginx)
   frontend:
@@ -73,13 +93,19 @@ services:
       dockerfile: Dockerfile
     container_name: hamradio-frontend
     ports:
-      - "80:80"
+      - "${FRONTEND_PORT:-80}:80"
     depends_on:
       backend:
         condition: service_healthy
     networks:
       - hamradio-network
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 32M
 
   # Rig Control Service (optional - for testing)
   # Uncomment and configure for your rig
@@ -101,13 +127,10 @@ services:
   #   # Find device: ls -l /dev/tty* | grep USB
   #   devices:
   #     - "/dev/ttyUSB0:/dev/ttyUSB0"
-  #   # Privileged mode for serial access (alternatively use device group)
-  #   # privileged: true
   #   depends_on:
   #     - backend
   #   networks:
   #     - hamradio-network
-  #   # Start rigctld alongside the service
   #   command: >
   #     sh -c "
   #       rigctld -m 1035 -r /dev/ttyUSB0 -s 38400 -t 4532 &

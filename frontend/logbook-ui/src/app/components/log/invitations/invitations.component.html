@@ -321,14 +321,14 @@
                                     class="form-control"
                                     id="inviteeUsername"
                                     formControlName="inviteeUsername"
-                                    placeholder="Enter username, email, or callsign"
+                                    placeholder="Enter username or callsign"
                                     required
                                     aria-required="true"
                                     [attr.aria-invalid]="createInvitationForm.get('inviteeUsername')?.invalid && createInvitationForm.get('inviteeUsername')?.touched ? 'true' : 'false'"
                                     [attr.aria-describedby]="createInvitationForm.get('inviteeUsername')?.invalid && createInvitationForm.get('inviteeUsername')?.touched ? 'inviteeUsername-error' : null"
                                     [class.is-invalid]="createInvitationForm.get('inviteeUsername')?.invalid && createInvitationForm.get('inviteeUsername')?.touched">
                                   <div id="inviteeUsername-error" class="invalid-feedback">
-                                    Username, email, or callsign is required
+                                    Username or callsign is required
                                   </div>
                                 </div>
 

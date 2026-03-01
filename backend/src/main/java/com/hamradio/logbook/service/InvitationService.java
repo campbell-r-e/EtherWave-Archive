@@ -262,15 +262,14 @@ public class InvitationService {
     }
 
     /**
-     * Find user by username, email, or callsign
+     * Find user by username or callsign
      */
     private User findUserByIdentifier(String identifier) {
-        // Try username first
+        // Try username first, then callsign
         return userRepository.findByUsername(identifier)
-                .or(() -> userRepository.findByEmail(identifier))
                 .or(() -> userRepository.findByCallsign(identifier))
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "User not found with username, email, or callsign: " + identifier));
+                        "User not found with username or callsign: " + identifier));
     }
 
     /**

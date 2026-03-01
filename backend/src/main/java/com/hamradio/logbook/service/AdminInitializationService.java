@@ -26,9 +26,6 @@ public class AdminInitializationService implements CommandLineRunner {
     @Value("${app.admin.password:}")
     private String adminPassword;
 
-    @Value("${app.admin.email:admin@hamradio.local}")
-    private String adminEmail;
-
     @Override
     public void run(String... args) {
         // Only create admin if username and password are provided
@@ -47,7 +44,6 @@ public class AdminInitializationService implements CommandLineRunner {
         // Create admin user
         User adminUser = new User();
         adminUser.setUsername(adminUsername);
-        adminUser.setEmail(adminEmail);
         adminUser.setPassword(passwordEncoder.encode(adminPassword));
         adminUser.setFullName("System Administrator");
         adminUser.setEnabled(true);
@@ -67,7 +63,6 @@ public class AdminInitializationService implements CommandLineRunner {
         log.info("╔══════════════════════════════════════════════════════════╗");
         log.info("║  ADMIN USER CREATED SUCCESSFULLY                         ║");
         log.info("║  Username: {}                                   ║", String.format("%-44s", adminUsername));
-        log.info("║  Email: {}                          ║", String.format("%-47s", adminEmail));
         log.info("║  Roles: ROLE_ADMIN, ROLE_USER                            ║");
         log.info("╚══════════════════════════════════════════════════════════╝");
     }

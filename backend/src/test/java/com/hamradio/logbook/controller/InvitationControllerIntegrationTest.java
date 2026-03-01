@@ -69,7 +69,6 @@ class InvitationControllerIntegrationTest {
         // Create users
         testUser = new User();
         testUser.setUsername("inviter");
-        testUser.setEmail("inviter@example.com");
         testUser.setCallsign("W1INV");
         testUser.setPassword(passwordEncoder.encode("password123"));
         testUser.addRole(User.Role.ROLE_USER);
@@ -77,7 +76,6 @@ class InvitationControllerIntegrationTest {
 
         inviteeUser = new User();
         inviteeUser.setUsername("invitee");
-        inviteeUser.setEmail("invitee@example.com");
         inviteeUser.setCallsign("W2INV");
         inviteeUser.setPassword(passwordEncoder.encode("password123"));
         inviteeUser.addRole(User.Role.ROLE_USER);
@@ -85,7 +83,7 @@ class InvitationControllerIntegrationTest {
 
         // Get tokens
         LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUsernameOrEmail("inviter");
+        loginRequest.setUsername("inviter");
         loginRequest.setPassword("password123");
 
         String response = mockMvc.perform(post("/api/auth/login")
@@ -97,7 +95,7 @@ class InvitationControllerIntegrationTest {
 
         authToken = objectMapper.readTree(response).get("token").asText();
 
-        loginRequest.setUsernameOrEmail("invitee");
+        loginRequest.setUsername("invitee");
         response = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
