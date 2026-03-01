@@ -9,7 +9,7 @@ RUN mvn dependency:go-offline -q
 
 # Copy source and build
 COPY src ./src
-RUN mvn clean package -DskipTests -q
+RUN MAVEN_OPTS="--sun-misc-unsafe-memory-access=allow" mvn clean package -DskipTests -q
 
 # Runtime stage
 FROM eclipse-temurin:25-jre-noble
