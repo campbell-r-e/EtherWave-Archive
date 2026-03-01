@@ -2,7 +2,7 @@
 
 ## Quick Summary
 
-Runs three containers via Docker Compose:
+Runs two containers via Docker Compose:
 
 - Frontend (Angular + Nginx) on http://localhost (port 80)
 - Backend API (Spring Boot) on http://localhost:8080
@@ -14,8 +14,8 @@ All containers restart automatically unless manually stopped.
 
 ## Prerequisites
 
-- Docker Engine 20.10+
-- Docker Compose (v1 or v2)
+- Docker Engine 24+
+- Docker Compose v2 plugin (`docker compose` — note: no hyphen)
 
 ---
 
@@ -23,8 +23,8 @@ All containers restart automatically unless manually stopped.
 
 **1. Clone the repository**
 ```bash
-git clone https://github.com/campbell-r-e/Hamradiologbook.git
-cd Hamradiologbook
+git clone https://github.com/campbell-r-e/EtherWave-Archive.git
+cd EtherWave-Archive
 ```
 
 **2. Create your `.env` file**
@@ -38,18 +38,17 @@ POSTGRES_PASSWORD=<strong-password>
 JWT_SECRET=<output-of: openssl rand -base64 64>
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=<strong-password>
-ADMIN_EMAIL=admin@hamradio.local
-DDL_AUTO=update        # Use "update" for first deploy, then switch to "validate"
+DDL_AUTO=update
 ```
 
 **3. Start services**
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 **4. Check status**
 ```bash
-docker-compose ps
+docker compose ps
 # All services should show "Up" or "Up (healthy)"
 ```
 
@@ -84,29 +83,41 @@ Replace `<host-ip>` with the IP address of the machine running Docker. No additi
 
 ---
 
+## Field Deployment (SQLite / Offline)
+
+For portable operations, Field Day, or environments without PostgreSQL:
+
+```bash
+docker compose -f docker-compose.field.yml up -d
+```
+
+The SQLite database file is stored at `./data/logbook.db` on the host — easy to back up or transfer.
+
+---
+
 ## Quick Commands
 
 ```bash
 # Start services
-docker-compose up -d
+docker compose up -d
 
 # Stop services
-docker-compose down
+docker compose down
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # View specific service logs
-docker-compose logs -f backend
+docker compose logs -f backend
 
 # Rebuild after code changes
-docker-compose build && docker-compose up -d
+docker compose build && docker compose up -d
 
 # Remove containers and database volume (destructive)
-docker-compose down -v
+docker compose down -v
 
 # Check status
-docker-compose ps
+docker compose ps
 ```
 
 ---
@@ -129,17 +140,18 @@ docker exec -it hamradio-postgres psql -U hamradio hamradio_logbook
 
 ## DDL Auto Setting
 
-On first deployment, use `DDL_AUTO=update` in `.env` to let Hibernate create the schema automatically.
+`DDL_AUTO=update` (the default) lets Hibernate manage the schema automatically — it creates or evolves tables as needed without data loss. This is safe for both fresh installs and upgrades.
 
-After the schema is created, change it to `DDL_AUTO=validate` to prevent accidental schema modifications:
+Only switch to `DDL_AUTO=validate` if you want strict enforcement that the schema exactly matches the entities (useful in locked-down production environments where you manage schema migrations manually).
 
-```bash
-# Edit .env
-DDL_AUTO=validate
+---
 
-# Restart backend to apply
-docker-compose restart backend
-```
+## Container Security
+
+The backend runs as a non-root user (`appuser`) inside the container. The `docker-entrypoint.sh` script handles privilege dropping automatically:
+
+- **Production (named volumes)**: container starts directly as `appuser`
+- **Field (bind-mounted `./data`)**: container starts as root, fixes directory ownership, then drops to `appuser` before the JVM starts
 
 ---
 
@@ -165,3 +177,9 @@ docker-compose restart backend
 | Data persistence | Local file | Docker volume |
 | Multi-user | Limited | Full support |
 | Auto-restart | No | Yes (unless-stopped) |
+
+---
+
+## License
+
+Licensed under the Permissive Public License version 1.11. See [License.md](License.md) for full terms.
