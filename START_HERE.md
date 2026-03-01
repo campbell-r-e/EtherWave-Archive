@@ -13,12 +13,12 @@ All initial configuration files have been created. Your EtherWave Archive is rea
 **Production Mode (PostgreSQL):**
 ```bash
 cp .env.example .env   # Edit .env to set passwords and JWT_SECRET
-docker-compose up -d
+docker compose up -d
 ```
 
 **Field Mode (SQLite - for portable/offline):**
 ```bash
-docker-compose -f docker-compose.field.yml up -d
+docker compose -f docker-compose.field.yml up -d
 ```
 
 **Access:** http://localhost
@@ -79,7 +79,7 @@ Key settings to configure:
 
 **Switch to field/portable mode (SQLite):**
 ```bash
-docker-compose -f docker-compose.field.yml up -d
+docker compose -f docker-compose.field.yml up -d
 ```
 
 ### 2. Admin Credentials
@@ -90,7 +90,7 @@ Edit `backend/.env`:
 ```env
 ADMIN_USERNAME=your_username
 ADMIN_PASSWORD=YourSecurePassword123!
-ADMIN_EMAIL=your@email.com
+# ADMIN_EMAIL removed — email not required
 ```
 
 ### 3. QRZ API (Optional but Recommended)
@@ -109,22 +109,22 @@ Get credentials at: https://www.qrz.com/
 
 **Start everything (Docker):**
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 **Check status:**
 ```bash
-docker-compose ps
+docker compose ps
 ```
 
 **View logs:**
 ```bash
-docker-compose logs -f backend
+docker compose logs -f backend
 ```
 
 **Stop everything:**
 ```bash
-docker-compose down
+docker compose down
 ```
 
 **Backend health check:**
@@ -218,12 +218,12 @@ echo 'export JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-25.jdk/Contents
 
 ```bash
 # Rebuild containers
-docker-compose down
-docker-compose build
-docker-compose up -d
+docker compose down
+docker compose build
+docker compose up -d
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 ```
 
 ### Port Already in Use

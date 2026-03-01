@@ -332,7 +332,7 @@ curl -X POST http://localhost:8080/api/auth/register \
 
 **View logs:**
 ```bash
-docker-compose logs -f backend
+docker compose logs -f backend
 ```
 
 ---

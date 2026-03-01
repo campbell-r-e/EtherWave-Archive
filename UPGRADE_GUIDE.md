@@ -1,6 +1,6 @@
-# Upgrade Guide - Java 25 & Spring Boot 4.0.0
+# Upgrade Guide - Java 25 & Spring Boot 4.0.3
 
-This guide helps you upgrade from previous versions to the latest release with Java 25 and Spring Boot 4.0.0.
+This guide helps you upgrade from previous versions to the latest release with Java 25 and Spring Boot 4.0.3.
 
 ## Table of Contents
 
@@ -118,29 +118,29 @@ Java 25 requires explicit annotation processor configuration.
 
 2. **Rebuild Docker images**:
    ```bash
-   docker-compose build --no-cache
+   docker compose build --no-cache
    ```
 
 3. **Stop current services**:
    ```bash
-   docker-compose down
+   docker compose down
    ```
 
 4. **Start updated services**:
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
 5. **Verify deployment**:
    ```bash
    # Check all services are running
-   docker-compose ps
+   docker compose ps
 
    # Check backend health
    curl http://localhost:8080/actuator/health
 
    # Check backend version
-   docker-compose logs backend | grep "Spring Boot"
+   docker compose logs backend | grep "Spring Boot"
    # Should show: Spring Boot ::  (v4.0.0)
    ```
 
@@ -171,7 +171,7 @@ wget https://github.com/adoptium/temurin25-binaries/releases/download/.../OpenJD
 sudo tar xzf OpenJDK25U-jdk_x64_linux_hotspot_25.0.1_9.tar.gz -C /opt
 
 # Set JAVA_HOME (add to ~/.bashrc)
-export JAVA_HOME=/opt/jdk-25.0.1+9
+export JAVA_HOME=/opt/jdk-25
 export PATH=$JAVA_HOME/bin:$PATH
 
 # Verify
@@ -183,7 +183,7 @@ java -version
 2. Run installer and follow prompts
 3. Set JAVA_HOME in System Environment Variables:
    - Variable: `JAVA_HOME`
-   - Value: `C:\Program Files\Eclipse Adoptium\jdk-25.0.1.9-hotspot`
+   - Value: `C:\Program Files\Eclipse Adoptium\jdk-25`
 4. Add to PATH: `%JAVA_HOME%\bin`
 
 #### Step 2: Update Project
@@ -324,16 +324,16 @@ docker exec hamradio-postgres pg_dump -U postgres logbook > backup-$(date +%Y%m%
 git pull origin main
 
 # 3. Update Docker images
-docker-compose build --no-cache
+docker compose build --no-cache
 
 # 4. Stop services
-docker-compose down
+docker compose down
 
 # 5. Start updated services
-docker-compose up -d
+docker compose up -d
 
 # 6. Monitor startup
-docker-compose logs -f backend
+docker compose logs -f backend
 
 # 7. Verify health
 curl http://localhost:8080/actuator/health
@@ -434,7 +434,7 @@ mvn dependency:tree | grep lombok
 docker system prune -a
 
 # Rebuild from scratch
-docker-compose build --no-cache --pull
+docker compose build --no-cache --pull
 ```
 
 #### 5. Spring Security Errors
@@ -460,7 +460,7 @@ logging.level.org.hibernate=INFO
 
 ### Getting Help
 
-- Check logs: `docker-compose logs -f backend`
+- Check logs: `docker compose logs -f backend`
 - Health endpoint: `http://localhost:8080/actuator/health`
 - Metrics: `http://localhost:8080/actuator/metrics`
 - GitHub Issues: [Report a bug](https://github.com/campbell-r-e/Hamradiologbook/issues)
@@ -473,19 +473,19 @@ If you need to rollback to the previous version:
 
 ```bash
 # Stop current services
-docker-compose down
+docker compose down
 
 # Checkout previous version
 git checkout <previous-tag-or-commit>
 
 # Rebuild with old version
-docker-compose build
+docker compose build
 
 # Restore database if needed
 docker exec -i hamradio-postgres psql -U postgres logbook < backup-YYYYMMDD.sql
 
 # Start services
-docker-compose up -d
+docker compose up -d
 ```
 
 ### Local Development Rollback

@@ -23,12 +23,12 @@ Complete setup instructions for the professional ham radio logging system with d
 - **Java Development Kit (JDK) 25** - Latest version
   - Download: https://adoptium.net/ (Eclipse Temurin 25)
   - Verify: `java -version` should show version 25.0.1 or higher
-  - **Important**: Java 25 is required for Spring Boot 4.0.0 and latest features
+  - **Important**: Java 25 is required for Spring Boot 4.0.3 and latest features
   - Set JAVA_HOME environment variable to JDK 25 installation path
-- **Node.js 24 or higher** and npm 11+
+- **Node.js 22 or higher** and npm 11+
   - Download: https://nodejs.org/
   - Verify: `node --version` (should show v24.x.x) and `npm --version`
-  - **Important**: Node.js 24 is required for Angular 21 and TypeScript 5.9
+  - **Important**: Node.js 22 is required for Angular 21 and TypeScript 5.9
 - **Maven 3.9+**
   - Download: https://maven.apache.org/
   - Verify: `mvn --version`
@@ -59,12 +59,12 @@ Complete setup instructions for the professional ham radio logging system with d
 
 3. **Start services**
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
 4. **Check status**
    ```bash
-   docker-compose ps
+   docker compose ps
 
    # Should show:
    # hamradio-backend    (healthy)   :8080
@@ -80,10 +80,10 @@ Complete setup instructions for the professional ham radio logging system with d
 6. **View logs**
    ```bash
    # All services
-   docker-compose logs -f
+   docker compose logs -f
 
    # Specific service
-   docker-compose logs -f backend
+   docker compose logs -f backend
    ```
 
 ### Field Deployment (SQLite - Portable)
@@ -92,13 +92,13 @@ Perfect for portable operations, Field Day, or offline use:
 
 ```bash
 # Start field deployment
-docker-compose -f docker-compose.field.yml up -d
+docker compose -f docker-compose.field.yml up -d
 
 # Check status
-docker-compose -f docker-compose.field.yml ps
+docker compose -f docker-compose.field.yml ps
 
 # Stop
-docker-compose -f docker-compose.field.yml down
+docker compose -f docker-compose.field.yml down
 ```
 
 **Advantages of Field Deployment:**
@@ -118,7 +118,7 @@ docker-compose -f docker-compose.field.yml down
    brew install temurin@25
 
    # Ubuntu/Debian
-   sudo apt install openjdk-21-jdk
+   sdk install java 25-tem  # via SDKMAN, or download from https://adoptium.net/
 
    # Verify installation
    java -version  # Should show version 25
@@ -243,9 +243,7 @@ No setup required! The database file `logbook.db` will be created automatically 
    sudo sh get-docker.sh
 
    # Install Docker Compose
-   sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-   sudo chmod +x /usr/local/bin/docker-compose
-   ```
+   sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker compose sudo chmod +x /usr/local/bin/docker compose ```
 
 2. **Configure production settings**
    ```bash
@@ -262,13 +260,13 @@ No setup required! The database file `logbook.db` will be created automatically 
 3. **Build and deploy**
    ```bash
    # Build images
-   docker-compose build --no-cache
+   docker compose build --no-cache
 
    # Start in detached mode
-   docker-compose up -d
+   docker compose up -d
 
    # Check health
-   docker-compose ps
+   docker compose ps
    curl http://localhost:8080/actuator/health
    ```
 
@@ -437,7 +435,7 @@ POSTGRES_PASSWORD=<strong-password>
 JWT_SECRET=<output of: openssl rand -base64 64>
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=<strong-password>
-ADMIN_EMAIL=admin@hamradio.local
+# ADMIN_EMAIL removed — email not required
 DDL_AUTO=update
 ```
 
@@ -487,7 +485,7 @@ npm install
 **PostgreSQL**:
 ```bash
 # Check if PostgreSQL is running
-docker-compose ps postgres  # Docker
+docker compose ps postgres  # Docker
 sudo systemctl status postgresql  # Linux
 brew services list  # macOS
 
@@ -509,7 +507,7 @@ sqlite3 logbook.db ".tables"
 **Solution**:
 ```bash
 # Check logs
-docker-compose logs backend
+docker compose logs backend
 
 # Common causes:
 # - Database not ready (add healthcheck wait)
@@ -527,7 +525,7 @@ curl http://localhost:8080/actuator/health
 # {"status":"UP","groups":["liveness","readiness"]}
 
 # If not, check:
-docker-compose logs backend
+docker compose logs backend
 # Look for startup errors
 ```
 
@@ -613,7 +611,7 @@ lsof -ti:4200 | xargs kill -9
 
 ### Getting Help
 
-- Check logs: `docker-compose logs -f`
+- Check logs: `docker compose logs -f`
 - Verify configuration: Review environment variables
 - Test connectivity: Use `curl` to test endpoints
 - GitHub Issues: https://github.com/campbell-r-e/Hamradiologbook/issues
@@ -648,7 +646,7 @@ npm run build
 
 ### Frontend Architecture
 
-**Angular 21.0.1 Features Used**:
+**Angular 21.2.0 Features Used**:
 - **Standalone Components**: No NgModule needed, cleaner architecture
 - **Control Flow Syntax**: New `@if`, `@for`, `@switch` instead of `*ngIf`, `*ngFor`
 - **TypeScript 5.9**: Latest type safety and features

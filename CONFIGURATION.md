@@ -35,7 +35,7 @@ This will:
 
 ### Required Version
 
-The project requires **Java 25**. This is the minimum version required for Spring Boot 4.0.0.
+The project requires **Java 25**. This is the minimum version required for Spring Boot 4.0.3.
 
 ### Setting Java Version
 
@@ -106,7 +106,7 @@ JWT_EXPIRATION_MS=86400000  # 24 hours in milliseconds
 ```env
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=changeme123
-ADMIN_EMAIL=admin@hamradio.local
+# ADMIN_EMAIL removed — email not required
 ```
 
 **IMPORTANT:** Change these defaults before deploying to production!
@@ -168,7 +168,7 @@ export const environment = {
 File: `frontend/logbook-ui/angular.json`
 
 The project is configured with:
-- Angular 21.0.1
+- Angular 21.2.0
 - TypeScript 5.9
 - Bootstrap 5.3
 - Development server on port 4200
@@ -260,7 +260,7 @@ docker run -d \
 
 Using docker-compose:
 ```bash
-docker-compose up -d postgres
+docker compose up -d postgres
 ```
 
 ---
@@ -292,7 +292,7 @@ The admin user is created automatically on first startup. Configure in `.env`:
 ```env
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=SecurePassword123!
-ADMIN_EMAIL=admin@hamradio.local
+# ADMIN_EMAIL removed — email not required
 ```
 
 **IMPORTANT:**
@@ -352,7 +352,7 @@ Uses PostgreSQL database for production multi-user setup.
 **Setup:**
 ```bash
 cp .env.example .env   # Edit .env with your passwords and JWT_SECRET
-docker-compose up -d
+docker compose up -d
 ```
 
 All secrets are read from `.env`. See `.env.example` for available variables.
@@ -365,7 +365,7 @@ Uses SQLite for portable/offline operations.
 
 **Start:**
 ```bash
-docker-compose -f docker-compose.field.yml up -d
+docker compose -f docker-compose.field.yml up -d
 ```
 
 **Advantages:**
@@ -404,12 +404,12 @@ See `RIG_CONTROL_GUIDE.md` for detailed rig control setup.
 
 **Production (PostgreSQL):**
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 **Field (SQLite):**
 ```bash
-docker-compose -f docker-compose.field.yml up -d
+docker compose -f docker-compose.field.yml up -d
 ```
 
 **Access:**
@@ -521,14 +521,14 @@ Check CORS configuration in `application.properties` matches frontend URL.
 
 ```bash
 # Check running containers
-docker-compose ps
+docker compose ps
 
 # View logs
-docker-compose logs backend
-docker-compose logs frontend
+docker compose logs backend
+docker compose logs frontend
 
 # Restart services
-docker-compose restart
+docker compose restart
 ```
 
 ---

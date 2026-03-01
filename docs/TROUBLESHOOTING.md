@@ -56,7 +56,7 @@ curl http://localhost:8080/actuator/health
 curl http://localhost:4200
 
 # Docker services check
-docker-compose ps
+docker compose ps
 ```
 
 ### 3. Check Logs
@@ -68,12 +68,12 @@ mvn spring-boot:run
 # Watch for errors in console output
 
 # Docker logs
-docker-compose logs -f backend
-docker-compose logs -f frontend
-docker-compose logs -f rig-control
+docker compose logs -f backend
+docker compose logs -f frontend
+docker compose logs -f rig-control
 
 # Tail specific number of lines
-docker-compose logs --tail=100 backend
+docker compose logs --tail=100 backend
 ```
 
 ### 4. Common Quick Fixes
@@ -90,9 +90,9 @@ rm -rf node_modules package-lock.json
 npm install
 
 # Docker
-docker-compose down
-docker-compose build --no-cache
-docker-compose up -d
+docker compose down
+docker compose build --no-cache
+docker compose up -d
 ```
 
 ---
@@ -123,10 +123,10 @@ docker-compose up -d
    export JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-25.jdk/Contents/Home
 
    # Linux
-   export JAVA_HOME=/opt/jdk-25.0.1+9
+   export JAVA_HOME=/opt/jdk-25
 
    # Windows (PowerShell)
-   $env:JAVA_HOME="C:\Program Files\Eclipse Adoptium\jdk-25.0.1.9-hotspot"
+   $env:JAVA_HOME="C:\Program Files\Eclipse Adoptium\jdk-25"
    ```
 
 3. **Verify Maven is using Java 25:**
@@ -225,7 +225,7 @@ docker-compose up -d
   location: package tools.jackson.databind
 ```
 
-**Cause:** This error indicates Spring Boot 4.0.0 is trying to use Jackson 3.0 (tools.jackson) but dependencies are incorrect
+**Cause:** This error indicates Spring Boot 4.0.3 is trying to use Jackson 3.0 (tools.jackson) but dependencies are incorrect
 
 **Solution:**
 
@@ -680,7 +680,7 @@ Unable to execute schema management to JDBC target [alter table users add column
 
 ## Docker & Deployment Problems
 
-### Issue: "docker-compose up" Fails to Start Services
+### Issue: "docker compose up" Fails to Start Services
 
 **Symptom:**
 ```
@@ -700,23 +700,23 @@ connectivity on endpoint hamradio-backend: Error starting userland proxy: listen
    kill -9 <PID>
 
    # Or stop all Docker containers
-   docker-compose down
+   docker compose down
    docker stop $(docker ps -aq)
    ```
 
 2. **Clean Docker resources:**
    ```bash
    # Remove stopped containers
-   docker-compose down
+   docker compose down
 
    # Remove all containers, networks, volumes
-   docker-compose down -v
+   docker compose down -v
 
    # Rebuild without cache
-   docker-compose build --no-cache
+   docker compose build --no-cache
 
    # Start fresh
-   docker-compose up -d
+   docker compose up -d
    ```
 
 ---
@@ -733,13 +733,13 @@ backend exited with code 1
 1. **Check container logs:**
    ```bash
    # View logs
-   docker-compose logs backend
+   docker compose logs backend
 
    # Follow logs in real-time
-   docker-compose logs -f backend
+   docker compose logs -f backend
 
    # Last 100 lines
-   docker-compose logs --tail=100 backend
+   docker compose logs --tail=100 backend
    ```
 
 2. **Common causes in logs:**
@@ -764,7 +764,7 @@ backend exited with code 1
 
 3. **Run container interactively to debug:**
    ```bash
-   docker-compose run backend /bin/bash
+   docker compose run backend /bin/bash
 
    # Inside container, check:
    env | grep JWT_SECRET
@@ -803,7 +803,7 @@ unable to evaluate symlinks in Dockerfile path: lstat /path/to/Dockerfile: no su
 3. **Clean Docker build cache:**
    ```bash
    docker system prune -a
-   docker-compose build --no-cache
+   docker compose build --no-cache
    ```
 
 ---
@@ -908,7 +908,7 @@ java.net.ConnectException: Connection refused (Connection refused)
 3. **Test connection manually:**
    ```bash
    # From rig-control container
-   docker-compose exec rig-control bash
+   docker compose exec rig-control bash
 
    # Test rigctld connection
    telnet rigctld 4532
@@ -1488,14 +1488,14 @@ LIMIT 10;
 
 ```bash
 # Service status
-docker-compose ps
+docker compose ps
 
 # Service logs
-docker-compose logs backend
-docker-compose logs -f --tail=100 backend
+docker compose logs backend
+docker compose logs -f --tail=100 backend
 
 # Execute command in running container
-docker-compose exec backend bash
+docker compose exec backend bash
 
 # Inspect container
 docker inspect hamradio-backend
@@ -1551,7 +1551,7 @@ If you're still experiencing issues after trying these solutions:
 1. **Check Application Logs:**
    - Backend: Console output or application.log
    - Frontend: Browser Developer Console (F12)
-   - Docker: `docker-compose logs -f`
+   - Docker: `docker compose logs -f`
 
 2. **Enable Debug Logging:**
    ```properties
@@ -1588,4 +1588,4 @@ If you're still experiencing issues after trying these solutions:
 - [Developer Guide](DEVELOPER_GUIDE.md) - Development setup and architecture
 - [API Reference](API_REFERENCE.md) - API documentation
 - [Database Schema](DATABASE_SCHEMA.md) - Database structure
-- [UPGRADE_GUIDE.md](../UPGRADE_GUIDE.md) - Upgrading to Java 25 and Spring Boot 4.0.0
+- [UPGRADE_GUIDE.md](../UPGRADE_GUIDE.md) - Upgrading to Java 25 and Spring Boot 4.0.3

@@ -44,11 +44,11 @@ Edit `.env` and set secure values for `POSTGRES_PASSWORD`, `JWT_SECRET`, and `AD
 
 **3. Start everything with one command**
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 This will:
-- Download all required images (Node.js 24, Java 25, PostgreSQL 16, Nginx)
+- Download all required images (Node.js 22, Java 25, PostgreSQL 16, Nginx)
 - Build the backend and frontend
 - Create the database
 - Start all services
@@ -57,7 +57,7 @@ This will:
 
 Check the status:
 ```bash
-docker-compose ps
+docker compose ps
 ```
 
 You should see:
@@ -119,7 +119,7 @@ Download and install these:
 1. **Java 25** - https://adoptium.net/
    - Verify: `java -version` (should show 25.x.x)
 
-2. **Node.js 24** - https://nodejs.org/
+2. **Node.js 22** - https://nodejs.org/
    - Verify: `node --version` (should show v24.x.x)
 
 3. **Maven 3.9+** - https://maven.apache.org/
@@ -181,7 +181,7 @@ The admin account is created automatically on first startup using the credential
 ```env
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=YourSecurePassword
-ADMIN_EMAIL=admin@hamradio.local
+# ADMIN_EMAIL removed — email not required
 ```
 
 **Set a strong password in `.env` before first startup.**
@@ -205,7 +205,7 @@ JWT_EXPIRATION_MS=86400000
 # Admin account (created on first startup)
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=<strong-password>
-ADMIN_EMAIL=admin@hamradio.local
+# ADMIN_EMAIL removed — email not required
 
 # Schema management
 DDL_AUTO=update   # First deploy only, then change to "validate"
@@ -258,26 +258,26 @@ The PostgreSQL database is internal to the Docker network and not accessible fro
 
 ```bash
 # Start all services
-docker-compose up -d
+docker compose up -d
 
 # Stop all services
-docker-compose down
+docker compose down
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # View specific service logs
-docker-compose logs -f backend
+docker compose logs -f backend
 
 # Restart a service
-docker-compose restart frontend
+docker compose restart frontend
 
 # Rebuild after code changes
-docker-compose build
-docker-compose up -d
+docker compose build
+docker compose up -d
 
 # Clean everything (including database!)
-docker-compose down -v
+docker compose down -v
 ```
 
 ### Local Development Commands
@@ -306,13 +306,13 @@ npm test                  # Run tests
 **Docker:**
 ```bash
 # Check if backend is healthy
-docker-compose ps
+docker compose ps
 
 # View backend logs
-docker-compose logs backend
+docker compose logs backend
 
 # Restart backend
-docker-compose restart backend
+docker compose restart backend
 ```
 
 **Local Dev:**
@@ -328,7 +328,7 @@ curl http://localhost:8080/actuator/health
 **Docker:**
 ```bash
 # Stop conflicting services
-docker-compose down
+docker compose down
 
 # Or change ports in docker-compose.yml:
 ports:
@@ -357,12 +357,12 @@ server.port=8081
 **Docker:**
 ```bash
 # Check if database is healthy
-docker-compose ps
+docker compose ps
 
 # Should show hamradio-postgres as "healthy"
 
 # If not, restart database
-docker-compose restart postgres
+docker compose restart postgres
 ```
 
 **Local Dev:**
@@ -437,7 +437,7 @@ After getting the system running:
 └─────────────────┬───────────────────────────┘
                   │ HTTP/WebSocket
 ┌─────────────────▼───────────────────────────┐
-│       Backend (Spring Boot 4.0.0)           │
+│       Backend (Spring Boot 4.0.3)           │
 │        http://localhost:8080                │
 │  - REST API                                 │
 │  - JWT Authentication                       │

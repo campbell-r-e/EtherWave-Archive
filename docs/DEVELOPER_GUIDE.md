@@ -40,7 +40,7 @@ Complete technical guide for developers working on the Ham Radio Contest Logbook
 └─────────────────────────────────────────────────────────────┘
                 ↕ HTTP/REST                ↕ WebSocket
 ┌─────────────────────────────────────────────────────────────┐
-│              Spring Boot 4.0.0 Backend                       │
+│              Spring Boot 4.0.3 Backend                       │
 │  ┌────────────────────────────────────────────────────┐     │
 │  │           Web Layer (Controllers)                   │     │
 │  │  @RestController │ @CrossOrigin │ Exception Handlers│     │
@@ -96,11 +96,11 @@ Complete technical guide for developers working on the Ham Radio Contest Logbook
 - Improved virtual threads performance (Project Loom refinements)
 - Enhanced pattern matching and language features
 - Better performance and garbage collection improvements
-- Spring Boot 4.0.0 fully optimized for Java 25
+- Spring Boot 4.0.3 fully optimized for Java 25
 - Modern language features while maintaining backward compatibility
 
 #### Why Angular 21?
-- **Latest Framework**: Angular 21.0.1 with cutting-edge features
+- **Latest Framework**: Angular 21.2.0 with cutting-edge features
 - **Standalone Components**: Simpler architecture without NgModules
 - **TypeScript 5.9**: Latest type safety with strict mode enabled
 - **New Control Flow**: Modern `@if`, `@for`, `@switch` syntax (better performance)
@@ -132,8 +132,8 @@ docker --version  # For rig control (optional)
 
 **Important**: Java 25 is required. The project uses:
 - Java 25 (latest release with cutting-edge features)
-- Spring Boot 4.0.0 (requires Java 25, fully optimized for Java 25)
-- Lombok 1.18.38 (Java 25 compatible)
+- Spring Boot 4.0.3 (requires Java 25, fully optimized for Java 25)
+- Lombok 1.18.42 (Java 25 compatible)
 - Hibernate 7.1.8 with Java 25 support
 
 ### Backend Setup

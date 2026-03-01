@@ -141,7 +141,7 @@ EtherWave Archive provides amateur radio operators with a modern, feature-rich l
 
 ### Prerequisites
 - **Java 25** or higher (Eclipse Adoptium Temurin 25 recommended)
-- **Node.js 24** or higher
+- **Node.js 22** or higher
 - Docker and Docker Compose (for rig control and deployment)
 - SQLite (included) or PostgreSQL 16
 
@@ -186,7 +186,7 @@ JWT_EXPIRATION_MS=86400000
 # Admin User
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=admin123
-ADMIN_EMAIL=admin@hamradio.local
+# ADMIN_EMAIL removed — email not required
 
 # QRZ API (optional)
 QRZ_API_KEY=your-qrz-api-key
@@ -252,7 +252,7 @@ QRZ_API_KEY=your-qrz-api-key
 
 ### Backend
 - **Java 25** - Latest JDK with cutting-edge features
-- **Spring Boot 4.0.0** - Application framework
+- **Spring Boot 4.0.3** - Application framework
 - **Spring Framework 7.0.0** - Core framework
 - **Spring Security 7.x** - Authentication and authorization
 - **JWT (JJWT 0.12.6)** - Stateless authentication tokens
@@ -260,11 +260,11 @@ QRZ_API_KEY=your-qrz-api-key
 - **Hibernate 7.1.8** - JPA implementation with Java 25 support
 - **PostgreSQL 16 / SQLite** - Database options
 - **Spring WebSocket** - Real-time communication
-- **Lombok 1.18.38** - Boilerplate reduction (Java 25 compatible)
+- **Lombok 1.18.42** - Boilerplate reduction (Java 25 compatible)
 - **Jackson 3.0** - JSON processing (tools.jackson)
 
 ### Frontend
-- **Angular 21.0.1** - Latest Angular framework with standalone components
+- **Angular 21.2.0** - Latest Angular framework with standalone components
 - **TypeScript 5.9** - Type-safe JavaScript with strict mode
 - **RxJS 7.8** - Reactive programming and state management
 - **Bootstrap 5.3** - Modern UI framework with responsive design

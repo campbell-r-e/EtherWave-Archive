@@ -197,13 +197,13 @@ The following radios have been tested with this system:
 
 5. **Start services**:
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
 6. **Verify rig control**:
    ```bash
    # Check logs
-   docker-compose logs rig-control
+   docker compose logs rig-control
 
    # Should see:
    # "rigctld started successfully"
@@ -394,10 +394,10 @@ rig-control:
 
 ```bash
 # Start all services
-docker-compose up -d
+docker compose up -d
 
 # Watch rig control logs
-docker-compose logs -f rig-control
+docker compose logs -f rig-control
 
 # Expected output:
 # rigctld started successfully
@@ -562,7 +562,7 @@ For Field Day, contests, or multi-operator stations.
 **Server Setup**:
 ```bash
 # On server: Run backend and frontend only
-docker-compose up -d backend frontend postgres
+docker compose up -d backend frontend postgres
 ```
 
 **Station 1 Setup** (Laptop 1 - Yaesu FT-991A):
@@ -717,7 +717,7 @@ telnet localhost 4532
 # Should return frequency
 
 # Check rigctld logs (Docker)
-docker-compose logs rig-control | grep rigctld
+docker compose logs rig-control | grep rigctld
 
 # Test with verbose mode
 rigctld -m 1035 -r /dev/ttyUSB0 -s 38400 -t 4532 -vvvvv

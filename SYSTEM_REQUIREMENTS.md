@@ -201,7 +201,7 @@
 
 **Deployment Command:**
 ```bash
-docker-compose -f docker-compose.field.yml up -d
+docker compose -f docker-compose.field.yml up -d
 ```
 
 ---
@@ -471,7 +471,7 @@ docker stats --no-stream
 
 **Container Logs:**
 ```bash
-docker-compose logs -f [service-name]
+docker compose logs -f [service-name]
 ```
 
 **Health Checks:**
