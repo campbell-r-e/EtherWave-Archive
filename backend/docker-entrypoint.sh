@@ -7,7 +7,7 @@ set -e
 # as appuser; field deploy uses bind mounts and needs this ownership fix).
 if [ "$(id -u)" = "0" ]; then
     chown -R appuser:appgroup /app/data
-    exec su-exec appuser "$@"
+    exec gosu appuser "$@"
 else
     exec "$@"
 fi

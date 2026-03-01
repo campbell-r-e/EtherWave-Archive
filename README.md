@@ -2,7 +2,7 @@
 
 A comprehensive, multi-user web-based logbook application for amateur radio operators with a professional interface, featuring dark mode support, real-time collaboration, contest logging, rig control, and advanced visualization features.
 
-[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://adoptium.net/)
+[![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://adoptium.net/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.3-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![Spring Framework](https://img.shields.io/badge/Spring%20Framework-7.x-green.svg)](https://spring.io/projects/spring-framework)
 [![Angular](https://img.shields.io/badge/Angular-21.2.0-red.svg)](https://angular.io/)
@@ -145,7 +145,7 @@ docker compose -f docker-compose.field.yml up -d
 ### Local Development
 
 **Prerequisites:**
--  Java 21 LTS ([Download](https://adoptium.net/))
+-  Java 25 LTS ([Download](https://adoptium.net/))
 -  Node.js 22 or higher ([Download](https://nodejs.org/))
 -  Maven 3.9+ ([Download](https://maven.apache.org/))
 -  Docker (optional, for rig control)
@@ -295,7 +295,7 @@ The system includes comprehensive multi-client rig control capabilities. Documen
 ## Technology Stack
 
 ### Backend
-- **Java 21 LTS** - Stable, long-term support release
+- **Java 25 LTS** - Latest long-term support release
 - **Spring Boot 4.0.3** - Application framework
 - **Spring Security** - Authentication and authorization
 - **Spring Boot Actuator** - Production monitoring
@@ -408,7 +408,7 @@ EtherWave-Archive/
 │   │   ├── application.properties    # App configuration
 │   │   └── contest-definitions/      # Contest JSON configs
 │   ├── docker-entrypoint.sh          # Container privilege-drop entrypoint
-│   ├── Dockerfile                    # Backend container (Java 21 LTS)
+│   ├── Dockerfile                    # Backend container (Java 25 LTS)
 │   └── pom.xml                       # Maven dependencies
 │
 ├── frontend/logbook-ui/              # Angular 21 frontend

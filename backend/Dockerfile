@@ -1,5 +1,5 @@
 # Multi-stage build for Spring Boot backend
-FROM maven:3.9-eclipse-temurin-21 AS build
+FROM maven:3.9-eclipse-temurin-25-alpine AS build
 
 WORKDIR /app
 
@@ -12,15 +12,15 @@ COPY src ./src
 RUN mvn clean package -DskipTests -q
 
 # Runtime stage
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:25-jre-noble
 
-# Install su-exec for privilege dropping in entrypoint
-RUN apk add --no-cache su-exec
+# Install gosu for privilege dropping in entrypoint
+RUN apt-get update && apt-get install -y --no-install-recommends gosu && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 # Create non-root user for security
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
 # Copy JAR and entrypoint from build stage
 COPY --from=build /app/target/*.jar app.jar
