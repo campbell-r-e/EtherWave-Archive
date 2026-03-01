@@ -499,12 +499,13 @@ Contributions are welcome! Please:
 
 ## License
 
-[Specify your license here]
+Licensed the Permissive Public license version 1.11. See license for terms. 
+
 
 ## Support
 
 - **Issues**: https://github.com/campbell-r-e/Hamradiologbook/issues
-- **Email**: support@hamradio.local
+- **Email**: campbell@indianahamradio.com
 - **Documentation**: See `/docs` folder
 
 ## Acknowledgments
@@ -517,4 +518,4 @@ Contributions are welcome! Please:
 
 ---
 
-**EtherWave Archive - Built with  for the Amateur Radio Community in Indiana and beyond - 73!**
+**EtherWave Archive - Built with  for the Amateur Radio Community - 73!**
