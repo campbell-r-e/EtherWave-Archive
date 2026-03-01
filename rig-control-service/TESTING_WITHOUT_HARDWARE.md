@@ -222,7 +222,7 @@ The service logs show internal behavior:
 
 ```bash
 # View logs (in another terminal)
-tail -f /tmp/claude/tasks/b39574a.output
+docker compose logs -f rig-control
 ```
 
 Look for:
