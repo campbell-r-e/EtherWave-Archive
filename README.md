@@ -10,7 +10,7 @@ A comprehensive, multi-user web-based logbook application for amateur radio oper
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-purple.svg)](https://getbootstrap.com/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
-[![Tests](https://img.shields.io/badge/Tests-131%2F131%20Passing-brightgreen.svg)](backend/TESTING.md)
+[![Tests](https://img.shields.io/badge/Tests-230%2F230%20Passing-brightgreen.svg)](backend/TESTING.md)
 
 ## Table of Contents
 
@@ -302,7 +302,7 @@ The system includes comprehensive multi-client rig control capabilities. Documen
 - **JWT (JJWT 0.12.6)** - Stateless authentication tokens
 - **Spring Data JPA** - Database ORM
 - **Hibernate** - JPA implementation
-- **Lombok 1.18.38** - Boilerplate reduction
+- **Lombok 1.18.42** - Boilerplate reduction
 - **PostgreSQL 16 / SQLite** - Database options
 - **Spring WebSocket** - Real-time communication
 
@@ -331,11 +331,11 @@ The system includes comprehensive multi-client rig control capabilities. Documen
 
 ### Backend Tests: 100% Passing
 
-**Test Suite Status**: 131/131 tests passing (100%)
+**Test Suite Status**: 230/230 tests passing (100%)
 
 The backend has comprehensive test coverage including:
 
-- **Validation Tests** (119 tests): Field Day, POTA, SOTA, Winter Field Day validators
+- **Validation Tests** (218 tests): Field Day, POTA, SOTA, Winter Field Day, CQ WW, ARRL Sweepstakes, State QSO Party
 - **Service Tests** (12 tests): ADIF/Cabrillo export/import functionality
 - **All Production Code Tested**: 100% pass rate on all working features
 

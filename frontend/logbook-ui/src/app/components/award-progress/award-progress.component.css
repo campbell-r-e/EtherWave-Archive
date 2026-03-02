@@ -1,0 +1,338 @@
+/* ============================================================================
+   Award Progress Dashboard - Glassmorphism Design
+   ============================================================================ */
+
+.award-progress-container {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+  padding: 0;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .award-progress-container {
+  background: var(--glass-bg-dark);
+  border-color: var(--glass-border-dark);
+}
+
+/* Header */
+.award-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--ew-gradient-primary);
+  color: white;
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+}
+
+.award-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+.award-title i {
+  font-size: 1.2rem;
+  filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.6));
+}
+
+.log-name-badge {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 2px 10px;
+  font-size: 0.82rem;
+  font-weight: 400;
+}
+
+.refresh-btn {
+  border-color: rgba(255, 255, 255, 0.5);
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.refresh-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: white;
+  color: white;
+}
+
+/* Empty / Loading */
+.empty-state,
+.loading-state {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .empty-state,
+[data-theme="dark"] .loading-state {
+  color: var(--text-secondary-dark);
+}
+
+.empty-icon {
+  font-size: 3rem;
+  opacity: 0.3;
+  display: block;
+  margin-bottom: 12px;
+}
+
+/* Stats row */
+.stats-row {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+[data-theme="dark"] .stats-row {
+  border-bottom-color: var(--glass-border-dark);
+}
+
+.stat-chip {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 8px;
+  border-right: 1px solid var(--glass-border);
+}
+
+.stat-chip:last-child {
+  border-right: none;
+}
+
+[data-theme="dark"] .stat-chip {
+  border-right-color: var(--glass-border-dark);
+}
+
+.stat-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--ew-signal-blue);
+  line-height: 1.2;
+}
+
+[data-theme="dark"] .stat-value {
+  color: var(--ew-signal-cyan);
+}
+
+.stat-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+[data-theme="dark"] .stat-label {
+  color: var(--text-muted-dark);
+}
+
+/* Award cards */
+.award-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.award-card {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.award-card:last-child {
+  border-bottom: none;
+}
+
+[data-theme="dark"] .award-card {
+  border-bottom-color: var(--glass-border-dark);
+}
+
+.award-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.award-card-header i {
+  color: var(--ew-signal-blue);
+  font-size: 1.1rem;
+  filter: drop-shadow(0 0 4px rgba(0, 128, 255, 0.3));
+}
+
+[data-theme="dark"] .award-card-header i {
+  color: var(--ew-signal-cyan);
+}
+
+.award-name {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .award-name {
+  color: var(--text-primary-dark);
+}
+
+.award-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .award-subtitle {
+  color: var(--text-secondary-dark);
+}
+
+.award-badge {
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 12px;
+  background: rgba(0, 128, 255, 0.1);
+  border: 1px solid rgba(0, 128, 255, 0.3);
+  color: var(--ew-signal-blue);
+}
+
+[data-theme="dark"] .award-badge {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 212, 255, 0.3);
+  color: var(--ew-signal-cyan);
+}
+
+.award-badge.award-complete {
+  background: rgba(0, 200, 100, 0.15);
+  border-color: rgba(0, 200, 100, 0.5);
+  color: #00c864;
+}
+
+/* Progress rows */
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.progress-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  width: 64px;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .progress-label {
+  color: var(--text-muted-dark);
+}
+
+.progress {
+  height: 8px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+}
+
+[data-theme="dark"] .progress {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.progress-bar {
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+
+.progress-pct {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .progress-pct {
+  color: var(--text-secondary-dark);
+}
+
+/* VUCC note */
+.vucc-note {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+[data-theme="dark"] .vucc-note {
+  color: var(--text-muted-dark);
+}
+
+/* Country / state / grid list */
+.country-list {
+  margin-top: 8px;
+}
+
+.country-list summary {
+  font-size: 0.82rem;
+  color: var(--ew-signal-blue);
+  cursor: pointer;
+  user-select: none;
+  padding: 4px 0;
+}
+
+[data-theme="dark"] .country-list summary {
+  color: var(--ew-signal-cyan);
+}
+
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px 0 4px;
+}
+
+.tag {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(0, 128, 255, 0.08);
+  border: 1px solid rgba(0, 128, 255, 0.2);
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .tag {
+  background: rgba(0, 212, 255, 0.08);
+  border-color: rgba(0, 212, 255, 0.2);
+  color: var(--text-secondary-dark);
+}
+
+.tag.tag-confirmed {
+  background: rgba(0, 200, 100, 0.12);
+  border-color: rgba(0, 200, 100, 0.4);
+  color: #00a055;
+}
+
+[data-theme="dark"] .tag.tag-confirmed {
+  background: rgba(0, 255, 136, 0.12);
+  border-color: rgba(0, 255, 136, 0.4);
+  color: #00ff88;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .award-header {
+    padding: 12px 15px;
+  }
+
+  .award-card {
+    padding: 14px 15px;
+  }
+
+  .stat-value {
+    font-size: 1.1rem;
+  }
+
+  .stat-chip {
+    padding: 10px 4px;
+  }
+}

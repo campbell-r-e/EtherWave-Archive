@@ -1,7 +1,15 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MapFilters } from '../../services/map.service';
+
+interface FilterPreset {
+  name: string;
+  filters: MapFilters;
+  savedAt: string;
+}
+
+const PRESETS_STORAGE_KEY = 'ewa_map_filter_presets';
 
 /**
  * Map filter panel component
@@ -17,7 +25,7 @@ import { MapFilters } from '../../services/map.service';
   templateUrl: './map-filter-panel.component.html',
   styleUrls: ['./map-filter-panel.component.css']
 })
-export class MapFilterPanelComponent {
+export class MapFilterPanelComponent implements OnInit {
   @Input() availableBands: string[] = ['160M', '80M', '40M', '20M', '15M', '10M', '6M', '2M', '70CM'];
   @Input() availableModes: string[] = ['SSB', 'CW', 'FT8', 'FT4', 'RTTY', 'PSK31', 'FM', 'AM'];
   @Input() availableStations: number[] = [1, 2, 3, 4, 5, 6];
@@ -33,9 +41,64 @@ export class MapFilterPanelComponent {
   isExpanded: boolean = false;
   activeFilterCount: number = 0;
 
+  // Preset state
+  savedPresets: FilterPreset[] = [];
+  newPresetName: string = '';
+  showSavePresetInput: boolean = false;
+
   // Touch gesture state
   private touchStartY: number = 0;
   private touchEndY: number = 0;
+
+  ngOnInit(): void {
+    this.loadPresetsFromStorage();
+  }
+
+  // --------------- Preset management ---------------
+
+  private loadPresetsFromStorage(): void {
+    try {
+      const stored = localStorage.getItem(PRESETS_STORAGE_KEY);
+      this.savedPresets = stored ? JSON.parse(stored) : [];
+    } catch {
+      this.savedPresets = [];
+    }
+  }
+
+  private persistPresets(): void {
+    localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(this.savedPresets));
+  }
+
+  savePreset(): void {
+    const name = this.newPresetName.trim();
+    if (!name) return;
+
+    // Replace existing preset with same name
+    this.savedPresets = this.savedPresets.filter(p => p.name !== name);
+    this.savedPresets.push({ name, filters: { ...this.filters }, savedAt: new Date().toISOString() });
+    this.persistPresets();
+
+    this.newPresetName = '';
+    this.showSavePresetInput = false;
+  }
+
+  loadPreset(preset: FilterPreset): void {
+    this.filters = { ...preset.filters };
+    this.applyFilters();
+  }
+
+  deletePreset(name: string, event: Event): void {
+    event.stopPropagation();
+    this.savedPresets = this.savedPresets.filter(p => p.name !== name);
+    this.persistPresets();
+  }
+
+  cancelSavePreset(): void {
+    this.newPresetName = '';
+    this.showSavePresetInput = false;
+  }
+
+  // --------------- Filters ---------------
 
   /**
    * Apply current filters

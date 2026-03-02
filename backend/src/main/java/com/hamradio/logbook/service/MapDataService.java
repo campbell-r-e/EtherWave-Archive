@@ -206,9 +206,20 @@ public class MapDataService {
             }
         }
 
-        // 2. Try user default location
+        // 2. Try user default location via operator's callsign
         if (qso.getOperator() != null && qso.getOperator().getCallsign() != null) {
-            // TODO: Get user from operator - need to establish relationship
+            var userOpt = userRepository.findByCallsign(qso.getOperator().getCallsign());
+            if (userOpt.isPresent()) {
+                var user = userOpt.get();
+                if (user.getDefaultLatitude() != null && user.getDefaultLongitude() != null) {
+                    return LocationData.builder()
+                        .lat(BigDecimal.valueOf(user.getDefaultLatitude()))
+                        .lon(BigDecimal.valueOf(user.getDefaultLongitude()))
+                        .grid(user.getDefaultGrid())
+                        .source(QSOLocation.LocationSource.USER)
+                        .build();
+                }
+            }
         }
 
         // 3. Session location would be stored in session context
@@ -377,7 +388,7 @@ public class MapDataService {
     /**
      * Get filtered QSOs based on map filters
      */
-    private List<QSO> getFilteredQSOs(Long logId, MapFilters filters) {
+    public List<QSO> getFilteredQSOs(Long logId, MapFilters filters) {
         // Start with all QSOs for log
         List<QSO> qsos = qsoRepository.findAllByLogId(logId);
 

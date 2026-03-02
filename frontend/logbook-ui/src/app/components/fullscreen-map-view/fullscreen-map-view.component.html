@@ -72,9 +72,9 @@
 
   <!-- Map Content Area -->
   <div class="map-content" id="map-panel" role="tabpanel" [attr.aria-label]="activeTab === 'interactive' ? 'Interactive map' : 'States and provinces map'">
-    @if (activeTab === 'interactive') {
+    @if (activeTab === 'interactive' && currentLogId) {
       <div class="map-tab-panel active">
-        <app-qso-map></app-qso-map>
+        <app-qso-map #qsoMap [logId]="currentLogId" [filters]="currentFilters"></app-qso-map>
       </div>
     }
 

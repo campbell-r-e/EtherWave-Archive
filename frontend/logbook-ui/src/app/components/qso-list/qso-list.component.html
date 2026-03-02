@@ -178,11 +178,19 @@
                   }
                 </td>
                 <td>
-                  <button class="btn btn-sm btn-outline-danger"
-                    (click)="deleteQSO(qso)"
-                    [attr.aria-label]="'Delete QSO with ' + qso.callsign">
-                    <span aria-hidden="true">🗑️</span>
-                  </button>
+                  <div class="d-flex gap-1">
+                    <button class="btn btn-sm btn-outline-secondary"
+                      (click)="openQslCard(qso)"
+                      [attr.aria-label]="'Print QSL card for ' + qso.callsign"
+                      title="Print QSL card">
+                      <i class="bi bi-card-text" aria-hidden="true"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger"
+                      (click)="deleteQSO(qso)"
+                      [attr.aria-label]="'Delete QSO with ' + qso.callsign">
+                      <span aria-hidden="true">🗑️</span>
+                    </button>
+                  </div>
                 </td>
               </tr>
             }
@@ -192,3 +200,6 @@
     }
   </div>
 </div>
+
+<!-- QSL Card Modal -->
+<app-qsl-card [qso]="selectedQsoForQsl" (closed)="closeQslCard()"></app-qsl-card>

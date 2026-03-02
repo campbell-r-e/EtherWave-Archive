@@ -32,6 +32,11 @@ public class LogResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    // Contest bonus activities claimed (JSON map)
+    private String bonusMetadata;
+
+    private Log.LogPurpose purpose;
+
     // User's role in this log (if participant)
     private LogParticipant.ParticipantRole userRole;
 
@@ -58,6 +63,8 @@ public class LogResponse {
                 .isPublic(log.getIsPublic())
                 .createdAt(log.getCreatedAt())
                 .updatedAt(log.getUpdatedAt())
+                .bonusMetadata(log.getBonusMetadata())
+                .purpose(log.getPurpose() != null ? log.getPurpose() : Log.LogPurpose.GENERAL)
                 .build();
     }
 }

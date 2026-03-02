@@ -1,0 +1,282 @@
+/* ============================================================================
+   Propagation Conditions Panel - Glassmorphism Design
+   ============================================================================ */
+
+.prop-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+  overflow: hidden;
+}
+
+[data-theme="dark"] .prop-panel {
+  background: var(--glass-bg-dark);
+  border-color: var(--glass-border-dark);
+}
+
+/* Header */
+.prop-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #0066aa 0%, #0044cc 50%, #6600cc 100%);
+  color: white;
+  cursor: pointer;
+  user-select: none;
+}
+
+.prop-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+.prop-title i {
+  font-size: 1.2rem;
+}
+
+.prop-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.data-source-badge {
+  font-size: 0.7rem;
+  background: rgba(255,255,255,0.2);
+  border-radius: 10px;
+  padding: 2px 8px;
+  letter-spacing: 0.04em;
+}
+
+.toggle-btn {
+  color: white;
+  padding: 0;
+  text-decoration: none;
+}
+
+/* Loading */
+.prop-loading {
+  padding: 20px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* Solar indices row */
+.indices-row {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+[data-theme="dark"] .indices-row {
+  border-bottom-color: var(--glass-border-dark);
+}
+
+.index-chip {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 6px;
+  border-right: 1px solid var(--glass-border);
+}
+
+[data-theme="dark"] .index-chip {
+  border-right-color: var(--glass-border-dark);
+}
+
+.index-chip:last-child {
+  border-right: none;
+}
+
+.refresh-chip {
+  justify-content: center;
+  flex: 0 0 50px;
+}
+
+.index-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ew-signal-blue);
+  line-height: 1.1;
+}
+
+[data-theme="dark"] .index-value {
+  color: var(--ew-signal-cyan);
+}
+
+.index-value.index-storm {
+  color: #e53935;
+}
+
+.index-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .index-label {
+  color: var(--text-muted-dark);
+}
+
+.index-sub {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+[data-theme="dark"] .index-sub {
+  color: var(--text-secondary-dark);
+}
+
+/* Band grid */
+.band-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  padding: 12px 16px;
+  gap: 6px;
+}
+
+.band-tile {
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  border: 1px solid transparent;
+  cursor: default;
+  transition: transform 0.15s ease;
+}
+
+.band-tile:hover {
+  transform: translateY(-1px);
+}
+
+.band-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: monospace;
+}
+
+.band-cond-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Condition colour variants */
+.cond-excellent {
+  background: rgba(0, 200, 80, 0.12);
+  border-color: rgba(0, 200, 80, 0.4);
+  color: #008040;
+}
+
+[data-theme="dark"] .cond-excellent {
+  background: rgba(0, 255, 100, 0.12);
+  border-color: rgba(0, 255, 100, 0.4);
+  color: #00ff66;
+}
+
+.cond-good {
+  background: rgba(0, 150, 255, 0.1);
+  border-color: rgba(0, 150, 255, 0.35);
+  color: #0060cc;
+}
+
+[data-theme="dark"] .cond-good {
+  background: rgba(0, 200, 255, 0.1);
+  border-color: rgba(0, 200, 255, 0.35);
+  color: #00c8ff;
+}
+
+.cond-fair {
+  background: rgba(255, 160, 0, 0.1);
+  border-color: rgba(255, 160, 0, 0.35);
+  color: #cc7700;
+}
+
+[data-theme="dark"] .cond-fair {
+  background: rgba(255, 180, 0, 0.1);
+  border-color: rgba(255, 180, 0, 0.35);
+  color: #ffaa00;
+}
+
+.cond-poor {
+  background: rgba(220, 0, 0, 0.08);
+  border-color: rgba(220, 0, 0, 0.3);
+  color: #aa0000;
+}
+
+[data-theme="dark"] .cond-poor {
+  background: rgba(255, 60, 60, 0.1);
+  border-color: rgba(255, 60, 60, 0.3);
+  color: #ff5555;
+}
+
+/* Legend */
+.prop-legend {
+  display: flex;
+  gap: 12px;
+  padding: 8px 16px 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--glass-border);
+}
+
+[data-theme="dark"] .prop-legend {
+  border-top-color: var(--glass-border-dark);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  flex-shrink: 0;
+}
+
+/* Collapsed */
+.prop-panel.collapsed .prop-header {
+  border-radius: 12px;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .band-grid {
+    grid-template-columns: repeat(3, 1fr);
+    padding: 8px 10px;
+    gap: 4px;
+  }
+
+  .band-tile {
+    padding: 6px 6px;
+  }
+
+  .band-name {
+    font-size: 0.75rem;
+  }
+
+  .band-cond-label {
+    font-size: 0.6rem;
+  }
+}

@@ -1,0 +1,283 @@
+/* ============================================================================
+   QSL Card - Modal Overlay + Print Styles
+   ============================================================================ */
+
+/* --- Modal overlay (screen only) --- */
+.qsl-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.qsl-modal {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  max-width: 700px;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Toolbar */
+.qsl-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: #1a1a2e;
+  color: white;
+}
+
+.qsl-toolbar-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.qsl-toolbar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ------------------------------------------------------------------ */
+/* QSL Card Design                                                      */
+/* Standard QSL card: 5.5" × 3.5" (landscape). We scale for screen.  */
+/* ------------------------------------------------------------------ */
+
+.qsl-card {
+  background: #fafaf8;
+  width: 100%;
+  aspect-ratio: 5.5 / 3.5;
+  display: flex;
+  flex-direction: column;
+  font-family: Georgia, 'Times New Roman', serif;
+  color: #1a1a1a;
+  position: relative;
+}
+
+/* Top & bottom colour stripes */
+.qsl-band-stripe {
+  height: 12px;
+  background: linear-gradient(90deg, #0080ff 0%, #00d4ff 50%, #00ff88 100%);
+  flex-shrink: 0;
+}
+
+.qsl-band-stripe--bottom {
+  background: linear-gradient(90deg, #00ff88 0%, #00d4ff 50%, #0080ff 100%);
+}
+
+/* Card body */
+.qsl-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 24px 12px;
+  gap: 10px;
+}
+
+/* Top row: callsigns */
+.qsl-top {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.qsl-callsign {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #0060cc;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.qsl-subtitle {
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+}
+
+.qsl-their-call {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #111;
+}
+
+/* Data table */
+.qsl-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.qsl-data-table th {
+  background: #0060cc;
+  color: white;
+  padding: 4px 8px;
+  text-align: left;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: Arial, sans-serif;
+}
+
+.qsl-data-table td {
+  background: #f0f4ff;
+  padding: 5px 8px;
+  border: 1px solid #d0daf0;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+}
+
+/* Location row */
+.qsl-location-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  border-top: 1px dotted #ccc;
+  padding-top: 6px;
+}
+
+.qsl-location-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.qsl-location-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #888;
+  font-family: Arial, sans-serif;
+}
+
+.qsl-location-value {
+  font-size: 0.88rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  color: #111;
+}
+
+/* Notes */
+.qsl-notes {
+  font-size: 0.78rem;
+  color: #444;
+  border-top: 1px dotted #ccc;
+  padding-top: 4px;
+}
+
+/* Footer */
+.qsl-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: auto;
+  border-top: 1px solid #ccc;
+  padding-top: 6px;
+}
+
+.qsl-footer-left {
+  flex: 1;
+}
+
+.qsl-sig-line {
+  height: 1px;
+  background: #333;
+  width: 70%;
+  margin-bottom: 2px;
+}
+
+.qsl-sig-label {
+  font-size: 0.65rem;
+  color: #888;
+  font-family: Arial, sans-serif;
+}
+
+.qsl-footer-right {
+  text-align: right;
+}
+
+.qsl-tnx {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0060cc;
+}
+
+.qsl-pse-qsl {
+  font-size: 0.72rem;
+  color: #888;
+  font-family: Arial, sans-serif;
+}
+
+/* ------------------------------------------------------------------ */
+/* Print styles — only .qsl-card is printed                            */
+/* ------------------------------------------------------------------ */
+
+@media print {
+  /* Hide everything except the card */
+  body > *:not(.qsl-overlay) {
+    display: none !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .qsl-overlay {
+    position: static;
+    background: none;
+    backdrop-filter: none;
+    padding: 0;
+    display: block;
+  }
+
+  .qsl-modal {
+    box-shadow: none;
+    border-radius: 0;
+    max-width: 100%;
+  }
+
+  .qsl-card {
+    width: 5.5in;
+    height: 3.5in;
+    aspect-ratio: unset;
+    page-break-after: avoid;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  @page {
+    size: 5.5in 3.5in landscape;
+    margin: 0;
+  }
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .qsl-callsign {
+    font-size: 1.6rem;
+  }
+
+  .qsl-their-call {
+    font-size: 1.2rem;
+  }
+
+  .qsl-data-table {
+    font-size: 0.72rem;
+  }
+
+  .qsl-body {
+    padding: 10px 14px 8px;
+    gap: 6px;
+  }
+}

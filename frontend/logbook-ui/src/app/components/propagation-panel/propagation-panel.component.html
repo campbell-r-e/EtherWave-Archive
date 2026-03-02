@@ -1,0 +1,87 @@
+<!-- Propagation Conditions Panel -->
+<div class="prop-panel" [class.collapsed]="!isExpanded">
+
+  <!-- Header -->
+  <div class="prop-header" (click)="togglePanel()">
+    <div class="prop-title">
+      <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
+      <h2 class="h6 mb-0">Propagation Conditions</h2>
+    </div>
+    <div class="prop-header-right">
+      @if (conditions) {
+        <span class="data-source-badge">NOAA SWPC</span>
+      }
+      <button class="btn btn-sm btn-link toggle-btn"
+              [attr.aria-label]="isExpanded ? 'Collapse propagation panel' : 'Expand propagation panel'"
+              [attr.aria-expanded]="isExpanded">
+        <i class="bi" [class.bi-chevron-up]="isExpanded" [class.bi-chevron-down]="!isExpanded" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+
+  @if (isExpanded) {
+
+    <!-- Loading -->
+    @if (loading) {
+      <div class="prop-loading" role="status" aria-live="polite">
+        <div class="spinner-border spinner-border-sm text-info me-2" aria-hidden="true"></div>
+        Loading solar data...
+      </div>
+    }
+
+    <!-- Error -->
+    @if (error) {
+      <div class="alert alert-warning mx-3 my-2 py-2 small" role="alert">
+        <i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>{{ error }}
+        <button class="btn btn-sm btn-link p-0 ms-2" (click)="load()">Retry</button>
+      </div>
+    }
+
+    @if (conditions && !loading) {
+      <!-- Solar Indices Row -->
+      <div class="indices-row">
+        <div class="index-chip">
+          <span class="index-value">{{ conditions.sfi }}</span>
+          <span class="index-label">SFI</span>
+          <span class="index-sub">{{ sfiLabel(conditions.sfi) }}</span>
+        </div>
+        <div class="index-chip">
+          <span class="index-value" [class.index-storm]="conditions.kIndex >= 4">{{ conditions.kIndex }}</span>
+          <span class="index-label">K-Index</span>
+          <span class="index-sub">{{ kLabel(conditions.kIndex) }}</span>
+        </div>
+        <div class="index-chip">
+          <span class="index-value" [class.index-storm]="conditions.aIndex >= 30">{{ conditions.aIndex }}</span>
+          <span class="index-label">A-Index</span>
+          <span class="index-sub">{{ conditions.aIndex < 15 ? 'Quiet' : conditions.aIndex < 30 ? 'Active' : 'Storm' }}</span>
+        </div>
+        <div class="index-chip refresh-chip">
+          <button class="btn btn-sm btn-link p-0" (click)="load(); $event.stopPropagation()" aria-label="Refresh propagation data">
+            <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Band condition grid -->
+      <div class="band-grid" role="list" aria-label="HF band conditions">
+        @for (band of bandList; track band.band) {
+          <div class="band-tile {{ conditionClass(band.condition) }}"
+               role="listitem"
+               [title]="band.description">
+            <span class="band-name">{{ band.band }}</span>
+            <span class="band-cond-label">{{ conditionLabel(band.condition) }}</span>
+            <span class="band-indicator" [class]="conditionClass(band.condition)" aria-hidden="true"></span>
+          </div>
+        }
+      </div>
+
+      <!-- Legend -->
+      <div class="prop-legend">
+        <span class="legend-item cond-excellent"><span class="legend-dot"></span>Excellent</span>
+        <span class="legend-item cond-good"><span class="legend-dot"></span>Good</span>
+        <span class="legend-item cond-fair"><span class="legend-dot"></span>Fair</span>
+        <span class="legend-item cond-poor"><span class="legend-dot"></span>Poor</span>
+      </div>
+    }
+  }
+</div>

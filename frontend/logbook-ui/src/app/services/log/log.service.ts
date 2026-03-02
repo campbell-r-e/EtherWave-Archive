@@ -109,6 +109,15 @@ export class LogService {
   }
 
   /**
+   * Convert a personal log to a shared log (one-way, creator only)
+   */
+  convertToShared(logId: number): Observable<Log> {
+    return this.http.post<Log>(`${this.baseUrl}/${logId}/convert-to-shared`, {}).pipe(
+      tap(updatedLog => this.updateLogInState(updatedLog))
+    );
+  }
+
+  /**
    * Freeze a log
    */
   freezeLog(logId: number): Observable<Log> {
