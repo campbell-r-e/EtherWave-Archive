@@ -59,6 +59,15 @@ public class Log {
     @Column(name = "is_public")
     private Boolean isPublic = false; // For future feature: public logs
 
+    // Contest bonus activities claimed for this log (JSON map: bonus_key -> count/flag as integer)
+    // Example: {"100pct_emergency_power": 1, "youth_participation": 3, "media_publicity": 1}
+    @Column(name = "bonus_metadata", columnDefinition = "TEXT")
+    private String bonusMetadata;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "log_purpose", length = 30, columnDefinition = "VARCHAR(30) DEFAULT 'GENERAL'")
+    private LogPurpose purpose = LogPurpose.GENERAL;
+
     // Aggregate scoring fields (cached for performance)
     @Column(name = "total_qsos")
     private Integer totalQsos = 0;
@@ -87,6 +96,12 @@ public class Log {
     public enum LogType {
         PERSONAL,    // Single user's personal log
         SHARED       // Multi-user shared log (e.g., Field Day, club station)
+    }
+
+    // Log purposes
+    public enum LogPurpose {
+        GENERAL, FIELD_DAY, POTA, SOTA, CQ_WW, SWEEPSTAKES,
+        WINTER_FIELD_DAY, STATE_QSO_PARTY, DX_EXPEDITION, SPECIAL_EVENT
     }
 
     // Helper methods

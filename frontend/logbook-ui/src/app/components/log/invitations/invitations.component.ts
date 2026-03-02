@@ -216,8 +216,34 @@ export class InvitationsComponent implements OnInit {
       },
       error: (err) => {
         this.loading = false;
-        this.error = err.error?.message || 'Failed to send invitation';
-        console.error('Error creating invitation:', err);
+        const message: string = err.error?.message || '';
+        if (message.toLowerCase().includes('personal log')) {
+          const convert = confirm(
+            'This is a personal log. Converting it to a shared log will allow participants to be invited.\n' +
+            'This cannot be undone. Convert to shared?'
+          );
+          if (convert) {
+            this.logService.convertToShared(request.logId).subscribe({
+              next: () => {
+                this.logService.createInvitation(request).subscribe({
+                  next: () => {
+                    this.closeCreateModal();
+                    this.loadSentInvitations();
+                  },
+                  error: (retryErr) => {
+                    this.error = retryErr.error?.message || 'Failed to send invitation after conversion';
+                  }
+                });
+              },
+              error: (convertErr) => {
+                this.error = convertErr.error?.message || 'Failed to convert log to shared';
+              }
+            });
+          }
+        } else {
+          this.error = message || 'Failed to send invitation';
+          console.error('Error creating invitation:', err);
+        }
       }
     });
   }

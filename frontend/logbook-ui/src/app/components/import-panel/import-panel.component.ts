@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { LogService } from '../../services/log/log.service';
+import { LotwService, LotwSyncResult } from '../../services/lotw/lotw.service';
 import { Log } from '../../models/log.model';
 import { Station } from '../../models/station.model';
 
@@ -28,9 +29,19 @@ export class ImportPanelComponent implements OnInit {
   previewResult: any = null;
   stationMapping: { [key: string]: number } = {};
 
+  // LoTW sync state
+  showLotwSync = false;
+  lotwCallsign = '';
+  lotwPassword = '';
+  lotwSince = '';
+  lotwSyncing = false;
+  lotwResult: LotwSyncResult | null = null;
+  lotwError: string | null = null;
+
   constructor(
     private apiService: ApiService,
-    private logService: LogService
+    private logService: LogService,
+    private lotwService: LotwService
   ) {}
 
   ngOnInit(): void {
@@ -213,5 +224,42 @@ export class ImportPanelComponent implements OnInit {
   getLogName(): string {
     if (!this.currentLog) return 'No log selected';
     return this.currentLog.contestName || 'Personal Log';
+  }
+
+  // LoTW sync methods
+  syncLotw(): void {
+    if (!this.currentLog) { this.lotwError = 'Select a log first.'; return; }
+    if (!this.lotwCallsign.trim()) { this.lotwError = 'LoTW callsign is required.'; return; }
+    if (!this.lotwPassword) { this.lotwError = 'LoTW password is required.'; return; }
+
+    this.lotwSyncing = true;
+    this.lotwResult = null;
+    this.lotwError = null;
+
+    this.lotwService.sync(this.currentLog.id, {
+      lotwCallsign: this.lotwCallsign.trim().toUpperCase(),
+      lotwPassword: this.lotwPassword,
+      since: this.lotwSince || undefined
+    }).subscribe({
+      next: (result) => {
+        this.lotwResult = result;
+        this.lotwSyncing = false;
+        this.lotwPassword = ''; // clear password from memory
+      },
+      error: (err) => {
+        this.lotwError = err.error?.message || 'LoTW sync failed.';
+        this.lotwSyncing = false;
+        this.lotwPassword = '';
+      }
+    });
+  }
+
+  cancelLotwSync(): void {
+    this.showLotwSync = false;
+    this.lotwCallsign = '';
+    this.lotwPassword = '';
+    this.lotwSince = '';
+    this.lotwResult = null;
+    this.lotwError = null;
   }
 }

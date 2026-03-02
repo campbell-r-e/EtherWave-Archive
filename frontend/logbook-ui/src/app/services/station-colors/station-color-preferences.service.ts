@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface StationColorConfig {
   station1: string;
@@ -25,22 +27,19 @@ export const DEFAULT_STATION_COLORS: StationColorConfig = {
  * Station Color Preferences Service
  *
  * Manages user-customizable colors for stations 1-6 and GOTA.
- * Colors are used throughout the application for:
- * - Map markers and clusters
- * - Station badges
- * - Charts and visualizations
- * - Legend indicators
+ * Colors are persisted to the backend and cached in localStorage as a fallback.
  *
- * Backend API Endpoints Required:
- * - GET /api/user/station-colors - Load user's custom colors
- * - PUT /api/user/station-colors - Save user's custom colors
- * - DELETE /api/user/station-colors - Reset to defaults
+ * Backend API:
+ * - GET  /api/user/station-colors  — load saved colors (204 = use defaults)
+ * - PUT  /api/user/station-colors  — save colors
+ * - DELETE /api/user/station-colors — reset to defaults
  */
 @Injectable({
   providedIn: 'root'
 })
 export class StationColorPreferencesService {
   private readonly STORAGE_KEY = 'ew_station_colors';
+  private readonly apiUrl = `${environment.apiUrl}/user/station-colors`;
 
   private colorsSubject = new BehaviorSubject<StationColorConfig>(
     this.loadFromLocalStorage()
@@ -48,10 +47,9 @@ export class StationColorPreferencesService {
 
   public colors$: Observable<StationColorConfig> = this.colorsSubject.asObservable();
 
-  constructor() {
-    // Load colors from localStorage on initialization
-    const stored = this.loadFromLocalStorage();
-    this.colorsSubject.next(stored);
+  constructor(private http: HttpClient) {
+    // Attempt to sync from backend; localStorage cache is already active
+    this.loadFromBackend();
   }
 
   /**
@@ -103,7 +101,11 @@ export class StationColorPreferencesService {
    * Reset to default colors
    */
   resetToDefaults(): void {
-    this.updateColors({ ...DEFAULT_STATION_COLORS });
+    this.colorsSubject.next({ ...DEFAULT_STATION_COLORS });
+    this.saveToLocalStorage({ ...DEFAULT_STATION_COLORS });
+    this.http.delete(this.apiUrl).subscribe({
+      error: () => { /* localStorage already reset — backend failure is non-fatal */ }
+    });
   }
 
   /**
@@ -151,13 +153,12 @@ export class StationColorPreferencesService {
   }
 
   /**
-   * Update colors and persist
+   * Update colors, persist to localStorage and backend
    */
   private updateColors(colors: StationColorConfig): void {
     this.colorsSubject.next(colors);
     this.saveToLocalStorage(colors);
-    // TODO: Save to backend API
-    // this.http.put('/api/user/station-colors', colors).subscribe();
+    this.saveToBackend(colors);
   }
 
   /**
@@ -168,7 +169,6 @@ export class StationColorPreferencesService {
       const stored = localStorage.getItem(this.STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        // Merge with defaults to ensure all keys exist
         return { ...DEFAULT_STATION_COLORS, ...parsed };
       }
     } catch (error) {
@@ -190,22 +190,36 @@ export class StationColorPreferencesService {
   }
 
   /**
-   * Load colors from backend API
-   * TODO: Implement when backend endpoint is ready
+   * Load colors from backend; update subject and localStorage on success.
+   * 204 No Content means no custom colors saved — keep current defaults.
    */
-  async loadFromBackend(): Promise<void> {
-    // const colors = await this.http.get<StationColorConfig>('/api/user/station-colors').toPromise();
-    // if (colors) {
-    //   this.updateColors(colors);
-    // }
+  private loadFromBackend(): void {
+    this.http.get(this.apiUrl, { responseType: 'text', observe: 'response' }).subscribe({
+      next: (response) => {
+        if (response.status === 200 && response.body) {
+          try {
+            const parsed = JSON.parse(response.body);
+            const merged: StationColorConfig = { ...DEFAULT_STATION_COLORS, ...parsed };
+            this.colorsSubject.next(merged);
+            this.saveToLocalStorage(merged);
+          } catch {
+            // Corrupt JSON from backend — keep localStorage value
+          }
+        }
+        // 204 — no custom preferences saved; keep whatever is in localStorage/defaults
+      },
+      error: () => {
+        // Backend unavailable — localStorage fallback already active
+      }
+    });
   }
 
   /**
-   * Save colors to backend API
-   * TODO: Implement when backend endpoint is ready
+   * Persist colors to backend (fire-and-forget; localStorage is the source of truth on failure)
    */
-  async saveToBackend(): Promise<void> {
-    // const colors = this.getColors();
-    // await this.http.put('/api/user/station-colors', colors).toPromise();
+  private saveToBackend(colors: StationColorConfig): void {
+    this.http.put(this.apiUrl, colors).subscribe({
+      error: () => { /* Non-fatal — localStorage is already updated */ }
+    });
   }
 }

@@ -31,6 +31,7 @@ public class GridCoverageService {
     private final QSORepository qsoRepository;
     private final LogRepository logRepository;
     private final MaidenheadConverter maidenheadConverter;
+    private final MapDataService mapDataService;
 
     /**
      * Get grid coverage for a log
@@ -38,14 +39,15 @@ public class GridCoverageService {
      * @param logId Log ID
      * @param precision Grid precision (2, 4, 6, or 8) - auto-detect if null
      * @param includeNeighbors Include neighboring grids for visualization
+     * @param filters Optional filters to apply to QSOs
      * @return Grid coverage response
      */
     @Transactional(readOnly = true)
-    public GridCoverageResponse getGridCoverage(Long logId, Integer precision, boolean includeNeighbors) {
+    public GridCoverageResponse getGridCoverage(Long logId, Integer precision, boolean includeNeighbors, MapDataService.MapFilters filters) {
         log.info("Getting grid coverage for log {} with precision {}", logId, precision);
 
-        // Get all QSOs with grid squares
-        List<QSO> qsos = qsoRepository.findAllByLogId(logId).stream()
+        // Get filtered QSOs with grid squares
+        List<QSO> qsos = mapDataService.getFilteredQSOs(logId, filters).stream()
                 .filter(qso -> qso.getGridSquare() != null && !qso.getGridSquare().isBlank())
                 .collect(Collectors.toList());
 

@@ -23,6 +23,9 @@ import { ImportPanelComponent } from '../import-panel/import-panel.component';
 import { ScoreSummaryComponent } from '../score-summary/score-summary.component';
 import { FullscreenMapViewComponent } from '../fullscreen-map-view/fullscreen-map-view.component';
 import { StationColorSettingsComponent } from '../station-color-settings/station-color-settings.component';
+import { AwardProgressComponent } from '../award-progress/award-progress.component';
+import { DxClusterPanelComponent } from '../dx-cluster-panel/dx-cluster-panel.component';
+import { PropagationPanelComponent } from '../propagation-panel/propagation-panel.component';
 
 @Component({
     selector: 'app-dashboard',
@@ -39,7 +42,10 @@ import { StationColorSettingsComponent } from '../station-color-settings/station
     ImportPanelComponent,
     ScoreSummaryComponent,
     FullscreenMapViewComponent,
-    StationColorSettingsComponent
+    StationColorSettingsComponent,
+    AwardProgressComponent,
+    DxClusterPanelComponent,
+    PropagationPanelComponent
 ],
     templateUrl: './dashboard.component.html',
     styleUrls: ['./dashboard.component.css']

@@ -77,6 +77,10 @@ public class LogService {
         log.setStartDate(request.getStartDate());
         log.setEndDate(request.getEndDate());
         log.setIsPublic(request.getIsPublic() != null ? request.getIsPublic() : false);
+        // Personal logs are always private
+        if (log.getType() == Log.LogType.PERSONAL) {
+            log.setIsPublic(false);
+        }
         log.setActive(true);
         log.setEditable(true);
 
@@ -85,6 +89,16 @@ public class LogService {
             Contest contest = contestRepository.findById(request.getContestId())
                     .orElseThrow(() -> new IllegalArgumentException("Contest not found: " + request.getContestId()));
             log.setContest(contest);
+        }
+
+        // Auto-link contest from purpose if no explicit contestId was provided
+        log.setPurpose(request.getPurpose() != null ? request.getPurpose() : Log.LogPurpose.GENERAL);
+        if (log.getContest() == null && request.getPurpose() != null) {
+            String contestCode = purposeToContestCode(request.getPurpose());
+            if (contestCode != null) {
+                contestRepository.findByContestCode(contestCode)
+                        .ifPresent(log::setContest);
+            }
         }
 
         log = logRepository.save(log);
@@ -122,6 +136,12 @@ public class LogService {
         log.setStartDate(request.getStartDate());
         log.setEndDate(request.getEndDate());
         log.setIsPublic(request.getIsPublic() != null ? request.getIsPublic() : log.getIsPublic());
+        if (request.getBonusMetadata() != null) {
+            log.setBonusMetadata(request.getBonusMetadata());
+        }
+        if (request.getPurpose() != null) {
+            log.setPurpose(request.getPurpose());
+        }
 
         // Update contest if provided
         if (request.getContestId() != null) {
@@ -332,6 +352,29 @@ public class LogService {
     }
 
     /**
+     * Convert a PERSONAL log to SHARED (one-way, creator only)
+     */
+    @Transactional
+    public LogResponse convertToShared(Long logId, String username) {
+        User user = getUserByUsername(username);
+        Log log = getLogByIdOrThrow(logId);
+
+        if (!isCreator(log, user)) {
+            throw new SecurityException("Only the log creator can convert this log");
+        }
+        if (log.getType() == Log.LogType.SHARED) {
+            throw new IllegalStateException("Log is already shared");
+        }
+
+        log.setType(Log.LogType.SHARED);
+        log = logRepository.save(log);
+
+        LogService.log.info("Converted log '{}' (ID: {}) to SHARED by user '{}'", log.getName(), log.getId(), username);
+
+        return enrichLogResponse(log, user);
+    }
+
+    /**
      * Check if user has access to a log
      */
     public boolean hasAccess(Log log, User user) {
@@ -407,6 +450,22 @@ public class LogService {
         response.setQsoCount((int) qsoCount);
 
         return response;
+    }
+
+    /**
+     * Maps a LogPurpose to its associated contest code (or null if none)
+     */
+    private String purposeToContestCode(Log.LogPurpose purpose) {
+        return switch (purpose) {
+            case FIELD_DAY        -> "ARRL-FD";
+            case POTA             -> "POTA";
+            case SOTA             -> "SOTA";
+            case CQ_WW            -> "CQWW";
+            case SWEEPSTAKES      -> "ARRL-SS";
+            case WINTER_FIELD_DAY -> "WFD";
+            case STATE_QSO_PARTY  -> "STATE-QSO-PARTY";
+            default               -> null;
+        };
     }
 
     /**

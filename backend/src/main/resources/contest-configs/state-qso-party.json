@@ -1,0 +1,19 @@
+{
+  "contestCode": "STATE-QSO-PARTY",
+  "contestName": "State QSO Party",
+  "description": "Generic validator for state-level QSO parties sponsored by state and regional amateur radio clubs. Exchange is serial number and state/province.",
+  "validatorClass": "com.hamradio.logbook.validation.StateQSOPartyValidator",
+  "isActive": true,
+  "rulesConfig": {
+    "required_fields": ["serial", "state"],
+    "optional_fields": ["county"],
+    "valid_bands": ["160m", "80m", "40m", "20m", "15m", "10m", "6m", "2m"],
+    "scoring": {
+      "points_per_qso": 1,
+      "multiplier_type": "states_and_provinces",
+      "in_state_bonus": "County multipliers apply for in-state stations"
+    },
+    "duplicate_fields": ["callsign", "band", "mode"],
+    "notes": "Rules vary by individual state QSO party. This generic validator checks the common exchange elements. Consult the sponsoring organization's rules for complete details."
+  }
+}

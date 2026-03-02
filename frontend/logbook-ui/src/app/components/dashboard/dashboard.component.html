@@ -118,19 +118,23 @@
     <!-- Dashboard Content (Only show when log is selected) -->
     @if (currentLog) {
       <div>
-        <!-- Row 1: Score Summary (Full Width) -->
+        <!-- Row 1: Score Summary + Award Progress -->
         <div class="row mb-4">
-          <div class="col-12">
+          <div class="col-12 col-xl-6 mb-4 mb-xl-0">
             <app-score-summary></app-score-summary>
           </div>
+          <div class="col-12 col-xl-6">
+            <app-award-progress></app-award-progress>
+          </div>
         </div>
-        <!-- Row 2: QSO Entry and Rig Status -->
+        <!-- Row 2: QSO Entry, Rig Status, and Propagation -->
         <div class="row mb-4">
           <div class="col-lg-8">
             <app-qso-entry></app-qso-entry>
           </div>
-          <div class="col-lg-4">
+          <div class="col-lg-4 d-flex flex-column gap-3">
             <app-rig-status></app-rig-status>
+            <app-propagation-panel></app-propagation-panel>
           </div>
         </div>
         <!-- Row 3: Contest Selection and Station Management (Creator/Operator Only) -->
@@ -170,7 +174,13 @@
             <app-qso-list></app-qso-list>
           </div>
         </div>
-        <!-- Row 5: Export Panel -->
+        <!-- Row 5: DX Cluster -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <app-dx-cluster-panel></app-dx-cluster-panel>
+          </div>
+        </div>
+        <!-- Row 6: Export Panel -->
         <div class="row mb-4">
           <div class="col-12">
             <app-export-panel></app-export-panel>

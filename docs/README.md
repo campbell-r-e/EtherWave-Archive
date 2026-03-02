@@ -111,7 +111,7 @@ EtherWave Archive provides amateur radio operators with a modern, feature-rich l
                             ↕ HTTP/WebSocket
 ┌─────────────────────────────────────────────────────────────┐
 │                         Backend                              │
-│  Spring Boot 3.2.0 + Spring Security + JWT                  │
+│  Spring Boot 4.0.3 + Spring Security + JWT                  │
 │  - REST API Controllers                                      │
 │  - Service Layer (Business Logic)                           │
 │  - Permission Checking (LogService)                         │
@@ -188,8 +188,9 @@ ADMIN_USERNAME=admin
 ADMIN_PASSWORD=admin123
 # ADMIN_EMAIL removed — email not required
 
-# QRZ API (optional)
-QRZ_API_KEY=your-qrz-api-key
+# QRZ API (optional — enables callsign lookup)
+QRZ_USERNAME=your-qrz-username
+QRZ_PASSWORD=your-qrz-password
 ```
 
 ## Documentation Structure
@@ -299,7 +300,7 @@ Hamradiologbook/
 │   │       └── validation/           # Contest validators
 │   ├── src/main/resources/
 │   │   ├── application.properties    # App configuration
-│   │   └── contest-definitions/      # Contest JSON configs
+│   │   └── contest-configs/          # Contest JSON configs
 │   └── pom.xml                       # Maven dependencies
 │
 ├── frontend/logbook-ui/              # Angular frontend

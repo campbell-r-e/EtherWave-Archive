@@ -2,14 +2,12 @@
 
 ##  Test Coverage Overview
 
-This project has achieved comprehensive test coverage with **2,000+ tests** across all layers:
+- **Backend (Java/Spring Boot)**: 230 tests — 100% passing
+- **Frontend (Angular)**: No tests implemented yet
+- **E2E**: No tests implemented yet
+- **Rig Control**: No tests implemented yet
 
-- **Backend (Java/Spring Boot)**: 920+ tests - ~85-90% coverage
-- **Frontend (Angular)**: 1,060+ tests - ~75-80% coverage
-- **E2E (Playwright)**: 25+ critical path scenarios
-- **Rig Control**: 30+ integration tests
-
-**Total Lines of Test Code**: Over 50,000 lines
+See [backend/TESTING.md](backend/TESTING.md) for the full backend test breakdown.
 
 ---
 
@@ -40,87 +38,26 @@ mvn org.pitest:pitest-maven:mutationCoverage
 ```
 Mutation report will be generated at: `backend/target/pit-reports/index.html`
 
-#### Run Integration Tests Only
+#### Run Specific Validator Suite
 ```bash
-mvn test -Dtest=**/*IntegrationTest
-```
-
-#### Run Edge Case Tests Only
-```bash
-mvn test -Dtest=**/*EdgeCaseTest
+mvn test -Dtest="CQWWValidatorTest"
+mvn test -Dtest="ARRLSweepstakesValidatorTest"
+mvn test -Dtest="StateQSOPartyValidatorTest"
 ```
 
 ---
 
-### Frontend Tests (Angular/Jasmine/Karma)
+### Frontend Tests
 
-#### Run All Tests
+Frontend tests are not yet implemented. When added, they will be run with:
 ```bash
 cd frontend/logbook-ui
 npm test
 ```
 
-#### Run Tests with Coverage
-```bash
-npm run test:coverage
-```
-Coverage report will be generated at: `frontend/logbook-ui/coverage/index.html`
+### E2E Tests
 
-#### Run Tests in Headless Mode (CI/CD)
-```bash
-npm run test:ci
-```
-
-#### Run Specific Test File
-```bash
-npm test -- --include='**/auth.service.spec.ts'
-```
-
-#### Run Mutation Tests (Stryker)
-```bash
-npm run test:mutation
-```
-Mutation report will be generated at: `frontend/logbook-ui/reports/mutation/index.html`
-
----
-
-### E2E Tests (Playwright)
-
-#### Run All E2E Tests
-```bash
-cd e2e
-npx playwright test
-```
-
-#### Run Tests in Headed Mode
-```bash
-npx playwright test --headed
-```
-
-#### Run Specific Test File
-```bash
-npx playwright test critical-paths.spec.ts
-```
-
-#### Run Tests with UI
-```bash
-npx playwright test --ui
-```
-
-#### Generate HTML Report
-```bash
-npx playwright show-report
-```
-
----
-
-### Rig Control Tests
-
-#### Run Rig Control Integration Tests
-```bash
-cd rig-control-service
-mvn clean test
-```
+E2E tests are not yet implemented.
 
 ---
 
@@ -133,39 +70,12 @@ mvn clean test
 - Branch Coverage: **80%**
 
 **View Report:**
-1. Run: `mvn clean test jacoco:report`
+1. Run: `cd backend && mvn clean test jacoco:report`
 2. Open: `backend/target/site/jacoco/index.html`
-
-**Coverage Breakdown:**
-- Services: ~90%
-- Controllers: ~88%
-- Repositories: ~85%
-- Validators: ~95%
-- Security: ~87%
-
-### Frontend Coverage (Karma/Istanbul)
-
-**Minimum Thresholds:**
-- Statements: **80%**
-- Branches: **75%**
-- Functions: **80%**
-- Lines: **80%**
-
-**View Report:**
-1. Run: `npm run test:coverage`
-2. Open: `frontend/logbook-ui/coverage/index.html`
-
-**Coverage Breakdown:**
-- Components: ~78%
-- Services: ~85%
-- Guards: ~90%
-- Pipes: ~80%
 
 ---
 
 ##  Mutation Testing
-
-Mutation testing ensures test quality by introducing small changes (mutations) to the code and verifying that tests catch them.
 
 ### Backend Mutation Testing (PITest)
 
@@ -175,88 +85,33 @@ cd backend
 mvn org.pitest:pitest-maven:mutationCoverage
 ```
 
-**Mutation Score Target**: **80%**
+**Note**: PITest does not yet support Java 25. Mutation testing will fail to run, but all 230 unit tests pass.
 
-**Mutation Operators Used:**
-- Conditionals Boundary Mutator
-- Increments Mutator
-- Invert Negatives Mutator
-- Math Mutator
-- Negate Conditionals Mutator
-- Return Values Mutator
-- Void Method Call Mutator
-
-**Excluded from Mutation:**
-- Configuration classes
-- Model/Entity classes
-- Main application class
-
-**View Report:**
-Open: `backend/target/pit-reports/index.html`
-
-### Frontend Mutation Testing (Stryker)
-
-**Install Stryker:**
-```bash
-cd frontend/logbook-ui
-npm install --save-dev @stryker-mutator/core @stryker-mutator/karma-runner @stryker-mutator/typescript-checker
-```
-
-**Run Mutation Tests:**
-```bash
-npm run test:mutation
-```
-
-**Mutation Score Thresholds:**
-- High: **85%**
-- Low: **75%**
-- Break: **70%** (build fails below this)
-
-**View Report:**
-Open: `frontend/logbook-ui/reports/mutation/index.html`
+**Mutation Score Target**: **80%** (when PITest supports Java 25)
 
 ---
 
 ##  Test Categories
 
-### Unit Tests
-Test individual components in isolation with mocked dependencies.
-
-**Backend Examples:**
-- `QSOServiceTest.java` - Business logic tests
-- `JwtUtilTest.java` - JWT utility tests
-
-**Frontend Examples:**
-- `auth.service.spec.ts` - Authentication service tests
-- `qso-list.component.spec.ts` - Component tests
-
-### Integration Tests
-Test interactions between multiple components with real dependencies.
-
-**Backend Examples:**
-- `QSORepositoryTest.java` - Database integration with Testcontainers
-- `CompleteWorkflowIntegrationTest.java` - End-to-end workflows
-
-**Frontend Examples:**
-- HTTP interceptor tests
-- Component interaction tests
-
-### Edge Case Tests
-Test boundary conditions, null inputs, and error scenarios.
-
-**Backend Examples:**
-- `QSOServiceEdgeCaseTest.java` - 40+ edge cases
-- `LogServiceEdgeCaseTest.java` - 35+ edge cases
-
-### E2E Tests
-Test complete user workflows from UI to database.
+### Validation Tests (Backend)
+Test contest-specific validation rules in isolation.
 
 **Examples:**
-- User registration and login
-- Create log and log first QSO
-- Multi-user collaboration
-- Import/Export workflows
-- Rig control integration
+- `FieldDayValidatorTest.java` - 76 tests for ARRL Field Day
+- `POTAValidatorTest.java` - 14 tests for Parks on the Air
+- `SOTAValidatorTest.java` - 13 tests for Summits on the Air
+- `WinterFieldDayValidatorTest.java` - 16 tests for Winter Field Day
+- `CQWWValidatorTest.java` - 30 tests for CQ World Wide DX
+- `ARRLSweepstakesValidatorTest.java` - 42 tests for ARRL Sweepstakes
+- `StateQSOPartyValidatorTest.java` - 27 tests for State QSO Parties
+
+### Service Tests (Backend)
+Test export/import logic.
+
+**Examples:**
+- `AdifExportServiceTest.java` - 7 tests for ADIF export
+- `AdifImportServiceTest.java` - 3 tests for ADIF import
+- `CabrilloExportServiceTest.java` - 2 tests for Cabrillo export
 
 ---
 
@@ -320,46 +175,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-      - name: Run tests with coverage
+      - name: Run backend tests
         run: |
           cd backend
-          mvn clean test jacoco:report
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./backend/target/site/jacoco/jacoco.xml
-
-  frontend-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      - name: Run tests with coverage
-        run: |
-          cd frontend/logbook-ui
-          npm ci
-          npm run test:ci
-      - name: Upload coverage
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./frontend/logbook-ui/coverage/lcov.info
-
-  e2e-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Run E2E tests
-        run: |
-          cd e2e
-          npx playwright install --with-deps
-          npx playwright test
+          docker run --rm -v $(pwd):/app -v ~/.m2:/root/.m2 -w /app \
+            maven:3.9-eclipse-temurin-25-alpine mvn test --no-transfer-progress
 ```
 
 ---
@@ -426,29 +246,9 @@ describe('YourComponent', () => {
 
 ### Backend
 ```bash
-# Run single test with debug output
-mvn test -Dtest=YourTest -X
-
-# Run with specific log level
-mvn test -Dlogging.level.com.hamradio.logbook=DEBUG
-```
-
-### Frontend
-```bash
-# Run tests in watch mode
-npm test
-
-# Run with browser open for debugging
-ng test --browsers Chrome
-```
-
-### E2E
-```bash
-# Run with debug mode
-npx playwright test --debug
-
-# Generate trace for failed tests
-npx playwright test --trace on
+# Run single test with debug output (via Docker)
+docker run --rm -v $(pwd)/backend:/app -v ~/.m2:/root/.m2 -w /app \
+  maven:3.9-eclipse-temurin-25-alpine mvn test -Dtest=YourTest -X --no-transfer-progress
 ```
 
 ---
@@ -456,16 +256,14 @@ npx playwright test --trace on
 ##  Test Metrics
 
 ### Current Test Statistics
-- **Total Tests**: 2,015+
-- **Total Test Files**: 95+
-- **Total Test LOC**: 50,000+
-- **Average Execution Time**: ~3 minutes (backend), ~2 minutes (frontend)
+- **Backend Tests**: 230 (100% passing)
+- **Frontend Tests**: Not yet implemented
+- **E2E Tests**: Not yet implemented
+- **Average Backend Execution Time**: ~20 seconds (via Docker)
 
 ### Coverage Goals
 - **Line Coverage**: ≥85%
 - **Branch Coverage**: ≥80%
-- **Mutation Score**: ≥80%
-- **E2E Coverage**: All critical paths
 
 ---
 
@@ -504,8 +302,6 @@ When adding new features:
 
 ---
 
-##  Achievement Unlocked!
+##  Backend Test Suite: 230/230 Passing
 
-** 100% Test Coverage Champion**
-
-This project demonstrates professional-grade testing practices with comprehensive coverage across all layers of a complex multi-user system.
+All backend validators and export/import services have comprehensive test coverage. Frontend and E2E tests are planned for a future milestone.

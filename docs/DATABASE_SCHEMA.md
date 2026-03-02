@@ -135,36 +135,38 @@ Stores user authentication and profile information.
 
 ```sql
 CREATE TABLE users (
-    id                  BIGINT PRIMARY KEY AUTO_INCREMENT,
-    username            VARCHAR(50) UNIQUE NOT NULL,
-    email               VARCHAR(100) UNIQUE NOT NULL,
-    password            VARCHAR(255) NOT NULL,  -- BCrypt hash
-    callsign            VARCHAR(20),
-    qrz_api_key         VARCHAR(255),
-    last_login_at       TIMESTAMP,
-    created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    id                      BIGINT PRIMARY KEY AUTO_INCREMENT,
+    username                VARCHAR(50) UNIQUE NOT NULL,
+    password                VARCHAR(255) NOT NULL,  -- BCrypt hash
+    callsign                VARCHAR(20),
+    full_name               VARCHAR(100),
+    grid_square             VARCHAR(10),
+    enabled                 BOOLEAN DEFAULT TRUE,
+    account_non_expired     BOOLEAN DEFAULT TRUE,
+    account_non_locked      BOOLEAN DEFAULT TRUE,
+    credentials_non_expired BOOLEAN DEFAULT TRUE,
+    created_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     INDEX idx_username (username),
-    INDEX idx_email (email),
     INDEX idx_callsign (callsign)
 );
 ```
 
 **Fields**:
 - `id`: Primary key
-- `username`: Unique username for login (3-50 chars)
-- `email`: Unique email address
+- `username`: Unique username for login — no email required or stored
 - `password`: BCrypt hashed password
 - `callsign`: Amateur radio callsign (optional)
-- `qrz_api_key`: User's personal QRZ.com API key
-- `last_login_at`: Last successful login timestamp
+- `full_name`: Operator's full name (optional)
+- `grid_square`: Maidenhead grid square (optional)
+- `enabled`, `account_non_expired`, etc.: Spring Security account status flags
 - `created_at`: Account creation timestamp
 - `updated_at`: Last update timestamp
 
 **Notes**:
 - Passwords are hashed with BCrypt (cost factor 10)
-- Email and username must be unique across all users
+- Username must be unique — no email field exists in this system
 - Callsign is optional but recommended
 
 ---

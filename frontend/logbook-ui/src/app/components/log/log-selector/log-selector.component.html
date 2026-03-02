@@ -27,21 +27,63 @@
               }
             </button>
             <ul class="dropdown-menu w-100" aria-labelledby="logDropdown">
-              @for (log of logs; track log) {
+              <!-- My Personal Logs section -->
+              <li><h6 class="dropdown-header">My Personal Logs</h6></li>
+              @for (log of personalLogs; track log) {
                 <li>
                   <a class="dropdown-item" (click)="selectLog(log)">
                     <div class="d-flex justify-content-between align-items-start">
                       <div>
                         <div class="d-flex align-items-center gap-2 mb-1">
                           <strong>{{ log.name }}</strong>
-                          @if (isOwnedLog(log)) {
-                            <span class="ew-owner-badge">
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                              </svg>
-                              Owner
-                            </span>
-                          } @else {
+                        </div>
+                        <small class="text-muted">{{ log.description }}</small>
+                        <br>
+                        @if (log.purpose && log.purpose !== LogPurpose.GENERAL) {
+                          <span class="badge bg-secondary me-1">
+                            {{ getPurposeLabel(log.purpose) }}
+                          </span>
+                        }
+                        <span class="badge bg-light text-dark">
+                          <i class="bi bi-broadcast me-1"></i>{{ log.qsoCount }}
+                        </span>
+                      </div>
+                      <div class="btn-group btn-group-sm" role="group" [attr.aria-label]="'Actions for ' + log.name">
+                        @if (canDelete(log)) {
+                          <button
+                            type="button"
+                            class="btn btn-outline-danger btn-sm"
+                            (click)="deleteLog(log, $event)"
+                            [attr.aria-label]="'Delete log ' + log.name">
+                            <i class="bi bi-trash" aria-hidden="true"></i>
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  </a>
+                </li>
+              }
+              @if (personalLogs.length === 0) {
+                <li>
+                  <span class="dropdown-item text-muted fst-italic">No personal logs yet</span>
+                </li>
+              }
+              <li>
+                <a class="dropdown-item" (click)="openCreatePersonalLog()">
+                  <i class="bi bi-plus-circle me-2"></i>New Personal Log
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <!-- Shared Logs section -->
+              <li><h6 class="dropdown-header">Shared Logs</h6></li>
+              @for (log of sharedLogs; track log) {
+                <li>
+                  <a class="dropdown-item" (click)="selectLog(log)">
+                    <div class="d-flex justify-content-between align-items-start">
+                      <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                          <strong>{{ log.name }}</strong>
+                          @if (!isOwnedLog(log)) {
                             <span class="ew-shared-badge">
                               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -49,61 +91,62 @@
                                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
                                 <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                               </svg>
-                              Shared
+                              Invited
                             </span>
                           }
                         </div>
                         <small class="text-muted">{{ log.description }}</small>
-                          <br>
-                            <span [class]="getTypeBadgeClass(log.type)" class="me-1">
-                              {{ log.type }}
-                            </span>
-                            <span [class]="getRoleBadgeClass(log.userRole || '')" class="me-1">
-                              {{ log.userRole }}
-                            </span>
-                            <span class="badge bg-light text-dark">
-                              <i class="bi bi-person-fill me-1"></i>{{ log.participantCount }}
-                            </span>
-                            <span class="badge bg-light text-dark">
-                              <i class="bi bi-broadcast me-1"></i>{{ log.qsoCount }}
-                            </span>
-                          </div>
-                          <div class="btn-group btn-group-sm" role="group" [attr.aria-label]="'Actions for ' + log.name">
-                            @if (canDelete(log)) {
-                              <button
-                                type="button"
-                                class="btn btn-outline-danger btn-sm"
-                                (click)="deleteLog(log, $event)"
-                                [attr.aria-label]="'Delete log ' + log.name">
-                                <i class="bi bi-trash" aria-hidden="true"></i>
-                              </button>
-                            }
-                            @if (canLeave(log)) {
-                              <button
-                                type="button"
-                                class="btn btn-outline-warning btn-sm"
-                                (click)="leaveLog(log, $event)"
-                                [attr.aria-label]="'Leave log ' + log.name">
-                                <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
-                              </button>
-                            }
-                          </div>
-                        </div>
-                      </a>
-                    </li>
-                  }
-                  @if (logs.length === 0) {
-                    <li>
-                      <span class="dropdown-item text-muted">No logs available</span>
-                    </li>
-                  }
-                  <li><hr class="dropdown-divider"></li>
-                  <li>
-                    <a class="dropdown-item" (click)="openCreateModal()">
-                      <i class="bi bi-plus-circle me-2"></i>Create New Log
-                    </a>
-                  </li>
-                </ul>
+                        <br>
+                        @if (log.purpose && log.purpose !== LogPurpose.GENERAL) {
+                          <span class="badge bg-secondary me-1">
+                            {{ getPurposeLabel(log.purpose) }}
+                          </span>
+                        }
+                        <span [class]="getRoleBadgeClass(log.userRole || '')" class="me-1">
+                          {{ log.userRole }}
+                        </span>
+                        <span class="badge bg-light text-dark">
+                          <i class="bi bi-person-fill me-1"></i>{{ log.participantCount }}
+                        </span>
+                        <span class="badge bg-light text-dark">
+                          <i class="bi bi-broadcast me-1"></i>{{ log.qsoCount }}
+                        </span>
+                      </div>
+                      <div class="btn-group btn-group-sm" role="group" [attr.aria-label]="'Actions for ' + log.name">
+                        @if (canDelete(log)) {
+                          <button
+                            type="button"
+                            class="btn btn-outline-danger btn-sm"
+                            (click)="deleteLog(log, $event)"
+                            [attr.aria-label]="'Delete log ' + log.name">
+                            <i class="bi bi-trash" aria-hidden="true"></i>
+                          </button>
+                        }
+                        @if (canLeave(log)) {
+                          <button
+                            type="button"
+                            class="btn btn-outline-warning btn-sm"
+                            (click)="leaveLog(log, $event)"
+                            [attr.aria-label]="'Leave log ' + log.name">
+                            <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  </a>
+                </li>
+              }
+              @if (sharedLogs.length === 0) {
+                <li>
+                  <span class="dropdown-item text-muted fst-italic">No shared logs yet</span>
+                </li>
+              }
+              <li>
+                <a class="dropdown-item" (click)="openCreateSharedLog()">
+                  <i class="bi bi-plus-circle me-2"></i>New Shared Log
+                </a>
+              </li>
+            </ul>
               </div>
             </div>
             <div class="col-md-4 text-end">
@@ -154,7 +197,9 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h2 class="modal-title h5" id="create-log-title">Create New Log</h2>
+            <h2 class="modal-title h5" id="create-log-title">
+              {{ creatingType === LogType.PERSONAL ? 'Create Personal Log' : 'Create Shared Log' }}
+            </h2>
             <button type="button" class="btn-close" (click)="closeCreateModal()" aria-label="Close create log dialog"></button>
           </div>
           <div class="modal-body">
@@ -190,26 +235,41 @@
               </div>
 
               <div class="mb-3">
-                <label for="logType" class="form-label">Log Type *</label>
+                <label for="logPurpose" class="form-label">Purpose</label>
                 <select
                   class="form-select"
-                  id="logType"
-                  formControlName="type">
-                  <option [value]="LogType.PERSONAL">Personal</option>
-                  <option [value]="LogType.SHARED">Shared</option>
+                  id="logPurpose"
+                  formControlName="purpose">
+                  <option [value]="LogPurpose.GENERAL">General</option>
+                  <option [value]="LogPurpose.FIELD_DAY">Field Day</option>
+                  <option [value]="LogPurpose.POTA">POTA</option>
+                  <option [value]="LogPurpose.SOTA">SOTA</option>
+                  <option [value]="LogPurpose.CQ_WW">CQ WW</option>
+                  <option [value]="LogPurpose.SWEEPSTAKES">Sweepstakes</option>
+                  <option [value]="LogPurpose.WINTER_FIELD_DAY">Winter Field Day</option>
+                  <option [value]="LogPurpose.STATE_QSO_PARTY">State QSO Party</option>
+                  <option [value]="LogPurpose.DX_EXPEDITION">DX Expedition</option>
+                  <option [value]="LogPurpose.SPECIAL_EVENT">Special Event</option>
                 </select>
+                @if (selectedPurposeContest) {
+                  <div class="form-text text-info">
+                    Selecting this purpose will automatically link the {{ selectedPurposeContest }} contest for scoring.
+                  </div>
+                }
               </div>
 
-              <div class="mb-3 form-check">
-                <input
-                  type="checkbox"
-                  class="form-check-input"
-                  id="logPublic"
-                  formControlName="isPublic">
-                <label class="form-check-label" for="logPublic">
-                  Make this log public (anyone can view)
-                </label>
-              </div>
+              @if (creatingType === LogType.SHARED) {
+                <div class="mb-3 form-check">
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    id="logPublic"
+                    formControlName="isPublic">
+                  <label class="form-check-label" for="logPublic">
+                    Make this log public (anyone can view)
+                  </label>
+                </div>
+              }
             </form>
 
             @if (error) {
