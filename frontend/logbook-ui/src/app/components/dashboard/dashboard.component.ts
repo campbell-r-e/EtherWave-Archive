@@ -24,7 +24,7 @@ import { ScoreSummaryComponent } from '../score-summary/score-summary.component'
 import { FullscreenMapViewComponent } from '../fullscreen-map-view/fullscreen-map-view.component';
 import { StationColorSettingsComponent } from '../station-color-settings/station-color-settings.component';
 import { AwardProgressComponent } from '../award-progress/award-progress.component';
-import { DxClusterPanelComponent } from '../dx-cluster-panel/dx-cluster-panel.component';
+import { DXClusterPanelComponent } from '../dx-cluster-panel/dx-cluster-panel.component';
 import { PropagationPanelComponent } from '../propagation-panel/propagation-panel.component';
 
 @Component({
@@ -44,7 +44,7 @@ import { PropagationPanelComponent } from '../propagation-panel/propagation-pane
     FullscreenMapViewComponent,
     StationColorSettingsComponent,
     AwardProgressComponent,
-    DxClusterPanelComponent,
+    DXClusterPanelComponent,
     PropagationPanelComponent
 ],
     templateUrl: './dashboard.component.html',
