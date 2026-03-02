@@ -214,4 +214,51 @@ public interface QSORepository extends JpaRepository<QSO, Long> {
             @Param("log") com.hamradio.logbook.entity.Log log,
             @Param("isGota") Boolean isGota
     );
+
+    // ===========================
+    // Award tracking queries
+    // ===========================
+
+    /**
+     * Get distinct countries contacted for a specific log (DXCC award)
+     */
+    @Query("SELECT DISTINCT q.country FROM QSO q WHERE q.log.id = :logId AND q.country IS NOT NULL AND q.country <> ''")
+    List<String> findDistinctCountriesByLogId(@Param("logId") Long logId);
+
+    /**
+     * Get distinct countries confirmed (LoTW or QSL) for a specific log
+     */
+    @Query("SELECT DISTINCT q.country FROM QSO q WHERE q.log.id = :logId AND q.country IS NOT NULL AND q.country <> '' " +
+           "AND (q.lotwRcvd = 'Y' OR q.qslRcvd = 'Y')")
+    List<String> findDistinctConfirmedCountriesByLogId(@Param("logId") Long logId);
+
+    /**
+     * Get distinct US states contacted for a specific log (WAS award)
+     */
+    @Query("SELECT DISTINCT q.state FROM QSO q WHERE q.log.id = :logId AND q.state IS NOT NULL AND q.state <> '' " +
+           "AND q.country = 'USA'")
+    List<String> findDistinctStatesByLogIdForWAS(@Param("logId") Long logId);
+
+    /**
+     * Get distinct US states confirmed (LoTW or QSL) for a specific log
+     */
+    @Query("SELECT DISTINCT q.state FROM QSO q WHERE q.log.id = :logId AND q.state IS NOT NULL AND q.state <> '' " +
+           "AND q.country = 'USA' AND (q.lotwRcvd = 'Y' OR q.qslRcvd = 'Y')")
+    List<String> findDistinctConfirmedStatesByLogId(@Param("logId") Long logId);
+
+    /**
+     * Get distinct 4-character grid squares contacted for a specific log (VUCC award)
+     * Uses SUBSTRING to extract the first 4 characters (e.g. "EM72" from "EM72ab")
+     */
+    @Query("SELECT DISTINCT SUBSTRING(q.gridSquare, 1, 4) FROM QSO q WHERE q.log.id = :logId " +
+           "AND q.gridSquare IS NOT NULL AND LENGTH(q.gridSquare) >= 4")
+    List<String> findDistinctGrid4ByLogId(@Param("logId") Long logId);
+
+    /**
+     * Get distinct 4-character grid squares confirmed for a specific log
+     */
+    @Query("SELECT DISTINCT SUBSTRING(q.gridSquare, 1, 4) FROM QSO q WHERE q.log.id = :logId " +
+           "AND q.gridSquare IS NOT NULL AND LENGTH(q.gridSquare) >= 4 " +
+           "AND (q.lotwRcvd = 'Y' OR q.qslRcvd = 'Y')")
+    List<String> findDistinctConfirmedGrid4ByLogId(@Param("logId") Long logId);
 }

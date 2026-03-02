@@ -1,0 +1,29 @@
+{
+  "contestCode": "ARRL-SS",
+  "contestName": "ARRL Sweepstakes",
+  "description": "Annual fall contest covering all ARRL and RAC sections. Exchange is serial number, precedence, callsign, check, and section.",
+  "validatorClass": "com.hamradio.logbook.validation.ARRLSweepstakesValidator",
+  "isActive": true,
+  "rulesConfig": {
+    "required_fields": ["serial", "precedence", "check", "section"],
+    "valid_precedences": ["Q", "A", "B", "M", "S", "U"],
+    "precedence_descriptions": {
+      "Q": "QRP (under 5 watts)",
+      "A": "Low power (under 100 watts)",
+      "B": "High power (100 watts or more)",
+      "M": "Multi-operator",
+      "S": "School or youth club",
+      "U": "Unlimited"
+    },
+    "check_format": "Two digits representing the last two digits of the year first licensed",
+    "valid_bands": ["160m", "80m", "40m", "20m", "15m", "10m"],
+    "scoring": {
+      "points_per_qso": 2,
+      "multiplier_type": "arrl_rac_sections",
+      "max_multiplier": 83
+    },
+    "duplicate_fields": ["callsign"],
+    "operating_period_hours": 24,
+    "notes": "ARRL Sweepstakes Phone is held the first full weekend in November; CW is the second full weekend in November. 83 sections are the maximum multiplier."
+  }
+}

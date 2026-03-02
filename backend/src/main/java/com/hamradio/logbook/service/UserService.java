@@ -89,4 +89,23 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
+
+    public Optional<String> getStationColorPreferences(String username) {
+        return userRepository.findByUsername(username)
+                .map(User::getStationColorPreferences);
+    }
+
+    public void saveStationColorPreferences(String username, String colorsJson) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        user.setStationColorPreferences(colorsJson);
+        userRepository.save(user);
+    }
+
+    public void resetStationColorPreferences(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        user.setStationColorPreferences(null);
+        userRepository.save(user);
+    }
 }

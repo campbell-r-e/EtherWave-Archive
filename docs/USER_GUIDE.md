@@ -27,7 +27,6 @@ Complete guide for using the Ham Radio Contest Logbook system.
 2. Click **Register** to create a new account
 3. Fill in your details:
    - **Username**: Your unique username
-   - **Email**: Your email address
    - **Password**: Secure password (min 8 characters)
    - **Callsign**: Your amateur radio callsign (optional but recommended)
 4. Click **Create Account**
@@ -122,31 +121,54 @@ A **Log** is a collection of QSOs for a specific purpose:
 
 ### Creating a New Log
 
+Logs come in two types with distinct creation paths:
+
+**Personal Log** — private, single-user only. No participants, never public.
+
 1. Click the **Log Dropdown** at the top of the dashboard
-2. Click **Create New Log**
+2. Click **New Personal Log** at the bottom of the "My Personal Logs" section
+3. Fill in the log details:
+   - **Name**: Descriptive name (e.g., "General 2024")
+   - **Description**: Optional details
+   - **Purpose**: Select the operating activity (Field Day, POTA, SOTA, etc.)
+4. Click **Create Log**
+
+**Shared Log** — multi-operator, can be made public for viewers.
+
+1. Click the **Log Dropdown** at the top of the dashboard
+2. Click **New Shared Log** at the bottom of the "Shared Logs" section
 3. Fill in the log details:
    - **Name**: Descriptive name (e.g., "ARRL Field Day 2024")
    - **Description**: Optional details
-   - **Type**: Personal or Shared
-   - **Contest** (optional): Select if this is a contest log
-   - **Start/End Dates** (optional): For contest period enforcement
-   - **Public**: Check if you want others to view (read-only)
+   - **Purpose**: Select the operating activity
+   - **Public**: Check if you want anyone to view (read-only access)
 4. Click **Create Log**
+
+**Note**: Personal logs can be converted to Shared logs later if you need to invite participants. This conversion is one-way.
 
 ### Selecting a Log
 
 All QSO operations are log-specific. You must select a log before logging QSOs:
 
 1. Click the **Log Dropdown** at the top
-2. Select the log you want to work with
-3. The log name will display in the dropdown
-4. All dashboard components now operate within this log context
+2. The dropdown shows two sections: **My Personal Logs** and **Shared Logs**
+3. Click the log you want to work with
+4. The log name and type badge will display in the dropdown button
+5. All dashboard components now operate within this log context
 
 ### Log Information Display
 
-The log dropdown shows:
+The log dropdown shows logs in two labeled sections:
+
+**My Personal Logs** — your private logs:
 - **Log Name**
-- **Type Badge**: PERSONAL or SHARED
+- **Purpose Badge**: Shown if not General (e.g., POTA, SOTA, Field Day)
+- **QSO Count**: Total contacts in the log
+
+**Shared Logs** — multi-operator logs you created or were invited to:
+- **Log Name**
+- **Invited Badge**: Shown if you didn't create the log
+- **Purpose Badge**: Shown if not General
 - **Your Role Badge**: CREATOR, STATION, or VIEWER
 - **Participant Count**: Number of operators
 - **QSO Count**: Total contacts in the log
@@ -351,15 +373,13 @@ When connected:
 ### Supported Contests
 
 The system includes validators for:
-- **CQ World Wide DX Contest** (CW and SSB)
-- **ARRL Sweepstakes**
-- **ARRL Field Day**
-- **ARRL 10 Meter Contest**
-- **ARRL DX Contest**
-- **Parks on the Air (POTA)**
-- **Summits on the Air (SOTA)**
-- **State QSO Parties** (various states)
-- And many more...
+- **CQ World Wide DX Contest** (CW and SSB) — exchange: RST + CQ Zone
+- **ARRL Sweepstakes** — exchange: serial, precedence, check, section
+- **ARRL Field Day** — exchange: class, section
+- **Winter Field Day** — exchange: class (indoor/outdoor/home), section
+- **Parks on the Air (POTA)** — exchange: park reference
+- **Summits on the Air (SOTA)** — exchange: summit reference
+- **State QSO Parties** — exchange: serial, state/province
 
 ### Contest-Specific Features
 

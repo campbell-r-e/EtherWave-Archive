@@ -3,7 +3,7 @@ import { Observable, combineLatest, map } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { LogService } from '../log/log.service';
 import { User } from '../../models/auth/user.model';
-import { Log } from '../../models/log.model';
+import { Log, ParticipantRole } from '../../models/log.model';
 
 export interface UserPermissions {
   // Log-level permissions
@@ -85,13 +85,10 @@ export class PermissionsService {
       return defaultPermissions;
     }
 
-    // Check if user is the log creator
-    const isCreator = log.creatorId === user.id;
-
-    // Check if user is a station operator
-    // Note: This would need to be enhanced with actual participant data
-    // For now, we assume creator is also an operator
-    const isOperator = isCreator; // TODO: Check participant list
+    // Determine role from participant data returned by the API (log.userRole)
+    const userRole = log.userRole;
+    const isCreator = log.creatorId === user.id || userRole === ParticipantRole.CREATOR;
+    const isOperator = userRole === ParticipantRole.STATION;
 
     // Calculate permissions based on role
     if (isCreator) {

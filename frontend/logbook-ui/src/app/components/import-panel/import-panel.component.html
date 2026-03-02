@@ -252,5 +252,93 @@
         <br><span class="text-danger">Please select a default station.</span>
       }
     </div>
+
+    <!-- LoTW Sync Section -->
+    <hr class="my-4">
+    <div class="lotw-section">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h3 class="h6 mb-0">
+          <i class="bi bi-patch-check me-2" aria-hidden="true"></i>
+          LoTW Confirmation Sync
+        </h3>
+        @if (!showLotwSync) {
+          <button class="btn btn-sm btn-outline-secondary" (click)="showLotwSync = true"
+                  [disabled]="!currentLog" aria-label="Open LoTW sync">
+            Sync LoTW
+          </button>
+        }
+      </div>
+
+      @if (!showLotwSync) {
+        <p class="text-muted small mb-0">
+          Download confirmed QSLs from ARRL Logbook of the World and update <code>lotwRcvd</code>
+          on matching QSOs in your log. Your credentials are used only for this request.
+        </p>
+      }
+
+      @if (showLotwSync) {
+        <div class="lotw-form border rounded p-3">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="lotwCallsign" class="form-label fw-semibold">LoTW Callsign</label>
+              <input type="text" id="lotwCallsign" class="form-control form-control-sm"
+                     [(ngModel)]="lotwCallsign"
+                     placeholder="e.g. W1AW"
+                     [disabled]="lotwSyncing"
+                     autocomplete="off">
+            </div>
+            <div class="col-md-4">
+              <label for="lotwPassword" class="form-label fw-semibold">LoTW Password</label>
+              <input type="password" id="lotwPassword" class="form-control form-control-sm"
+                     [(ngModel)]="lotwPassword"
+                     placeholder="LoTW password"
+                     [disabled]="lotwSyncing"
+                     autocomplete="new-password">
+            </div>
+            <div class="col-md-4">
+              <label for="lotwSince" class="form-label fw-semibold">Since (optional)</label>
+              <input type="date" id="lotwSince" class="form-control form-control-sm"
+                     [(ngModel)]="lotwSince"
+                     [disabled]="lotwSyncing">
+              <div class="form-text">Only fetch QSLs received after this date</div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-3">
+            <button class="btn btn-sm btn-primary" (click)="syncLotw()"
+                    [disabled]="lotwSyncing || !lotwCallsign || !lotwPassword">
+              @if (lotwSyncing) {
+                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                Syncing...
+              } @else {
+                <i class="bi bi-cloud-download me-1" aria-hidden="true"></i> Sync Now
+              }
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" (click)="cancelLotwSync()"
+                    [disabled]="lotwSyncing">
+              Cancel
+            </button>
+          </div>
+
+          @if (lotwError) {
+            <div class="alert alert-danger alert-sm mt-3 mb-0 py-2">
+              <i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>{{ lotwError }}
+            </div>
+          }
+
+          @if (lotwResult) {
+            <div class="alert alert-success alert-sm mt-3 mb-0 py-2">
+              <i class="bi bi-check-circle me-1" aria-hidden="true"></i>
+              <strong>{{ lotwResult.message }}</strong>
+              <ul class="mb-0 mt-1 small">
+                <li>Downloaded: {{ lotwResult.downloaded }} confirmed QSOs from LoTW</li>
+                <li>Matched: {{ lotwResult.matched }} QSOs in this log</li>
+                <li>Updated: {{ lotwResult.updated }} QSOs marked lotwRcvd=Y</li>
+              </ul>
+            </div>
+          }
+        </div>
+      }
+    </div>
   </div>
 </div>

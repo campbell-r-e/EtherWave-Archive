@@ -73,6 +73,9 @@ public class User {
     @Column(length = 500)
     private String qrzApiKey; // User's own QRZ API key
 
+    @Column(name = "station_color_preferences", columnDefinition = "TEXT")
+    private String stationColorPreferences; // JSON: { station1: "#hex", ..., gota: "#hex" }
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

@@ -3,6 +3,19 @@ export enum LogType {
   SHARED = 'SHARED'
 }
 
+export enum LogPurpose {
+  GENERAL          = 'GENERAL',
+  FIELD_DAY        = 'FIELD_DAY',
+  POTA             = 'POTA',
+  SOTA             = 'SOTA',
+  CQ_WW            = 'CQ_WW',
+  SWEEPSTAKES      = 'SWEEPSTAKES',
+  WINTER_FIELD_DAY = 'WINTER_FIELD_DAY',
+  STATE_QSO_PARTY  = 'STATE_QSO_PARTY',
+  DX_EXPEDITION    = 'DX_EXPEDITION',
+  SPECIAL_EVENT    = 'SPECIAL_EVENT'
+}
+
 export enum ParticipantRole {
   CREATOR = 'CREATOR',
   STATION = 'STATION',
@@ -43,6 +56,11 @@ export interface Log {
   totalMultipliers?: number;
   calculatedScore?: number;
   lastScoreCalculation?: string;
+
+  // Contest bonus activities claimed (JSON map: bonus_key -> count)
+  bonusMetadata?: string;
+
+  purpose?: LogPurpose;
 }
 
 export interface LogRequest {
@@ -53,6 +71,8 @@ export interface LogRequest {
   startDate?: string;
   endDate?: string;
   isPublic?: boolean;
+  bonusMetadata?: string; // JSON map of bonus activities claimed
+  purpose?: LogPurpose;
 }
 
 export interface LogParticipant {

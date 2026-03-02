@@ -1,527 +1,197 @@
-# EtherWave Archive - Interactive Mapping System Implementation Progress
+# EtherWave Archive - Implementation Status
 
-**Last Updated:** December 8, 2025
-**Status:** Backend Core Complete (65% overall progress)
-**Compilation Status:**  **BUILD SUCCESS**
-
----
-
-##  Overall Progress: 65%
-
-###  Completed (65%)
-- [x] Architecture & Planning (100%)
-- [x] Database Layer (100%)
-- [x] Core Services (100%)
-- [x] REST API Endpoints (33% - 3/9 functional)
-- [ ] WebSocket Handlers (0%)
-- [ ] Frontend Implementation (0%)
+**Last Updated:** March 2026
+**Overall Status:** Production Ready (v1.2.0)
+**Backend Build:** SUCCESS — 230 tests passing (100%)
 
 ---
 
-##  Phase 1: Foundation (100% Complete)
+## Epic Summary
 
-### 1.1 Architecture Document
-**Status:**  Complete
-**File:** `/docs/MAPS_ARCHITECTURE.md`
-
-- Complete technical specification (22 pages, ~1200 lines)
-- Database schema design
-- API endpoint specifications
-- Performance optimization strategies
-- Contest integration architecture
-- Frontend component structure
-- Implementation phases
-
-### 1.2 Database Entities
-**Status:**  Complete
-**Files Created:** 4 new entities, 2 updated entities
-
-#### New Entities:
-1. **QSOLocation** (`/backend/src/main/java/com/hamradio/logbook/entity/QSOLocation.java`)
-   - Cached location data for QSOs
-   - Operator location (hierarchical fallback: Station → User → Session)
-   - Contact location from grid squares
-   - Distance calculations (km, mi, bearing)
-   - Location source tracking
-
-2. **MaidenheadGrid** (`/backend/src/main/java/com/hamradio/logbook/entity/MaidenheadGrid.java`)
-   - Dynamic grid square database
-   - Statistics per log (QSO count, bands, modes)
-   - Bounding box coordinates
-   - First/last QSO timestamps
-
-3. **MapCluster** (`/backend/src/main/java/com/hamradio/logbook/entity/MapCluster.java`)
-   - Server-side clustering cache
-   - Zoom-level specific clusters
-   - Station/band/mode breakdowns (JSON)
-   - Filter hash for cache invalidation
-
-4. **DXCCPrefix** (`/backend/src/main/java/com/hamradio/logbook/entity/DXCCPrefix.java`)
-   - DXCC entity prefix database
-   - CTY.DAT format support
-   - Geographic center coordinates
-   - Continent/CQ zone/ITU zone data
-
-#### Updated Entities:
-1. **Station** - Added location fields:
-   - `latitude`, `longitude`, `maidenheadGrid`, `locationName`
-
-2. **User** - Added default location fields:
-   - `defaultLatitude`, `defaultLongitude`, `defaultGrid`
-
-### 1.3 Repository Layer
-**Status:**  Complete
-**Files Created:** 4 repositories
-
-1. **QSOLocationRepository** - Location data queries with bounding box search
-2. **MaidenheadGridRepository** - Grid statistics by log and precision
-3. **MapClusterRepository** - Cluster cache management with invalidation
-4. **DXCCPrefixRepository** - Callsign prefix lookups with longest match
+| # | Epic | Status | Notes |
+|---|------|--------|-------|
+| 1 | Core Logging System | Complete | CRUD, ADIF 3.1.4, Cabrillo, pagination |
+| 2 | Geographic Visualization & Mapping | Complete | Leaflet, clustering, grids, heatmap, WebSocket |
+| 3 | Advanced Filtering | Complete | 10 filter types, mobile bottom sheet |
+| 4 | DXCC Management | Complete | CTY.DAT parser, 340+ entities, Spring Cache |
+| 5 | Session & Location Management | Complete | Hierarchical fallback, 1-hour TTL |
+| 6 | UI & UX | Complete | Dark/light theme, responsive, accessibility |
+| 7 | Performance | Complete | Server-side clustering, distance caching, DXCC cache |
+| 8 | Authentication & Security | Complete | JWT, BCrypt, username-only, route guards |
+| 9 | Multi-User Collaboration | Complete | RBAC, invitations, station assignment |
+| 10 | Contest Validation & Scoring | Complete | 7 validators, 230 total tests |
+| 11 | Rig Control | Complete | Hamlib/rigctld, WebSocket, per-user containers |
+| 12 | Log Type Separation | Complete | Personal/Shared, backend guard, two-section UI |
 
 ---
 
-##  Phase 2: Core Services (100% Complete)
+## Test Breakdown
 
-### 2.1 Utility Services
-**Status:**  Complete
+| Suite | Tests | Status |
+|-------|-------|--------|
+| ARRL Field Day Validator | 76 | Passing |
+| ARRL Sweepstakes Validator | 42 | Passing |
+| CQ WW Validator | 30 | Passing |
+| State QSO Party Validator | 27 | Passing |
+| Winter Field Day Validator | 16 | Passing |
+| POTA Validator | 14 | Passing |
+| SOTA Validator | 13 | Passing |
+| Integration Tests | 12 | Passing |
+| **Total** | **230** | **100% Passing** |
 
-#### MaidenheadConverter Service
-**File:** `/backend/src/main/java/com/hamradio/logbook/service/MaidenheadConverter.java`
-**Lines of Code:** 250+
-
-**Features:**
-- Bidirectional conversion (lat/lon ↔ Maidenhead grid)
-- Support for 2, 4, 6, 8 character precision
-- Auto-detect precision based on QSO count
-- Bounding box calculation for grid squares
-- Center coordinate extraction
-- Grid size calculations
-
-**Key Methods:**
-- `toMaidenhead(lat, lon, precision)` - Convert coordinates to grid
-- `fromMaidenhead(grid)` - Convert grid to center coordinates
-- `getBounds(grid)` - Get bounding box for grid
-- `detectPrecision(qsoCount)` - Auto-detect optimal precision
-
-#### DistanceCalculator Service
-**File:** `/backend/src/main/java/com/hamradio/logbook/service/DistanceCalculator.java`
-**Lines of Code:** 150+
-
-**Features:**
-- Haversine formula for great-circle distances
-- Distance in kilometers and miles
-- Bearing calculations (0-360°)
-- Bounding box generation for radius search
-- Antipodal point calculation (for propagation)
-- Distance range checking
-
-**Key Methods:**
-- `calculate(lat1, lon1, lat2, lon2)` - Calculate distance and bearing
-- `calculateBearing(lat1, lon1, lat2, lon2)` - Get bearing only
-- `calculateFromGrids(grid1, grid2)` - Calculate from grid squares
-- `getBoundingBox(lat, lon, radius)` - Get search area
-- `isWithinDistance(...)` - Range check
-
-### 2.2 Business Logic Services
-**Status:**  Complete
-
-#### MapDataService
-**File:** `/backend/src/main/java/com/hamradio/logbook/service/MapDataService.java`
-**Lines of Code:** 680+
-**Complexity:** HIGH
-
-**Features:**
--  **Adaptive Clustering**
-  - Threshold: 10,000 QSOs
-  - Zoom-dependent pixel radius (80px → 65px → 50px → 0px)
-  - Cluster computation with haversine distance checks
-  - Station/band/mode breakdown per cluster
-
--  **Hierarchical Location Fallback**
-  - Station location (primary)
-  - User default location (secondary)
-  - Session location (tertiary)
-  - Manual entry (fallback)
-
--  **10 Filter Types**
-  - Band, Mode, Station, Operator
-  - DXCC, Date Range, Confirmed Status
-  - Continent, State, Exchange
-
--  **Lazy Caching Strategy**
-  - Filter hash for cache invalidation
-  - 5-minute cache TTL
-  - Cache hit/miss tracking
-
--  **Distance Caching**
-  - QSOLocation entity stores calculated distances
-  - Avoids repeated Haversine calculations
-
-**Key Methods:**
-- `getQSOLocations(logId, zoom, filters, bounds)` - Main endpoint
-- `getOrCreateQSOLocation(qso)` - Location data management
-- `createQSOLocation(qso)` - Calculate and cache location
-- `computeClusters(qsos, zoom, filterHash)` - Clustering algorithm
-- `getOperatorLocation(qso)` - Hierarchical fallback
-- `getContactLocation(qso)` - Grid to lat/lon conversion
-
-#### GridCoverageService
-**File:** `/backend/src/main/java/com/hamradio/logbook/service/GridCoverageService.java`
-**Lines of Code:** 370+
-
-**Features:**
--  Auto-detect grid precision (2/4/6/8 chars)
--  Grid statistics calculation
-  - QSO count per grid
-  - Unique bands and modes per grid
-  - First and last QSO timestamps
--  Neighboring grid generation (8 surrounding grids)
--  Bounding box coordinates for each grid
--  Persistent grid statistics in database
-
-**Key Methods:**
-- `getGridCoverage(logId, precision, includeNeighbors)` - Main endpoint
-- `updateGridStatistics(logId)` - Recalculate statistics
-- `normalizeGrid(grid, precision)` - Truncate to precision
-- `getNeighboringGrids(workedGrids, precision)` - 8-direction neighbors
-- `buildGridData(grid, qsos, precision)` - Statistics aggregation
-
-#### HeatmapService
-**File:** `/backend/src/main/java/com/hamradio/logbook/service/HeatmapService.java`
-**Lines of Code:** 250+
-
-**Features:**
--  Location-based heatmap (exact coordinates)
-  - Rounds to 2 decimal places for aggregation
-  - Normalized intensity (0.0-1.0)
-  - Limited to 15,000 points for performance
-
--  Grid-based heatmap (aggregated by grid square)
-  - More performant for large datasets
-  - Configurable precision (2/4/6/8)
-  - No point limit
-
--  Filter support (all 10 filter types)
--  Intensity normalization
--  Performance optimization
-
-**Key Methods:**
-- `getHeatmapData(logId, filters)` - Location-based heatmap
-- `getGridBasedHeatmap(logId, filters, precision)` - Grid-based heatmap
-- `getFilteredQSOs(logId, filters)` - Apply filters
+Test database: H2 in-memory (`jdbc:h2:mem:testdb`). Switched from SQLite due to Hibernate 7.x `ObjectOptimisticLockingFailureException` issues with `jdbc:sqlite::memory:`. `spring.sql.init.mode=never` in test profile — Hibernate DDL handles schema creation.
 
 ---
 
-##  Phase 3: REST API (33% Complete)
+## Completed Epics
 
-### 3.1 MapController
-**File:** `/backend/src/main/java/com/hamradio/logbook/controller/MapController.java`
-**Lines of Code:** 250+
+### 1. Core Logging System
 
-**Endpoints Implemented:** 3/9 (33%)
+- Log CRUD with soft-delete
+- QSO entry with 25+ fields
+- ADIF 3.1.4 import and export
+- Cabrillo export for contest submission
+- Real-time QSO list with pagination and sorting
 
-####  Fully Functional Endpoints (3):
+### 2. Geographic Visualization & Mapping
 
-1. **GET /api/maps/qsos/{logId}** 
-   - QSO location data with adaptive clustering
-   - Query params: `zoom`, `bounds`, `clusterThreshold`, `pixelRadius`
-   - All 10 filter types supported
-   - Returns: Clustered or individual QSO data
-   - Metadata: total QSOs, filtered count, cache hit status
+- Leaflet.js interactive map with dark and light themes
+- Server-side adaptive clustering (10,000 QSO threshold, Haversine distance)
+- Maidenhead grid overlay supporting 2, 4, 6, and 8 character precision
+- Heatmap density visualization with adjustable radius
+- Pie chart cluster markers (SVG-generated, multi-station)
+- Recent QSO pulse animations (15-minute window)
+- Contest overlay layers: CQ zones, ITU zones, ARRL sections, DXCC
+- Map data export: GeoJSON, KML, CSV, ADIF
+- WebSocket real-time map updates
+- `MapController.setUserLocation()` uses `Authentication` parameter (not hardcoded `userId=1L`)
+- `MapController` grid coverage endpoint correctly passes filters to `GridCoverageService.getGridCoverage()`
+- `MapDataService.getFilteredQSOs()` is public, used by `GridCoverageService`
+- `MapDataService.getOperatorLocation()` resolves user default location via `userRepository.findByCallsign()`
+- `FullscreenMapViewComponent` subscribes to `LogService.currentLog$`, passes `[logId]` and `[filters]` to `<app-qso-map>`, wires filter/overlay changes to `QSOMapComponent`
 
-2. **GET /api/maps/grids/{logId}** 
-   - Grid square coverage map
-   - Query params: `precision`, `includeNeighbors`
-   - All 10 filter types supported
-   - Returns: Grid statistics with bounding boxes
-   - Metadata: total grids, worked grids, precision, auto-detect status
+### 3. Advanced Filtering
 
-3. **GET /api/maps/heatmap/{logId}** 
-   - Heatmap density data
-   - Query params: `gridBased`, `gridPrecision`
-   - All 10 filter types supported
-   - Returns: Heatmap points with normalized intensity
-   - Metadata: total points, max intensity, limited status
+- 10 filter types: band, mode, station, operator, DXCC, date range, confirmed status, continent, state, exchange
+- Active filter pills with individual removal
+- Mobile bottom sheet with swipe gestures
 
-####  Stubbed Endpoints (6):
+### 4. DXCC Management
 
-4. **GET /api/maps/contest-overlays/{logId}** 
-   - Contest-specific overlay data (ARRL sections, CQ zones, IARU zones)
-   - TODO: Implement ContestOverlayService
+- CTY.DAT parser with 340+ entities
+- Longest-match callsign prefix lookup
+- Spring Cache for lookup performance
 
-5. **POST /api/maps/export/{logId}** 
-   - Export map data (PNG, SVG, CSV, ADIF, KML, GeoJSON)
-   - TODO: Implement ExportService
+### 5. Session & Location Management
 
-6. **GET /api/maps/distance/{logId}/{qsoId}** 
-   - Get cached distance calculation
-   - TODO: Simple database lookup
+- Hierarchical location fallback: station -> user -> session -> manual
+- Session temporary location with 1-hour TTL (in-memory)
+- `LocationManagementService.updateUserLocation(String username, ...)` overload added alongside `updateUserLocation(Long userId, ...)`
 
-7. **PUT /api/maps/location/station/{stationId}** 
-   - Set station location
-   - TODO: Update Station entity
+### 6. UI & UX
 
-8. **PUT /api/maps/location/user** 
-   - Set user default location
-   - TODO: Update User entity
+- EtherWave Archive branding
+- Dark and light themes with system-preference detection
+- Full responsive design for desktop, tablet, and mobile
+- Accessibility audit completed
 
-9. **POST /api/maps/location/session/{logId}** 
-   - Set temporary session location
-   - TODO: Session management
+### 7. Performance
 
----
+- Server-side adaptive clustering (10,000 QSO threshold)
+- Distance caching via `QSOLocation` entity
+- DXCC Spring Cache
 
-##  Code Statistics
+### 8. Authentication & Security
 
-### Backend Java Code
-- **Total Files Created:** 15
-- **Total Files Updated:** 4
-- **Total Lines of Code:** ~4,200+
-- **Compilation Status:**  **BUILD SUCCESS**
+- JWT authentication with 24-hour expiry
+- BCrypt password hashing
+- Username-only registration — no email field anywhere in the auth system
+- Admin user bootstrap via environment variables
+- Angular route guards
 
-### Breakdown by Layer:
-| Layer | Files | Lines | Status |
-|-------|-------|-------|--------|
-| Entities | 6 | ~800 |  Complete |
-| Repositories | 4 | ~300 |  Complete |
-| Services | 4 | ~1,900 |  Complete |
-| Controllers | 1 | ~250 |  33% Functional |
-| Documentation | 2 | ~1,500 |  Complete |
+### 9. Multi-User Collaboration
 
-### API Endpoints:
-- **Total Endpoints:** 9
-- **Fully Functional:** 3 (33%)
-- **Stubbed:** 6 (67%)
+- CREATOR / STATION / VIEWER RBAC per log
+- In-app invitation system by username or callsign (no email)
+- Participant management and station assignment (stations 1-10 plus GOTA)
+- Personal-to-Shared log conversion
+- `permissions.service.ts` uses `log.userRole` for RBAC — `isCreator` checks both `log.creatorId` and `log.userRole === CREATOR`; `isOperator` checks `log.userRole === STATION`
 
----
+### 10. Contest Validation & Scoring
 
-##  What's Working Right Now
+- Plugin-based validator architecture with JSON contest config files
+- 7 validators: ARRL Field Day, POTA, SOTA, Winter Field Day, CQ WW, ARRL Sweepstakes, State QSO Party
+- Contest config JSONs in `backend/src/main/resources/contest-configs/` (all 7 present)
+- Real-time scoring and multiplier tracking
+- `ScoringService.calculateBonusPoints()` reads `bonus_points` from contest config JSON, applies counts from `Log.bonusMetadata`
+- `Log.bonusMetadata` TEXT column stores a JSON map of bonus_key to count/flag integer
+- `LogResponse.bonusMetadata` exposed; `LogRequest.bonusMetadata` accepted in `updateLog()`
+- Duplicate detection service
 
-###  Fully Functional APIs
+### 11. Rig Control
 
-#### 1. QSO Location Map
-```bash
-GET /api/maps/qsos/{logId}?zoom=10&band=20M&mode=SSB
-```
-**Response:**
-```json
-{
-  "type": "clustered",
-  "clusters": [
-    {
-      "lat": 41.8781,
-      "lon": -87.6298,
-      "count": 45,
-      "stations": {"1": 25, "2": 15, "GOTA": 5},
-      "bands": {"20M": 20, "40M": 15, "80M": 10},
-      "modes": {"SSB": 30, "CW": 10, "FT8": 5}
-    }
-  ],
-  "metadata": {
-    "totalQsos": 245,
-    "filteredQsos": 45,
-    "clusteringApplied": true,
-    "cacheHit": false
-  }
-}
-```
+- Hamlib/rigctld TCP socket integration
+- Real-time frequency and mode updates via WebSocket
+- Per-user Docker containers
+- Frontend rig-status panel
 
-#### 2. Grid Coverage Map
-```bash
-GET /api/maps/grids/{logId}?precision=6&includeNeighbors=true
-```
-**Response:**
-```json
-{
-  "grids": [
-    {
-      "grid": "FN31pr",
-      "precision": 6,
-      "centerLat": 41.75,
-      "centerLon": -72.75,
-      "bounds": {
-        "minLat": 41.708,
-        "maxLat": 41.792,
-        "minLon": -72.833,
-        "maxLon": -72.667
-      },
-      "qsoCount": 12,
-      "bandCount": 3,
-      "modeCount": 2,
-      "firstQso": "2025-06-29T12:00:00",
-      "lastQso": "2025-06-29T18:00:00"
-    }
-  ],
-  "metadata": {
-    "totalGrids": 95,
-    "workedGrids": 87,
-    "precision": 6,
-    "autoDetected": true
-  }
-}
-```
+### 12. Log Type Separation (Personal / Shared)
 
-#### 3. Heatmap Density
-```bash
-GET /api/maps/heatmap/{logId}?gridBased=true&gridPrecision=4
-```
-**Response:**
-```json
-{
-  "points": [
-    {
-      "lat": 41.75,
-      "lon": -72.75,
-      "intensity": 0.8,
-      "count": 45,
-      "grid": "FN31"
-    }
-  ],
-  "metadata": {
-    "totalPoints": 156,
-    "maxIntensity": 45,
-    "filtered": false,
-    "limited": false,
-    "gridBased": true,
-    "gridPrecision": 4
-  }
-}
-```
+- Backend guard: personal logs are always private
+- Two create buttons in the UI (Personal and Shared)
+- Two-section log list
+- Conditional form fields in the create/edit modal
 
 ---
 
-##  Next Steps - Remaining Backend Work
+## In Progress
 
-### High Priority (Required for MVP):
-
-1. **DXCC Prefix Loader Service**
-   - Parse CTY.DAT file
-   - Load into DXCCPrefix table
-   - Callsign lookup logic
-   - Estimate: 4-6 hours
-
-2. **Location Management Endpoints**
-   - Implement 3 location endpoints
-   - Station/User/Session location updates
-   - Estimate: 2-3 hours
-
-3. **Distance Lookup Endpoint**
-   - Simple QSOLocation database query
-   - Estimate: 30 minutes
-
-### Medium Priority (Nice to Have):
-
-4. **Contest Overlay Service**
-   - ARRL sections overlay
-   - CQ zone overlay
-   - ITU zone overlay
-   - Multiplier tracking
-   - Estimate: 8-10 hours
-
-5. **Export Service**
-   - PNG export (map screenshot)
-   - SVG export (vector graphics)
-   - CSV/ADIF export (data format)
-   - KML export (Google Earth)
-   - GeoJSON export (mapping format)
-   - Estimate: 6-8 hours
-
-6. **WebSocket Handlers**
-   - Real-time QSO addition events
-   - Cluster invalidation events
-   - Map update notifications
-   - Estimate: 4-5 hours
-
-### Low Priority (Future Enhancements):
-
-7. **Propagation Overlay Plugin**
-   - Plugin architecture
-   - VOACAP integration stub
-   - Estimate: 10+ hours
-
-8. **Access Control Layer**
-   - Creator-only for shared logs
-   - Permission checking middleware
-   - Estimate: 3-4 hours
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Saved filter presets | In progress | localStorage-backed, frontend only |
 
 ---
 
-##  Frontend Implementation (0% Complete)
+## Remaining Backlog (Not Started)
 
-### Pending Frontend Work:
-
-1. **Leaflet Integration**
-   - Install Leaflet + plugins
-   - Dark/light theme tile layers
-   - Base map component
-
-2. **Map Components** (5 components)
-   - `qso-map.component` - Main map
-   - `grid-map.component` - Grid coverage
-   - `heatmap-layer.component` - Density overlay
-   - `map-filters.component` - Filter panel
-   - `map-layers.component` - Layer control
-
-3. **Visualization Features**
-   - Pie chart cluster markers
-   - Pulsar animations (100 most recent QSOs)
-   - Station color coding
-   - Grid square overlays
-
-4. **Mobile UI**
-   - Bottom sheet component
-   - Responsive design
-   - Touch-optimized controls
-
-5. **Export UI**
-   - Export dialog
-   - Format selection
-   - Download handling
+| Feature | Priority |
+|---------|----------|
+| QSO confirmation via LoTW / eQSL / QRZ | Medium |
+| Award tracking (DXCC, WAS, VUCC) | Medium |
+| DX cluster spotting | Medium |
+| Propagation prediction overlays | Low |
+| QSL card generation | Low |
+| Frontend unit tests | Low |
+| E2E tests | Low |
+| Offline mode | Low |
 
 ---
 
-##  Key Achievements
+## Key Technical Notes
 
-### Technical Excellence:
- Clean architecture with separation of concerns
- Comprehensive error handling and logging
- Performance optimizations (clustering, caching)
- Scalable design (handles 100k+ QSOs)
- Flexible filtering system (10 filter types)
- RESTful API design
+### Stack
 
-### Code Quality:
- Type-safe with Java 25
- Lombok for reduced boilerplate
- Builder pattern for DTOs
- Transactional consistency
- Comprehensive JavaDoc comments
+- Java 25 LTS / Spring Boot 4.0.3 / Lombok 1.18.42
+- Angular 21.2.0 standalone components / TypeScript 5.9.3
+- PostgreSQL (production) / SQLite (field deployment)
+- Testcontainers 1.21.3 / rest-assured 5.5.2 / sqlite-jdbc 3.49.1.0
 
-### Performance Features:
- Lazy caching with invalidation
- Server-side clustering (10k threshold)
- Zoom-dependent pixel radius
- Distance caching
- Filter hash for cache keys
- 15k point limit for heatmaps
+### Docker
 
----
+- Backend runtime: `eclipse-temurin:25-jre-noble` (Ubuntu Noble — no Alpine JRE for Java 25)
+- Backend build: `maven:3.9-eclipse-temurin-25-alpine`
+- Runtime installs `gosu` and `curl` via apt-get (not Alpine tools)
+- Healthcheck uses `curl -sf http://localhost:8080/actuator/health`
+- `docker-entrypoint.sh` detects root, chowns `/app/data`, drops to appuser via `gosu` (needed for field SQLite bind-mount)
+- JVM flags: `-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+ExitOnOutOfMemoryError`
+- Use `docker compose` (v5.1.0 plugin), not `docker-compose`
 
-##  Milestone: Backend Core Complete!
+### Known Quirks
 
-**Date:** December 8, 2025
-**Progress:** 65% overall, 100% of core backend
-**Status:**  **Production-Ready Core**
-
-The backend foundation is **solid, tested, and compiling successfully**. All core services are implemented with production-quality code, comprehensive error handling, and performance optimizations.
-
-**Ready for:**
-- Frontend integration
-- API testing
-- Load testing
-- Frontend development
-
----
-
-**73 and happy coding!**
-
+- Lombok 1.18.42 uses `sun.misc.Unsafe` internally on Java 25. Harmless; suppressed via `MAVEN_OPTS=--sun-misc-unsafe-memory-access=allow` in Dockerfile.
+- `UriComponentsBuilder.fromHttpUrl()` was removed in Spring 7. Callsign lookup uses plain string concatenation with `URLEncoder.encode()`.
+- `spring.sql.init.mode=never` in test profile prevents the SQLite-syntax `schema.sql` from running against H2.
+- `spring.jpa.open-in-view=false` in test profile.
+- PITest (mutation testing) does not support Java 25 — skip or ignore PITest failures.
+- `station-color-preferences.service.ts` backend API is not implemented; localStorage fallback is active.
+- `@CrossOrigin(origins = "*")` on `MapController` — production deployment should restrict this to the frontend origin.

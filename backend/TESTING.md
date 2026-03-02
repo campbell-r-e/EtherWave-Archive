@@ -1,10 +1,10 @@
 # Testing Guide - Ham Radio Contest Logbook Backend
 
-## Test Suite Status: 100% Passing 
+## Test Suite Status: 100% Passing
 
-**Last Updated**: November 30, 2025
-**Total Tests**: 131
-**Passing**: 131 (100%)
+**Last Updated**: March 2, 2026
+**Total Tests**: 230
+**Passing**: 230 (100%)
 **Failing**: 0 (0%)
 
 ---
@@ -33,7 +33,7 @@ mvn test -Dtest="FieldDayValidatorTest"
 
 ## Test Suite Breakdown
 
-### Validation Tests - 119/119 passing (100%)
+### Validation Tests - 218/218 passing (100%)
 
 #### Field Day Validator (76 tests)
 - **Purpose**: Validates ARRL Field Day contest QSOs
@@ -59,6 +59,24 @@ mvn test -Dtest="FieldDayValidatorTest"
 - **Coverage**: Indoor/outdoor/home classes, sections
 - **Valid Classes**: 1O-5O (outdoor), 1I-3I (indoor), 1H-2H (home)
 - **Location**: `src/test/java/com/hamradio/logbook/validation/WinterFieldDayValidatorTest.java`
+
+#### CQ World Wide DX Validator (30 tests)
+- **Purpose**: Validates CQ WW DX contest QSOs
+- **Coverage**: CQ Zone (1-40), valid bands (160/80/40/20/15/10m), mode warnings
+- **Required Fields**: `cq_zone` (1-40)
+- **Location**: `src/test/java/com/hamradio/logbook/validation/CQWWValidatorTest.java`
+
+#### ARRL Sweepstakes Validator (42 tests)
+- **Purpose**: Validates ARRL Sweepstakes contest QSOs
+- **Coverage**: Serial number, precedence (Q/A/B/M/S/U), check (two-digit year), section
+- **Required Fields**: `serial`, `precedence`, `check`, `section`
+- **Location**: `src/test/java/com/hamradio/logbook/validation/ARRLSweepstakesValidatorTest.java`
+
+#### State QSO Party Validator (27 tests)
+- **Purpose**: Validates State QSO Party contest QSOs
+- **Coverage**: Serial number, US state/Canadian province validation
+- **Required Fields**: `serial`, `state`
+- **Location**: `src/test/java/com/hamradio/logbook/validation/StateQSOPartyValidatorTest.java`
 
 ### Service Tests - 12/12 passing (100%)
 
@@ -112,6 +130,9 @@ Contest fieldDay = TestDataBuilder.fieldDayContest().build();
 Contest pota = TestDataBuilder.potaContest().build();
 Contest sota = TestDataBuilder.sotaContest().build();
 Contest winterFieldDay = TestDataBuilder.winterFieldDayContest().build();
+Contest cqww = TestDataBuilder.cqwwContest().build();
+Contest sweepstakes = TestDataBuilder.sweepstakesContest().build();
+Contest stateQsoParty = TestDataBuilder.stateQsoPartyContest().build();
 ```
 
 #### QSO Builders
@@ -191,6 +212,49 @@ QSO sotaQSO = TestDataBuilder.sotaQSO(log, station, contest).build();
 
 **Sections**: Same as Field Day
 
+### CQ World Wide DX (CQWW)
+
+**Required Fields**: `cq_zone` (integer 1-40)
+
+**CQ Zone Range**: 1-40
+
+**Valid Bands**: 160m, 80m, 40m, 20m, 15m, 10m
+
+**Scoring**:
+- 0 points for contacts within your own country
+- 1 point for contacts in same continent, different country
+- 3 points for contacts in a different continent
+
+**Multipliers**: Each DXCC entity and each CQ Zone per band
+
+### ARRL Sweepstakes (ARRL-SS)
+
+**Required Fields**: `serial`, `precedence`, `check`, `section`
+
+**Precedence Values**:
+- `Q` — QRP (under 5 watts)
+- `A` — Low power (under 100 watts)
+- `B` — High power (100 watts or more)
+- `M` — Multi-operator
+- `S` — School or youth club
+- `U` — Unlimited
+
+**Check**: Exactly two digits — last two digits of year first licensed (e.g. `97` for 1997)
+
+**Sections**: All ARRL sections plus RAC sections (83 total)
+
+**Scoring**: 2 points per QSO; multiplier = number of unique sections worked
+
+### State QSO Party (STATE-QSO-PARTY)
+
+**Required Fields**: `serial`, `state`
+
+**Serial**: Positive integer (consecutive QSO number)
+
+**State**: US state abbreviation (AL-WY), Canadian province (AB-YT), DC, PR, VI, or DX
+
+**Scoring**: 1 point per QSO; multipliers vary by individual state party
+
 ---
 
 ## Disabled Tests
@@ -222,7 +286,7 @@ These tests were written for an old Entity-based API before a major refactoring 
 ### Restoration Effort
 
 **Estimated**: 20-30 hours (complete rewrite required)
-**Recommendation**: Not recommended - Current 131 tests provide comprehensive coverage
+**Recommendation**: Not recommended - Current 230 tests provide comprehensive coverage of all active features
 
 ---
 
@@ -287,7 +351,7 @@ void testValidClasses(String fdClass) throws Exception {
 
 **Cause**: PITest doesn't support Java 25 yet
 
-**Solution**: This is expected. The actual tests pass (131/131). Only mutation testing fails.
+**Solution**: This is expected. The actual tests pass (230/230). Only mutation testing fails.
 
 ### Test Compilation Errors
 
@@ -374,6 +438,6 @@ For questions or issues:
 
 ---
 
-**Test Suite Status**:  **100% Passing**
+**Test Suite Status**: **100% Passing**
 **Maintainer**: EtherWave Development Team
-**Last Test Run**: November 30, 2025
+**Last Test Run**: March 2, 2026

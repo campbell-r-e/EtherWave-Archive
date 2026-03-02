@@ -269,19 +269,44 @@ public class ScoringService {
     }
 
     /**
-     * Calculate bonus points (excluding GOTA which is calculated separately)
+     * Calculate bonus points from log's bonus metadata against contest config rules.
+     * The log stores claimed bonuses as a JSON map (bonus_key -> count).
+     * The contest config stores point values per bonus key under "bonus_points".
+     * Example: {"100pct_emergency_power": 1, "youth_participation": 3}
+     * with config {"100pct_emergency_power": 100, "youth_participation": 20}
+     * yields 100 + 60 = 160 bonus points.
      */
     private int calculateBonusPoints(Long logId, JsonNode rulesConfig) {
-        // TODO: Implement bonus point calculation based on log metadata
-        // This would require additional fields in Log entity to track:
-        // - 100% emergency power
-        // - Media publicity
-        // - Site visitation
-        // - Educational activities
-        // etc.
+        try {
+            JsonNode bonusConfig = rulesConfig.get("bonus_points");
+            if (bonusConfig == null) {
+                return 0;
+            }
 
-        // For now, return 0. This can be expanded later with a LogBonus entity
-        return 0;
+            Log targetLog = logRepository.findById(logId).orElse(null);
+            if (targetLog == null || targetLog.getBonusMetadata() == null || targetLog.getBonusMetadata().isBlank()) {
+                return 0;
+            }
+
+            JsonNode claimed = objectMapper.readTree(targetLog.getBonusMetadata());
+            int total = 0;
+
+            var fields = claimed.fields();
+            while (fields.hasNext()) {
+                var entry = fields.next();
+                int claimedCount = entry.getValue().asInt(0);
+                if (claimedCount > 0 && bonusConfig.has(entry.getKey())) {
+                    total += bonusConfig.get(entry.getKey()).asInt(0) * claimedCount;
+                }
+            }
+
+            log.debug("Bonus points for log {}: {}", logId, total);
+            return total;
+
+        } catch (Exception e) {
+            log.error("Error calculating bonus points for log {}: {}", logId, e.getMessage());
+            return 0;
+        }
     }
 
     /**

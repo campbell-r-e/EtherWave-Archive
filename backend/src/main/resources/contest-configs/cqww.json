@@ -1,0 +1,26 @@
+{
+  "contestCode": "CQWW",
+  "contestName": "CQ World Wide DX Contest",
+  "description": "The world's largest amateur radio competition, held annually in October (SSB) and November (CW). Exchange is RST + CQ Zone.",
+  "validatorClass": "com.hamradio.logbook.validation.CQWWValidator",
+  "isActive": true,
+  "rulesConfig": {
+    "required_fields": ["cq_zone"],
+    "optional_fields": ["rst"],
+    "cq_zone_range": [1, 40],
+    "valid_bands": ["160m", "80m", "40m", "20m", "15m", "10m"],
+    "scoring": {
+      "same_country": 0,
+      "same_continent": 1,
+      "different_continent": 3
+    },
+    "multipliers": {
+      "type": "dxcc_and_cq_zone",
+      "per_band": true,
+      "description": "Each DXCC entity and each CQ Zone worked on each band counts as a separate multiplier"
+    },
+    "duplicate_fields": ["callsign", "band"],
+    "operating_period_hours": 48,
+    "notes": "CQ WW SSB is held the last full weekend of October; CQ WW CW is held the last full weekend of November. Operate a maximum of 48 hours."
+  }
+}

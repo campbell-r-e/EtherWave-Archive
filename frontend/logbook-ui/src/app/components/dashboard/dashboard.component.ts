@@ -15,7 +15,6 @@ import { LogSelectorComponent } from '../log/log-selector/log-selector.component
 import { QsoEntryComponent } from '../qso-entry/qso-entry.component';
 import { QsoListComponent } from '../qso-list/qso-list.component';
 import { RigStatusComponent } from '../rig-status/rig-status.component';
-import { ContestSelectionComponent } from '../contest-selection/contest-selection.component';
 import { StationManagementComponent } from '../station-management/station-management.component';
 import { ParticipantManagementComponent } from '../participant-management/participant-management.component';
 import { ExportPanelComponent } from '../export-panel/export-panel.component';
@@ -23,6 +22,9 @@ import { ImportPanelComponent } from '../import-panel/import-panel.component';
 import { ScoreSummaryComponent } from '../score-summary/score-summary.component';
 import { FullscreenMapViewComponent } from '../fullscreen-map-view/fullscreen-map-view.component';
 import { StationColorSettingsComponent } from '../station-color-settings/station-color-settings.component';
+import { AwardProgressComponent } from '../award-progress/award-progress.component';
+import { DXClusterPanelComponent } from '../dx-cluster-panel/dx-cluster-panel.component';
+import { PropagationPanelComponent } from '../propagation-panel/propagation-panel.component';
 
 @Component({
     selector: 'app-dashboard',
@@ -32,14 +34,16 @@ import { StationColorSettingsComponent } from '../station-color-settings/station
     QsoEntryComponent,
     QsoListComponent,
     RigStatusComponent,
-    ContestSelectionComponent,
     StationManagementComponent,
     ParticipantManagementComponent,
     ExportPanelComponent,
     ImportPanelComponent,
     ScoreSummaryComponent,
     FullscreenMapViewComponent,
-    StationColorSettingsComponent
+    StationColorSettingsComponent,
+    AwardProgressComponent,
+    DXClusterPanelComponent,
+    PropagationPanelComponent
 ],
     templateUrl: './dashboard.component.html',
     styleUrls: ['./dashboard.component.css']

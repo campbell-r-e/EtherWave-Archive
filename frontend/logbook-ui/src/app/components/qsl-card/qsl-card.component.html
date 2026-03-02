@@ -1,0 +1,113 @@
+<!-- QSL Card Modal Overlay -->
+@if (qso) {
+  <div class="qsl-overlay" (click)="close()" role="dialog" aria-modal="true" aria-label="QSL Card">
+
+    <!-- Modal wrapper — stops click propagation -->
+    <div class="qsl-modal" (click)="$event.stopPropagation()">
+
+      <!-- Modal toolbar (hidden when printing) -->
+      <div class="qsl-toolbar no-print">
+        <span class="qsl-toolbar-title">QSL Card Preview</span>
+        <div class="qsl-toolbar-actions">
+          <button class="btn btn-primary btn-sm" (click)="print()" aria-label="Print QSL card">
+            <i class="bi bi-printer" aria-hidden="true"></i> Print
+          </button>
+          <button class="btn btn-outline-secondary btn-sm" (click)="close()" aria-label="Close QSL card">
+            <i class="bi bi-x-lg" aria-hidden="true"></i> Close
+          </button>
+        </div>
+      </div>
+
+      <!-- QSL Card itself (this is what gets printed) -->
+      <div class="qsl-card" id="qsl-card-print">
+        <!-- Header band -->
+        <div class="qsl-band-stripe"></div>
+
+        <!-- Card body -->
+        <div class="qsl-body">
+          <!-- Top row: callsign + "Confirming QSO" -->
+          <div class="qsl-top">
+            <div class="qsl-callsign">{{ qso.operatorCallsign || 'DE ?' }}</div>
+            <div class="qsl-subtitle">Confirming QSO with</div>
+            <div class="qsl-their-call">{{ qso.callsign }}</div>
+          </div>
+
+          <!-- QSO data grid -->
+          <table class="qsl-data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>UTC</th>
+                <th>Freq</th>
+                <th>Band</th>
+                <th>Mode</th>
+                <th>RST Sent/Rcvd</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ formatDate(qso.qsoDate) }}</td>
+                <td>{{ qso.timeOn || '—' }}</td>
+                <td>{{ formatFreq(qso.frequencyKhz) }}</td>
+                <td>{{ qso.band || '—' }}</td>
+                <td>{{ modeDisplay }}</td>
+                <td>{{ rstDisplay }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Location row -->
+          <div class="qsl-location-row">
+            @if (qso.gridSquare) {
+              <div class="qsl-location-item">
+                <span class="qsl-location-label">Grid</span>
+                <span class="qsl-location-value">{{ qso.gridSquare }}</span>
+              </div>
+            }
+            @if (qso.country) {
+              <div class="qsl-location-item">
+                <span class="qsl-location-label">Country</span>
+                <span class="qsl-location-value">{{ qso.country }}</span>
+              </div>
+            }
+            @if (qso.state) {
+              <div class="qsl-location-item">
+                <span class="qsl-location-label">State</span>
+                <span class="qsl-location-value">{{ qso.state }}</span>
+              </div>
+            }
+            @if (qso.cqZone) {
+              <div class="qsl-location-item">
+                <span class="qsl-location-label">CQ Zone</span>
+                <span class="qsl-location-value">{{ qso.cqZone }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- Notes -->
+          @if (qso.notes) {
+            <div class="qsl-notes">
+              <em>{{ qso.notes }}</em>
+            </div>
+          }
+
+          <!-- Signature area -->
+          <div class="qsl-footer">
+            <div class="qsl-footer-left">
+              <div class="qsl-sig-line"></div>
+              <div class="qsl-sig-label">Operator Signature</div>
+            </div>
+            <div class="qsl-footer-right">
+              <div class="qsl-tnx">TNX QSO — 73!</div>
+              <div class="qsl-pse-qsl">PSE QSL</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom band -->
+        <div class="qsl-band-stripe qsl-band-stripe--bottom"></div>
+      </div>
+
+    </div>
+  </div>
+}

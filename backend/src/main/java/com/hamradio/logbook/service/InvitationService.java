@@ -43,6 +43,12 @@ public class InvitationService {
             throw new SecurityException("Only the log creator can send invitations");
         }
 
+        // Personal logs cannot have participants
+        if (log.getType() == Log.LogType.PERSONAL) {
+            throw new IllegalArgumentException(
+                    "Cannot invite participants to a personal log. Convert it to a shared log first.");
+        }
+
         // Find invitee by username, email, or callsign
         User invitee = findUserByIdentifier(request.getInviteeUsername());
 

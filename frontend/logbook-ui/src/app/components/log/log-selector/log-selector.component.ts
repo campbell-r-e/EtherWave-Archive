@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 
 import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Log, LogRequest, LogType } from '../../../models/log.model';
+import { Log, LogRequest, LogType, LogPurpose } from '../../../models/log.model';
 import { LogService } from '../../../services/log/log.service';
 import { AuthService } from '../../../services/auth/auth.service';
 import { User } from '../../../models/auth/user.model';
@@ -17,6 +17,7 @@ export class LogSelectorComponent implements OnInit {
   logs: Log[] = [];
   currentLog: Log | null = null;
   showCreateModal = false;
+  creatingType: LogType = LogType.PERSONAL;
   createLogForm: FormGroup;
   loading = false;
   error: string | null = null;
@@ -27,6 +28,7 @@ export class LogSelectorComponent implements OnInit {
   @ViewChild('logNameInput') logNameInput!: ElementRef;
 
   LogType = LogType;
+  LogPurpose = LogPurpose;
 
   constructor(
     private logService: LogService,
@@ -36,7 +38,7 @@ export class LogSelectorComponent implements OnInit {
     this.createLogForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(100)]],
       description: ['', [Validators.maxLength(500)]],
-      type: [LogType.PERSONAL, Validators.required],
+      purpose: [LogPurpose.GENERAL],
       isPublic: [false]
     });
   }
@@ -102,13 +104,23 @@ export class LogSelectorComponent implements OnInit {
     this.logService.setCurrentLog(log);
   }
 
-  openCreateModal(): void {
+  openCreatePersonalLog(): void {
+    this.creatingType = LogType.PERSONAL;
+    this.openCreateModal();
+  }
+
+  openCreateSharedLog(): void {
+    this.creatingType = LogType.SHARED;
+    this.openCreateModal();
+  }
+
+  private openCreateModal(): void {
     // Store the element that triggered the modal for focus return
     this.modalTriggerElement = document.activeElement as HTMLElement;
 
     this.showCreateModal = true;
     this.createLogForm.reset({
-      type: LogType.PERSONAL,
+      purpose: LogPurpose.GENERAL,
       isPublic: false
     });
     this.error = null;
@@ -143,10 +155,17 @@ export class LogSelectorComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    const request: LogRequest = this.createLogForm.value;
+    const formValue = this.createLogForm.value;
+    const request: LogRequest = {
+      name: formValue.name,
+      description: formValue.description,
+      type: this.creatingType,
+      purpose: formValue.purpose,
+      isPublic: this.creatingType === LogType.PERSONAL ? false : formValue.isPublic
+    };
 
     this.logService.createLog(request).subscribe({
-      next: (log) => {
+      next: () => {
         this.loading = false;
         this.closeCreateModal();
       },
@@ -225,5 +244,47 @@ export class LogSelectorComponent implements OnInit {
 
   getTypeBadgeClass(type: LogType): string {
     return type === LogType.PERSONAL ? 'badge bg-info' : 'badge bg-warning';
+  }
+
+  getPurposeLabel(purpose: LogPurpose | undefined): string {
+    const labels: Record<LogPurpose, string> = {
+      [LogPurpose.GENERAL]:          'General',
+      [LogPurpose.FIELD_DAY]:        'Field Day',
+      [LogPurpose.POTA]:             'POTA',
+      [LogPurpose.SOTA]:             'SOTA',
+      [LogPurpose.CQ_WW]:            'CQ WW',
+      [LogPurpose.SWEEPSTAKES]:      'Sweepstakes',
+      [LogPurpose.WINTER_FIELD_DAY]: 'Winter FD',
+      [LogPurpose.STATE_QSO_PARTY]:  'State QSO',
+      [LogPurpose.DX_EXPEDITION]:    'DX Expedition',
+      [LogPurpose.SPECIAL_EVENT]:    'Special Event'
+    };
+    return purpose ? (labels[purpose] ?? 'General') : 'General';
+  }
+
+  purposeAutoLinksContest(purpose: LogPurpose | null): string | null {
+    const map: Partial<Record<LogPurpose, string>> = {
+      [LogPurpose.FIELD_DAY]:        'ARRL Field Day',
+      [LogPurpose.POTA]:             'POTA',
+      [LogPurpose.SOTA]:             'SOTA',
+      [LogPurpose.CQ_WW]:            'CQ WW',
+      [LogPurpose.SWEEPSTAKES]:      'ARRL Sweepstakes',
+      [LogPurpose.WINTER_FIELD_DAY]: 'Winter Field Day',
+      [LogPurpose.STATE_QSO_PARTY]:  'State QSO Party'
+    };
+    return purpose ? (map[purpose] ?? null) : null;
+  }
+
+  get selectedPurposeContest(): string | null {
+    const purpose = this.createLogForm.get('purpose')?.value as LogPurpose | null;
+    return this.purposeAutoLinksContest(purpose);
+  }
+
+  get personalLogs(): Log[] {
+    return this.logs.filter(l => l.type === LogType.PERSONAL);
+  }
+
+  get sharedLogs(): Log[] {
+    return this.logs.filter(l => l.type === LogType.SHARED);
   }
 }
