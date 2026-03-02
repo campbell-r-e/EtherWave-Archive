@@ -15,7 +15,6 @@ import { LogSelectorComponent } from '../log/log-selector/log-selector.component
 import { QsoEntryComponent } from '../qso-entry/qso-entry.component';
 import { QsoListComponent } from '../qso-list/qso-list.component';
 import { RigStatusComponent } from '../rig-status/rig-status.component';
-import { ContestSelectionComponent } from '../contest-selection/contest-selection.component';
 import { StationManagementComponent } from '../station-management/station-management.component';
 import { ParticipantManagementComponent } from '../participant-management/participant-management.component';
 import { ExportPanelComponent } from '../export-panel/export-panel.component';
@@ -35,7 +34,6 @@ import { PropagationPanelComponent } from '../propagation-panel/propagation-pane
     QsoEntryComponent,
     QsoListComponent,
     RigStatusComponent,
-    ContestSelectionComponent,
     StationManagementComponent,
     ParticipantManagementComponent,
     ExportPanelComponent,

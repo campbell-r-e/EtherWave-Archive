@@ -137,19 +137,12 @@
             <app-propagation-panel></app-propagation-panel>
           </div>
         </div>
-        <!-- Row 3: Contest Selection and Station Management (Creator/Operator Only) -->
-        @if (permissions?.canManageContests || permissions?.canManageStations) {
+        <!-- Row 3: Station Management (Creator/Operator Only) -->
+        @if (permissions?.canManageStations) {
           <div class="row mb-4">
-            @if (permissions?.canManageContests) {
-              <div class="col-lg-6">
-                <app-contest-selection></app-contest-selection>
-              </div>
-            }
-            @if (permissions?.canManageStations) {
-              <div class="col-lg-6">
-                <app-station-management></app-station-management>
-              </div>
-            }
+            <div class="col-12">
+              <app-station-management></app-station-management>
+            </div>
           </div>
         }
         <!-- Row 3.5: Participant Management (Creator Only) -->
