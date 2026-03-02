@@ -97,7 +97,7 @@ public class PropagationService {
         boolean mildDisturbance = kIndex >= 3 || aIndex >= 15;
 
         // 160m — best at night, poor when disturbed
-        bands.put("160m", new BandStatus("160m", "160m", stormDegrade(POOR, storm, mildDisturbance),
+        bands.put("160m", new BandStatus("160m", "160m", stormDegrade(BandCondition.POOR, storm, mildDisturbance),
                 "LF – requires darkness, affected by aurora"));
 
         // 80m

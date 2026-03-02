@@ -69,9 +69,9 @@ public class LotwSyncService {
         // Permission check
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        Log log = logRepository.findById(logId)
+        Log logEntity = logRepository.findById(logId)
                 .orElseThrow(() -> new IllegalArgumentException("Log not found: " + logId));
-        if (!logService.hasAccess(log, user)) {
+        if (!logService.hasAccess(logEntity, user)) {
             throw new SecurityException("User does not have access to this log");
         }
 
