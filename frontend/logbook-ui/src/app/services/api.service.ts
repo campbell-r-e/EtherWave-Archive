@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { QSO, QSORequest } from '../models/qso.model';
-import { Station, Contest, Operator, CallsignInfo, RigStatus } from '../models/station.model';
+import { Station, Contest, Operator, CallsignInfo } from '../models/station.model';
 
 @Injectable({
   providedIn: 'root'
@@ -101,23 +101,6 @@ export class ApiService {
   // Callsign lookup
   lookupCallsign(callsign: string): Observable<CallsignInfo> {
     return this.http.get<CallsignInfo>(`${this.baseUrl}/callsigns/${callsign}`);
-  }
-
-  // Rig control (if local rig service available)
-  getRigStatus(rigServiceUrl: string = 'http://localhost:8081'): Observable<RigStatus> {
-    return this.http.get<RigStatus>(`${rigServiceUrl}/api/rig/status`);
-  }
-
-  setRigFrequency(hz: number, rigServiceUrl: string = 'http://localhost:8081'): Observable<string> {
-    const params = new HttpParams().set('hz', hz.toString());
-    return this.http.post(`${rigServiceUrl}/api/rig/frequency`, null, { params, responseType: 'text' });
-  }
-
-  setRigMode(mode: string, bandwidth: number = 0, rigServiceUrl: string = 'http://localhost:8081'): Observable<string> {
-    const params = new HttpParams()
-      .set('mode', mode)
-      .set('bandwidth', bandwidth.toString());
-    return this.http.post(`${rigServiceUrl}/api/rig/mode`, null, { params, responseType: 'text' });
   }
 
   // Export endpoints

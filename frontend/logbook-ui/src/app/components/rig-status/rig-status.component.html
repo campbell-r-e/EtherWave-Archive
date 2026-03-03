@@ -1,33 +1,28 @@
 <div class="card">
   <div class="card-header d-flex justify-content-between align-items-center"
     [class]="getConnectionStatusClass() + ' text-white'">
-    <h2 class="h6 mb-0"><span role="img" aria-label="Antenna">📡</span> Rig Status</h2>
+    <h2 class="h6 mb-0"><i class="bi bi-broadcast-pin" aria-hidden="true"></i> Rig Status</h2>
     <span class="badge bg-light text-dark" role="status">
-      {{ rigStatus?.connected ? 'Connected' : 'Disconnected' }}
+      {{ connected ? 'Connected' : 'Disconnected' }}
     </span>
   </div>
   <div class="card-body">
-    @if (!rigStatus) {
-      <div class="text-center">
-        <div class="spinner-border spinner-border-sm" role="status" aria-label="Connecting to rig"></div>
-        <p class="mb-0 mt-2 small">Connecting...</p>
+    @if (!connected && !rigStatus) {
+      <div class="text-center text-muted" role="status">
+        <p class="mb-0 small">No rig control active</p>
       </div>
     }
 
-    @if (rigStatus && !rigStatus.connected) {
+    @if (!connected && rigStatus) {
       <div class="text-center text-muted" role="alert">
-        <p><span role="img" aria-label="Warning">⚠️</span> Rig control service not available</p>
-        <p class="small">{{ rigStatus.error }}</p>
-        <button class="btn btn-sm btn-primary" (click)="checkRigConnection()" aria-label="Retry rig connection">
-          <span aria-hidden="true">🔄</span> Retry
-        </button>
+        <p class="mb-0 small">Rig disconnected</p>
       </div>
     }
 
-    @if (rigStatus && rigStatus.connected) {
-      <!-- Live region for frequency/mode updates -->
+    @if (connected && rigStatus) {
+      <!-- Live region for screen reader updates -->
       <div aria-live="polite" aria-atomic="true" class="visually-hidden">
-        Rig frequency {{ formatFrequency(rigStatus.frequencyHz) }}, mode {{ rigStatus.mode || 'unknown' }}
+        Rig frequency {{ formatFrequency(rigStatus.frequency) }}, mode {{ rigStatus.mode || 'unknown' }}
       </div>
 
       <div>
@@ -35,7 +30,7 @@
         <div class="mb-3">
           <label class="small text-muted d-block" id="frequency-label">Frequency</label>
           <div class="display-6 text-primary" aria-labelledby="frequency-label">
-            {{ formatFrequency(rigStatus.frequencyHz) }}
+            {{ formatFrequency(rigStatus.frequency) }}
           </div>
         </div>
         <!-- Mode and Bandwidth -->
@@ -55,11 +50,10 @@
         <div class="mb-3">
           <label class="small text-muted d-block">PTT Status</label>
           <h4 [class]="getPTTClass()">
-            @if (rigStatus.pttActive) {
-              <span><span role="img" aria-label="Red circle">🔴</span> TRANSMITTING</span>
-            }
-            @if (!rigStatus.pttActive) {
-              <span><span role="img" aria-label="White circle">⚪</span> Receiving</span>
+            @if (rigStatus.ptt) {
+              <span>TRANSMITTING</span>
+            } @else {
+              <span>Receiving</span>
             }
           </h4>
         </div>
@@ -92,11 +86,13 @@
           </div>
         }
         <!-- Last Update -->
-        <div class="text-center mt-3">
-          <small class="text-muted">
-            Last update: {{ rigStatus.timestamp | date:'HH:mm:ss' }}
-          </small>
-        </div>
+        @if (rigStatus.timestamp) {
+          <div class="text-center mt-3">
+            <small class="text-muted">
+              Last update: {{ rigStatus.timestamp | date:'HH:mm:ss' }}
+            </small>
+          </div>
+        }
       </div>
     }
   </div>

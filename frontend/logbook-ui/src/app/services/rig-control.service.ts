@@ -22,9 +22,13 @@ export interface RigConnectionRequest {
 export interface RigStatus {
   frequency?: number;
   mode?: string;
+  bandwidth?: string | number;
   ptt?: boolean;
   sMeter?: number;
+  swr?: number;
   connected?: boolean;
+  timestamp?: string;
+  error?: string;
 }
 
 export interface RigEvent {

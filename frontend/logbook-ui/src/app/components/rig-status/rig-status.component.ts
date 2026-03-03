@@ -1,88 +1,53 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ApiService } from '../../services/api.service';
-import { RigStatus } from '../../models/station.model';
-import { interval, Subscription } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
+import { RigControlService, RigStatus } from '../../services/rig-control.service';
 
 @Component({
-    selector: 'app-rig-status',
-    imports: [CommonModule],
-    templateUrl: './rig-status.component.html',
-    styleUrls: ['./rig-status.component.css']
+  selector: 'app-rig-status',
+  imports: [CommonModule],
+  templateUrl: './rig-status.component.html',
+  styleUrls: ['./rig-status.component.css']
 })
 export class RigStatusComponent implements OnInit, OnDestroy {
   rigStatus: RigStatus | null = null;
-  rigServiceUrl = 'http://localhost:8081';
-  pollingEnabled = false;
-  private pollingSubscription: Subscription | null = null;
+  connected = false;
 
-  constructor(private apiService: ApiService) {}
+  private statusSub?: Subscription;
+  private eventSub?: Subscription;
+
+  constructor(private rigControlService: RigControlService) {}
 
   ngOnInit(): void {
-    this.checkRigConnection();
-  }
+    this.statusSub = this.rigControlService.onStatusUpdate().subscribe(({ status }) => {
+      this.rigStatus = status;
+      this.connected = status.connected !== false;
+    });
 
-  ngOnDestroy(): void {
-    this.stopPolling();
-  }
-
-  checkRigConnection(): void {
-    this.apiService.getRigStatus(this.rigServiceUrl).subscribe({
-      next: (status) => {
-        this.rigStatus = status;
-        if (status.connected && !this.pollingEnabled) {
-          this.startPolling();
-        }
-      },
-      error: () => {
-        this.rigStatus = {
-          connected: false,
-          error: 'Cannot connect to rig control service'
-        };
+    this.eventSub = this.rigControlService.onEventUpdate().subscribe(({ event }) => {
+      if (event.eventType === 'client_disconnected' || event.eventType === 'error') {
+        this.connected = false;
+      } else if (event.eventType === 'client_connected') {
+        this.connected = true;
       }
     });
   }
 
-  startPolling(): void {
-    this.pollingEnabled = true;
-    this.pollingSubscription = interval(2000)
-      .pipe(switchMap(() => this.apiService.getRigStatus(this.rigServiceUrl)))
-      .subscribe({
-        next: (status) => {
-          this.rigStatus = status;
-        },
-        error: () => {
-          this.rigStatus = {
-            connected: false,
-            error: 'Lost connection to rig'
-          };
-          this.stopPolling();
-        }
-      });
-  }
-
-  stopPolling(): void {
-    if (this.pollingSubscription) {
-      this.pollingSubscription.unsubscribe();
-      this.pollingSubscription = null;
-    }
-    this.pollingEnabled = false;
+  ngOnDestroy(): void {
+    this.statusSub?.unsubscribe();
+    this.eventSub?.unsubscribe();
   }
 
   formatFrequency(hz: number | undefined): string {
     if (!hz) return '---';
-    const mhz = hz / 1000000;
-    return mhz.toFixed(4) + ' MHz';
+    return (hz / 1_000_000).toFixed(4) + ' MHz';
   }
 
   getConnectionStatusClass(): string {
-    if (!this.rigStatus) return 'bg-secondary';
-    return this.rigStatus.connected ? 'bg-success' : 'bg-danger';
+    return this.connected ? 'bg-success' : 'bg-secondary';
   }
 
   getPTTClass(): string {
-    if (!this.rigStatus?.pttActive) return 'text-muted';
-    return 'text-danger blink';
+    return this.rigStatus?.ptt ? 'text-danger blink' : 'text-muted';
   }
 }

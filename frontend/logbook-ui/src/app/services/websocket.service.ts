@@ -30,16 +30,11 @@ export class WebSocketService {
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
-      debug: (str) => {
-        console.log('STOMP:', str);
-      },
       onConnect: () => {
-        console.log('WebSocket connected');
         this.connected = true;
         this.subscribeToTopics();
       },
       onDisconnect: () => {
-        console.log('WebSocket disconnected');
         this.connected = false;
       },
       onStompError: (frame) => {
