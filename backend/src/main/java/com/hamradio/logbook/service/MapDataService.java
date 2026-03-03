@@ -36,6 +36,7 @@ public class MapDataService {
     private final DistanceCalculator distanceCalculator;
     private final StationRepository stationRepository;
     private final UserRepository userRepository;
+    private final DXCCPrefixRepository dxccPrefixRepository;
     private final ObjectMapper objectMapper;
 
     private static final int CLUSTERING_THRESHOLD = 10000;
@@ -178,7 +179,7 @@ public class MapDataService {
             .contactLon(contactLoc.getLon())
             .contactGrid(qso.getGridSquare())
             .contactDxcc(qso.getDxcc() != null ? qso.getDxcc().toString() : null)
-            .contactContinent(qso.getCountry() != null ? getContinent(qso.getCountry()) : null)
+            .contactContinent(getContinent(qso))
             .contactCqZone(qso.getCqZone())
             .contactItuZone(qso.getItuZone())
             .distanceKm(distance != null ? distance.getDistanceKm() : null)
@@ -229,25 +230,58 @@ public class MapDataService {
     }
 
     /**
-     * Get contact location from grid square
+     * Get contact location from grid square, with DXCC entity coordinate fallback.
+     * Priority: grid square → DXCC entity lat/lon (by dxcc code) → prefix match on callsign.
      */
     private LocationData getContactLocation(QSO qso) {
-        if (qso.getGridSquare() == null || qso.getGridSquare().isBlank()) {
-            return null;
+        // 1. Grid square (most accurate)
+        if (qso.getGridSquare() != null && !qso.getGridSquare().isBlank()) {
+            try {
+                MaidenheadConverter.GridLocation gridLoc = maidenheadConverter.fromMaidenhead(qso.getGridSquare());
+                return LocationData.builder()
+                    .lat(gridLoc.getLat())
+                    .lon(gridLoc.getLon())
+                    .grid(qso.getGridSquare())
+                    .source(null)
+                    .build();
+            } catch (Exception e) {
+                log.warn("Failed to convert grid square {} for QSO {}: {}", qso.getGridSquare(), qso.getId(), e.getMessage());
+            }
         }
 
-        try {
-            MaidenheadConverter.GridLocation gridLoc = maidenheadConverter.fromMaidenhead(qso.getGridSquare());
-            return LocationData.builder()
-                .lat(gridLoc.getLat())
-                .lon(gridLoc.getLon())
-                .grid(qso.getGridSquare())
-                .source(null)
-                .build();
-        } catch (Exception e) {
-            log.warn("Failed to convert grid square {} for QSO {}: {}", qso.getGridSquare(), qso.getId(), e.getMessage());
-            return null;
+        // 2. DXCC entity center coordinates (by DXCC code)
+        if (qso.getDxcc() != null) {
+            List<DXCCPrefix> entries = dxccPrefixRepository.findByDxccCode(qso.getDxcc());
+            for (DXCCPrefix entry : entries) {
+                if (entry.getLat() != null && entry.getLon() != null) {
+                    return LocationData.builder()
+                        .lat(entry.getLat())
+                        .lon(entry.getLon())
+                        .grid(null)
+                        .source(null)
+                        .build();
+                }
+            }
         }
+
+        // 3. DXCC prefix match on callsign
+        if (qso.getCallsign() != null && !qso.getCallsign().isBlank()) {
+            List<DXCCPrefix> matches = dxccPrefixRepository.findMatchingPrefixes(qso.getCallsign().toUpperCase());
+            for (DXCCPrefix match : matches) {
+                if (match.getLat() != null && match.getLon() != null) {
+                    return LocationData.builder()
+                        .lat(match.getLat())
+                        .lon(match.getLon())
+                        .grid(null)
+                        .source(null)
+                        .build();
+                }
+            }
+        }
+
+        log.debug("No location resolved for QSO {} (callsign={}, dxcc={}, grid={})",
+            qso.getId(), qso.getCallsign(), qso.getDxcc(), qso.getGridSquare());
+        return null;
     }
 
     /**
@@ -404,7 +438,9 @@ public class MapDataService {
                 (qso.getOperator() != null && filters.getOperator().equalsIgnoreCase(qso.getOperator().getCallsign())))
             .filter(qso -> filters.getState() == null || filters.getState().equalsIgnoreCase(qso.getState()))
             .filter(qso -> filters.getContinent() == null ||
-                filters.getContinent().equalsIgnoreCase(getContinent(qso.getCountry())))
+                filters.getContinent().equalsIgnoreCase(getContinent(qso)))
+            .filter(qso -> filters.getDxcc() == null ||
+                (qso.getDxcc() != null && filters.getDxcc().equals(qso.getDxcc().toString())))
             .filter(qso -> filters.getConfirmed() == null || filters.getConfirmed() == isConfirmed(qso))
             .filter(qso -> filters.getDateFrom() == null || !qso.getQsoDate().isBefore(filters.getDateFrom()))
             .filter(qso -> filters.getDateTo() == null || !qso.getQsoDate().isAfter(filters.getDateTo()))
@@ -486,21 +522,38 @@ public class MapDataService {
     }
 
     /**
-     * Get continent code from country name (simple mapping)
+     * Resolve continent code for a QSO using the DXCC database.
+     * Priority: DXCC numeric code → country name → callsign prefix match.
+     * Returns null if the continent cannot be determined.
      */
-    private String getContinent(String country) {
-        if (country == null) return null;
+    private String getContinent(QSO qso) {
+        if (qso == null) return null;
 
-        // Simple continent mapping - this should be expanded with full DXCC data
-        return switch (country.toUpperCase()) {
-            case "USA", "UNITED STATES", "CANADA", "MEXICO" -> "NA";
-            case "GERMANY", "FRANCE", "UNITED KINGDOM", "SPAIN", "ITALY" -> "EU";
-            case "JAPAN", "CHINA", "INDIA", "SOUTH KOREA" -> "AS";
-            case "AUSTRALIA", "NEW ZEALAND" -> "OC";
-            case "BRAZIL", "ARGENTINA", "CHILE" -> "SA";
-            case "SOUTH AFRICA", "EGYPT", "KENYA" -> "AF";
-            default -> "NA"; // Default to North America
-        };
+        // 1. Look up by DXCC numeric code (most reliable)
+        if (qso.getDxcc() != null) {
+            List<DXCCPrefix> entries = dxccPrefixRepository.findByDxccCode(qso.getDxcc());
+            if (!entries.isEmpty() && entries.get(0).getContinent() != null) {
+                return entries.get(0).getContinent();
+            }
+        }
+
+        // 2. Look up by country/entity name
+        if (qso.getCountry() != null && !qso.getCountry().isBlank()) {
+            Optional<DXCCPrefix> entry = dxccPrefixRepository.findFirstByEntityNameIgnoreCase(qso.getCountry());
+            if (entry.isPresent() && entry.get().getContinent() != null) {
+                return entry.get().getContinent();
+            }
+        }
+
+        // 3. Match callsign prefix
+        if (qso.getCallsign() != null && !qso.getCallsign().isBlank()) {
+            List<DXCCPrefix> matches = dxccPrefixRepository.findMatchingPrefixes(qso.getCallsign().toUpperCase());
+            if (!matches.isEmpty() && matches.get(0).getContinent() != null) {
+                return matches.get(0).getContinent();
+            }
+        }
+
+        return null;
     }
 
     // ===== Data Transfer Objects =====

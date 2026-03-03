@@ -46,6 +46,11 @@ public interface DXCCPrefixRepository extends JpaRepository<DXCCPrefix, Long> {
     Optional<DXCCPrefix> findExactMatch(@Param("callsign") String callsign);
 
     /**
+     * Find first entry matching entity name (case-insensitive)
+     */
+    Optional<DXCCPrefix> findFirstByEntityNameIgnoreCase(String entityName);
+
+    /**
      * Count total prefixes in database
      */
     long count();
