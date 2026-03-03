@@ -1,0 +1,329 @@
+/* ============================================================================
+   DX Cluster Panel - Glassmorphism Design
+   ============================================================================ */
+
+.dx-cluster-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+  overflow: hidden;
+  transition: all var(--transition-normal);
+}
+
+[data-theme="dark"] .dx-cluster-panel {
+  background: var(--glass-bg-dark);
+  border-color: var(--glass-border-dark);
+}
+
+/* Header */
+.cluster-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--ew-gradient-primary);
+  color: white;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+}
+
+.cluster-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+.cluster-title i {
+  font-size: 1.2rem;
+  filter: drop-shadow(0 0 6px rgba(0, 212, 255, 0.8));
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.cluster-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.last-updated {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.toggle-btn {
+  color: white;
+  padding: 0;
+  text-decoration: none;
+}
+
+.toggle-btn:hover {
+  color: white;
+  transform: scale(1.1);
+}
+
+/* Filters */
+.cluster-filters {
+  padding: 10px 16px;
+  background: rgba(0, 212, 255, 0.04);
+  border-bottom: 1px solid rgba(0, 212, 255, 0.12);
+}
+
+[data-theme="dark"] .cluster-filters {
+  background: rgba(0, 212, 255, 0.08);
+  border-bottom-color: rgba(0, 212, 255, 0.2);
+}
+
+.filter-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .filter-label {
+  color: var(--text-secondary-dark);
+}
+
+.band-select {
+  width: 110px;
+  font-size: 0.82rem;
+}
+
+.limit-select {
+  width: 70px;
+  font-size: 0.82rem;
+}
+
+.refresh-btn {
+  font-size: 0.82rem;
+  padding: 3px 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Loading / Empty */
+.cluster-loading,
+.cluster-empty {
+  padding: 30px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+[data-theme="dark"] .cluster-loading,
+[data-theme="dark"] .cluster-empty {
+  color: var(--text-secondary-dark);
+}
+
+.cluster-empty i {
+  font-size: 2.5rem;
+  opacity: 0.3;
+  display: block;
+  margin-bottom: 10px;
+}
+
+/* Spot table */
+.spot-table-wrapper {
+  overflow-x: auto;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.spot-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.spot-table thead th {
+  position: sticky;
+  top: 0;
+  background: rgba(0, 128, 255, 0.08);
+  backdrop-filter: blur(4px);
+  padding: 6px 10px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  border-bottom: 1px solid rgba(0, 128, 255, 0.2);
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .spot-table thead th {
+  background: rgba(0, 212, 255, 0.08);
+  color: var(--text-secondary-dark);
+  border-bottom-color: rgba(0, 212, 255, 0.2);
+}
+
+.spot-row {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  transition: background 0.15s ease;
+}
+
+.spot-row:hover {
+  background: rgba(0, 128, 255, 0.06);
+}
+
+[data-theme="dark"] .spot-row {
+  border-bottom-color: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] .spot-row:hover {
+  background: rgba(0, 212, 255, 0.08);
+}
+
+.spot-row td {
+  padding: 6px 10px;
+  vertical-align: middle;
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .spot-row td {
+  color: var(--text-primary-dark);
+}
+
+.spot-dx strong {
+  color: var(--ew-signal-blue);
+  font-weight: 700;
+  font-size: 0.88rem;
+  letter-spacing: 0.02em;
+}
+
+[data-theme="dark"] .spot-dx strong {
+  color: var(--ew-signal-cyan);
+}
+
+.spot-freq {
+  font-family: monospace;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.spot-mode {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.spot-spotter {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+}
+
+[data-theme="dark"] .spot-spotter {
+  color: var(--text-secondary-dark);
+}
+
+.spot-comment {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .spot-comment {
+  color: var(--text-secondary-dark);
+}
+
+.spot-age {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  text-align: right;
+}
+
+[data-theme="dark"] .spot-age {
+  color: var(--text-muted-dark);
+}
+
+/* Band chips */
+.band-chip {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.band-lf {
+  background: rgba(255, 170, 0, 0.12);
+  border-color: rgba(255, 170, 0, 0.4);
+  color: #cc8800;
+}
+
+[data-theme="dark"] .band-lf {
+  background: rgba(255, 170, 0, 0.15);
+  border-color: rgba(255, 170, 0, 0.5);
+  color: #ffaa00;
+}
+
+.band-hf {
+  background: rgba(0, 128, 255, 0.1);
+  border-color: rgba(0, 128, 255, 0.3);
+  color: #0066cc;
+}
+
+[data-theme="dark"] .band-hf {
+  background: rgba(0, 212, 255, 0.12);
+  border-color: rgba(0, 212, 255, 0.4);
+  color: #00d4ff;
+}
+
+.band-vhf {
+  background: rgba(0, 255, 136, 0.1);
+  border-color: rgba(0, 255, 136, 0.35);
+  color: #009955;
+}
+
+[data-theme="dark"] .band-vhf {
+  background: rgba(0, 255, 136, 0.12);
+  border-color: rgba(0, 255, 136, 0.4);
+  color: #00ff88;
+}
+
+.band-uhf {
+  background: rgba(170, 0, 255, 0.1);
+  border-color: rgba(170, 0, 255, 0.3);
+  color: #8800cc;
+}
+
+[data-theme="dark"] .band-uhf {
+  background: rgba(170, 0, 255, 0.12);
+  border-color: rgba(170, 0, 255, 0.4);
+  color: #cc44ff;
+}
+
+/* Collapsed state */
+.dx-cluster-panel.collapsed .cluster-header {
+  border-radius: 12px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .cluster-header {
+    padding: 12px 15px;
+  }
+
+  .spot-table-wrapper {
+    max-height: 280px;
+  }
+
+  .spot-comment {
+    max-width: 100px;
+  }
+}

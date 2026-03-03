@@ -15,7 +15,8 @@ Complete guide for using the Ham Radio Contest Logbook system.
 9. [Station Management](#station-management)
 10. [Export and Import](#export-and-import)
 11. [Maps and Visualization](#maps-and-visualization)
-12. [Troubleshooting](#troubleshooting)
+12. [Dashboard Features](#dashboard-features)
+13. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -27,7 +28,6 @@ Complete guide for using the Ham Radio Contest Logbook system.
 2. Click **Register** to create a new account
 3. Fill in your details:
    - **Username**: Your unique username
-   - **Email**: Your email address
    - **Password**: Secure password (min 8 characters)
    - **Callsign**: Your amateur radio callsign (optional but recommended)
 4. Click **Create Account**
@@ -122,31 +122,54 @@ A **Log** is a collection of QSOs for a specific purpose:
 
 ### Creating a New Log
 
+Logs come in two types with distinct creation paths:
+
+**Personal Log** — private, single-user only. No participants, never public.
+
 1. Click the **Log Dropdown** at the top of the dashboard
-2. Click **Create New Log**
+2. Click **New Personal Log** at the bottom of the "My Personal Logs" section
+3. Fill in the log details:
+   - **Name**: Descriptive name (e.g., "General 2024")
+   - **Description**: Optional details
+   - **Purpose**: Select the operating activity (Field Day, POTA, SOTA, etc.)
+4. Click **Create Log**
+
+**Shared Log** — multi-operator, can be made public for viewers.
+
+1. Click the **Log Dropdown** at the top of the dashboard
+2. Click **New Shared Log** at the bottom of the "Shared Logs" section
 3. Fill in the log details:
    - **Name**: Descriptive name (e.g., "ARRL Field Day 2024")
    - **Description**: Optional details
-   - **Type**: Personal or Shared
-   - **Contest** (optional): Select if this is a contest log
-   - **Start/End Dates** (optional): For contest period enforcement
-   - **Public**: Check if you want others to view (read-only)
+   - **Purpose**: Select the operating activity
+   - **Public**: Check if you want anyone to view (read-only access)
 4. Click **Create Log**
+
+**Note**: Personal logs can be converted to Shared logs later if you need to invite participants. This conversion is one-way.
 
 ### Selecting a Log
 
 All QSO operations are log-specific. You must select a log before logging QSOs:
 
 1. Click the **Log Dropdown** at the top
-2. Select the log you want to work with
-3. The log name will display in the dropdown
-4. All dashboard components now operate within this log context
+2. The dropdown shows two sections: **My Personal Logs** and **Shared Logs**
+3. Click the log you want to work with
+4. The log name and type badge will display in the dropdown button
+5. All dashboard components now operate within this log context
 
 ### Log Information Display
 
-The log dropdown shows:
+The log dropdown shows logs in two labeled sections:
+
+**My Personal Logs** — your private logs:
 - **Log Name**
-- **Type Badge**: PERSONAL or SHARED
+- **Purpose Badge**: Shown if not General (e.g., POTA, SOTA, Field Day)
+- **QSO Count**: Total contacts in the log
+
+**Shared Logs** — multi-operator logs you created or were invited to:
+- **Log Name**
+- **Invited Badge**: Shown if you didn't create the log
+- **Purpose Badge**: Shown if not General
 - **Your Role Badge**: CREATOR, STATION, or VIEWER
 - **Participant Count**: Number of operators
 - **QSO Count**: Total contacts in the log
@@ -351,15 +374,13 @@ When connected:
 ### Supported Contests
 
 The system includes validators for:
-- **CQ World Wide DX Contest** (CW and SSB)
-- **ARRL Sweepstakes**
-- **ARRL Field Day**
-- **ARRL 10 Meter Contest**
-- **ARRL DX Contest**
-- **Parks on the Air (POTA)**
-- **Summits on the Air (SOTA)**
-- **State QSO Parties** (various states)
-- And many more...
+- **CQ World Wide DX Contest** (CW and SSB) — exchange: RST + CQ Zone
+- **ARRL Sweepstakes** — exchange: serial, precedence, check, section
+- **ARRL Field Day** — exchange: class, section
+- **Winter Field Day** — exchange: class (indoor/outdoor/home), section
+- **Parks on the Air (POTA)** — exchange: park reference
+- **Summits on the Air (SOTA)** — exchange: summit reference
+- **State QSO Parties** — exchange: serial, state/province
 
 ### Contest-Specific Features
 
@@ -826,6 +847,92 @@ View detailed statistics:
 - **Grids**: Grid square count
 - **Bands**: QSO distribution by band
 - **Modes**: QSO distribution by mode
+
+---
+
+## Dashboard Features
+
+The dashboard displays at-a-glance panels below your QSO list. These panels are always visible when a log is selected.
+
+### Award Progress
+
+Tracks your progress toward major amateur radio awards.
+
+- **DXCC** (DX Century Club): Countries worked and confirmed out of 340 total entities
+- **WAS** (Worked All States): US states worked and confirmed out of 50
+- **VUCC** (VHF/UHF Century Club): 4-character Maidenhead grid squares worked and confirmed; shows whether the 100-grid threshold has been achieved
+
+Confirmation counts QSOs where LoTW or QSL confirmation has been received (`lotwRcvd = Y` or `qslRcvd = Y`).
+
+Award progress updates automatically as you log QSOs or sync confirmations.
+
+---
+
+### DX Cluster Spots
+
+Displays recent DX spots sourced from DX Summit (`dxsummit.fi`), updated every 60 seconds.
+
+**Columns**: Callsign, frequency, band, mode, spotter, comment, time
+
+**Band chip colors**:
+- Orange: LF/MF (160m)
+- Blue: HF (80m–10m)
+- Green: VHF (6m, 2m)
+- Purple: UHF (70cm+)
+
+Use DX cluster spots to identify active stations and chase new entities or multipliers.
+
+---
+
+### Propagation Conditions
+
+Shows current HF propagation conditions sourced from NOAA Space Weather Prediction Center (SWPC), refreshed every 30 minutes.
+
+**Displays**:
+- Solar Flux Index (SFI)
+- K-index (geomagnetic activity)
+- A-index (daily geomagnetic index)
+- Per-band condition ratings: `EXCELLENT`, `GOOD`, `FAIR`, or `POOR` for 160m through 6m
+
+Higher SFI and lower K/A-index values indicate better propagation conditions.
+
+---
+
+### QSL Card Printing
+
+Generate a print-ready QSL card for any QSO directly from the QSO list.
+
+1. Find the QSO in the QSO list
+2. Click the card icon on that row
+3. A QSL card preview opens (standard 5.5 × 3.5 inch size)
+4. Click **Print** to send to your printer
+
+The print dialog uses the correct page size automatically. Navigation elements are hidden during printing.
+
+---
+
+### LoTW Confirmation Sync
+
+Synchronize confirmation data from ARRL Logbook of the World (LoTW) with your log.
+
+1. Navigate to the **Import** panel
+2. Find the **LoTW Sync** section
+3. Enter your LoTW username and password
+4. Click **Sync**
+
+The system downloads your LoTW ADIF records and matches them against QSOs in the current log by callsign, date, and band. Matched QSOs have `lotwRcvd` set to `Y`, which counts toward your award confirmation totals. LoTW credentials are not stored — they are used only for the sync request.
+
+---
+
+### Station Color Preferences
+
+Customize the colors used to represent each station in the map, QSO list, and participant badges.
+
+1. Go to your station or participant settings
+2. Pick a color for each station number (1-10) and the GOTA station
+3. Colors are saved to your account and persist across sessions
+
+Colors are stored server-side in your user profile and synchronized across all browsers where you are logged in.
 
 ---
 

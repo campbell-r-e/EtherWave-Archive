@@ -4,7 +4,7 @@ A comprehensive, multi-user web-based logbook application for amateur radio oper
 
 ## Quick Links
 
-**New Users**: Start with [QUICKSTART.md](../QUICKSTART.md) or [START_HERE.md](../START_HERE.md)
+**New Users**: Start with [QUICKSTART.md](QUICKSTART.md) or [START_HERE.md](START_HERE.md)
 
 **Operators**: See [USER_GUIDE.md](USER_GUIDE.md) for complete usage instructions
 
@@ -111,7 +111,7 @@ EtherWave Archive provides amateur radio operators with a modern, feature-rich l
                             ↕ HTTP/WebSocket
 ┌─────────────────────────────────────────────────────────────┐
 │                         Backend                              │
-│  Spring Boot 3.2.0 + Spring Security + JWT                  │
+│  Spring Boot 4.0.3 + Spring Security + JWT                  │
 │  - REST API Controllers                                      │
 │  - Service Layer (Business Logic)                           │
 │  - Permission Checking (LogService)                         │
@@ -188,65 +188,66 @@ ADMIN_USERNAME=admin
 ADMIN_PASSWORD=admin123
 # ADMIN_EMAIL removed — email not required
 
-# QRZ API (optional)
-QRZ_API_KEY=your-qrz-api-key
+# QRZ API (optional — enables callsign lookup)
+QRZ_USERNAME=your-qrz-username
+QRZ_PASSWORD=your-qrz-password
 ```
 
 ## Documentation Structure
 
-### Getting Started Guides (in root directory)
+All documentation lives in the `docs/` directory.
 
-- **[START_HERE.md](../START_HERE.md)** - Absolute beginner's first steps
-- **[QUICKSTART.md](../QUICKSTART.md)** - 5-minute quick start guide
-- **[SETUP.md](../SETUP.md)** - Comprehensive installation and configuration
-- **[REGISTRATION_GUIDE.md](../REGISTRATION_GUIDE.md)** - User registration walkthrough
-- **[RIG_CONTROL_GUIDE.md](../RIG_CONTROL_GUIDE.md)** - Complete rig control setup
+### Getting Started
 
-### User Documentation (in docs/ folder)
+- **[START_HERE.md](START_HERE.md)** - Absolute beginner's first steps
+- **[QUICKSTART.md](QUICKSTART.md)** - 5-minute quick start guide
+- **[SETUP.md](SETUP.md)** - Comprehensive installation and configuration
+- **[REGISTRATION_GUIDE.md](REGISTRATION_GUIDE.md)** - User registration walkthrough
+- **[RIG_CONTROL_GUIDE.md](RIG_CONTROL_GUIDE.md)** - Complete rig control setup
+
+### User Documentation
 
 - **[USER_GUIDE.md](USER_GUIDE.md)** - Complete user manual for operators
 - **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Common issues and solutions
+- **[KEYBOARD_SHORTCUTS.md](KEYBOARD_SHORTCUTS.md)** - Keyboard navigation and shortcuts
 
-### Developer Documentation (in docs/ folder)
+### Developer Documentation
 
 - **[DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)** - Architecture, APIs, and development guide
 - **[API_REFERENCE.md](API_REFERENCE.md)** - Complete REST API documentation
 - **[DATABASE_SCHEMA.md](DATABASE_SCHEMA.md)** - Entity relationship diagrams and schema
 - **[TEST_STRATEGY.md](TEST_STRATEGY.md)** - Testing approach and guidelines
 - **[TEST_IMPLEMENTATION_GUIDE.md](TEST_IMPLEMENTATION_GUIDE.md)** - Test implementation details
+- **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - How to run and write tests
+- **[TESTING.md](TESTING.md)** - Backend test suite details
 - **[MAPS_ARCHITECTURE.md](MAPS_ARCHITECTURE.md)** - Map visualization system design
 - **[IMPLEMENTATION_PROGRESS.md](IMPLEMENTATION_PROGRESS.md)** - Development progress tracking
 
-### Feature-Specific Documentation (in root directory)
+### Configuration & Deployment
 
-- **[BRANDING.md](../BRANDING.md)** - EtherWave Archive branding guidelines
-- **[KEYBOARD_SHORTCUTS.md](../KEYBOARD_SHORTCUTS.md)** - Keyboard navigation and shortcuts
-- **[ACCESSIBILITY_REPORT.md](../ACCESSIBILITY_REPORT.md)** - Accessibility compliance details
-- **[ACCESSIBILITY_AUDIT_FIXES.md](../ACCESSIBILITY_AUDIT_FIXES.md)** - Accessibility improvements made
-- **[MULTI_STATION_PLAN.md](../MULTI_STATION_PLAN.md)** - Multi-station feature design
-- **[MULTI_STATION_IMPLEMENTATION_COMPLETE.md](../MULTI_STATION_IMPLEMENTATION_COMPLETE.md)** - Implementation details
+- **[CONFIGURATION.md](CONFIGURATION.md)** - System configuration options
+- **[DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md)** - Docker deployment guide
+- **[SYSTEM_REQUIREMENTS.md](SYSTEM_REQUIREMENTS.md)** - Hardware and software requirements
+- **[UPGRADE_GUIDE.md](UPGRADE_GUIDE.md)** - Version upgrade procedures
 
-### Configuration & Deployment (in root directory)
+### Project Specification & Design
 
-- **[CONFIGURATION.md](../CONFIGURATION.md)** - System configuration options
-- **[DOCKER_DEPLOYMENT.md](../DOCKER_DEPLOYMENT.md)** - Docker deployment guide
-- **[SYSTEM_REQUIREMENTS.md](../SYSTEM_REQUIREMENTS.md)** - Hardware and software requirements
+- **[AGILE_PRODUCT_SPECIFICATION.md](AGILE_PRODUCT_SPECIFICATION.md)** - Product requirements and specifications
+- **[DATABASE_DESIGN.md](DATABASE_DESIGN.md)** - Backend database design rationale
+- **[BRANDING.md](BRANDING.md)** - EtherWave Archive branding guidelines
+- **[ACCESSIBILITY_REPORT.md](ACCESSIBILITY_REPORT.md)** - Accessibility compliance details
+- **[ACCESSIBILITY_AUDIT_FIXES.md](ACCESSIBILITY_AUDIT_FIXES.md)** - Accessibility improvements made
 
-### Project Management (in root directory)
+### Rig Control
 
-- **[AGILE_PRODUCT_SPECIFICATION.md](../AGILE_PRODUCT_SPECIFICATION.md)** - Product requirements and specifications
-- **[UPGRADE_GUIDE.md](../UPGRADE_GUIDE.md)** - Version upgrade procedures
-- **[TESTING_GUIDE.md](../TESTING_GUIDE.md)** - How to run and write tests
-- **[TEST_RESTORATION_SUMMARY.md](../TEST_RESTORATION_SUMMARY.md)** - Test suite restoration details
-
-### Quality Assurance (in docs/ folder)
-
-- **[QA_DELIVERABLES_SUMMARY.md](QA_DELIVERABLES_SUMMARY.md)** - QA testing deliverables
-
-### Internal/Technical Notes (in root directory)
-
-- **[DEBUG_LOGS_DROPDOWN.md](../DEBUG_LOGS_DROPDOWN.md)** - Debug information for log dropdown
-- **[STATION_ASSIGNMENT_DISPLAY_FIX.md](../STATION_ASSIGNMENT_DISPLAY_FIX.md)** - Station assignment bug fixes
+- **[RIG_CONTROL_INTEGRATION.md](RIG_CONTROL_INTEGRATION.md)** - Technical architecture
+- **[RIG_CONTROL_QUICKSTART.md](RIG_CONTROL_QUICKSTART.md)** - Quick start guide
+- **[RIG_CONTROL_INDEX.md](RIG_CONTROL_INDEX.md)** - Rig control documentation index
+- **[RIG_CONTROL_USER_GUIDE.md](RIG_CONTROL_USER_GUIDE.md)** - User guide for rig control
+- **[RIG_CONTROL_DEVELOPER_GUIDE.md](RIG_CONTROL_DEVELOPER_GUIDE.md)** - Developer integration guide
+- **[RIG_CONTROL_API_REFERENCE.md](RIG_CONTROL_API_REFERENCE.md)** - API reference
+- **[REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md)** - Rig control refactoring notes
+- **[TESTING_WITHOUT_HARDWARE.md](TESTING_WITHOUT_HARDWARE.md)** - Testing rig control without hardware
 
 ## Technology Stack
 
@@ -299,7 +300,7 @@ Hamradiologbook/
 │   │       └── validation/           # Contest validators
 │   ├── src/main/resources/
 │   │   ├── application.properties    # App configuration
-│   │   └── contest-definitions/      # Contest JSON configs
+│   │   └── contest-configs/          # Contest JSON configs
 │   └── pom.xml                       # Maven dependencies
 │
 ├── frontend/logbook-ui/              # Angular frontend
@@ -357,7 +358,7 @@ Hamradiologbook/
 
 ## Contributing
 
-Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting pull requests.
+Contributions are welcome! Please open an issue on GitHub to discuss your proposed change before submitting a pull request.
 
 ## Support
 

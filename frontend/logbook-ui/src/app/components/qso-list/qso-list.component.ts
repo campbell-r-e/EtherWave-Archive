@@ -6,10 +6,11 @@ import { WebSocketService } from '../../services/websocket.service';
 import { QSO } from '../../models/qso.model';
 import { Station } from '../../models/station.model';
 import { Subscription } from 'rxjs';
+import { QslCardComponent } from '../qsl-card/qsl-card.component';
 
 @Component({
     selector: 'app-qso-list',
-    imports: [],
+    imports: [QslCardComponent],
     templateUrl: './qso-list.component.html',
     styleUrls: ['./qso-list.component.css']
 })
@@ -24,6 +25,9 @@ export class QsoListComponent implements OnInit, OnDestroy {
   activeTab: string = 'all';
   availableStations: number[] = []; // Unique station numbers that have QSOs
   hasGotaQsos = false;
+
+  // QSL card
+  selectedQsoForQsl: QSO | null = null;
 
   constructor(
     private apiService: ApiService,
@@ -174,6 +178,14 @@ export class QsoListComponent implements OnInit, OnDestroy {
         setTimeout(() => element.classList.remove('new-qso-highlight'), 2000);
       }
     }, 100);
+  }
+
+  openQslCard(qso: QSO): void {
+    this.selectedQsoForQsl = qso;
+  }
+
+  closeQslCard(): void {
+    this.selectedQsoForQsl = null;
   }
 
   deleteQSO(qso: QSO): void {

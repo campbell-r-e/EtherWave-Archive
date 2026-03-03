@@ -15,6 +15,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.security.core.Authentication;
+
 import java.time.LocalDate;
 
 /**
@@ -107,8 +109,20 @@ public class MapController {
     ) {
         log.info("GET /api/maps/grids/{} - precision: {}, includeNeighbors: {}", logId, precision, includeNeighbors);
 
-        // TODO: Apply filters to grid coverage
-        GridCoverageService.GridCoverageResponse response = gridCoverageService.getGridCoverage(logId, precision, includeNeighbors);
+        MapFilters filters = MapFilters.builder()
+                .band(band)
+                .mode(mode)
+                .station(station)
+                .operator(operator)
+                .dxcc(dxcc)
+                .dateFrom(dateFrom)
+                .dateTo(dateTo)
+                .confirmed(confirmed)
+                .continent(continent)
+                .state(state)
+                .build();
+
+        GridCoverageService.GridCoverageResponse response = gridCoverageService.getGridCoverage(logId, precision, includeNeighbors, filters);
 
         return ResponseEntity.ok(response);
     }
@@ -320,16 +334,13 @@ public class MapController {
      */
     @PutMapping("/location/user")
     public ResponseEntity<LocationManagementService.LocationUpdateResponse> setUserLocation(
+            Authentication authentication,
             @RequestBody LocationRequest request
     ) {
         log.info("PUT /api/maps/location/user - lat: {}, lon: {}", request.getLatitude(), request.getLongitude());
 
-        // TODO: Get current user ID from security context
-        // For now, using a placeholder - this needs proper authentication integration
-        Long userId = 1L; // TEMPORARY - should come from SecurityContextHolder
-
         LocationManagementService.LocationUpdateResponse response = locationManagementService.updateUserLocation(
-            userId,
+            authentication.getName(),
             request.getLatitude(),
             request.getLongitude(),
             request.getGrid()

@@ -177,6 +177,17 @@ public class LogController {
     }
 
     /**
+     * Convert a personal log to a shared log (one-way, creator only)
+     */
+    @PostMapping("/{logId}/convert-to-shared")
+    public ResponseEntity<LogResponse> convertToShared(
+            @PathVariable Long logId,
+            Authentication authentication) {
+        LogResponse log = logService.convertToShared(logId, authentication.getName());
+        return ResponseEntity.ok(log);
+    }
+
+    /**
      * Leave a log (remove yourself as participant)
      */
     @PostMapping("/{logId}/leave")

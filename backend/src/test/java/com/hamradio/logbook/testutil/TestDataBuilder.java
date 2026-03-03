@@ -177,6 +177,37 @@ public class TestDataBuilder {
             .endDate(LocalDateTime.of(2024, 1, 28, 20, 0));
     }
 
+    public static Contest.ContestBuilder cqwwContest() {
+        return Contest.builder()
+            .contestCode("CQWW")
+            .contestName("CQ World Wide DX Contest")
+            .description("CQ WW DX Contest")
+            .isActive(true)
+            .validatorClass("com.hamradio.logbook.validation.CQWWValidator")
+            .startDate(LocalDateTime.of(2024, 10, 26, 0, 0))
+            .endDate(LocalDateTime.of(2024, 10, 27, 23, 59));
+    }
+
+    public static Contest.ContestBuilder sweepstakesContest() {
+        return Contest.builder()
+            .contestCode("ARRL-SS")
+            .contestName("ARRL Sweepstakes")
+            .description("ARRL Sweepstakes Contest")
+            .isActive(true)
+            .validatorClass("com.hamradio.logbook.validation.ARRLSweepstakesValidator")
+            .startDate(LocalDateTime.of(2024, 11, 2, 21, 0))
+            .endDate(LocalDateTime.of(2024, 11, 4, 3, 0));
+    }
+
+    public static Contest.ContestBuilder stateQsoPartyContest() {
+        return Contest.builder()
+            .contestCode("STATE-QSO-PARTY")
+            .contestName("State QSO Party")
+            .description("State QSO Party Contest")
+            .isActive(true)
+            .validatorClass("com.hamradio.logbook.validation.StateQSOPartyValidator");
+    }
+
     // ==================== QSO BUILDERS ====================
 
     public static QSO.QSOBuilder basicQSO(Log log, Station station) {

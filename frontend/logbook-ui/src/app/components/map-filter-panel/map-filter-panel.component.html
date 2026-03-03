@@ -24,6 +24,22 @@
     </button>
   </div>
 
+  <!-- Saved Presets (always visible) -->
+  @if (savedPresets.length > 0) {
+    <div class="preset-strip">
+      @for (preset of savedPresets; track preset.name) {
+        <span class="preset-chip" [attr.aria-label]="'Load preset ' + preset.name">
+          <button class="preset-chip-label" type="button" (click)="loadPreset(preset)">
+            <i class="bi bi-bookmark-fill me-1" aria-hidden="true"></i>{{ preset.name }}
+          </button>
+          <button class="preset-chip-delete btn-close-pill" type="button" (click)="deletePreset(preset.name, $event)" [attr.aria-label]="'Delete preset ' + preset.name">
+            <i class="bi bi-x" aria-hidden="true"></i>
+          </button>
+        </span>
+      }
+    </div>
+  }
+
   <!-- Active Filters Pills (always visible) -->
   @if (hasActiveFilters()) {
     <div class="active-filters">
@@ -289,7 +305,32 @@
         <button type="button" class="btn btn-outline-secondary" (click)="clearFilters()" aria-label="Clear all map filters">
           <i class="bi bi-x-circle" aria-hidden="true"></i> Clear All
         </button>
+        <button type="button" class="btn btn-outline-secondary" (click)="showSavePresetInput = !showSavePresetInput" aria-label="Save current filters as preset" [class.active]="showSavePresetInput">
+          <i class="bi bi-bookmark" aria-hidden="true"></i> Save Preset
+        </button>
       </div>
+
+      <!-- Save Preset Input -->
+      @if (showSavePresetInput) {
+        <div class="save-preset-form mt-2 d-flex gap-2 align-items-center">
+          <input
+            type="text"
+            class="form-control form-control-sm"
+            [(ngModel)]="newPresetName"
+            name="newPresetName"
+            placeholder="Preset name (e.g., FT8 20M)"
+            (keyup.enter)="savePreset()"
+            (keyup.escape)="cancelSavePreset()"
+            aria-label="Enter preset name"
+            maxlength="40">
+          <button type="button" class="btn btn-sm btn-primary" (click)="savePreset()" [disabled]="!newPresetName.trim()">
+            Save
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelSavePreset()">
+            Cancel
+          </button>
+        </div>
+      }
     </form>
   </div>
 </div>

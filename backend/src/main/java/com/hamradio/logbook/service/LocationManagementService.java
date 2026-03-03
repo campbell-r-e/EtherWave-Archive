@@ -84,6 +84,21 @@ public class LocationManagementService {
     }
 
     /**
+     * Update user default location by username
+     */
+    @Transactional
+    public LocationUpdateResponse updateUserLocation(
+            String username,
+            Double latitude,
+            Double longitude,
+            String grid
+    ) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        return updateUserLocation(user.getId(), latitude, longitude, grid);
+    }
+
+    /**
      * Update user default location
      *
      * @param userId User ID

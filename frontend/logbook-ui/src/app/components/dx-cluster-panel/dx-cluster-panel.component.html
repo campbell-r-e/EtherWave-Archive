@@ -1,0 +1,113 @@
+<!-- DX Cluster Panel -->
+<div class="dx-cluster-panel" [class.collapsed]="!isExpanded">
+
+  <!-- Header -->
+  <div class="cluster-header" (click)="togglePanel()">
+    <div class="cluster-title">
+      <i class="bi bi-broadcast-pin" aria-hidden="true"></i>
+      <h2 class="h6 mb-0">DX Cluster</h2>
+      @if (spots.length > 0) {
+        <span class="badge bg-primary ms-2" role="status" aria-label="{{ spots.length }} spots">
+          {{ spots.length }}
+        </span>
+      }
+    </div>
+    <div class="cluster-meta">
+      @if (lastUpdated) {
+        <span class="last-updated">Updated {{ lastUpdated | date:'HH:mm:ss' }}</span>
+      }
+      <button class="btn btn-sm btn-link toggle-btn"
+              [attr.aria-label]="isExpanded ? 'Collapse DX cluster' : 'Expand DX cluster'"
+              [attr.aria-expanded]="isExpanded">
+        <i class="bi" [class.bi-chevron-up]="isExpanded" [class.bi-chevron-down]="!isExpanded" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  @if (isExpanded) {
+    <div class="cluster-filters">
+      <div class="d-flex gap-2 align-items-center flex-wrap">
+        <label class="filter-label" for="bandSelect">Band:</label>
+        <select id="bandSelect" class="form-select form-select-sm band-select"
+                [(ngModel)]="selectedBand" (ngModelChange)="onFilterChange()">
+          @for (band of availableBands; track band) {
+            <option [value]="band">{{ band || 'All Bands' }}</option>
+          }
+        </select>
+
+        <label class="filter-label" for="limitSelect">Show:</label>
+        <select id="limitSelect" class="form-select form-select-sm limit-select"
+                [(ngModel)]="limit" (ngModelChange)="onFilterChange()">
+          <option [value]="25">25</option>
+          <option [value]="50">50</option>
+          <option [value]="100">100</option>
+        </select>
+
+        <button class="btn btn-sm btn-outline-primary refresh-btn"
+                (click)="refresh()"
+                [disabled]="loading"
+                aria-label="Refresh DX spots">
+          <i class="bi" [class.bi-arrow-clockwise]="!loading" [class.bi-hourglass-split]="loading" aria-hidden="true"></i>
+          Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    @if (loading && spots.length === 0) {
+      <div class="cluster-loading" role="status" aria-live="polite">
+        <div class="spinner-border spinner-border-sm text-info me-2" aria-hidden="true"></div>
+        Loading DX spots...
+      </div>
+    }
+
+    <!-- Error -->
+    @if (error) {
+      <div class="alert alert-warning mx-3 my-2 py-2 small" role="alert">
+        <i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>{{ error }}
+      </div>
+    }
+
+    <!-- Spot list -->
+    @if (spots.length > 0) {
+      <div class="spot-table-wrapper" role="region" aria-label="DX spots">
+        <table class="spot-table" role="grid">
+          <thead>
+            <tr>
+              <th scope="col">DX</th>
+              <th scope="col">MHz</th>
+              <th scope="col">Band</th>
+              <th scope="col">Mode</th>
+              <th scope="col">Spotter</th>
+              <th scope="col">Comment</th>
+              <th scope="col">Age</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (spot of spots; track spot.dxCallsign + spot.time) {
+              <tr class="spot-row">
+                <td class="spot-dx">
+                  <strong>{{ spot.dxCallsign }}</strong>
+                </td>
+                <td class="spot-freq">{{ formatFreq(spot.frequency) }}</td>
+                <td class="spot-band">
+                  <span class="band-chip {{ bandClass(spot.band) }}">{{ spot.band || '—' }}</span>
+                </td>
+                <td class="spot-mode">{{ spot.mode || '—' }}</td>
+                <td class="spot-spotter">{{ spot.spotter }}</td>
+                <td class="spot-comment">{{ spot.comment }}</td>
+                <td class="spot-age">{{ spotAge(spot.time) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else if (!loading) {
+      <div class="cluster-empty">
+        <i class="bi bi-reception-0" aria-hidden="true"></i>
+        <p>No DX spots available. Check your connection or try refreshing.</p>
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,228 @@
+<!-- Award Progress Dashboard -->
+<div class="award-progress-container">
+
+  <!-- Header -->
+  <div class="award-header">
+    <div class="award-title">
+      <i class="bi bi-trophy" aria-hidden="true"></i>
+      <h2 class="h5 mb-0">Award Progress</h2>
+      @if (currentLog) {
+        <span class="log-name-badge">{{ currentLog.name }}</span>
+      }
+    </div>
+    @if (currentLog) {
+      <button class="btn btn-sm btn-outline-secondary refresh-btn"
+              (click)="loadProgress()"
+              [disabled]="loading"
+              aria-label="Refresh award progress">
+        <i class="bi" [class.bi-arrow-clockwise]="!loading" [class.bi-hourglass-split]="loading" aria-hidden="true"></i>
+      </button>
+    }
+  </div>
+
+  <!-- No log selected -->
+  @if (!currentLog) {
+    <div class="empty-state">
+      <i class="bi bi-clipboard-x empty-icon" aria-hidden="true"></i>
+      <p>Select a log to view award progress.</p>
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (currentLog && loading) {
+    <div class="loading-state" role="status" aria-live="polite">
+      <div class="spinner-border spinner-border-sm text-info me-2" aria-hidden="true"></div>
+      Loading award progress...
+    </div>
+  }
+
+  <!-- Error -->
+  @if (error) {
+    <div class="alert alert-danger mt-3" role="alert">
+      <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>
+      {{ error }}
+    </div>
+  }
+
+  <!-- Award cards -->
+  @if (progress && !loading) {
+    <div class="stats-row">
+      <div class="stat-chip">
+        <span class="stat-value">{{ progress.totalQsos }}</span>
+        <span class="stat-label">Total QSOs</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-value">{{ progress.dxcc.workedCount }}</span>
+        <span class="stat-label">Countries</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-value">{{ progress.was.workedCount }}/50</span>
+        <span class="stat-label">US States</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-value">{{ progress.vucc.workedCount }}</span>
+        <span class="stat-label">Grids</span>
+      </div>
+    </div>
+
+    <div class="award-cards">
+
+      <!-- DXCC -->
+      <div class="award-card">
+        <div class="award-card-header">
+          <i class="bi bi-globe2" aria-hidden="true"></i>
+          <span class="award-name">DXCC</span>
+          <span class="award-subtitle">DX Century Club</span>
+          <span class="award-badge ms-auto">
+            {{ progress.dxcc.workedCount }} / {{ progress.dxcc.totalEntities }}
+          </span>
+        </div>
+
+        <div class="progress-row">
+          <span class="progress-label">Worked</span>
+          <div class="progress flex-grow-1" role="progressbar"
+               [attr.aria-valuenow]="pct(progress.dxcc.workedCount, progress.dxcc.totalEntities)"
+               aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar {{ progressColor(pct(progress.dxcc.workedCount, progress.dxcc.totalEntities)) }}"
+                 [style.width.%]="pct(progress.dxcc.workedCount, progress.dxcc.totalEntities)">
+            </div>
+          </div>
+          <span class="progress-pct">{{ pct(progress.dxcc.workedCount, progress.dxcc.totalEntities) }}%</span>
+        </div>
+
+        <div class="progress-row">
+          <span class="progress-label">Confirmed</span>
+          <div class="progress flex-grow-1" role="progressbar"
+               [attr.aria-valuenow]="pct(progress.dxcc.confirmedCount, progress.dxcc.totalEntities)"
+               aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar bg-success"
+                 [style.width.%]="pct(progress.dxcc.confirmedCount, progress.dxcc.totalEntities)">
+            </div>
+          </div>
+          <span class="progress-pct">{{ progress.dxcc.confirmedCount }}</span>
+        </div>
+
+        @if (progress.dxcc.workedCountries.length > 0) {
+          <details class="country-list">
+            <summary>{{ progress.dxcc.workedCountries.length }} countries worked</summary>
+            <div class="tag-cloud">
+              @for (country of progress.dxcc.workedCountries; track country) {
+                <span class="tag"
+                      [class.tag-confirmed]="progress.dxcc.confirmedCountries.includes(country)">
+                  {{ country }}
+                </span>
+              }
+            </div>
+          </details>
+        }
+      </div>
+
+      <!-- WAS -->
+      <div class="award-card">
+        <div class="award-card-header">
+          <i class="bi bi-map" aria-hidden="true"></i>
+          <span class="award-name">WAS</span>
+          <span class="award-subtitle">Worked All States</span>
+          <span class="award-badge ms-auto"
+                [class.award-complete]="progress.was.workedCount >= progress.was.totalStates">
+            {{ progress.was.workedCount }} / {{ progress.was.totalStates }}
+          </span>
+        </div>
+
+        <div class="progress-row">
+          <span class="progress-label">Worked</span>
+          <div class="progress flex-grow-1" role="progressbar"
+               [attr.aria-valuenow]="pct(progress.was.workedCount, progress.was.totalStates)"
+               aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar {{ progressColor(pct(progress.was.workedCount, progress.was.totalStates)) }}"
+                 [style.width.%]="pct(progress.was.workedCount, progress.was.totalStates)">
+            </div>
+          </div>
+          <span class="progress-pct">{{ pct(progress.was.workedCount, progress.was.totalStates) }}%</span>
+        </div>
+
+        <div class="progress-row">
+          <span class="progress-label">Confirmed</span>
+          <div class="progress flex-grow-1" role="progressbar"
+               [attr.aria-valuenow]="pct(progress.was.confirmedCount, progress.was.totalStates)"
+               aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar bg-success"
+                 [style.width.%]="pct(progress.was.confirmedCount, progress.was.totalStates)">
+            </div>
+          </div>
+          <span class="progress-pct">{{ progress.was.confirmedCount }}</span>
+        </div>
+
+        @if (progress.was.workedStates.length > 0) {
+          <details class="country-list">
+            <summary>{{ progress.was.workedStates.length }} states worked</summary>
+            <div class="tag-cloud">
+              @for (state of progress.was.workedStates; track state) {
+                <span class="tag"
+                      [class.tag-confirmed]="progress.was.confirmedStates.includes(state)">
+                  {{ state }}
+                </span>
+              }
+            </div>
+          </details>
+        }
+      </div>
+
+      <!-- VUCC -->
+      <div class="award-card">
+        <div class="award-card-header">
+          <i class="bi bi-grid-3x3" aria-hidden="true"></i>
+          <span class="award-name">VUCC</span>
+          <span class="award-subtitle">VHF/UHF Century Club</span>
+          <span class="award-badge ms-auto"
+                [class.award-complete]="progress.vucc.workedCount >= progress.vucc.threshold">
+            {{ progress.vucc.workedCount }} grids
+          </span>
+        </div>
+
+        <div class="progress-row">
+          <span class="progress-label">Worked</span>
+          <div class="progress flex-grow-1" role="progressbar"
+               [attr.aria-valuenow]="pct(progress.vucc.workedCount, progress.vucc.threshold)"
+               aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar {{ progressColor(pct(progress.vucc.workedCount, progress.vucc.threshold)) }}"
+                 [style.width.%]="pct(progress.vucc.workedCount, progress.vucc.threshold)">
+            </div>
+          </div>
+          <span class="progress-pct">{{ pct(progress.vucc.workedCount, progress.vucc.threshold) }}%</span>
+        </div>
+
+        <div class="progress-row">
+          <span class="progress-label">Confirmed</span>
+          <div class="progress flex-grow-1" role="progressbar"
+               [attr.aria-valuenow]="pct(progress.vucc.confirmedCount, progress.vucc.threshold)"
+               aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar bg-success"
+                 [style.width.%]="pct(progress.vucc.confirmedCount, progress.vucc.threshold)">
+            </div>
+          </div>
+          <span class="progress-pct">{{ progress.vucc.confirmedCount }}</span>
+        </div>
+
+        <div class="vucc-note">
+          Goal: {{ progress.vucc.threshold }} grids for basic VUCC
+        </div>
+
+        @if (progress.vucc.workedGrids.length > 0) {
+          <details class="country-list">
+            <summary>{{ progress.vucc.workedGrids.length }} grids worked</summary>
+            <div class="tag-cloud">
+              @for (grid of progress.vucc.workedGrids; track grid) {
+                <span class="tag"
+                      [class.tag-confirmed]="progress.vucc.confirmedGrids.includes(grid)">
+                  {{ grid }}
+                </span>
+              }
+            </div>
+          </details>
+        }
+      </div>
+
+    </div>
+  }
+</div>

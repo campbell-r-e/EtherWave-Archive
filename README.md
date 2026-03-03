@@ -10,7 +10,7 @@ A comprehensive, multi-user web-based logbook application for amateur radio oper
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-purple.svg)](https://getbootstrap.com/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
-[![Tests](https://img.shields.io/badge/Tests-131%2F131%20Passing-brightgreen.svg)](backend/TESTING.md)
+[![Tests](https://img.shields.io/badge/Tests-230%2F230%20Passing-brightgreen.svg)](docs/TESTING.md)
 
 ## Table of Contents
 
@@ -97,7 +97,7 @@ This system provides amateur radio operators with a modern, feature-rich logging
 
 ## Quick Start
 
-**New to the system? See [QUICKSTART.md](QUICKSTART.md) for a complete beginner's guide!**
+**New to the system? See [QUICKSTART.md](docs/QUICKSTART.md) for a complete beginner's guide!**
 
 ### Using Docker (Recommended - 2 Minutes)
 
@@ -175,12 +175,12 @@ Frontend runs at: **http://localhost:4200**
 
 For detailed installation and configuration instructions, see:
 
-- **[START_HERE.md](START_HERE.md)** - Brand new? Start here!
-- **[QUICKSTART.md](QUICKSTART.md)** - 5-minute quick start for beginners
-- **[SETUP.md](SETUP.md)** - Comprehensive setup and configuration guide
-- **[REGISTRATION_GUIDE.md](REGISTRATION_GUIDE.md)** - User registration walkthrough
-- **[RIG_CONTROL_GUIDE.md](RIG_CONTROL_GUIDE.md)** - Complete rig control setup
-- **[CONFIGURATION.md](CONFIGURATION.md)** - System configuration options
+- **[START_HERE.md](docs/START_HERE.md)** - Brand new? Start here!
+- **[QUICKSTART.md](docs/QUICKSTART.md)** - 5-minute quick start for beginners
+- **[SETUP.md](docs/SETUP.md)** - Comprehensive setup and configuration guide
+- **[REGISTRATION_GUIDE.md](docs/REGISTRATION_GUIDE.md)** - User registration walkthrough
+- **[RIG_CONTROL_GUIDE.md](docs/RIG_CONTROL_GUIDE.md)** - Complete rig control setup
+- **[CONFIGURATION.md](docs/CONFIGURATION.md)** - System configuration options
 - **[docs/USER_GUIDE.md](docs/USER_GUIDE.md)** - How to use the system
 - **[docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md)** - Development guide
 
@@ -242,15 +242,15 @@ For detailed installation and configuration instructions, see:
 Comprehensive documentation is available - see **[docs/README.md](docs/README.md)** for the complete documentation index.
 
 ### Getting Started (Choose Your Path)
-- **[START_HERE.md](START_HERE.md)** - Absolute beginner? Start here!
-- **[QUICKSTART.md](QUICKSTART.md)** - 5-minute Docker quick start
-- **[SETUP.md](SETUP.md)** - Detailed installation and configuration
-- **[SYSTEM_REQUIREMENTS.md](SYSTEM_REQUIREMENTS.md)** - Hardware and software requirements
-- **[REGISTRATION_GUIDE.md](REGISTRATION_GUIDE.md)** - User registration walkthrough
+- **[START_HERE.md](docs/START_HERE.md)** - Absolute beginner? Start here!
+- **[QUICKSTART.md](docs/QUICKSTART.md)** - 5-minute Docker quick start
+- **[SETUP.md](docs/SETUP.md)** - Detailed installation and configuration
+- **[SYSTEM_REQUIREMENTS.md](docs/SYSTEM_REQUIREMENTS.md)** - Hardware and software requirements
+- **[REGISTRATION_GUIDE.md](docs/REGISTRATION_GUIDE.md)** - User registration walkthrough
 
 ### Using the System
 - **[User Guide](docs/USER_GUIDE.md)** - Complete user manual for operators
-- **[KEYBOARD_SHORTCUTS.md](KEYBOARD_SHORTCUTS.md)** - Keyboard navigation reference
+- **[KEYBOARD_SHORTCUTS.md](docs/KEYBOARD_SHORTCUTS.md)** - Keyboard navigation reference
 - **[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** - Common issues and solutions
 
 #### Rig Control Documentation
@@ -261,7 +261,7 @@ The system includes comprehensive multi-client rig control capabilities. Documen
   - Multi-user operations and PTT locking
   - Auto-populating QSO fields from rig
   - Troubleshooting common issues
-- **[Quick Start Guide](RIG_CONTROL_QUICKSTART.md)** - Get rig control running in 5 minutes
+- **[Quick Start Guide](docs/RIG_CONTROL_QUICKSTART.md)** - Get rig control running in 5 minutes
 
 **For Application Developers:**
 - **[Developer Integration Guide](docs/RIG_CONTROL_DEVELOPER_GUIDE.md)** - Integrate your app with rig control
@@ -271,26 +271,25 @@ The system includes comprehensive multi-client rig control capabilities. Documen
 - **[API Quick Reference](docs/RIG_CONTROL_API_REFERENCE.md)** - Fast API lookup
 
 **Technical Documentation:**
-- **[Integration Overview](RIG_CONTROL_INTEGRATION.md)** - Technical architecture and components
-- **[Integration Example](INTEGRATION_EXAMPLE.md)** - Step-by-step code examples
+- **[Integration Overview](docs/RIG_CONTROL_INTEGRATION.md)** - Technical architecture and components
 - **[Documentation Index](docs/RIG_CONTROL_INDEX.md)** - Complete rig control documentation index
 
 ### For Developers
 - **[Developer Guide](docs/DEVELOPER_GUIDE.md)** - Architecture, APIs, and development
 - **[API Reference](docs/API_REFERENCE.md)** - Complete REST API documentation
 - **[Database Schema](docs/DATABASE_SCHEMA.md)** - Entity relationship diagrams
-- **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - How to run and write tests
+- **[TESTING_GUIDE.md](docs/TESTING_GUIDE.md)** - How to run and write tests
 - **[docs/TEST_STRATEGY.md](docs/TEST_STRATEGY.md)** - Testing approach and guidelines
 
 ### Configuration & Deployment
-- **[CONFIGURATION.md](CONFIGURATION.md)** - System configuration options
-- **[DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md)** - Production deployment with Docker
-- **[UPGRADE_GUIDE.md](UPGRADE_GUIDE.md)** - Version upgrade procedures
+- **[CONFIGURATION.md](docs/CONFIGURATION.md)** - System configuration options
+- **[DOCKER_DEPLOYMENT.md](docs/DOCKER_DEPLOYMENT.md)** - Production deployment with Docker
+- **[UPGRADE_GUIDE.md](docs/UPGRADE_GUIDE.md)** - Version upgrade procedures
 
 ### Additional Resources
-- **[BRANDING.md](BRANDING.md)** - EtherWave Archive branding guidelines
-- **[ACCESSIBILITY_REPORT.md](ACCESSIBILITY_REPORT.md)** - Accessibility compliance
-- **[AGILE_PRODUCT_SPECIFICATION.md](AGILE_PRODUCT_SPECIFICATION.md)** - Product specifications
+- **[BRANDING.md](docs/BRANDING.md)** - EtherWave Archive branding guidelines
+- **[ACCESSIBILITY_REPORT.md](docs/ACCESSIBILITY_REPORT.md)** - Accessibility compliance
+- **[AGILE_PRODUCT_SPECIFICATION.md](docs/AGILE_PRODUCT_SPECIFICATION.md)** - Product specifications
 
 ## Technology Stack
 
@@ -302,7 +301,7 @@ The system includes comprehensive multi-client rig control capabilities. Documen
 - **JWT (JJWT 0.12.6)** - Stateless authentication tokens
 - **Spring Data JPA** - Database ORM
 - **Hibernate** - JPA implementation
-- **Lombok 1.18.38** - Boilerplate reduction
+- **Lombok 1.18.42** - Boilerplate reduction
 - **PostgreSQL 16 / SQLite** - Database options
 - **Spring WebSocket** - Real-time communication
 
@@ -331,11 +330,11 @@ The system includes comprehensive multi-client rig control capabilities. Documen
 
 ### Backend Tests: 100% Passing
 
-**Test Suite Status**: 131/131 tests passing (100%)
+**Test Suite Status**: 230/230 tests passing (100%)
 
 The backend has comprehensive test coverage including:
 
-- **Validation Tests** (119 tests): Field Day, POTA, SOTA, Winter Field Day validators
+- **Validation Tests** (218 tests): Field Day, POTA, SOTA, Winter Field Day, CQ WW, ARRL Sweepstakes, State QSO Party
 - **Service Tests** (12 tests): ADIF/Cabrillo export/import functionality
 - **All Production Code Tested**: 100% pass rate on all working features
 
@@ -359,7 +358,7 @@ Complete testing documentation including:
 - TestDataBuilder usage guide
 - Troubleshooting guide
 
-**[Full Testing Guide](backend/TESTING.md)**
+**[Full Testing Guide](docs/TESTING.md)**
 
 ### Frontend Tests
 
@@ -429,18 +428,21 @@ EtherWave-Archive/
 │   ├── Dockerfile                    # Rig control container
 │   └── pom.xml
 │
-├── docs/                             # Comprehensive documentation
-│   ├── README.md                     # System overview
+├── docs/                             # All project documentation
+│   ├── README.md                     # Documentation index
 │   ├── USER_GUIDE.md                 # User manual
 │   ├── DEVELOPER_GUIDE.md            # Development guide
-│   ├── API_REFERENCE.md              # API docs
-│   └── DATABASE_SCHEMA.md            # Database documentation
+│   ├── API_REFERENCE.md              # REST API reference
+│   ├── DATABASE_SCHEMA.md            # Database schema and ERD
+│   ├── SETUP.md                      # Setup and configuration
+│   ├── QUICKSTART.md                 # 5-minute quick start
+│   ├── CONFIGURATION.md              # Configuration reference
+│   ├── TROUBLESHOOTING.md            # Common issues and fixes
+│   └── ...                           # (additional docs)
 │
 ├── docker-compose.yml                # Production deployment (PostgreSQL)
 ├── docker-compose.field.yml          # Field deployment (SQLite)
 ├── License.md                        # Permissive Public License 1.11
-├── BRANDING.md                       # EtherWave Archive branding guidelines
-├── SETUP.md                          # Setup instructions
 └── README.md                         # This file
 ```
 

@@ -32,4 +32,10 @@ public class LogRequest {
     private LocalDateTime endDate; // Optional
 
     private Boolean isPublic = false;
+
+    // Contest bonus activities (JSON map: bonus_key -> count)
+    // Example: {"100pct_emergency_power": 1, "youth_participation": 3}
+    private String bonusMetadata;
+
+    private Log.LogPurpose purpose = Log.LogPurpose.GENERAL;
 }

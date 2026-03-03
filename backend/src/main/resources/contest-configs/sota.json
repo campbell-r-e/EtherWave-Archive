@@ -1,0 +1,28 @@
+{
+  "contestCode": "SOTA",
+  "contestName": "Summits on the Air",
+  "description": "Year-round program promoting amateur radio operation from mountain summits",
+  "validatorClass": "com.hamradio.logbook.validation.SOTAValidator",
+  "isActive": true,
+  "rulesConfig": {
+    "required_fields": ["summit_ref"],
+    "optional_fields": ["my_summit_ref", "points"],
+    "summit_ref_format": "[A-Z0-9]{1,3}/[A-Z]{2}-\\d{3}",
+    "scoring": {
+      "activator": {
+        "minimum_qsos": 4,
+        "points_per_summit": "variable",
+        "summit_points_range": "1-10",
+        "complete_activation_bonus": "activator_points_x2"
+      },
+      "chaser": {
+        "points_per_activation": 1
+      },
+      "summit_to_summit": {
+        "bonus_points": "summit_points",
+        "note": "S2S contacts count bonus points equal to the other summit's point value"
+      }
+    },
+    "notes": "Activators must make minimum 4 QSOs from the summit to qualify. Summit references follow the format ASSOCIATION/REGION-NNN (e.g. W7W/NG-001, G/LD-001). Points per summit vary from 1 to 10 based on elevation."
+  }
+}

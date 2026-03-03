@@ -15,18 +15,11 @@ The Ham Radio Logbook includes integrated rig control capabilities powered by a 
   - Troubleshooting common issues
   - Tips and best practices
 
-- **[Quick Start Guide](../RIG_CONTROL_QUICKSTART.md)** - Get up and running quickly
+- **[Quick Start Guide](RIG_CONTROL_QUICKSTART.md)** - Get up and running quickly
   - Prerequisites and setup
   - First-time configuration
   - Basic usage examples
   - Testing without hardware
-
-### Reference
-
-- **[Integration Example](../INTEGRATION_EXAMPLE.md)** - Step-by-step integration into QSO logging
-  - Adding rig control to QSO entry page
-  - Auto-populating frequency/mode
-  - Complete working examples
 
 ## For Developers
 
@@ -51,51 +44,26 @@ The Ham Radio Logbook includes integrated rig control capabilities powered by a 
 
 ### Technical Documentation
 
-- **[Integration Documentation](../RIG_CONTROL_INTEGRATION.md)** - Technical architecture
+- **[Integration Documentation](RIG_CONTROL_INTEGRATION.md)** - Technical architecture
   - System components
   - Backend integration details
   - Frontend integration details
   - Security implementation
   - Configuration options
 
-- **[Verification Status](../VERIFICATION_STATUS.md)** - Build and test verification
-  - Component verification
-  - Build status
-  - Test results
-  - Deployment readiness
-
-- **[Runtime Integration Test](../RUNTIME_INTEGRATION_TEST.md)** - Runtime verification
-  - Service status
-  - Integration verification
-  - Performance metrics
-
-- **[Integration Complete](../INTEGRATION_COMPLETE.md)** - Complete integration overview
-  - What was accomplished
-  - System architecture
-  - File changes summary
-  - Production deployment
-
 ## Documentation Structure
 
 ```
-Hamradiologbook/
-├── docs/
-│   ├── RIG_CONTROL_INDEX.md              ← You are here
-│   ├── RIG_CONTROL_USER_GUIDE.md         ← For logbook users
-│   ├── RIG_CONTROL_DEVELOPER_GUIDE.md    ← For app developers
-│   └── RIG_CONTROL_API_REFERENCE.md      ← Quick API reference
-│
-├── RIG_CONTROL_INTEGRATION.md            ← Technical architecture
-├── RIG_CONTROL_QUICKSTART.md             ← Quick start guide
-├── INTEGRATION_EXAMPLE.md                ← Code examples
-├── VERIFICATION_STATUS.md                ← Build verification
-├── RUNTIME_INTEGRATION_TEST.md           ← Runtime tests
-├── INTEGRATION_COMPLETE.md               ← Complete overview
-│
-└── rig-control-service/
-    ├── README.md                          ← Rig Control Service docs
-    ├── REFACTORING_SUMMARY.md             ← Refactoring details
-    └── TESTING_WITHOUT_HARDWARE.md        ← Testing guide
+docs/
+├── RIG_CONTROL_INDEX.md              ← You are here
+├── RIG_CONTROL_USER_GUIDE.md         ← For logbook users
+├── RIG_CONTROL_DEVELOPER_GUIDE.md    ← For app developers
+├── RIG_CONTROL_API_REFERENCE.md      ← Quick API reference
+├── RIG_CONTROL_INTEGRATION.md        ← Technical architecture
+├── RIG_CONTROL_QUICKSTART.md         ← Quick start guide
+├── RIG_CONTROL_GUIDE.md              ← Setup guide (hardware)
+├── REFACTORING_SUMMARY.md            ← Rig control refactoring notes
+└── TESTING_WITHOUT_HARDWARE.md       ← Testing without physical radio
 ```
 
 ## Quick Navigation
@@ -112,19 +80,19 @@ Hamradiologbook/
 → Use [API Quick Reference](RIG_CONTROL_API_REFERENCE.md)
 
 #### ...understand the system architecture
-→ Read [Integration Documentation](../RIG_CONTROL_INTEGRATION.md)
+→ Read [Integration Documentation](RIG_CONTROL_INTEGRATION.md)
 
 #### ...set up and test the system
-→ Follow [Quick Start Guide](../RIG_CONTROL_QUICKSTART.md)
+→ Follow [Quick Start Guide](RIG_CONTROL_QUICKSTART.md)
 
 #### ...see code examples
-→ Check [Integration Example](../INTEGRATION_EXAMPLE.md) and [Developer Guide](RIG_CONTROL_DEVELOPER_GUIDE.md)
+→ See [Developer Guide](RIG_CONTROL_DEVELOPER_GUIDE.md) (includes full code examples)
 
 #### ...troubleshoot an issue
 → See troubleshooting sections in [User Guide](RIG_CONTROL_USER_GUIDE.md) or [Developer Guide](RIG_CONTROL_DEVELOPER_GUIDE.md)
 
-#### ...verify everything is working
-→ Review [Verification Status](../VERIFICATION_STATUS.md) and [Runtime Integration Test](../RUNTIME_INTEGRATION_TEST.md)
+#### ...test without physical hardware
+→ See [Testing Without Hardware](TESTING_WITHOUT_HARDWARE.md)
 
 ## Key Concepts
 
@@ -222,7 +190,7 @@ This documentation is part of the Ham Radio Logbook project.
 - [User Guide](RIG_CONTROL_USER_GUIDE.md)
 - [Developer Guide](RIG_CONTROL_DEVELOPER_GUIDE.md)
 - [API Reference](RIG_CONTROL_API_REFERENCE.md)
-- [Quick Start](../RIG_CONTROL_QUICKSTART.md)
+- [Quick Start](RIG_CONTROL_QUICKSTART.md)
 - [GitHub Repository](#)
 - [Report Issue](#)
 

@@ -1040,9 +1040,9 @@ New QSOs appear in database but don't show in real-time on other clients
 1. **Verify credentials are correct:**
    ```bash
    # Check if user exists in database
-   sqlite3 hamradio.db "SELECT username, email FROM users;"
+   sqlite3 hamradio.db "SELECT username, callsign FROM users;"
    # or
-   psql -U postgres hamradio_logbook -c "SELECT username, email FROM users;"
+   psql -U postgres hamradio_logbook -c "SELECT username, callsign FROM users;"
    ```
 
 2. **Check password encoding:**
@@ -1588,4 +1588,4 @@ If you're still experiencing issues after trying these solutions:
 - [Developer Guide](DEVELOPER_GUIDE.md) - Development setup and architecture
 - [API Reference](API_REFERENCE.md) - API documentation
 - [Database Schema](DATABASE_SCHEMA.md) - Database structure
-- [UPGRADE_GUIDE.md](../UPGRADE_GUIDE.md) - Upgrading to Java 25 and Spring Boot 4.0.3
+- [UPGRADE_GUIDE.md](UPGRADE_GUIDE.md) - Upgrading to Java 25 and Spring Boot 4.0.3
