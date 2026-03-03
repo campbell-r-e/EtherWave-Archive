@@ -7,7 +7,7 @@
 - **E2E**: No tests implemented yet
 - **Rig Control**: No tests implemented yet
 
-See [backend/TESTING.md](backend/TESTING.md) for the full backend test breakdown.
+See [backend/TESTING.md](TESTING.md) for the full backend test breakdown.
 
 ---
 

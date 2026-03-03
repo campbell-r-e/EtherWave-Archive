@@ -12,8 +12,16 @@ Complete REST API documentation for the Ham Radio Contest Logbook system.
 6. [Station Endpoints](#station-endpoints)
 7. [Contest Endpoints](#contest-endpoints)
 8. [Export Endpoints](#export-endpoints)
-9. [Error Responses](#error-responses)
-10. [Rate Limiting](#rate-limiting)
+9. [Map Endpoints](#map-endpoints)
+10. [Award Tracking Endpoints](#award-tracking-endpoints)
+11. [DX Cluster Endpoints](#dx-cluster-endpoints)
+12. [Propagation Endpoints](#propagation-endpoints)
+13. [LoTW Sync Endpoints](#lotw-sync-endpoints)
+14. [User Preference Endpoints](#user-preference-endpoints)
+15. [Rig Control Endpoints](#rig-control-endpoints)
+16. [DXCC Endpoints](#dxcc-endpoints)
+17. [Error Responses](#error-responses)
+18. [WebSocket Topics](#websocket-topics)
 
 ---
 
@@ -45,7 +53,6 @@ Create a new user account.
 ```json
 {
   "username": "johndoe",
-  "email": "john@example.com",
   "password": "SecurePassword123",
   "callsign": "W1ABC"
 }
@@ -57,7 +64,6 @@ Create a new user account.
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "type": "Bearer",
   "username": "johndoe",
-  "email": "john@example.com",
   "callsign": "W1ABC",
   "roles": ["ROLE_USER"]
 }
@@ -65,13 +71,15 @@ Create a new user account.
 
 **Validation Rules**:
 - `username`: Required, 3-50 characters, alphanumeric + underscore
-- `email`: Required, valid email format
 - `password`: Required, minimum 8 characters
 - `callsign`: Optional, valid amateur radio callsign format
 
+**Notes**:
+- No email field — this system does not collect or store email addresses for authentication
+
 **Error Responses**:
 - `400 Bad Request`: Validation failure
-- `409 Conflict`: Username or email already exists
+- `409 Conflict`: Username already exists
 
 ---
 
@@ -97,7 +105,6 @@ Authenticate and receive JWT token.
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "type": "Bearer",
   "username": "johndoe",
-  "email": "john@example.com",
   "callsign": "W1ABC",
   "roles": ["ROLE_USER"]
 }
@@ -735,7 +742,7 @@ Send an invitation to join a log.
 
 **Validation Rules**:
 - `logId`: Required, must exist
-- `inviteeUsername`: Required, can be username, email, or callsign
+- `inviteeUsername`: Required, can be username or callsign
 - `proposedRole`: Required, either "STATION" or "VIEWER" (cannot invite as CREATOR)
 - `stationCallsign`: Optional, max 20 characters
 - `message`: Optional, max 500 characters
@@ -747,7 +754,7 @@ Send an invitation to join a log.
 - `404 Not Found`: Invitee not found or log does not exist
 
 **Notes**:
-- System searches for invitee by username first, then email, then callsign
+- System searches for invitee by username first, then callsign (no email lookup)
 - Cannot invite someone who is already a participant
 - Only one pending invitation per user per log
 
@@ -1418,6 +1425,377 @@ END-OF-LOG:
 
 ---
 
+## Map Endpoints
+
+### Get QSO Locations (with clustering)
+
+**Endpoint**: `GET /maps/qsos/{logId}`
+
+**Authentication**: Required
+
+**Query Parameters**:
+- `zoom`: Optional, current map zoom level (influences clustering threshold)
+
+**Response**: `200 OK` — GeoJSON FeatureCollection or ClusteredResponse
+
+---
+
+### Get Grid Square Coverage
+
+**Endpoint**: `GET /maps/grids/{logId}`
+
+**Authentication**: Required
+
+**Query Parameters**:
+- `precision`: Optional, `2`, `4`, `6`, or `8` (default `4`)
+- Band, mode, station filter parameters
+
+**Response**: `200 OK` — Map of grid square to QSO count
+
+---
+
+### Get Heatmap Data
+
+**Endpoint**: `GET /maps/heatmap/{logId}`
+
+**Authentication**: Required
+
+**Response**: `200 OK` — Array of `[lat, lon, weight]` points
+
+---
+
+### Get Contest Overlays
+
+**Endpoint**: `GET /maps/overlays/cq-zones/{logId}`
+**Endpoint**: `GET /maps/overlays/itu-zones/{logId}`
+**Endpoint**: `GET /maps/overlays/arrl-sections/{logId}`
+**Endpoint**: `GET /maps/overlays/dxcc/{logId}`
+
+**Authentication**: Required
+
+**Response**: `200 OK` — GeoJSON FeatureCollection with worked/needed status per zone
+
+---
+
+### Export Map Data
+
+**Endpoint**: `POST /maps/export/{logId}?format={format}`
+
+**Authentication**: Required
+
+**Query Parameters**:
+- `format`: `geojson`, `kml`, `csv`, or `adif`
+
+**Response**: `200 OK` — File download with appropriate Content-Type
+
+---
+
+### Session Location Management
+
+```
+POST   /maps/session-location/{logId}   # Set session operating location
+GET    /maps/session-location/{logId}   # Get current session location
+DELETE /maps/session-location/{logId}   # Clear session location
+PUT    /maps/location/user              # Update user default location (Auth required)
+```
+
+---
+
+## Award Tracking Endpoints
+
+### Get Award Progress
+
+Retrieve DXCC, WAS, and VUCC award progress for a log.
+
+**Endpoint**: `GET /awards/{logId}`
+
+**Authentication**: Required (log access required)
+
+**Response**: `200 OK`
+```json
+{
+  "dxcc": {
+    "worked": 182,
+    "confirmed": 143,
+    "total": 340,
+    "percentage": 42.1
+  },
+  "was": {
+    "worked": 47,
+    "confirmed": 38,
+    "total": 50,
+    "percentage": 76.0
+  },
+  "vucc": {
+    "worked": 112,
+    "confirmed": 89,
+    "threshold": 100,
+    "achieved": true
+  }
+}
+```
+
+**Notes**:
+- `confirmed` = QSOs where `lotwRcvd = 'Y'` OR `qslRcvd = 'Y'`
+- DXCC uses distinct `country` values; WAS uses distinct `state` values (USA only)
+- VUCC uses distinct 4-character grid square prefixes (SUBSTRING of `gridSquare`)
+
+**Error Responses**:
+- `403 Forbidden`: No access to this log
+- `404 Not Found`: Log does not exist
+
+---
+
+## DX Cluster Endpoints
+
+### Get DX Cluster Spots
+
+Retrieve recent DX cluster spots from DX Summit.
+
+**Endpoint**: `GET /dx-cluster/spots`
+
+**Authentication**: Required
+
+**Query Parameters**:
+- `limit`: Optional, number of spots to return (default 20)
+- `band`: Optional, filter by band (e.g., `20m`, `40m`)
+
+**Response**: `200 OK`
+```json
+[
+  {
+    "callsign": "DL1ABC",
+    "frequency": "14250.0",
+    "band": "20m",
+    "mode": "SSB",
+    "spotter": "W1XYZ",
+    "comment": "Strong signal",
+    "time": "1834"
+  }
+]
+```
+
+**Notes**:
+- Spots are polled from DX Summit (`dxsummit.fi`) every 60 seconds
+- Frontend uses 60-second RxJS `interval` poll
+
+---
+
+## Propagation Endpoints
+
+### Get Propagation Conditions
+
+Retrieve current solar/propagation conditions with per-band ratings.
+
+**Endpoint**: `GET /propagation/conditions`
+
+**Authentication**: Required
+
+**Response**: `200 OK`
+```json
+{
+  "solarFluxIndex": 142,
+  "kIndex": 2,
+  "aIndex": 8,
+  "updated": "2026-03-03T14:00:00Z",
+  "bandConditions": {
+    "160m": "POOR",
+    "80m": "FAIR",
+    "40m": "GOOD",
+    "20m": "EXCELLENT",
+    "17m": "EXCELLENT",
+    "15m": "GOOD",
+    "12m": "GOOD",
+    "10m": "FAIR",
+    "6m": "POOR"
+  }
+}
+```
+
+**Notes**:
+- Data sourced from NOAA SWPC JSON API
+- Cached for 30 minutes server-side
+- Band ratings: `EXCELLENT`, `GOOD`, `FAIR`, `POOR` — derived from SFI, K-index, and A-index
+
+---
+
+## LoTW Sync Endpoints
+
+### Sync LoTW Confirmations
+
+Download and process ARRL Logbook of the World (LoTW) QSL records. Matches downloaded records against existing QSOs in the specified log and sets `lotwRcvd = 'Y'` for matched contacts.
+
+**Endpoint**: `POST /lotw/sync/{logId}`
+
+**Authentication**: Required (CREATOR role)
+
+**Request Body**:
+```json
+{
+  "username": "your-lotw-username",
+  "password": "your-lotw-password"
+}
+```
+
+**Response**: `200 OK`
+```json
+{
+  "matched": 34,
+  "total": 58,
+  "message": "Synced 34 confirmations from LoTW"
+}
+```
+
+**Notes**:
+- LoTW credentials are NOT stored — they are used per-request only
+- Matching uses callsign (case-insensitive) + date + band
+- Only updates QSOs that belong to the specified log
+
+**Error Responses**:
+- `400 Bad Request`: Invalid credentials or LoTW service unavailable
+- `403 Forbidden`: Not the log creator
+
+---
+
+## User Preference Endpoints
+
+### Get Station Color Preferences
+
+Retrieve the user's custom station color assignments.
+
+**Endpoint**: `GET /user/station-colors`
+
+**Authentication**: Required
+
+**Response**: `200 OK`
+```json
+{
+  "station1": "#0080ff",
+  "station2": "#ff4444",
+  "station3": "#44cc44",
+  "gota": "#ffaa00"
+}
+```
+
+**Response**: `204 No Content` — if no custom colors are set (system defaults apply)
+
+---
+
+### Save Station Color Preferences
+
+**Endpoint**: `PUT /user/station-colors`
+
+**Authentication**: Required
+
+**Request Body**:
+```json
+{
+  "station1": "#0080ff",
+  "station2": "#ff4444",
+  "gota": "#ffaa00"
+}
+```
+
+**Response**: `200 OK` — Updated preferences echoed back
+
+---
+
+### Reset Station Color Preferences
+
+Reset station colors to system defaults.
+
+**Endpoint**: `DELETE /user/station-colors`
+
+**Authentication**: Required
+
+**Response**: `204 No Content`
+
+---
+
+## Rig Control Endpoints
+
+All endpoints require authentication (ROLE_USER, ROLE_OPERATOR, or ROLE_ADMIN).
+
+```
+POST   /rig-control/connect                          # Connect to rigctld for a station
+POST   /rig-control/disconnect/{stationId}           # Disconnect from rig
+POST   /rig-control/command/{stationId}              # Send raw command to rig
+POST   /rig-control/frequency/{stationId}?frequencyHz={hz}  # Set frequency
+POST   /rig-control/mode/{stationId}?mode={mode}&bandwidth={bw}  # Set mode
+POST   /rig-control/ptt/{stationId}?enable={true|false}     # Toggle PTT (first-come-first-served lock)
+GET    /rig-control/status/{stationId}               # Get current rig status
+GET    /rig-control/connected/{stationId}            # Check connection state
+```
+
+### Connect to Rig
+
+**Endpoint**: `POST /rig-control/connect`
+
+**Request Body**:
+```json
+{
+  "stationId": 1,
+  "host": "localhost",
+  "port": 4532
+}
+```
+
+**Response**: `200 OK`
+```json
+{
+  "stationId": 1,
+  "connected": true,
+  "message": "Connected to rigctld at localhost:4532"
+}
+```
+
+### Get Rig Status
+
+**Endpoint**: `GET /rig-control/status/{stationId}`
+
+**Response**: `200 OK`
+```json
+{
+  "stationId": 1,
+  "connected": true,
+  "frequency": 14250000,
+  "mode": "USB",
+  "ptt": false,
+  "sMeter": 5
+}
+```
+
+---
+
+## DXCC Endpoints
+
+```
+POST   /dxcc/load              # Upload custom CTY.DAT file
+POST   /dxcc/load-default      # Load bundled default CTY.DAT
+GET    /dxcc/status            # Check loaded entity count
+GET    /dxcc/lookup/{callsign} # Look up DXCC entity by callsign prefix
+```
+
+### Lookup DXCC Entity
+
+**Endpoint**: `GET /dxcc/lookup/{callsign}`
+
+**Response**: `200 OK`
+```json
+{
+  "entity": "Germany",
+  "prefix": "DL",
+  "continent": "EU",
+  "cqZone": 14,
+  "ituZone": 28,
+  "latitude": 51.0,
+  "longitude": 9.0,
+  "dxccNumber": 230
+}
+```
+
+---
+
 ## Error Responses
 
 All error responses follow this format:
@@ -1505,17 +1883,31 @@ X-RateLimit-Reset: 1719082800
 
 ## WebSocket Topics
 
-For real-time updates, subscribe to WebSocket topics:
+For real-time updates, subscribe to WebSocket topics via STOMP over SockJS.
 
 **QSO Updates**:
-- Topic: `/topic/qsos/{logId}`
+- Topic: `/topic/qsos`
 - Message Type: QSOResponse
-- Triggered: When QSO is created, updated, or deleted in the log
+- Triggered: When a QSO is created, updated, or deleted
 
-**Rig Status**:
-- Topic: `/topic/rig`
+**Live Scoring**:
+- Topic: `/topic/scoring/{logId}`
+- Message Type: ScoreResponse
+- Triggered: On every new or deleted QSO (score recalculated)
+
+**Rig Telemetry** (all stations):
+- Topic: `/topic/telemetry/*`
 - Message Type: RigStatus
-- Triggered: When radio frequency or mode changes (500ms polling)
+
+**Rig Telemetry** (specific station):
+- Topic: `/topic/telemetry/{stationId}`
+- Message Type: RigStatus
+- Triggered: Every 100ms while rig is connected
+
+**Rig Events** (specific station):
+- Topic: `/topic/rig/events/{stationId}`
+- Message Type: RigEvent
+- Triggered: PTT acquired/released, client connect/disconnect, errors
 
 **Connection**:
 ```javascript
@@ -1523,9 +1915,22 @@ const socket = new SockJS('http://localhost:8080/ws');
 const stompClient = Stomp.over(socket);
 
 stompClient.connect({}, () => {
-    stompClient.subscribe('/topic/qsos/15', (message) => {
+    // Subscribe to QSO updates
+    stompClient.subscribe('/topic/qsos', (message) => {
         const qso = JSON.parse(message.body);
         console.log('New QSO:', qso);
+    });
+
+    // Subscribe to live scoring
+    stompClient.subscribe('/topic/scoring/15', (message) => {
+        const score = JSON.parse(message.body);
+        console.log('Score update:', score);
+    });
+
+    // Subscribe to rig telemetry for station 1
+    stompClient.subscribe('/topic/telemetry/1', (message) => {
+        const status = JSON.parse(message.body);
+        console.log('Rig status:', status);
     });
 });
 ```

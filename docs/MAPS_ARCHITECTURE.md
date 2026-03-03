@@ -48,7 +48,7 @@ The Interactive Mapping System provides WaveLog-style map visualization with Eth
 - Service Worker (offline support)
 
 **Backend:**
-- Spring Boot 4.0.0 (Java 25)
+- Spring Boot 4.0.3 (Java 25)
 - PostgreSQL/SQLite (spatial queries)
 - WebSocket (real-time updates)
 - Haversine distance calculations

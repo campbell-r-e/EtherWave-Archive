@@ -77,10 +77,10 @@ Go to: **http://localhost**
 1. Click "Register here" on the login page
 2. Fill in:
    - Username (required)
-   - Email (required)
    - Password (required, 8+ characters)
    - Callsign (optional, e.g., W1ABC)
    - Grid Square (optional, e.g., FN31pr)
+   - No email address required
 3. Click "Register"
 4. Login with your credentials
 
@@ -227,7 +227,6 @@ spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
 # Admin account
 admin.username=admin
 admin.password=admin
-admin.email=admin@hamradio.local
 
 # JWT
 jwt.secret=DevSecretKeyMinimum256BitsForHS512
@@ -418,9 +417,9 @@ After getting the system running:
 - **Documentation**: See the `/docs` folder for detailed guides
 - **Issues**: https://github.com/campbell-r-e/Hamradiologbook/issues
 - **Setup Guide**: [SETUP.md](SETUP.md) - Detailed configuration
-- **Developer Guide**: [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md)
-- **User Guide**: [docs/USER_GUIDE.md](docs/USER_GUIDE.md)
-- **API Reference**: [docs/API_REFERENCE.md](docs/API_REFERENCE.md)
+- **Developer Guide**: [docs/DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)
+- **User Guide**: [docs/USER_GUIDE.md](USER_GUIDE.md)
+- **API Reference**: [docs/API_REFERENCE.md](API_REFERENCE.md)
 
 ---
 

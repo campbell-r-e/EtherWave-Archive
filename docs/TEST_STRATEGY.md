@@ -444,7 +444,7 @@ And the log shows 1 QSO
 **Journey 2: Multi-User Collaboration**
 ```gherkin
 Given User A creates a log "Contest Log"
-When User A invites User B (email)
+When User A invites User B (by username or callsign)
 And User B accepts the invitation
 And both users log QSOs simultaneously
 Then both see real-time updates via WebSocket

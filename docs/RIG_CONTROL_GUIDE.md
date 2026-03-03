@@ -843,7 +843,7 @@ rigctld -m 1035 -r /dev/ttyUSB0 -s 38400 -t 4532 &
 
 - [SETUP.md](SETUP.md) - General system setup
 - [DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md) - Docker deployment guide
-- [DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md) - Developer documentation
+- [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) - Developer documentation
 - [Hamlib Documentation](https://hamlib.github.io/) - Official Hamlib docs
 
 ---

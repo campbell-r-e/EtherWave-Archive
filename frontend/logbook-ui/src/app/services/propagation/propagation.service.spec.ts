@@ -56,7 +56,7 @@ describe('PropagationService', () => {
 
       httpMock.expectOne((r) => r.url.includes('/propagation/conditions')).flush(mockConditions);
 
-      expect(result?.bands['20m'].condition).toBe('GOOD');
+      expect((result as unknown as PropagationConditions).bands['20m'].condition).toBe('GOOD');
     });
   });
 });

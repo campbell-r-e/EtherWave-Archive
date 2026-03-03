@@ -7,7 +7,7 @@ import { Contest } from '../../models/station.model';
 describe('ContestSelectionComponent', () => {
   let component: ContestSelectionComponent;
   let fixture: ComponentFixture<ContestSelectionComponent>;
-  let apiService: jasmine.SpyObj<ApiService>;
+  let apiService: { getContests: jest.Mock; getActiveContests: jest.Mock };
 
   const mockContests: Contest[] = [
     {
@@ -37,22 +37,17 @@ describe('ContestSelectionComponent', () => {
   const mockActiveContests: Contest[] = [mockContests[2]];
 
   beforeEach(async () => {
-    const apiServiceSpy = jasmine.createSpyObj('ApiService', [
-      'getContests',
-      'getActiveContests'
-    ]);
+    apiService = {
+      getContests: jest.fn(() => of(mockContests)),
+      getActiveContests: jest.fn(() => of(mockActiveContests)),
+    };
 
     await TestBed.configureTestingModule({
       imports: [ContestSelectionComponent],
       providers: [
-        { provide: ApiService, useValue: apiServiceSpy }
+        { provide: ApiService, useValue: apiService }
       ]
     }).compileComponents();
-
-    apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
-
-    apiService.getContests.and.returnValue(of(mockContests));
-    apiService.getActiveContests.and.returnValue(of(mockActiveContests));
 
     fixture = TestBed.createComponent(ContestSelectionComponent);
     component = fixture.componentInstance;
@@ -74,7 +69,7 @@ describe('ContestSelectionComponent', () => {
   });
 
   it('should handle API error gracefully', () => {
-    apiService.getContests.and.returnValue(throwError(() => new Error('Network error')));
+    apiService.getContests.mockReturnValue(throwError(() => new Error('Network error')));
 
     component.loadContests();
 
@@ -82,12 +77,12 @@ describe('ContestSelectionComponent', () => {
   });
 
   it('should select contest', () => {
-    spyOn(component.contestSelected, 'emit');
+    const emitSpy = jest.spyOn(component.contestSelected, 'emit');
 
     component.selectContest(mockContests[0]);
 
     expect(component.selectedContest).toEqual(mockContests[0]);
-    expect(component.contestSelected.emit).toHaveBeenCalledWith(mockContests[0]);
+    expect(emitSpy).toHaveBeenCalledWith(mockContests[0]);
   });
 
   it('should detect if contest is active', () => {

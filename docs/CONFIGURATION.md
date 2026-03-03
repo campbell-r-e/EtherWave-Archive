@@ -538,7 +538,7 @@ docker compose restart
 -  Configuration complete? See [QUICKSTART.md](QUICKSTART.md)
 -  Need detailed setup? See [SETUP.md](SETUP.md)
 -  Want rig control? See [RIG_CONTROL_GUIDE.md](RIG_CONTROL_GUIDE.md)
--  Ready to use? See [docs/USER_GUIDE.md](docs/USER_GUIDE.md)
+-  Ready to use? See [docs/USER_GUIDE.md](USER_GUIDE.md)
 
 ---
 

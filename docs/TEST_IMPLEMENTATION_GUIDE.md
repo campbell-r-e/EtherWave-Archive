@@ -896,7 +896,6 @@ test.describe('Critical User Journeys', () => {
     // Step 1: Register
     await page.goto('/register');
     await page.fill('input[name="username"]', 'testuser');
-    await page.fill('input[name="email"]', 'test@example.com');
     await page.fill('input[name="password"]', 'Password123!');
     await page.fill('input[name="callsign"]', 'W1TEST');
     await page.click('button[type="submit"]');

@@ -5,7 +5,7 @@ import { InvitationsComponent } from './invitations.component';
 import { LogService } from '../../../services/log/log.service';
 import { AuthService } from '../../../services/auth/auth.service';
 import { ThemeService } from '../../../services/theme/theme.service';
-import { Router } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { Invitation, InvitationStatus, ParticipantRole } from '../../../models/log.model';
 import { User, UserRole } from '../../../models/auth/user.model';
 
@@ -28,8 +28,6 @@ describe('InvitationsComponent', () => {
   let component: InvitationsComponent;
   let fixture: ComponentFixture<InvitationsComponent>;
   let mockLogService: any;
-  let mockRouter: { navigate: jest.Mock };
-
   beforeEach(async () => {
     mockLogService = {
       logs$: new BehaviorSubject([]).asObservable(),
@@ -42,8 +40,6 @@ describe('InvitationsComponent', () => {
       createInvitation: jest.fn(() => of(makeInvitation())),
       convertToShared: jest.fn(() => of({})),
     };
-    mockRouter = { navigate: jest.fn() };
-
     const mockUser: User = { id: 1, username: 'testuser', roles: [UserRole.ROLE_USER], enabled: true, createdAt: '' };
     const mockAuthService = {
       currentUser: new BehaviorSubject<User | null>(mockUser).asObservable(),
@@ -54,10 +50,10 @@ describe('InvitationsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [InvitationsComponent],
       providers: [
+        provideRouter([]),
         { provide: LogService, useValue: mockLogService },
         { provide: AuthService, useValue: mockAuthService },
         { provide: ThemeService, useValue: mockThemeService },
-        { provide: Router, useValue: mockRouter },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();

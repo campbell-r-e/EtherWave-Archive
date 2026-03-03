@@ -15,7 +15,8 @@ Complete guide for using the Ham Radio Contest Logbook system.
 9. [Station Management](#station-management)
 10. [Export and Import](#export-and-import)
 11. [Maps and Visualization](#maps-and-visualization)
-12. [Troubleshooting](#troubleshooting)
+12. [Dashboard Features](#dashboard-features)
+13. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -846,6 +847,92 @@ View detailed statistics:
 - **Grids**: Grid square count
 - **Bands**: QSO distribution by band
 - **Modes**: QSO distribution by mode
+
+---
+
+## Dashboard Features
+
+The dashboard displays at-a-glance panels below your QSO list. These panels are always visible when a log is selected.
+
+### Award Progress
+
+Tracks your progress toward major amateur radio awards.
+
+- **DXCC** (DX Century Club): Countries worked and confirmed out of 340 total entities
+- **WAS** (Worked All States): US states worked and confirmed out of 50
+- **VUCC** (VHF/UHF Century Club): 4-character Maidenhead grid squares worked and confirmed; shows whether the 100-grid threshold has been achieved
+
+Confirmation counts QSOs where LoTW or QSL confirmation has been received (`lotwRcvd = Y` or `qslRcvd = Y`).
+
+Award progress updates automatically as you log QSOs or sync confirmations.
+
+---
+
+### DX Cluster Spots
+
+Displays recent DX spots sourced from DX Summit (`dxsummit.fi`), updated every 60 seconds.
+
+**Columns**: Callsign, frequency, band, mode, spotter, comment, time
+
+**Band chip colors**:
+- Orange: LF/MF (160m)
+- Blue: HF (80m–10m)
+- Green: VHF (6m, 2m)
+- Purple: UHF (70cm+)
+
+Use DX cluster spots to identify active stations and chase new entities or multipliers.
+
+---
+
+### Propagation Conditions
+
+Shows current HF propagation conditions sourced from NOAA Space Weather Prediction Center (SWPC), refreshed every 30 minutes.
+
+**Displays**:
+- Solar Flux Index (SFI)
+- K-index (geomagnetic activity)
+- A-index (daily geomagnetic index)
+- Per-band condition ratings: `EXCELLENT`, `GOOD`, `FAIR`, or `POOR` for 160m through 6m
+
+Higher SFI and lower K/A-index values indicate better propagation conditions.
+
+---
+
+### QSL Card Printing
+
+Generate a print-ready QSL card for any QSO directly from the QSO list.
+
+1. Find the QSO in the QSO list
+2. Click the card icon on that row
+3. A QSL card preview opens (standard 5.5 × 3.5 inch size)
+4. Click **Print** to send to your printer
+
+The print dialog uses the correct page size automatically. Navigation elements are hidden during printing.
+
+---
+
+### LoTW Confirmation Sync
+
+Synchronize confirmation data from ARRL Logbook of the World (LoTW) with your log.
+
+1. Navigate to the **Import** panel
+2. Find the **LoTW Sync** section
+3. Enter your LoTW username and password
+4. Click **Sync**
+
+The system downloads your LoTW ADIF records and matches them against QSOs in the current log by callsign, date, and band. Matched QSOs have `lotwRcvd` set to `Y`, which counts toward your award confirmation totals. LoTW credentials are not stored — they are used only for the sync request.
+
+---
+
+### Station Color Preferences
+
+Customize the colors used to represent each station in the map, QSO list, and participant badges.
+
+1. Go to your station or participant settings
+2. Pick a color for each station number (1-10) and the GOTA station
+3. Colors are saved to your account and persist across sessions
+
+Colors are stored server-side in your user profile and synchronized across all browsers where you are logged in.
 
 ---
 

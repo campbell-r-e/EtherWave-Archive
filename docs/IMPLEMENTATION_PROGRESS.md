@@ -75,6 +75,7 @@ Test database: H2 in-memory (`jdbc:h2:mem:testdb`). Switched from SQLite due to 
 - 10 filter types: band, mode, station, operator, DXCC, date range, confirmed status, continent, state, exchange
 - Active filter pills with individual removal
 - Mobile bottom sheet with swipe gestures
+- Saved filter presets (localStorage-backed; backend persistence is low priority backlog)
 
 ### 4. DXCC Management
 
@@ -144,26 +145,35 @@ Test database: H2 in-memory (`jdbc:h2:mem:testdb`). Switched from SQLite due to 
 
 ---
 
-## In Progress
+## Completed Sprint Features
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Saved filter presets | In progress | localStorage-backed, frontend only |
+| Feature | Notes |
+|---------|-------|
+| Award tracking (DXCC, WAS, VUCC) | `AwardController` at `/api/awards/{logId}`, `AwardProgressComponent` on dashboard |
+| LoTW confirmation sync | `LotwSyncService` + `LotwSyncController` (`POST /api/lotw/sync/{logId}`); frontend form in import panel |
+| DX cluster spotting | `DXClusterService` polling DX Summit (60s interval); `DxClusterPanelComponent` on dashboard |
+| Propagation prediction | NOAA SWPC solar data; per-band conditions; `PropagationPanelComponent` on dashboard |
+| Print-ready QSL card generation | `QslCardComponent` modal with `@media print` CSS |
+| Station color preference persistence | `UserPreferencesController` at `/api/user/station-colors`; `User.stationColorPreferences` TEXT column |
+| Callsign lookup (QRZ + FCC) | QRZ XML API with session management; FCC ULS JSON lookup |
 
 ---
 
-## Remaining Backlog (Not Started)
+## Remaining Backlog
 
-| Feature | Priority |
-|---------|----------|
-| QSO confirmation via LoTW / eQSL / QRZ | Medium |
-| Award tracking (DXCC, WAS, VUCC) | Medium |
-| DX cluster spotting | Medium |
-| Propagation prediction overlays | Low |
-| QSL card generation | Low |
-| Frontend unit tests | Low |
-| E2E tests | Low |
-| Offline mode | Low |
+| Feature | Priority | Notes |
+|---------|----------|-------|
+| Frontend unit tests | High | Not yet implemented |
+| E2E tests for critical user flows | High | Not yet implemented |
+| QSL card photo attachments | Medium | File upload per QSO |
+| Filter preset backend persistence | Low | Currently localStorage-only |
+| Offline mode with local-first sync | Low | |
+| Mobile native apps (iOS/Android) | Low | |
+| Voice logging via speech recognition | Low | |
+| AI-powered contact suggestions | Low | |
+| Social features (friends list, activity feed) | Low | |
+| Custom map styles and themes | Low | |
+| Satellite pass predictions | Low | |
 
 ---
 
@@ -193,5 +203,5 @@ Test database: H2 in-memory (`jdbc:h2:mem:testdb`). Switched from SQLite due to 
 - `spring.sql.init.mode=never` in test profile prevents the SQLite-syntax `schema.sql` from running against H2.
 - `spring.jpa.open-in-view=false` in test profile.
 - PITest (mutation testing) does not support Java 25 — skip or ignore PITest failures.
-- `station-color-preferences.service.ts` backend API is not implemented; localStorage fallback is active.
 - `@CrossOrigin(origins = "*")` on `MapController` — production deployment should restrict this to the frontend origin.
+- `console.log` debug statements present in `websocket.service.ts`, `qso-map` component, and auth components — benign, not user-facing.

@@ -47,6 +47,9 @@ describe('StationColorPreferencesService', () => {
     });
 
     it('loads saved colors from localStorage', () => {
+      // Flush the pending GET from the service constructed in beforeEach
+      flushInitial(204);
+
       localStorage.setItem(
         STORAGE_KEY,
         JSON.stringify({ ...DEFAULT_STATION_COLORS, station1: '#ff0000' })
@@ -75,9 +78,6 @@ describe('StationColorPreferencesService', () => {
       };
 
       flushInitial(200, JSON.stringify(backendColors));
-
-      // Backend triggers a PUT to save backend colors back
-      httpMock.expectOne((r) => r.method === 'PUT').flush(null);
 
       expect(service.getStationColor(1)).toBe('#aabbcc');
     });

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { BehaviorSubject, of } from 'rxjs';
+import { provideRouter } from '@angular/router';
 import { LogSelectorComponent } from './log-selector.component';
 import { LogService } from '../../../services/log/log.service';
 import { AuthService } from '../../../services/auth/auth.service';
@@ -62,6 +63,7 @@ describe('LogSelectorComponent', () => {
     await TestBed.configureTestingModule({
       imports: [LogSelectorComponent],
       providers: [
+        provideRouter([]),
         { provide: LogService, useValue: mockLogService },
         { provide: AuthService, useValue: mockAuthService },
       ],

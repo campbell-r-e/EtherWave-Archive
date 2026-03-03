@@ -22,8 +22,7 @@ Complete database schema documentation with entity relationships and table struc
 │─────────────│
 │ id (PK)     │◄─────────┐
 │ username    │          │
-│ email       │          │ created_by
-│ password    │          │
+│ password    │          │ created_by
 │ callsign    │          │
 │ roles       │          │
 └─────────────┘          │
@@ -135,18 +134,21 @@ Stores user authentication and profile information.
 
 ```sql
 CREATE TABLE users (
-    id                      BIGINT PRIMARY KEY AUTO_INCREMENT,
-    username                VARCHAR(50) UNIQUE NOT NULL,
-    password                VARCHAR(255) NOT NULL,  -- BCrypt hash
-    callsign                VARCHAR(20),
-    full_name               VARCHAR(100),
-    grid_square             VARCHAR(10),
-    enabled                 BOOLEAN DEFAULT TRUE,
-    account_non_expired     BOOLEAN DEFAULT TRUE,
-    account_non_locked      BOOLEAN DEFAULT TRUE,
-    credentials_non_expired BOOLEAN DEFAULT TRUE,
-    created_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    id                          BIGINT PRIMARY KEY AUTO_INCREMENT,
+    username                    VARCHAR(50) UNIQUE NOT NULL,
+    password                    VARCHAR(255) NOT NULL,  -- BCrypt hash
+    callsign                    VARCHAR(20),
+    full_name                   VARCHAR(100),
+    grid_square                 VARCHAR(10),
+    default_latitude            DOUBLE,
+    default_longitude           DOUBLE,
+    station_color_preferences   TEXT,  -- JSON: {"station1":"#hex","station2":"#hex","gota":"#hex"}
+    enabled                     BOOLEAN DEFAULT TRUE,
+    account_non_expired         BOOLEAN DEFAULT TRUE,
+    account_non_locked          BOOLEAN DEFAULT TRUE,
+    credentials_non_expired     BOOLEAN DEFAULT TRUE,
+    created_at                  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at                  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     INDEX idx_username (username),
     INDEX idx_callsign (callsign)
@@ -160,6 +162,8 @@ CREATE TABLE users (
 - `callsign`: Amateur radio callsign (optional)
 - `full_name`: Operator's full name (optional)
 - `grid_square`: Maidenhead grid square (optional)
+- `default_latitude` / `default_longitude`: Default operating location for map centering and QSO location resolution
+- `station_color_preferences`: JSON string mapping station keys to hex color codes (e.g., `{"station1":"#0080ff","gota":"#ffaa00"}`). NULL means system defaults apply. Managed via `GET/PUT/DELETE /api/user/station-colors`.
 - `enabled`, `account_non_expired`, etc.: Spring Security account status flags
 - `created_at`: Account creation timestamp
 - `updated_at`: Last update timestamp
@@ -213,6 +217,7 @@ CREATE TABLE logs (
     active          BOOLEAN DEFAULT TRUE,
     editable        BOOLEAN DEFAULT TRUE,
     is_public       BOOLEAN DEFAULT FALSE,
+    bonus_metadata  TEXT,  -- JSON: {"bonus_key": count_or_flag_integer, ...}
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -237,6 +242,7 @@ CREATE TABLE logs (
 - `active`: Soft delete flag
 - `editable`: Manual freeze flag
 - `is_public`: Whether log is publicly viewable
+- `bonus_metadata`: JSON map of contest bonus key to count or flag integer (e.g., `{"natural_power":1,"public_location":0}`). Read by `ScoringService.calculateBonusPoints()`. NULL if no bonuses tracked.
 - `created_at`: Creation timestamp
 - `updated_at`: Last update timestamp
 
@@ -244,6 +250,7 @@ CREATE TABLE logs (
 - A log is editable only if: `editable = true AND (end_date IS NULL OR NOW() <= end_date)`
 - Creator automatically gets CREATOR role in log_participants
 - Deleted logs set `active = false` (soft delete)
+- PERSONAL logs always have `is_public = false` regardless of request value
 
 ---
 
@@ -664,12 +671,12 @@ V3__Add_Contest_Data_Field.sql
 
 **V1__Initial_Schema.sql**:
 ```sql
--- Create users table
+-- Create users table (no email column — this system does not store email)
 CREATE TABLE users (
     id          BIGINT PRIMARY KEY AUTO_INCREMENT,
     username    VARCHAR(50) UNIQUE NOT NULL,
-    email       VARCHAR(100) UNIQUE NOT NULL,
     password    VARCHAR(255) NOT NULL,
+    callsign    VARCHAR(20),
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -705,10 +712,9 @@ ALTER TABLE logs MODIFY COLUMN type VARCHAR(20) NOT NULL;
 **Development Seeds**: `V999__Seed_Development_Data.sql`
 
 ```sql
--- Insert admin user
-INSERT INTO users (username, email, password, callsign)
-VALUES ('admin', 'admin@hamradio.local',
-        '$2a$10$...BCryptHash...', 'W1ABC');
+-- Insert admin user (no email — bootstrapped via ADMIN_USERNAME/ADMIN_PASSWORD env vars)
+INSERT INTO users (username, password, callsign)
+VALUES ('admin', '$2a$10$...BCryptHash...', 'W1ABC');
 
 -- Insert sample contests
 INSERT INTO contests (contest_code, name, category, start_date, end_date)

@@ -393,7 +393,6 @@ app.jwt.expiration-ms=86400000
 # Admin User (created on startup if not exists)
 app.admin.username=${ADMIN_USERNAME:admin}
 app.admin.password=${ADMIN_PASSWORD:admin}
-app.admin.email=${ADMIN_EMAIL:admin@hamradio.local}
 
 # QRZ API (optional)
 qrz.api.username=${QRZ_USERNAME:}
@@ -712,9 +711,9 @@ export const environment = {
 ## Next Steps
 
 - **[Rig Control Guide](RIG_CONTROL_GUIDE.md)** - Set up radio control integration
-- **[User Guide](docs/USER_GUIDE.md)** - Learn how to use the system
-- **[Developer Guide](docs/DEVELOPER_GUIDE.md)** - Contribute to development
-- **[API Reference](docs/API_REFERENCE.md)** - Integrate with the API
+- **[User Guide](USER_GUIDE.md)** - Learn how to use the system
+- **[Developer Guide](DEVELOPER_GUIDE.md)** - Contribute to development
+- **[API Reference](API_REFERENCE.md)** - Integrate with the API
 
 ---
 

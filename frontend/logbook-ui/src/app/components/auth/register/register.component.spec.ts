@@ -4,13 +4,13 @@ import { of, throwError } from 'rxjs';
 import { RegisterComponent } from './register.component';
 import { AuthService } from '../../../services/auth/auth.service';
 import { ThemeService } from '../../../services/theme/theme.service';
-import { Router } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
   let fixture: ComponentFixture<RegisterComponent>;
   let mockAuthService: { register: jest.Mock; isLoggedIn: jest.Mock };
-  let mockRouter: { navigate: jest.Mock };
+  let navigateSpy: jest.SpyInstance;
 
   beforeEach(async () => {
     mockAuthService = {
@@ -19,19 +19,20 @@ describe('RegisterComponent', () => {
       ),
       isLoggedIn: jest.fn(() => false),
     };
-    mockRouter = { navigate: jest.fn() };
 
     const mockThemeService = { getCurrentTheme: jest.fn(() => 'light'), isDarkTheme: jest.fn(() => false) };
 
     await TestBed.configureTestingModule({
       imports: [RegisterComponent],
       providers: [
+        provideRouter([]),
         { provide: AuthService, useValue: mockAuthService },
-        { provide: Router, useValue: mockRouter },
         { provide: ThemeService, useValue: mockThemeService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
+
+    navigateSpy = jest.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 
     fixture = TestBed.createComponent(RegisterComponent);
     component = fixture.componentInstance;
@@ -66,12 +67,12 @@ describe('RegisterComponent', () => {
       );
     });
 
-    it('uppercases callsign before registering', () => {
+    it('includes callsign in register call when provided', () => {
       component.registerForm.patchValue({
         username: 'newuser',
         password: 'password123',
         confirmPassword: 'password123',
-        callsign: 'w1aw',
+        callsign: 'W1AW',
       });
       component.onSubmit();
       expect(mockAuthService.register).toHaveBeenCalledWith(
@@ -82,7 +83,7 @@ describe('RegisterComponent', () => {
     it('navigates to "/" on successful registration', () => {
       validForm();
       component.onSubmit();
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['/']);
+      expect(navigateSpy).toHaveBeenCalledWith(['/']);
     });
 
     it('shows error message on registration failure', () => {

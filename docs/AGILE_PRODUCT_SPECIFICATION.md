@@ -1126,11 +1126,11 @@ PUT    /api/invitations/{id}/cancel
 
 ## Known Limitations
 
-- No LoTW / eQSL / QRZ QSO confirmation integration — confirmation fields exist in the data model but are not updated automatically
-- No award progress tracking (DXCC, WAS) — entity data is available, dashboard not implemented
-- Frontend unit tests not implemented
-- E2E tests not implemented
-- Station color preferences are not persisted server-side; localStorage fallback is fully functional
+- **eQSL / QRZ QSO confirmation** — not integrated; LoTW confirmation sync is implemented via `LotwSyncController`
+- **Frontend unit tests** — not yet implemented
+- **E2E tests** — not yet implemented
+- **QSL card photo attachments** — QSL card print generation is implemented; photo file upload per QSO is not
+- **Filter preset backend persistence** — presets are saved to localStorage only; server-side persistence is not yet implemented
 - PITest (mutation testing) does not support Java 25 — skip or ignore PITest goals in CI
 - `MapController.java` uses `@CrossOrigin(origins = "*")` — acceptable for development; tighten for production deployment
 - `console.log` debug statements present in `websocket.service.ts`, `qso-map` component, and auth components — benign, not user-facing

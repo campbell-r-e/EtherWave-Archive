@@ -159,20 +159,21 @@ a:focus-visible {
 2. **Added form validation ARIA:**
    ```html
    <input type="text"
-     id="usernameOrEmail"
-     formControlName="usernameOrEmail"
-     [attr.aria-invalid]="submitted && f['usernameOrEmail'].errors ? 'true' : 'false'"
-     [attr.aria-describedby]="submitted && f['usernameOrEmail'].errors ? 'usernameOrEmail-error' : null"
+     id="username"
+     formControlName="username"
+     [attr.aria-invalid]="submitted && f['username'].errors ? 'true' : 'false'"
+     [attr.aria-describedby]="submitted && f['username'].errors ? 'username-error' : null"
      required
      aria-required="true"
      autocomplete="username">
 
-   <div id="usernameOrEmail-error" class="ew-error-message" role="alert" aria-live="polite">
-     @if (f['usernameOrEmail'].errors['required']) {
-       <div>Username or email is required</div>
+   <div id="username-error" class="ew-error-message" role="alert" aria-live="polite">
+     @if (f['username'].errors['required']) {
+       <div>Username is required</div>
      }
    </div>
    ```
+   Note: Login is by username only — no email field in the auth system.
 
 3. **Decorative SVGs marked as aria-hidden:**
    ```html
@@ -212,17 +213,17 @@ a:focus-visible {
    </fieldset>
    ```
 
-3. **Full ARIA validation for all 6 form fields:**
+3. **Full ARIA validation for all form fields:**
    - Username (with minlength and pattern validation)
-   - Email (with email validation)
    - Password (with minlength validation)
    - Confirm Password (with passwordMismatch validation)
-   - Plus optional fields
+   - Optional fields (callsign, etc.)
+
+   Note: No email field — registration is username-only.
 
 4. **Autocomplete attributes:**
    ```html
    <input autocomplete="username">
-   <input autocomplete="email">
    <input autocomplete="new-password">
    ```
 
