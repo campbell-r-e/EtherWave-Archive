@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
+import { ApiService } from '../../services/api.service';
 import { LogService } from '../../services/log/log.service';
 import { ThemeService } from '../../services/theme/theme.service';
 import { PermissionsService, UserPermissions } from '../../services/permissions/permissions.service';
 import { User } from '../../models/auth/user.model';
 import { Log, LogParticipant } from '../../models/log.model';
+import { Station } from '../../models/station.model';
 import { getStationColor } from '../../config/station-colors';
 
 // Import all logbook components
@@ -25,6 +27,7 @@ import { StationColorSettingsComponent } from '../station-color-settings/station
 import { AwardProgressComponent } from '../award-progress/award-progress.component';
 import { DXClusterPanelComponent } from '../dx-cluster-panel/dx-cluster-panel.component';
 import { PropagationPanelComponent } from '../propagation-panel/propagation-panel.component';
+import { RigControlComponent } from '../rig-control/rig-control.component';
 
 @Component({
     selector: 'app-dashboard',
@@ -43,7 +46,8 @@ import { PropagationPanelComponent } from '../propagation-panel/propagation-pane
     StationColorSettingsComponent,
     AwardProgressComponent,
     DXClusterPanelComponent,
-    PropagationPanelComponent
+    PropagationPanelComponent,
+    RigControlComponent
 ],
     templateUrl: './dashboard.component.html',
     styleUrls: ['./dashboard.component.css']
@@ -52,11 +56,14 @@ export class DashboardComponent implements OnInit {
   currentUser: User | null = null;
   currentLog: Log | null = null;
   currentParticipant: LogParticipant | null = null;
+  stations: Station[] = [];
+  myStation: Station | null = null;
   isMapOpen = false;
   permissions: UserPermissions | null = null;
 
   constructor(
     private authService: AuthService,
+    private apiService: ApiService,
     private logService: LogService,
     public themeService: ThemeService,
     private permissionsService: PermissionsService,
@@ -74,6 +81,15 @@ export class DashboardComponent implements OnInit {
     this.logService.currentLog$.subscribe(log => {
       this.currentLog = log;
       this.loadCurrentParticipant();
+    });
+
+    // Load stations for rig control
+    this.apiService.getStations().subscribe({
+      next: (stations) => {
+        this.stations = stations;
+        this.resolveMyStation();
+      },
+      error: (err) => console.error('Error loading stations:', err)
     });
 
     // Load current log from storage
@@ -94,6 +110,7 @@ export class DashboardComponent implements OnInit {
   loadCurrentParticipant(): void {
     if (!this.currentLog || !this.currentUser) {
       this.currentParticipant = null;
+      this.myStation = null;
       return;
     }
 
@@ -103,12 +120,24 @@ export class DashboardComponent implements OnInit {
         this.currentParticipant = participants.find(
           p => p.userId === this.currentUser!.id
         ) || null;
+        this.resolveMyStation();
       },
       error: (err) => {
         console.error('Error loading participant data:', err);
         this.currentParticipant = null;
+        this.myStation = null;
       }
     });
+  }
+
+  private resolveMyStation(): void {
+    if (!this.currentParticipant?.stationNumber || this.stations.length === 0) {
+      this.myStation = null;
+      return;
+    }
+    this.myStation = this.stations.find(
+      s => s.stationNumber === this.currentParticipant!.stationNumber
+    ) ?? null;
   }
 
   getStationAssignmentText(): string {

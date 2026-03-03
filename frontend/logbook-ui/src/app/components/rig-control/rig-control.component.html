@@ -1,131 +1,146 @@
-<div class="rig-control-panel">
-  <div class="panel-header">
-    <h3>🎛️ Rig Control - {{ stationName }}</h3>
-    <div class="connection-status">
-      <span class="status-indicator" [class.connected]="connected" [class.disconnected]="!connected"></span>
-      <span class="status-text">{{ connected ? 'Connected' : 'Disconnected' }}</span>
-    </div>
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center"
+    [class]="connected ? 'bg-success text-white' : 'bg-secondary text-white'">
+    <h2 class="h6 mb-0">
+      <i class="bi bi-broadcast-pin" aria-hidden="true"></i> Rig Control — {{ stationName }}
+    </h2>
+    <span class="badge bg-light text-dark" role="status">
+      {{ connected ? 'Connected' : 'Disconnected' }}
+    </span>
   </div>
 
-  <!-- Connection Controls -->
-  <div class="connection-controls">
-    <button
-      *ngIf="!connected"
-      class="btn btn-primary"
-      (click)="connect()"
-      [disabled]="connecting">
-      {{ connecting ? 'Connecting...' : 'Connect to Rig' }}
-    </button>
-    <button
-      *ngIf="connected"
-      class="btn btn-danger"
-      (click)="disconnect()">
-      Disconnect
-    </button>
-  </div>
+  <div class="card-body">
+    <!-- Connection Controls -->
+    <div class="mb-3 d-flex gap-2">
+      @if (!connected) {
+        <button class="btn btn-primary btn-sm" (click)="connect()" [disabled]="connecting">
+          {{ connecting ? 'Connecting...' : 'Connect to Rig' }}
+        </button>
+      }
+      @if (connected) {
+        <button class="btn btn-danger btn-sm" (click)="disconnect()">Disconnect</button>
+        <button class="btn btn-outline-secondary btn-sm" (click)="refreshStatus()">
+          <i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Refresh
+        </button>
+      }
+    </div>
 
-  <!-- Error Message -->
-  <div *ngIf="errorMessage" class="error-message">
-    <strong>Error:</strong> {{ errorMessage }}
-    <button class="btn-close" (click)="errorMessage = null">×</button>
-  </div>
+    <!-- Error Message -->
+    @if (errorMessage) {
+      <div class="alert alert-danger alert-dismissible py-2 mb-3" role="alert">
+        {{ errorMessage }}
+        <button type="button" class="btn-close" (click)="errorMessage = null" aria-label="Close"></button>
+      </div>
+    }
 
-  <!-- Rig Controls (only shown when connected) -->
-  <div *ngIf="connected" class="rig-controls">
-    <!-- Current Status Display -->
-    <div class="status-display">
-      <h4>Current Status</h4>
-      <div class="status-grid">
-        <div class="status-item">
-          <label>Frequency:</label>
-          <span class="value">{{ formatFrequency(currentStatus.frequency) }}</span>
-        </div>
-        <div class="status-item">
-          <label>Mode:</label>
-          <span class="value">{{ currentStatus.mode || 'N/A' }}</span>
-        </div>
-        <div class="status-item">
-          <label>PTT:</label>
-          <span class="value" [class.ptt-active]="currentStatus.ptt">
-            {{ currentStatus.ptt ? 'TRANSMITTING' : 'Receiving' }}
-          </span>
-        </div>
-        <div class="status-item">
-          <label>S-Meter:</label>
-          <span class="value">S{{ currentStatus.sMeter || 0 }}</span>
+    <!-- Rig Controls (only shown when connected) -->
+    @if (connected) {
+      <!-- Current Status Display -->
+      <div class="mb-3">
+        <h3 class="h6 text-muted mb-2">Current Status</h3>
+        <div class="row g-2 text-center">
+          <div class="col-6">
+            <div class="small text-muted">Frequency</div>
+            <div class="fw-bold">{{ formatFrequency(currentStatus.frequencyHz) }}</div>
+          </div>
+          <div class="col-6">
+            <div class="small text-muted">Mode</div>
+            <div class="fw-bold">{{ currentStatus.mode || 'N/A' }}</div>
+          </div>
+          <div class="col-6">
+            <div class="small text-muted">PTT</div>
+            <div class="fw-bold" [class.text-danger]="currentStatus.pttActive">
+              {{ currentStatus.pttActive ? 'TRANSMITTING' : 'Receiving' }}
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="small text-muted">S-Meter</div>
+            <div class="fw-bold">{{ currentStatus.sMeter !== undefined ? currentStatus.sMeter + ' dB' : 'N/A' }}</div>
+          </div>
         </div>
       </div>
-      <button class="btn btn-sm btn-secondary" (click)="refreshStatus()">
-        🔄 Refresh
-      </button>
-    </div>
 
-    <!-- Frequency Control -->
-    <div class="control-group">
-      <h4>Frequency</h4>
-      <div class="input-group">
-        <input
-          type="number"
-          [(ngModel)]="frequencyMhz"
-          step="0.001"
-          min="0.1"
-          max="1000"
-          placeholder="14.250">
-        <span class="input-suffix">MHz</span>
-        <button class="btn btn-primary" (click)="setFrequency()">Set</button>
-      </div>
-    </div>
+      <hr class="my-2">
 
-    <!-- Mode Control -->
-    <div class="control-group">
-      <h4>Mode</h4>
-      <div class="input-group">
-        <select [(ngModel)]="selectedMode">
-          <option *ngFor="let mode of modes" [value]="mode">{{ mode }}</option>
-        </select>
-        <button class="btn btn-primary" (click)="setMode()">Set</button>
-      </div>
-    </div>
-
-    <!-- PTT Control -->
-    <div class="control-group">
-      <h4>Push-to-Talk</h4>
-      <button
-        class="btn btn-ptt"
-        [class.ptt-active]="pttActive"
-        (click)="togglePTT()">
-        {{ pttActive ? '🔴 TRANSMIT' : '⚪ PTT OFF' }}
-      </button>
-      <p class="help-text">
-        <small>⚠️ PTT is locked to first client. Others will be denied if held by another station.</small>
-      </p>
-    </div>
-
-    <!-- Recent Events -->
-    <div class="events-panel" *ngIf="recentEvents.length > 0">
-      <h4>Recent Events</h4>
-      <div class="events-list">
-        <div *ngFor="let event of recentEvents" class="event-item" [class]="'event-' + event.eventType">
-          <span class="event-time">{{ formatEventTime(event.timestamp) }}</span>
-          <span class="event-type">{{ event.eventType }}</span>
-          <span class="event-message">{{ event.message }}</span>
+      <!-- Frequency Control -->
+      <div class="mb-3">
+        <label class="form-label small">Set Frequency (MHz)</label>
+        <div class="input-group input-group-sm">
+          <input
+            type="number"
+            class="form-control"
+            [(ngModel)]="frequencyMhz"
+            step="0.001"
+            min="0.1"
+            max="1000"
+            placeholder="14.250"
+            aria-label="Frequency in MHz">
+          <span class="input-group-text">MHz</span>
+          <button class="btn btn-primary" type="button" (click)="setFrequency()">Set</button>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Help Text (shown when disconnected) -->
-  <div *ngIf="!connected && !connecting" class="help-panel">
-    <h4>About Rig Control</h4>
-    <ul>
-      <li>Connect to control your radio remotely via the rig control service</li>
-      <li>Change frequency and mode in real-time</li>
-      <li>PTT locking prevents conflicts with other operators</li>
-      <li>Receive live status updates every 100ms</li>
-      <li>See events from all connected clients</li>
-    </ul>
-    <p class="note">
-      <strong>Note:</strong> Ensure the rig control service is running and rigctld is connected to your radio.
-    </p>
+      <!-- Mode Control -->
+      <div class="mb-3">
+        <label class="form-label small">Set Mode</label>
+        <div class="input-group input-group-sm">
+          <select class="form-select" [(ngModel)]="selectedMode" aria-label="Mode">
+            @for (mode of modes; track mode) {
+              <option [value]="mode">{{ mode }}</option>
+            }
+          </select>
+          <button class="btn btn-primary" type="button" (click)="setMode()">Set</button>
+        </div>
+      </div>
+
+      <!-- PTT Control -->
+      <div class="mb-3">
+        <label class="form-label small">Push-to-Talk</label>
+        <div>
+          <button
+            class="btn btn-sm w-100"
+            [class.btn-danger]="pttActive"
+            [class.btn-outline-secondary]="!pttActive"
+            (click)="togglePTT()">
+            {{ pttActive ? 'TRANSMITTING — Click to Release PTT' : 'PTT Off — Click to Transmit' }}
+          </button>
+        </div>
+        <div class="form-text text-muted">
+          PTT is exclusive — held by the first client to activate it.
+        </div>
+      </div>
+
+      <!-- Recent Events -->
+      @if (recentEvents.length > 0) {
+        <hr class="my-2">
+        <h3 class="h6 text-muted mb-2">Recent Events</h3>
+        <div class="list-group list-group-flush small">
+          @for (event of recentEvents; track event.timestamp) {
+            <div class="list-group-item list-group-item-action px-0 py-1"
+              [class.list-group-item-danger]="event.eventType === 'error'"
+              [class.list-group-item-warning]="event.eventType === 'client_disconnected'">
+              <span class="text-muted me-2">{{ formatEventTime(event.timestamp) }}</span>
+              <span class="badge bg-secondary me-1">{{ event.eventType }}</span>
+              {{ event.message }}
+            </div>
+          }
+        </div>
+      }
+    }
+
+    <!-- Help Text (shown when disconnected) -->
+    @if (!connected && !connecting) {
+      <div class="text-muted small">
+        <ul class="ps-3 mb-0">
+          <li>Connect to control your radio via the rig control service</li>
+          <li>Change frequency and mode in real-time</li>
+          <li>PTT locking prevents conflicts with other operators</li>
+          <li>Live status updates every 100ms</li>
+        </ul>
+        <p class="mt-2 mb-0">
+          <strong>Note:</strong> Ensure the rig control service is running and rigctld is connected to your radio.
+        </p>
+      </div>
+    }
   </div>
 </div>

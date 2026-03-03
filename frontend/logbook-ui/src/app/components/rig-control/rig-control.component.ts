@@ -40,14 +40,14 @@ export class RigControlComponent implements OnInit, OnDestroy {
     this.statusSubscription = this.rigControlService.onStatusUpdate().subscribe(update => {
       if (update.stationId === this.stationId) {
         this.currentStatus = update.status;
-        if (update.status.frequency) {
-          this.frequencyMhz = (update.status.frequency / 1000000).toFixed(3);
+        if (update.status.frequencyHz) {
+          this.frequencyMhz = (update.status.frequencyHz / 1000000).toFixed(3);
         }
         if (update.status.mode) {
           this.selectedMode = update.status.mode;
         }
-        if (update.status.ptt !== undefined) {
-          this.pttActive = update.status.ptt;
+        if (update.status.pttActive !== undefined) {
+          this.pttActive = update.status.pttActive;
         }
       }
     });

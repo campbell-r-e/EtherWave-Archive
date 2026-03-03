@@ -134,6 +134,14 @@
           </div>
           <div class="col-lg-4 d-flex flex-column gap-3">
             <app-rig-status></app-rig-status>
+            @if (myStation) {
+              <app-rig-control
+                [stationId]="myStation.id!"
+                [stationName]="myStation.stationName"
+                [host]="myStation.rigControlHost"
+                [port]="myStation.rigControlPort">
+              </app-rig-control>
+            }
             <app-propagation-panel></app-propagation-panel>
           </div>
         </div>

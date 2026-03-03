@@ -20,11 +20,12 @@ export interface RigConnectionRequest {
 }
 
 export interface RigStatus {
-  frequency?: number;
+  frequencyHz?: number;
   mode?: string;
   bandwidth?: string | number;
-  ptt?: boolean;
+  pttActive?: boolean;
   sMeter?: number;
+  powerMeter?: number;
   swr?: number;
   connected?: boolean;
   timestamp?: string;

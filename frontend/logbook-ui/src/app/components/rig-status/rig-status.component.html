@@ -22,7 +22,7 @@
     @if (connected && rigStatus) {
       <!-- Live region for screen reader updates -->
       <div aria-live="polite" aria-atomic="true" class="visually-hidden">
-        Rig frequency {{ formatFrequency(rigStatus.frequency) }}, mode {{ rigStatus.mode || 'unknown' }}
+        Rig frequency {{ formatFrequency(rigStatus.frequencyHz) }}, mode {{ rigStatus.mode || 'unknown' }}
       </div>
 
       <div>
@@ -30,7 +30,7 @@
         <div class="mb-3">
           <label class="small text-muted d-block" id="frequency-label">Frequency</label>
           <div class="display-6 text-primary" aria-labelledby="frequency-label">
-            {{ formatFrequency(rigStatus.frequency) }}
+            {{ formatFrequency(rigStatus.frequencyHz) }}
           </div>
         </div>
         <!-- Mode and Bandwidth -->
@@ -50,7 +50,7 @@
         <div class="mb-3">
           <label class="small text-muted d-block">PTT Status</label>
           <h4 [class]="getPTTClass()">
-            @if (rigStatus.ptt) {
+            @if (rigStatus.pttActive) {
               <span>TRANSMITTING</span>
             } @else {
               <span>Receiving</span>

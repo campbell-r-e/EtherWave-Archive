@@ -1,9 +1,10 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { LogService } from '../../services/log/log.service';
 import { AuthService } from '../../services/auth/auth.service';
+import { RigControlService } from '../../services/rig-control.service';
 import { QSORequest, QSO } from '../../models/qso.model';
 import { Station, Contest } from '../../models/station.model';
 import { User } from '../../models/auth/user.model';
@@ -16,7 +17,7 @@ import { getAllBandNames, frequencyToBand } from '../../models/band.constants';
   templateUrl: './qso-entry.component.html',
   styleUrls: ['./qso-entry.component.css']
 })
-export class QsoEntryComponent implements OnInit {
+export class QsoEntryComponent implements OnInit, OnDestroy {
     public Object = Object;
   @ViewChild('callsignInput') callsignInput!: ElementRef;
 
@@ -41,10 +42,13 @@ export class QsoEntryComponent implements OnInit {
   currentUser: User | null = null;
   operatorCallsign: string = '';
 
+  private rigSub?: Subscription;
+
   constructor(
     private apiService: ApiService,
     private logService: LogService,
-    private authService: AuthService
+    private authService: AuthService,
+    private rigControlService: RigControlService
   ) {}
 
   ngOnInit(): void {
@@ -53,6 +57,23 @@ export class QsoEntryComponent implements OnInit {
     this.setCurrentDateTime();
     this.loadStationAssignment();
     this.loadCurrentUser();
+    this.subscribeToRig();
+  }
+
+  ngOnDestroy(): void {
+    this.rigSub?.unsubscribe();
+  }
+
+  private subscribeToRig(): void {
+    this.rigSub = this.rigControlService.onStatusUpdate().subscribe(({ status }) => {
+      if (status.frequencyHz) {
+        this.qso.frequencyKhz = status.frequencyHz / 1000;
+        this.onFrequencyChange();
+      }
+      if (status.mode) {
+        this.qso.mode = status.mode;
+      }
+    });
   }
 
   loadCurrentUser(): void {

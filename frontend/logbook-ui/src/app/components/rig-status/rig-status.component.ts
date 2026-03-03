@@ -48,6 +48,6 @@ export class RigStatusComponent implements OnInit, OnDestroy {
   }
 
   getPTTClass(): string {
-    return this.rigStatus?.ptt ? 'text-danger blink' : 'text-muted';
+    return this.rigStatus?.pttActive ? 'text-danger blink' : 'text-muted';
   }
 }
