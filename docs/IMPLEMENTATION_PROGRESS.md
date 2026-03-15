@@ -192,6 +192,19 @@ Test database: H2 in-memory (`jdbc:h2:mem:testdb`). Switched from SQLite due to 
 | Custom map styles and themes | Low | User-configurable map appearance saved to backend per user. Features: (1) base tile style switcher — OpenStreetMap, satellite, topographic, dark, minimal; (2) overlay customisation — per-overlay visibility toggle, opacity slider, and colour picker for CQ zones, ITU zones, ARRL sections, DXCC boundaries; (3) QSO marker styling — colour by band/mode/DXCC/date or single custom colour, adjustable marker size; (4) print/screenshot mode — chrome-free full-screen map for printing or QRZ page screenshots. Preferences stored in a new `User.mapPreferences` TEXT column (JSON). |
 | Frontend unit tests | Low | Not yet implemented |
 | E2E tests for critical user flows | Low | Not yet implemented |
+| Band condition alerts | Low | Push notification or dashboard alert when a band opens based on live propagation data (solar flux, K-index thresholds); configurable per band |
+| Suggested operating times | Low | Analyse user's own log history to surface best days/times/bands for DX; shown as a stats panel or calendar heat map |
+| Grey line tracker | Low | Animated terminator line on the map showing current dawn/dusk boundary; updates in real time to highlight optimal DX propagation windows |
+| Contact trends & statistics | Low | Per-user stats page: most worked DXCC, most active bands and modes over time, best DX distance; date-range filterable |
+| Activity charts | Low | GitHub-style contribution graph showing QSO count per day over the past year; per-log or across all logs |
+| This day in history | Low | Dashboard widget showing contacts made on this calendar date in previous years |
+| Personal records | Low | Track and display personal bests: longest distance QSO, rarest DXCC worked, highest band, most QSOs in a single day |
+| eQSL support | Low | Upload contacts to eQSL.cc and pull confirmations back; match against existing QSOs and update `eqslRcvd` status |
+| ClubLog upload | Low | Push contacts to ClubLog API for DXCC tracking and leaderboard participation; configurable per log |
+| WSJT-X ADIF auto-import | Low | Backend watches a configured directory (or user uploads) for new ADIF files from WSJT-X; auto-imports FT8/FT4 contacts into the active log |
+| APRS integration | Low | Fetch APRS beacon data for contacted callsigns and show their last known position on the QSO map |
+| Club aggregate logs | Low | Club-level view that combines QSOs from multiple member accounts into a shared log; useful for field day totals and club award tracking |
+| CAT control auto-logging | Low | Use the existing rig control service to auto-populate frequency and mode on the QSO entry form whenever the rig changes VFO or mode |
 
 ---
 
