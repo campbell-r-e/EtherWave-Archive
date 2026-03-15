@@ -1149,6 +1149,7 @@ PUT    /api/invitations/{id}/cancel
 - [x] Station color preference persistence to backend — `UserPreferencesController` + `User.stationColorPreferences`
 
 ### High Priority (remaining)
+- [ ] **YAML-driven configurable contest validator (Epic 13)** — allow new contests to be defined entirely via a YAML file with no Java code required. See full spec below.
 - [ ] Frontend unit tests
 - [ ] E2E tests for critical user flows
 
@@ -1176,6 +1177,145 @@ PUT    /api/invitations/{id}/cancel
 - PITest (mutation testing) does not support Java 25 — skip or ignore PITest goals in CI
 - `MapController.java` uses `@CrossOrigin(origins = "*")` — acceptable for development; tighten for production deployment
 - `console.log` debug statements present in `websocket.service.ts`, `qso-map` component, and auth components — benign, not user-facing
+
+---
+
+## Epic 13: YAML-Driven Configurable Contest Validator
+
+### Overview
+
+Currently adding a new contest requires both a JSON config file and a hand-written Java validator class. Epic 13 eliminates the Java requirement for standard contests by migrating all contest configs to YAML and introducing a generic `ConfigurableContestValidator` that interprets YAML rules at runtime.
+
+**Goal:** drop a single `.yaml` file into `contest-configs/` and the contest is immediately available — no code, no rebuild, no redeploy.
+
+### Why YAML over JSON
+
+- Supports inline comments (`#`) for documenting rules inline
+- Cleaner multi-line string syntax for descriptions and regex patterns
+- Anchors and aliases (`&anchor` / `*alias`) allow reuse of common rule blocks across contests
+- More readable list and map syntax for long allowed-value lists
+- Better fit for human-authored config files that need ongoing maintenance
+
+### Migration: JSON to YAML
+
+All 7 existing contest config files in `backend/src/main/resources/contest-configs/` will be converted from `.json` to `.yaml`. `DataInitializationService` will be updated to scan for `*.yaml` instead of `*.json`, and `snakeyaml` (already a Spring Boot transitive dependency) will replace the Jackson JSON loader for contest config parsing.
+
+### YAML Contest Config Format
+
+```yaml
+# Contest definition — drop this file in contest-configs/ to register a new contest
+
+contest_code: MY-CONTEST          # unique identifier used throughout the system
+contest_name: My New Contest
+description: >
+  Full description of the contest, its purpose, and any operator notes.
+is_active: true
+
+# Full class name of the validator to use. Use the built-in generic validator
+# for declarative YAML-only contests; set to a custom class for complex logic.
+validator_class: com.hamradio.logbook.validation.ConfigurableContestValidator
+
+exchange:
+  required_fields:
+    - name: serial
+      type: integer
+      description: Contact serial number, starting from 001
+    - name: state
+      type: string
+      allowed_values_ref: us_states   # reference to a shared values block below
+      description: Operator state or province
+  optional_fields:
+    - name: power
+      type: string
+      allowed_values: [QRP, LOW, HIGH]
+
+scoring:
+  points_per_qso:
+    default: 1
+    by_band:
+      "160m": 4
+      "80m": 2
+      "40m": 1
+    by_mode:
+      CW: 2
+      PHONE: 1
+      DIGITAL: 2
+  multipliers:
+    - type: state          # one multiplier per unique state worked
+    - type: dxcc           # one multiplier per DXCC entity worked
+  final_formula: qso_points * multiplier_count   # evaluated as simple expression
+
+bonus_points:
+  emergency_power:
+    label: Emergency power operation
+    points: 100
+  public_location:
+    label: Operating from a public location
+    points: 50
+
+duplicate_detection:
+  window_minutes: 0         # 0 = no re-work allowed
+  fields: [callsign, band]  # fields that must be unique within the window
+
+valid_bands: [160m, 80m, 40m, 20m, 15m, 10m, 6m, 2m]
+valid_modes: [CW, PHONE, DIGITAL, FM, AM]
+
+# Reusable value lists (referenced by allowed_values_ref above)
+shared_values:
+  us_states:
+    - AL - AK - AZ - AR - CA - CO - CT - DE - FL - GA
+    - HI - ID - IL - IN - IA - KS - KY - LA - ME - MD
+    - MA - MI - MN - MS - MO - MT - NE - NV - NH - NJ
+    - NM - NY - NC - ND - OH - OK - OR - PA - RI - SC
+    - SD - TN - TX - UT - VT - VA - WA - WV - WI - WY
+```
+
+### ConfigurableContestValidator — Runtime Behaviour
+
+A new `@Component` class `ConfigurableContestValidator` will be added to the `validation/` package. Unlike the seven existing validators it does **not** hard-code any contest-specific logic. Instead it:
+
+1. On validation, fetches the contest's `rulesConfig` (stored in the database, sourced from YAML at startup)
+2. Parses the YAML rules config using snakeyaml
+3. Validates exchange fields against `required_fields` / `optional_fields` definitions:
+   - Checks presence of required fields
+   - Checks `type` (string / integer / regex)
+   - Checks `allowed_values` or resolves `allowed_values_ref` from `shared_values`
+4. Returns `ValidationResult` with field-level errors and warnings
+
+Scoring and multiplier calculations continue to run in `ScoringService` using the same `bonus_points` and `scoring` blocks already supported.
+
+### When a Custom Java Validator Is Still Needed
+
+The `ConfigurableContestValidator` covers the majority of contests. A custom Java validator is only required when:
+
+- Validation logic depends on **cross-QSO state** (e.g. SOTA requires minimum 4 QSOs for a valid activation)
+- Exchange values must be validated against a **live external database** (e.g. POTA park reference lookup)
+- Scoring requires **complex conditional logic** not expressible as a formula
+
+For those cases the `validator_class` field in the YAML points to the custom class, and the custom validator can still read `rulesConfig` from the YAML for its parameters.
+
+### Implementation Plan
+
+| Step | Task |
+|------|------|
+| 1 | Add `snakeyaml` explicit dependency (version-pin, Spring Boot includes transitively) |
+| 2 | Convert all 7 existing `*.json` contest configs to `*.yaml` |
+| 3 | Update `DataInitializationService` to scan `*.yaml` and parse via snakeyaml |
+| 4 | Implement `ContestRulesConfig` Java record/POJO mapping YAML structure |
+| 5 | Implement `ConfigurableContestValidator` — reads `rulesConfig`, validates fields declaratively |
+| 6 | Register `ConfigurableContestValidator` as a Spring `@Component` (auto-discovered by registry) |
+| 7 | Update `Contest.rulesConfig` storage to preserve YAML structure (already stored as TEXT) |
+| 8 | Write tests: valid contest, missing required field, invalid allowed value, unknown contest code |
+| 9 | Update `DataInitializationService` to hot-reload configs without restart (stretch goal) |
+| 10 | Document YAML format in `docs/CONTEST_AUTHORING_GUIDE.md` |
+
+### User Stories
+
+- **US-13.1** — As an operator, I can add a new contest by placing a YAML file in `contest-configs/` and restarting the backend, without writing any Java code.
+- **US-13.2** — As an operator, I can annotate my contest rules with inline comments in the YAML for future maintainers.
+- **US-13.3** — As a developer, I can still write a custom Java validator for contests with complex cross-QSO logic, pointed to via `validator_class` in the YAML.
+- **US-13.4** — As an operator, I can define reusable value lists (states, sections, zones) once in `shared_values` and reference them across multiple exchange field definitions.
+- **US-13.5** — As a developer, existing contest configs continue to work after migration to YAML with identical validation behaviour.
 
 ---
 
