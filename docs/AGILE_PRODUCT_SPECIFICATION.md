@@ -1008,9 +1008,9 @@ As a radio operator, I need a clear separation between personal logs (private, s
   - REST Assured: 5.5.2
 
 ### Frontend Stack
-- **Framework:** Angular 21.2.0 (standalone components)
+- **Framework:** Angular 21.2.4 (standalone components)
 - **Language:** TypeScript 5.9.3
-- **Node:** 22-alpine (build), nginx:stable-alpine (runtime)
+- **Node:** 25.8.1-alpine (build), nginx:stable-alpine (runtime)
 - **Mapping:** Leaflet 1.9.4 + leaflet.heat plugin
 - **UI Library:** Bootstrap 5.3.x
 - **Icons:** Bootstrap Icons

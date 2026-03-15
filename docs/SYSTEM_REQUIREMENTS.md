@@ -26,8 +26,8 @@
 - **Maven:** 3.9+
 
 ### Frontend
-- **Angular:** 21.0.1
-- **Node.js:** 24.x LTS
+- **Angular:** 21.2.4
+- **Node.js:** 25.x
 - **TypeScript:** 5.9
 - **Bootstrap:** 5.3
 
@@ -134,8 +134,8 @@
   - Eclipse Temurin 25 (recommended)
   - Oracle JDK 25
   - OpenJDK 25
-- **Node.js:** 24.x LTS
-- **npm:** 10.x (included with Node.js)
+- **Node.js:** 25.x
+- **npm:** 11.x (included with Node.js)
 - **Maven:** 3.9+
 - **Git:** 2.30+
 - **Docker Engine:** 24.0+ or Docker Desktop 4.20+

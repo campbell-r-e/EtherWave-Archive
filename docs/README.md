@@ -141,7 +141,7 @@ EtherWave Archive provides amateur radio operators with a modern, feature-rich l
 
 ### Prerequisites
 - **Java 25** or higher (Eclipse Adoptium Temurin 25 recommended)
-- **Node.js 22** or higher
+- **Node.js 25** or higher
 - Docker and Docker Compose (for rig control and deployment)
 - SQLite (included) or PostgreSQL 16
 
@@ -265,7 +265,7 @@ All documentation lives in the `docs/` directory.
 - **Jackson 3.0** - JSON processing (tools.jackson)
 
 ### Frontend
-- **Angular 21.2.0** - Latest Angular framework with standalone components
+- **Angular 21.2.4** - Latest Angular framework with standalone components
 - **TypeScript 5.9** - Type-safe JavaScript with strict mode
 - **RxJS 7.8** - Reactive programming and state management
 - **Bootstrap 5.3** - Modern UI framework with responsive design

@@ -100,7 +100,7 @@ Complete technical guide for developers working on the Ham Radio Contest Logbook
 - Modern language features while maintaining backward compatibility
 
 #### Why Angular 21?
-- **Latest Framework**: Angular 21.2.0 with cutting-edge features
+- **Latest Framework**: Angular 21.2.4 with cutting-edge features
 - **Standalone Components**: Simpler architecture without NgModules
 - **TypeScript 5.9**: Latest type safety with strict mode enabled
 - **New Control Flow**: Modern `@if`, `@for`, `@switch` syntax (better performance)

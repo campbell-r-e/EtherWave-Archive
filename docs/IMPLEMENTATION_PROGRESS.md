@@ -220,7 +220,7 @@ Test database: H2 in-memory (`jdbc:h2:mem:testdb`). Switched from SQLite due to 
 ### Stack
 
 - Java 25 LTS / Spring Boot 4.0.3 / Lombok 1.18.42
-- Angular 21.2.0 standalone components / TypeScript 5.9.3
+- Angular 21.2.4 standalone components / TypeScript 5.9.3
 - PostgreSQL (production) / SQLite (field deployment)
 - Testcontainers 1.21.3 / rest-assured 5.5.2 / sqlite-jdbc 3.49.1.0
 

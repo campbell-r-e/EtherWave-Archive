@@ -1,5 +1,5 @@
 # Multi-stage build for Angular frontend
-FROM node:22-alpine AS build
+FROM node:25.8.1-alpine AS build
 
 RUN npm install -g npm@latest
 

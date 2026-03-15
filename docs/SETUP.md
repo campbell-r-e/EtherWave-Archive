@@ -25,10 +25,10 @@ Complete setup instructions for the professional ham radio logging system with d
   - Verify: `java -version` should show version 25.0.1 or higher
   - **Important**: Java 25 is required for Spring Boot 4.0.3 and latest features
   - Set JAVA_HOME environment variable to JDK 25 installation path
-- **Node.js 22 or higher** and npm 11+
+- **Node.js 25 or higher** and npm 11+
   - Download: https://nodejs.org/
-  - Verify: `node --version` (should show v24.x.x) and `npm --version`
-  - **Important**: Node.js 22 is required for Angular 21 and TypeScript 5.9
+  - Verify: `node --version` (should show v25.x.x) and `npm --version`
+  - **Important**: Node.js 25 is required for Angular 21 and TypeScript 5.9
 - **Maven 3.9+**
   - Download: https://maven.apache.org/
   - Verify: `mvn --version`
@@ -645,7 +645,7 @@ npm run build
 
 ### Frontend Architecture
 
-**Angular 21.2.0 Features Used**:
+**Angular 21.2.4 Features Used**:
 - **Standalone Components**: No NgModule needed, cleaner architecture
 - **Control Flow Syntax**: New `@if`, `@for`, `@switch` instead of `*ngIf`, `*ngFor`
 - **TypeScript 5.9**: Latest type safety and features

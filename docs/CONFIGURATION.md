@@ -168,7 +168,7 @@ export const environment = {
 File: `frontend/logbook-ui/angular.json`
 
 The project is configured with:
-- Angular 21.2.0
+- Angular 21.2.4
 - TypeScript 5.9
 - Bootstrap 5.3
 - Development server on port 4200

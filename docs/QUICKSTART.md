@@ -48,7 +48,7 @@ docker compose up -d
 ```
 
 This will:
-- Download all required images (Node.js 22, Java 25, PostgreSQL 16, Nginx)
+- Download all required images (Node.js 25, Java 25, PostgreSQL 16, Nginx)
 - Build the backend and frontend
 - Create the database
 - Start all services
@@ -119,8 +119,8 @@ Download and install these:
 1. **Java 25** - https://adoptium.net/
    - Verify: `java -version` (should show 25.x.x)
 
-2. **Node.js 22** - https://nodejs.org/
-   - Verify: `node --version` (should show v24.x.x)
+2. **Node.js 25** - https://nodejs.org/
+   - Verify: `node --version` (should show v25.x.x)
 
 3. **Maven 3.9+** - https://maven.apache.org/
    - Verify: `mvn --version`
