@@ -1294,6 +1294,149 @@ The `ConfigurableContestValidator` covers the majority of contests. A custom Jav
 
 For those cases the `validator_class` field in the YAML points to the custom class, and the custom validator can still read `rulesConfig` from the YAML for its parameters.
 
+### Frontend — Current State and Required Changes
+
+The frontend currently has hardcoded contest knowledge in three places that must be replaced with dynamic, backend-driven definitions.
+
+#### Current hardcoding (to be removed)
+
+**1. Exchange fields — `qso-entry.component.ts`**
+
+`onContestChange()` uses string pattern matching on `contestCode` to decide which exchange input fields to show:
+
+```typescript
+if (contest.contestCode.includes('FD') || contest.contestCode.includes('WFD')) {
+  this.contestDataFields = { class: '', section: '' };
+} else if (contest.contestCode === 'POTA') {
+  this.contestDataFields = { park_ref: '' };
+}
+// All other contests: no exchange fields shown
+```
+
+Only FD, WFD, and POTA get exchange input fields. SOTA, CQWW, ARRL-SS, and STATE-QSO-PARTY have no frontend exchange UI at all.
+
+**2. Exchange fields — `qso-entry.component.html`**
+
+The template has hardcoded `@if` blocks for each known field name:
+
+```html
+@if (contestDataFields.hasOwnProperty('class')) { ... }
+@if (contestDataFields.hasOwnProperty('section')) { ... }
+@if (contestDataFields.hasOwnProperty('park_ref')) { ... }
+```
+
+**3. Log purpose — `log-selector.component.ts`**
+
+`LogPurpose` is a hardcoded TypeScript enum (10 values). The `purposeAutoLinksContest()` method maps each enum value to a hardcoded contest name string. New contests added via YAML will never appear in this list without a code change.
+
+#### Backend API addition required
+
+`ContestController` (`GET /api/contests`) must include `exchangeFields` in its response, derived from the YAML `required_fields` and `optional_fields` blocks. No new endpoint is needed — extend the existing contest DTO:
+
+```json
+{
+  "id": 3,
+  "contestCode": "MY-CONTEST",
+  "contestName": "My New Contest",
+  "exchangeFields": [
+    {
+      "name": "serial",
+      "label": "Serial Number",
+      "type": "integer",
+      "required": true,
+      "placeholder": "001"
+    },
+    {
+      "name": "state",
+      "label": "State / Province",
+      "type": "select",
+      "required": true,
+      "options": ["AL", "AK", "AZ", "..."]
+    }
+  ]
+}
+```
+
+The `allowed_values` / `allowed_values_ref` resolution happens server-side — the frontend receives a flat `options` array.
+
+#### Frontend model changes — `station.model.ts`
+
+Add `ExchangeField` interface and extend `Contest`:
+
+```typescript
+export interface ExchangeField {
+  name: string;
+  label: string;
+  type: 'text' | 'integer' | 'select';
+  required: boolean;
+  placeholder?: string;
+  options?: string[];  // populated for 'select' type
+}
+
+export interface Contest {
+  // ... existing fields unchanged ...
+  exchangeFields?: ExchangeField[];
+}
+```
+
+#### QSO entry form changes — `qso-entry.component.ts`
+
+Remove `onContestChange()` string-matching logic. Replace with:
+
+```typescript
+onContestChange(): void {
+  const contest = this.contests.find(c => c.id === this.qso.contestId);
+  this.contestDataFields = {};
+  if (contest?.exchangeFields) {
+    contest.exchangeFields.forEach(f => {
+      this.contestDataFields[f.name] = '';
+    });
+  }
+}
+```
+
+#### QSO entry template changes — `qso-entry.component.html`
+
+Replace all hardcoded `@if (contestDataFields.hasOwnProperty(...))` blocks with a single `@for` loop:
+
+```html
+@if (qso.contestId && selectedContest?.exchangeFields?.length) {
+  <div class="row mb-3">
+    <div class="col-12">
+      <h6 class="text-muted">Contest Exchange</h6>
+    </div>
+    @for (field of selectedContest.exchangeFields; track field.name) {
+      <div class="col-md-6">
+        <label class="form-label">
+          {{ field.label }}
+          @if (field.required) { <span class="text-danger">*</span> }
+        </label>
+        @if (field.type === 'select') {
+          <select class="form-select"
+                  [(ngModel)]="contestDataFields[field.name]"
+                  [name]="field.name">
+            <option value="">-- select --</option>
+            @for (opt of field.options; track opt) {
+              <option [value]="opt">{{ opt }}</option>
+            }
+          </select>
+        } @else {
+          <input type="text"
+                 class="form-control"
+                 [(ngModel)]="contestDataFields[field.name]"
+                 [name]="field.name"
+                 [placeholder]="field.placeholder ?? ''">
+        }
+      </div>
+    }
+  </div>
+}
+```
+
+#### Log selector changes — `log-selector.component.ts`
+
+`LogPurpose` can remain as a display hint for well-known contest types. The `purposeAutoLinksContest()` mapping should be driven from the backend contest list (fetched on init) rather than hardcoded strings. Contests that exist in the backend but have no corresponding `LogPurpose` entry are selectable via a generic "Contest" purpose option that opens a contest search/select dropdown showing all active contests returned by `GET /api/contests`.
+
 ### Implementation Plan
 
 | Step | Task |
@@ -1305,9 +1448,15 @@ For those cases the `validator_class` field in the YAML points to the custom cla
 | 5 | Implement `ConfigurableContestValidator` — reads `rulesConfig`, validates fields declaratively |
 | 6 | Register `ConfigurableContestValidator` as a Spring `@Component` (auto-discovered by registry) |
 | 7 | Update `Contest.rulesConfig` storage to preserve YAML structure (already stored as TEXT) |
-| 8 | Write tests: valid contest, missing required field, invalid allowed value, unknown contest code |
-| 9 | Update `DataInitializationService` to hot-reload configs without restart (stretch goal) |
-| 10 | Document YAML format in `docs/CONTEST_AUTHORING_GUIDE.md` |
+| 8 | Extend `ContestController` / `ContestResponse` DTO to include `exchangeFields` array (resolved from YAML) |
+| 9 | Add `ExchangeField` interface to `station.model.ts`; extend `Contest` interface |
+| 10 | Refactor `qso-entry.component.ts` — replace hardcoded `onContestChange()` with dynamic field init from `contest.exchangeFields` |
+| 11 | Refactor `qso-entry.component.html` — replace hardcoded `@if` blocks with `@for` loop over `exchangeFields` |
+| 12 | Update `log-selector.component.ts` — drive `purposeAutoLinksContest()` from fetched backend contest list; add generic contest picker for YAML-only contests |
+| 13 | Write backend tests: valid contest, missing required field, invalid allowed value, unknown contest code |
+| 14 | Write frontend tests: dynamic field rendering, select vs text input, required field indicator |
+| 15 | Update `DataInitializationService` to hot-reload configs without restart (stretch goal) |
+| 16 | Document YAML format in `docs/CONTEST_AUTHORING_GUIDE.md` |
 
 ### User Stories
 
@@ -1316,6 +1465,9 @@ For those cases the `validator_class` field in the YAML points to the custom cla
 - **US-13.3** — As a developer, I can still write a custom Java validator for contests with complex cross-QSO logic, pointed to via `validator_class` in the YAML.
 - **US-13.4** — As an operator, I can define reusable value lists (states, sections, zones) once in `shared_values` and reference them across multiple exchange field definitions.
 - **US-13.5** — As a developer, existing contest configs continue to work after migration to YAML with identical validation behaviour.
+- **US-13.6** — As an operator, when I log a QSO against any contest (including new YAML-only ones), the QSO entry form dynamically shows the correct exchange input fields with the right types and options.
+- **US-13.7** — As an operator, the log creation modal shows all active contests from the backend — including any new YAML-only contests — without requiring a frontend code change.
+- **US-13.8** — As an operator, required exchange fields are visually marked and the form prevents submission until they are filled.
 
 ---
 
