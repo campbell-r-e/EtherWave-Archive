@@ -255,7 +255,7 @@ docker run -d \
   -e POSTGRES_USER=hamradio \
   -e POSTGRES_PASSWORD=<strong-password> \
   -p 5432:5432 \
-  postgres:16-alpine
+  postgres:18.3-alpine
 ```
 
 Using docker-compose:

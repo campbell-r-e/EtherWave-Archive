@@ -576,7 +576,7 @@ Check that the hostname and port are correct and that the postmaster is acceptin
    sudo systemctl status postgresql
 
    # Start if not running
-   brew services start postgresql@16
+   brew services start postgresql@18
    # or
    sudo systemctl start postgresql
    ```

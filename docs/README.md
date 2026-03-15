@@ -143,7 +143,7 @@ EtherWave Archive provides amateur radio operators with a modern, feature-rich l
 - **Java 25** or higher (Eclipse Adoptium Temurin 25 recommended)
 - **Node.js 25** or higher
 - Docker and Docker Compose (for rig control and deployment)
-- SQLite (included) or PostgreSQL 16
+- SQLite (included) or PostgreSQL 18
 
 ### Quick Start
 
@@ -259,7 +259,7 @@ All documentation lives in the `docs/` directory.
 - **JWT (JJWT 0.12.6)** - Stateless authentication tokens
 - **Spring Data JPA** - Database ORM
 - **Hibernate 7.1.8** - JPA implementation with Java 25 support
-- **PostgreSQL 16 / SQLite** - Database options
+- **PostgreSQL 18 / SQLite** - Database options
 - **Spring WebSocket** - Real-time communication
 - **Lombok 1.18.42** - Boilerplate reduction (Java 25 compatible)
 - **Jackson 3.0** - JSON processing (tools.jackson)

@@ -32,7 +32,7 @@
 - **Bootstrap:** 5.3
 
 ### Database
-- **PostgreSQL:** 16-alpine (production)
+- **PostgreSQL:** 18.3-alpine (production)
 - **SQLite:** 3.x (field deployment)
 
 ### Deployment
@@ -369,7 +369,7 @@ sudo usermod -aG dialout $USER
 **Current Measured Resource Usage (Idle):**
 - Frontend (Nginx): 14 MB RAM
 - Backend (Spring Boot + Java 25): 500 MB RAM
-- PostgreSQL 16: 77 MB RAM
+- PostgreSQL 18: 77 MB RAM
 - **Total Runtime:** ~591 MB RAM
 
 **Startup Times (Cold Start):**

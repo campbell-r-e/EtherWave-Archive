@@ -995,7 +995,7 @@ As a radio operator, I need a clear separation between personal logs (private, s
 - **Framework:** Spring Boot 4.0.3
 - **Language:** Java 25 LTS
 - **Annotations:** Lombok 1.18.42 (suppressed via `MAVEN_OPTS=--sun-misc-unsafe-memory-access=allow`)
-- **Database:** PostgreSQL 16 (production) / SQLite 3.49.1.0 (field/dev)
+- **Database:** PostgreSQL 18.3 (production) / SQLite 3.49.1.0 (field/dev)
 - **ORM:** Spring Data JPA / Hibernate 7.x
 - **Auth:** Spring Security + JWT (24-hour token expiry, BCrypt passwords)
 - **WebSocket:** STOMP over SockJS

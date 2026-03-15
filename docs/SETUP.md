@@ -34,7 +34,7 @@ Complete setup instructions for the professional ham radio logging system with d
   - Verify: `mvn --version`
   - Ensure Maven is using Java 25 (check `mvn --version` output)
 - **Git** for version control
-- **PostgreSQL 16** (optional, for production database)
+- **PostgreSQL 18** (optional, for production database)
 - **Docker** (optional, for rig control service)
 
 ## Quick Start with Docker
@@ -205,11 +205,11 @@ No setup required! The database file `logbook.db` will be created automatically 
 1. **Install PostgreSQL**
    ```bash
    # macOS
-   brew install postgresql@16
-   brew services start postgresql@16
+   brew install postgresql@18
+   brew services start postgresql@18
 
    # Ubuntu/Debian
-   sudo apt install postgresql-16
+   sudo apt install postgresql-18
    sudo systemctl start postgresql
    ```
 

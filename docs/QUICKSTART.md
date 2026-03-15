@@ -48,7 +48,7 @@ docker compose up -d
 ```
 
 This will:
-- Download all required images (Node.js 25, Java 25, PostgreSQL 16, Nginx)
+- Download all required images (Node.js 25, Java 25, PostgreSQL 18, Nginx)
 - Build the backend and frontend
 - Create the database
 - Start all services
@@ -125,7 +125,7 @@ Download and install these:
 3. **Maven 3.9+** - https://maven.apache.org/
    - Verify: `mvn --version`
 
-4. **PostgreSQL 16** (optional) - https://www.postgresql.org/download/
+4. **PostgreSQL 18** (optional) - https://www.postgresql.org/download/
    - Or use H2/SQLite for testing
 
 ### Setup Steps
@@ -445,7 +445,7 @@ After getting the system running:
 └─────────────────┬───────────────────────────┘
                   │
 ┌─────────────────▼───────────────────────────┐
-│      Database (PostgreSQL 16)               │
+│      Database (PostgreSQL 18)               │
 │     (internal Docker network only)          │
 │  - Users, Logs, QSOs                        │
 │  - Stations, Contests                       │

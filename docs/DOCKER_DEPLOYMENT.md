@@ -6,7 +6,7 @@ Runs two containers via Docker Compose:
 
 - Frontend (Angular + Nginx) on http://localhost (port 80)
 - Backend API (Spring Boot) on http://localhost:8080
-- PostgreSQL 16 database (internal only, not exposed to host)
+- PostgreSQL 18 database (internal only, not exposed to host)
 
 All containers restart automatically unless manually stopped.
 
@@ -124,7 +124,7 @@ docker compose ps
 
 ## Database
 
-**PostgreSQL 16** is used for production.
+**PostgreSQL 18** is used for production.
 
 - Database: `hamradio_logbook`
 - User: `hamradio`
@@ -171,7 +171,7 @@ The backend runs as a non-root user (`appuser`) inside the container. The `docke
 
 | Feature | Local Dev | Docker |
 |---------|-----------|--------|
-| Database | SQLite | PostgreSQL 16 |
+| Database | SQLite | PostgreSQL 18 |
 | Port 80 | Angular dev server | Nginx production build |
 | Port 8080 | Maven | Containerized JAR |
 | Data persistence | Local file | Docker volume |
