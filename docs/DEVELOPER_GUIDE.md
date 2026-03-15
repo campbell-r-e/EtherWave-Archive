@@ -1101,109 +1101,110 @@ public class QSOValidationService {
 
 ### Architecture
 
+The rig control system consists of an independent microservice (`rig-control-service`) that acts as a multi-client broker between Hamlib/rigctld and any number of connected clients. It is **not part of the main Spring Boot application** — it runs as a separate process/container.
+
+#### Local Deployment (Same Network)
+
 ```
-Radio ──USB──┐
-             ↓
-┌──────────────────────────┐
-│  rigctld (Hamlib)        │  ← Docker container per user
-│  - Listens on TCP 4532   │
-│  - Polls radio           │
-│  - Responds to commands  │
-└──────────────────────────┘
-             ↓ TCP Socket
-┌──────────────────────────┐
-│  Rig Control Service     │
-│  - Connects to rigctld   │
-│  - Polls frequency/mode  │
-│  - Publishes via WS      │
-└──────────────────────────┘
-             ↓ WebSocket
-┌──────────────────────────┐
-│  Backend (Spring Boot)   │
-│  - Receives rig updates  │
-│  - Broadcasts to clients │
-└──────────────────────────┘
-             ↓ WebSocket
-┌──────────────────────────┐
-│  Frontend (Angular)      │
-│  - Displays rig status   │
-│  - Auto-fills QSO form   │
-└──────────────────────────┘
+Radio ──USB──► rigctld (port 4532) ──TCP──► Rig Control Service (port 8081)
+                                                        │
+                                              3 WebSocket endpoints:
+                                              /ws/rig/command   (bidirectional)
+                                              /ws/rig/status    (broadcast 100ms)
+                                              /ws/rig/events    (broadcast events)
+                                                        │
+                                            Backend RigControlClient (WS)
+                                                        │
+                                            SimpMessagingTemplate
+                                            /topic/rig/status/{stationId}
+                                            /topic/rig/events/{stationId}
+                                                        │
+                                              Angular Frontend
+                                           (RigControlComponent, RigStatusComponent)
 ```
 
-### Rig Control Service
+#### Remote Deployment (Local Rig + Cloud Logbook)
 
-**Main Polling Loop**:
+When the logbook is hosted on the internet and the radio is on a local network, the rig service connects **outbound** to the cloud logbook gateway. No port forwarding or firewall changes are needed.
+
+```
+Local Network                                     Internet
+──────────────────────────────────────────────────────────────────
+Radio ──USB──► rigctld ──TCP──► Rig Control Service
+                                        │
+                                        │  outbound WSS (NAT-friendly)
+                                        ▼
+                                Cloud Logbook Backend
+                                /ws/station-gateway
+                                        │
+                              Browser ◄── HTTPS/WS ──► Cloud Logbook
+```
+
+The rig service authenticates to the gateway with a `stationId` + `apiKey`. The gateway registers the station as online and proxies commands/responses between browser users and the local rig service.
+
+### Microservice Components
+
+| Component | Responsibility |
+|-----------|---------------|
+| `RigService` | High-level API: getFrequency, setFrequency, getMode, setMode, getPTT, setPTT, getSMeter |
+| `RigCommandDispatcher` | Command serialization, smart caching (50ms/20ms TTL), request coalescing |
+| `RigctlConnectionImpl` | Persistent TCP socket to rigctld, thread-safe, auto-reconnecting |
+| `PTTLockManager` | Exclusive PTT — first-come-first-served, auto-release on disconnect |
+| `RigCommandHandler` | `/ws/rig/command` — bidirectional command/response |
+| `RigStatusHandler` | `/ws/rig/status` — broadcasts `RigStatus` every 100ms |
+| `RigEventsHandler` | `/ws/rig/events` — broadcasts PTT changes, connect/disconnect events |
+| `RigStatusPoller` | Scheduled 100ms poll, skips if no subscribers |
+| `CloudRelayClient` | (planned) Outbound WSS tunnel to cloud logbook gateway |
+
+### Backend Integration
+
+`RigControlClient` (in the main backend) manages per-station WebSocket connections to the microservice and forwards status/events via STOMP to the frontend:
+
 ```java
-@Service
-public class RigControlService {
-    private Socket socket;
-    private PrintWriter out;
-    private BufferedReader in;
-
-    @PostConstruct
-    public void init() {
-        connectToRigctld();
-        startPolling();
-    }
-
-    private void connectToRigctld() {
-        socket = new Socket(rigHost, rigPort);
-        out = new PrintWriter(socket.getOutputStream(), true);
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-    }
-
-    @Scheduled(fixedRate = 500)  // Poll every 500ms
-    public void pollRig() {
-        try {
-            // Get frequency
-            out.println("f");
-            String frequency = in.readLine();
-
-            // Get mode
-            out.println("m");
-            String mode = in.readLine();
-
-            // Broadcast via WebSocket
-            RigStatus status = new RigStatus(frequency, mode);
-            messagingTemplate.convertAndSend("/topic/rig", status);
-
-        } catch (IOException e) {
-            handleDisconnect();
-        }
-    }
-}
+// RigControlClient forwards microservice status to frontend subscribers
+simpMessagingTemplate.convertAndSend(
+    "/topic/rig/status/" + stationId,
+    rigStatus
+);
 ```
 
-### Frontend Rig Service
+`RigControlController` exposes REST endpoints (`/api/rig-control/**`) that the frontend uses to connect, disconnect, and send commands. For remote stations, commands are routed through the station gateway instead of a direct WebSocket.
 
-```typescript
-@Injectable({providedIn: 'root'})
-export class RigService {
-    private rigStatusSubject = new BehaviorSubject<RigStatus | null>(null);
-    public rigStatus$ = this.rigStatusSubject.asObservable();
+### Station Gateway (Planned)
 
-    constructor(private websocketService: WebSocketService) {
-        this.subscribeToRigUpdates();
-    }
+A new `StationGatewayHandler` WebSocket endpoint (`/ws/station-gateway`) in the main backend will:
 
-    private subscribeToRigUpdates(): void {
-        this.websocketService.subscribe('/topic/rig').subscribe(
-            (status: RigStatus) => {
-                this.rigStatusSubject.next(status);
-            }
-        );
-    }
+1. Accept inbound connections from remote rig control services
+2. Validate `stationId` + `apiKey` on connect
+3. Maintain a registry: `stationId → WebSocket session`
+4. Route commands from `RigControlController` through the correct gateway session
+5. Route status/events from the gateway session to STOMP topics
 
-    getCurrentFrequency(): number | null {
-        return this.rigStatusSubject.value?.frequency || null;
-    }
+Station entity gets two new fields: `remoteStation` (boolean) and `apiKey` (stored hashed).
 
-    getCurrentMode(): string | null {
-        return this.rigStatusSubject.value?.mode || null;
-    }
-}
-```
+### Frontend Components
+
+| Component | Description |
+|-----------|-------------|
+| `RigControlComponent` | Full control panel: connect, frequency, mode, PTT, events log |
+| `RigStatusComponent` | Read-only display: frequency, mode, S-meter, SWR, PTT state |
+| `RigControlService` | HTTP wrapper for `/api/rig-control/**`, RxJS subjects for real-time updates |
+
+### Performance Characteristics
+
+| Operation | Latency |
+|-----------|---------|
+| Cached read (frequency/mode/PTT) | <10ms |
+| Uncached read | <50ms |
+| Write command | <50ms |
+| Status broadcast interval | 100ms |
+| PTT lock acquire | <5ms |
+
+### Deployment
+
+The rig control service has its own `docker-compose.yml` in `rig-control-service/` and is deployed independently of the main stack. See `rig-control-service/README.md` for setup instructions.
+
+For full API documentation see `docs/RIG_CONTROL_API_REFERENCE.md` and `docs/RIG_CONTROL_DEVELOPER_GUIDE.md`.
 
 ---
 

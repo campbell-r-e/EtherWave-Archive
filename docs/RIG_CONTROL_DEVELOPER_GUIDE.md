@@ -3,12 +3,14 @@
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Architecture Overview](#architecture-overview)
-3. [WebSocket API Reference](#websocket-api-reference)
-4. [Integration Examples](#integration-examples)
-5. [Multi-Client Considerations](#multi-client-considerations)
-6. [Error Handling](#error-handling)
-7. [Best Practices](#best-practices)
-8. [Code Examples](#code-examples)
+3. [Deployment Models](#deployment-models)
+4. [Cloud Relay Architecture](#cloud-relay-architecture)
+5. [WebSocket API Reference](#websocket-api-reference)
+6. [Integration Examples](#integration-examples)
+7. [Multi-Client Considerations](#multi-client-considerations)
+8. [Error Handling](#error-handling)
+9. [Best Practices](#best-practices)
+10. [Code Examples](#code-examples)
 
 ## Introduction
 
@@ -16,13 +18,14 @@ The **Rig Control Service** is a multi-client WebSocket broker that allows multi
 
 ### Key Features
 
--  **Multi-Client Support** - Multiple apps control the same rig safely
--  **Real-Time Updates** - Status broadcasts every 100ms
--  **PTT Locking** - First-come-first-served exclusive transmission control
--  **Command Serialization** - No race conditions or conflicts
--  **Event Broadcasting** - All clients notified of changes
--  **Request Coalescing** - Optimized duplicate request handling
--  **Smart Caching** - Reduced rigctld load, improved performance
+- **Multi-Client Support** - Multiple apps control the same rig safely
+- **Real-Time Updates** - Status broadcasts every 100ms
+- **PTT Locking** - First-come-first-served exclusive transmission control
+- **Command Serialization** - No race conditions or conflicts
+- **Event Broadcasting** - All clients notified of changes
+- **Request Coalescing** - Optimized duplicate request handling
+- **Smart Caching** - Reduced rigctld load, improved performance
+- **Cloud Relay** (planned) - Local rig works with cloud-hosted logbook via outbound WSS tunnel
 
 ### Use Cases
 
@@ -76,6 +79,143 @@ The service uses **three separate WebSocket endpoints** for different purposes:
 - **Separation of Concerns** - Commands don't interfere with status/events
 - **Performance** - Status/events broadcast independently
 - **Reliability** - Failure in one channel doesn't affect others
+
+## Deployment Models
+
+### Model A: Local Network
+
+The rig control service and the logbook backend run on the same network. The backend's `RigControlClient` connects directly to the rig service on port 8081.
+
+```
+Browser → Logbook Backend (local) → RigControlClient (WS) → Rig Control Service (port 8081)
+                                                                      ↓
+                                                               rigctld → Radio
+```
+
+Station configuration: `rigControlHost=<local-ip>`, `rigControlPort=8081`, `remoteStation=false`.
+
+### Model B: Remote (Cloud Logbook + Local Rig)
+
+The logbook is hosted on the internet. The rig control service is on a local network and cannot be reached inbound. The rig service establishes an **outbound** WSS connection to the logbook's station gateway.
+
+```
+Local Network                                      Internet
+──────────────────────────────────────────────────────────────────────
+Radio → rigctld → Rig Control Service
+                          │
+                          │  outbound wss:// (NAT-friendly)
+                          ▼
+                  Cloud Logbook /ws/station-gateway
+                          │
+                  Browser ← HTTPS → Cloud Logbook
+```
+
+Station configuration: `remoteStation=true`, `stationId=<id>`, `apiKey=<hashed-key>`.
+
+---
+
+## Cloud Relay Architecture
+
+### Overview
+
+The cloud relay allows a rig control service on a local network to work with a logbook hosted on the internet. No port forwarding or VPN is required because the connection is initiated outbound by the rig service.
+
+### Components to Implement
+
+#### `CloudRelayClient` (in `rig-control-service`)
+
+A Spring `@Component` that:
+
+1. On startup (when `LOGBOOK_GATEWAY_URL` is set), opens a WSS connection to the gateway
+2. Sends a registration message: `{ type: "register", stationId, apiKey }`
+3. Maintains a heartbeat (ping every 30s, reconnect if pong not received within 10s)
+4. On receiving a `command` message from the gateway, dispatches it to `RigCommandDispatcher` and sends the response back as `commandResponse`
+5. Forwards `RigStatus` updates from `RigStatusPoller` as `status` messages every 100ms
+6. Forwards events from `RigEventsHandler` as `event` messages
+
+Configuration via `application.properties`:
+
+```properties
+# Leave blank to disable relay (local-only mode)
+cloud.relay.gateway-url=
+cloud.relay.station-id=
+cloud.relay.api-key=
+cloud.relay.ping-interval-seconds=30
+cloud.relay.pong-timeout-seconds=10
+```
+
+#### `StationGatewayHandler` (in main `backend`)
+
+A Spring `WebSocketHandler` registered at `/ws/station-gateway` that:
+
+1. Accepts inbound WSS connections from rig services
+2. Validates `stationId` + `apiKey` on the registration message (API key stored hashed in the `Station` entity)
+3. Registers the session in an in-memory `StationGatewayRegistry`: `stationId → WebSocketSession`
+4. When `RigControlController` receives a command for a remote station, it looks up the session in the registry and forwards the command as a `command` message with a generated `requesterId`
+5. When a `commandResponse` arrives, matches it to the waiting `RigControlController` request by `requesterId` and returns the response
+6. When `status` or `event` messages arrive, broadcasts them via `SimpMessagingTemplate` to `/topic/rig/status/{stationId}` and `/topic/rig/events/{stationId}` (same topics as local stations — frontend sees no difference)
+7. On disconnect, marks the station offline in the registry and broadcasts a disconnect event
+
+#### `StationGatewayRegistry` (in main `backend`)
+
+Thread-safe in-memory registry:
+
+```java
+ConcurrentHashMap<String, WebSocketSession> activeSessions;
+
+void register(String stationId, WebSocketSession session);
+void unregister(String stationId);
+boolean isOnline(String stationId);
+WebSocketSession getSession(String stationId); // null if offline
+```
+
+#### Station Entity Changes (in main `backend`)
+
+New fields on `Station`:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `remoteStation` | boolean | True if rig is on a remote local network |
+| `apiKeyHash` | String | BCrypt hash of the station API key |
+
+Administrator generates an API key, stores the hash, gives the plaintext key to the station operator for their `.env` file. The plaintext key is never stored.
+
+### Security
+
+- TLS required (`wss://`) — plaintext `ws://` rejected by the gateway in production
+- API key hashed with BCrypt before storage — never stored in plaintext
+- Gateway only accepts connections from stations registered in the database
+- Browser users still authenticate via JWT — they interact with the logbook REST API, not with the rig service directly
+- Commands are only relayed to stations the user has access to (enforced in `RigControlController` via existing `@PreAuthorize`)
+
+### Data Flow: Set Frequency (Remote Station)
+
+```
+Browser
+  POST /api/rig-control/frequency/{stationId}  { hz: 14250000 }
+    │
+RigControlController
+  → checks station.remoteStation == true
+  → StationGatewayRegistry.getSession(stationId)
+  → sends: { type: "command", requesterId: "uuid-123", payload: { id: "req-1", command: "setFrequency", params: { hz: 14250000 } } }
+    │  (waits up to 5s)
+    │
+StationGatewayHandler (cloud)
+  → forwards message over WSS tunnel
+    │
+CloudRelayClient (local rig service)
+  → receives command message
+  → calls RigCommandDispatcher.executeWriteCommand("F 14250000")
+  → sends: { type: "commandResponse", requesterId: "uuid-123", payload: { id: "req-1", success: true, result: {...} } }
+    │
+StationGatewayHandler (cloud)
+  → matches requesterId, resolves waiting RigControlController future
+    │
+RigControlController
+  → returns 200 OK to browser
+```
+
+---
 
 ## WebSocket API Reference
 

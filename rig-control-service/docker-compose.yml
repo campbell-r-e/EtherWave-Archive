@@ -1,0 +1,35 @@
+services:
+  rig-control:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${RIG_SERVICE_PORT:-8081}:8081"
+    environment:
+      # Hamlib rigctld connection
+      RIGCTLD_HOST: ${RIGCTLD_HOST:-localhost}
+      RIGCTLD_PORT: ${RIGCTLD_PORT:-4532}
+      RIGCTLD_TIMEOUT: ${RIGCTLD_TIMEOUT:-1000}
+
+      # PTT safety timeout (seconds, 0 = disabled)
+      PTT_SAFETY_TIMEOUT_SECONDS: ${PTT_SAFETY_TIMEOUT_SECONDS:-120}
+
+      # API key authentication (comma-separated, empty = allow all)
+      RIG_API_KEYS: ${RIG_API_KEYS:-}
+
+      # Cloud relay gateway (leave empty for local-only mode)
+      CLOUD_RELAY_GATEWAY_URL: ${CLOUD_RELAY_GATEWAY_URL:-}
+      CLOUD_RELAY_STATION_ID: ${CLOUD_RELAY_STATION_ID:-}
+      CLOUD_RELAY_API_KEY: ${CLOUD_RELAY_API_KEY:-}
+
+      # Logging
+      LOGGING_LEVEL_COM_HAMRADIO_RIGCONTROL: ${LOG_LEVEL:-INFO}
+
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8081/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    network_mode: host

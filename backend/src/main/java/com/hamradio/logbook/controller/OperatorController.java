@@ -15,7 +15,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/operators")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
 public class OperatorController {
 
     private final OperatorRepository operatorRepository;

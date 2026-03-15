@@ -15,7 +15,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*") // TODO: Configure properly in production
 public class UserPreferencesController {
 
     private final UserService userService;

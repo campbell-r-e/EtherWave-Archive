@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/awards")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "*") // TODO: Configure properly in production
 public class AwardController {
 
     private final AwardTrackingService awardTrackingService;

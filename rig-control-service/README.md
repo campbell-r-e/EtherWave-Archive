@@ -309,34 +309,91 @@ Time 60ms:  Client C requests frequency
 
 ## Running the Service
 
-### Build
+### Standalone Docker (Recommended)
+
+The rig control service ships with its own `docker-compose.yml` and is **completely independent** of the main logbook stack. It is designed to run on the local machine where the radio is connected.
+
+**1. Copy and edit the environment file:**
+
+```bash
+cd rig-control-service
+cp .env.example .env
+```
+
+Edit `.env`:
+
+```bash
+# rigctld connection (radio on this machine)
+RIGCTLD_HOST=localhost
+RIGCTLD_PORT=4532
+
+# Service port
+SERVER_PORT=8081
+
+# --- Cloud Relay (optional - for remote logbook deployments) ---
+# Leave blank for local-only use
+LOGBOOK_GATEWAY_URL=
+STATION_ID=
+STATION_API_KEY=
+```
+
+**2. Start rigctld** (Hamlib must be installed on the host):
+
+```bash
+# Find your rig model number
+rigctl --list
+
+# Start rigctld (example: Yaesu FT-991A, model 1035)
+rigctld -m 1035 -r /dev/ttyUSB0 -s 38400
+```
+
+**3. Start the rig control service:**
+
+```bash
+docker compose up -d
+```
+
+**4. Verify:**
+
+```bash
+curl http://localhost:8081/actuator/health
+```
+
+The service exposes port 8081 locally. The main logbook backend connects to it via `RIGCTLD_HOST` / `RIGCTLD_PORT` configuration on the station record.
+
+---
+
+### Cloud Relay Mode (Local Rig + Cloud Logbook)
+
+If your logbook is hosted on the internet and your radio is on a local network, use cloud relay mode. The rig service **connects outbound** to the cloud logbook — no port forwarding or firewall changes required.
+
+See [Cloud Relay Architecture](#cloud-relay-architecture) below.
+
+---
+
+### Build from Source
+
 ```bash
 cd rig-control-service
 mvn clean package
 ```
 
-### Run
+### Run Without Docker
+
 ```bash
 java -jar target/rig-control-service-1.0.0-SNAPSHOT.jar
 ```
 
 ### With Custom rigctld Host
+
 ```bash
 java -jar target/rig-control-service-1.0.0-SNAPSHOT.jar \
   --rigctld.host=192.168.1.100 \
   --rigctld.port=4532
 ```
 
-### Docker
-```bash
-docker build -t rig-control-service .
-docker run -p 8081:8081 \
-  -e RIGCTLD_HOST=host.docker.internal \
-  -e RIGCTLD_PORT=4532 \
-  rig-control-service
-```
-
 ### Health Check
+
 ```bash
 curl http://localhost:8081/actuator/health
 ```
@@ -575,14 +632,77 @@ Check full list: `rigctl --list`
 
 ---
 
+## Cloud Relay Architecture
+
+### Problem
+
+When the logbook is hosted on the internet (cloud) and the radio is on a local network, the cloud server cannot initiate a connection inward through the home NAT/firewall.
+
+### Solution: Outbound Reverse Tunnel
+
+The rig control service connects **outward** to the cloud logbook gateway. Outbound connections always work through NAT without any port forwarding.
+
+```
+Local Network                          Internet
+─────────────────────────────────────────────────────────
+Radio ──USB──► rigctld ──TCP──► Rig Control Service
+                                       │
+                                       │ outbound WSS (connects out)
+                                       ▼
+                               Cloud Logbook Backend
+                               (Station Gateway /ws/station-gateway)
+                                       │
+                               Browser ◄── HTTPS/WS ──► Cloud Logbook
+```
+
+### How It Works
+
+1. On startup (when `LOGBOOK_GATEWAY_URL` is set), the rig service connects to the cloud logbook's station gateway endpoint via WSS
+2. It authenticates with `STATION_ID` + `STATION_API_KEY`
+3. The gateway registers the station as online and available
+4. When a browser user sends a rig command, the logbook routes it through the persistent gateway connection to the local rig service
+5. Status updates and events flow back through the same tunnel to all connected browser clients
+
+### Setup
+
+**Local `.env` (on the machine with the radio):**
+
+```bash
+LOGBOOK_GATEWAY_URL=wss://your-logbook.example.com/ws/station-gateway
+STATION_ID=home-station
+STATION_API_KEY=your-secret-api-key
+RIGCTLD_HOST=localhost
+RIGCTLD_PORT=4532
+```
+
+**Cloud logbook station configuration:**
+
+Add the station in the logbook UI (Settings → Stations):
+- Remote Station: enabled
+- Station ID: `home-station`
+- API Key: `your-secret-api-key`
+
+No firewall rules, no port forwarding, no VPN required.
+
+### Security
+
+- The API key authenticates the rig service to the gateway — only registered stations can connect
+- All traffic is encrypted via TLS (`wss://`)
+- Browser users still authenticate via JWT to the logbook; they cannot connect to the rig service directly
+- The gateway enforces that only users with access to a log containing that station can send commands
+
+---
+
 ## Future Enhancements
 
-Potential improvements (not yet implemented):
+Planned (not yet implemented):
 
-- **Authentication**: JWT tokens or API keys for client connections
-- **Priority Levels**: Allow certain clients (e.g., emergency) to override PTT
-- **PTT Safety Timeout**: Auto-release PTT after X seconds (prevent stuck TX)
-- **Command History**: Audit trail of who changed what and when
+- **Cloud Relay / Station Gateway**: Outbound tunnel so local rigs work with cloud-hosted logbooks (architecture designed — implementation pending)
+- **Standalone `docker-compose.yml`**: Independent deployment in `rig-control-service/` (planned)
+- **PTT Safety Timeout**: Auto-release PTT after X seconds to prevent stuck transmit if operator walks away
+- **WebSocket Authentication**: API key or JWT validation on the microservice WS endpoints (currently open)
+- **Priority Levels**: Allow certain clients (e.g., admin/emergency) to override PTT
+- **Command History / Audit Trail**: Who changed what and when
 - **Prometheus Metrics**: Monitoring endpoint for ops visibility
 - **QSK Support**: Ultra-fast PTT sequencing for CW
 

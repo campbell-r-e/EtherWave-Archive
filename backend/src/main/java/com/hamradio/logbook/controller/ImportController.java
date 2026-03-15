@@ -17,7 +17,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/import")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
 @Slf4j
 public class ImportController {
 

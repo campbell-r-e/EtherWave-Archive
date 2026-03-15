@@ -19,7 +19,6 @@ import java.util.List;
 @RequestMapping("/api/logs/{logId}/stats")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class StationStatisticsController {
 
     private final StationStatisticsService stationStatisticsService;

@@ -20,7 +20,7 @@
 | 8 | Authentication & Security | Complete | JWT, BCrypt, username-only, route guards |
 | 9 | Multi-User Collaboration | Complete | RBAC, invitations, station assignment |
 | 10 | Contest Validation & Scoring | Complete | 7 validators, 230 total tests |
-| 11 | Rig Control | Complete | Hamlib/rigctld, WebSocket, per-user containers |
+| 11 | Rig Control | Complete | Standalone microservice, multi-client broker, PTT locking, smart caching |
 | 12 | Log Type Separation | Complete | Personal/Shared, backend guard, two-section UI |
 
 ---
@@ -131,10 +131,13 @@ Test database: H2 in-memory (`jdbc:h2:mem:testdb`). Switched from SQLite due to 
 
 ### 11. Rig Control
 
-- Hamlib/rigctld TCP socket integration
-- Real-time frequency and mode updates via WebSocket
-- Per-user Docker containers
-- Frontend rig-status panel
+- Standalone rig control microservice (`rig-control-service/`) — separate Spring Boot app with its own Dockerfile
+- Multi-client shared broker: one `rigctld` TCP connection serves multiple simultaneous WebSocket clients
+- Three WebSocket endpoints: `/ws/rig/command` (bidirectional), `/ws/rig/status` (broadcast), `/ws/rig/events` (broadcast)
+- PTT locking: first-come-first-served exclusive PTT access with automatic release on client disconnect
+- Smart caching: read commands cached at 50ms TTL to reduce rigctld load under multiple clients; request coalescing for in-flight deduplication
+- Standalone `docker-compose.yml` and `.env.example` for deployment independent of the main stack
+- Frontend rig-status panel with real-time frequency/mode display and QSO form auto-population
 
 ### 12. Log Type Separation (Personal / Shared)
 
@@ -165,8 +168,14 @@ Test database: H2 in-memory (`jdbc:h2:mem:testdb`). Switched from SQLite due to 
 |---------|----------|-------|
 | Frontend unit tests | High | Not yet implemented |
 | E2E tests for critical user flows | High | Not yet implemented |
+| Rig control: Cloud Relay / Station Gateway | High | Architecture designed; `CloudRelayClient.java` + `StationGatewayHandler.java` + `StationGatewayRegistry.java` needed; `Station` entity needs `remoteStation` + `apiKeyHash` fields |
+| Rig control: PTT safety timeout | Medium | Countdown on PTT acquire, configurable seconds, `ptt_timeout` event broadcast |
+| Rig control: WebSocket API key authentication | Medium | `RigApiKeyHandshakeInterceptor` on all 3 WS endpoints; `rig.api.keys` config |
+| Rig control: Command history / audit trail | Medium | Circular buffer of who changed what and when; REST endpoint |
+| Rig control: Prometheus metrics | Low | Micrometer registry; command count, PTT hold duration |
 | QSL card photo attachments | Medium | File upload per QSO |
 | Filter preset backend persistence | Low | Currently localStorage-only |
+| Production CORS cleanup | Low | Move from per-controller `@CrossOrigin` to global `SecurityConfig` with `FRONTEND_ORIGIN` env var |
 | Offline mode with local-first sync | Low | |
 | Mobile native apps (iOS/Android) | Low | |
 | Voice logging via speech recognition | Low | |
@@ -203,5 +212,5 @@ Test database: H2 in-memory (`jdbc:h2:mem:testdb`). Switched from SQLite due to 
 - `spring.sql.init.mode=never` in test profile prevents the SQLite-syntax `schema.sql` from running against H2.
 - `spring.jpa.open-in-view=false` in test profile.
 - PITest (mutation testing) does not support Java 25 — skip or ignore PITest failures.
-- `@CrossOrigin(origins = "*")` on `MapController` — production deployment should restrict this to the frontend origin.
+- Multiple controllers (`MapController`, `AwardController`, `DXClusterController`, `PropagationController`, `LotwSyncController`, `UserPreferencesController`, `TelemetryController`, `DXCCController`, and others) carry `@CrossOrigin(origins = "*")` annotations. These are superseded by the global CORS config in `SecurityConfig`, but the per-controller annotations should be removed for clarity. Backlog: migrate to `FRONTEND_ORIGIN` env var in `SecurityConfig`.
 - `console.log` debug statements present in `websocket.service.ts`, `qso-map` component, and auth components — benign, not user-facing.

@@ -6,6 +6,7 @@ import com.hamradio.logbook.dto.RigConnectionRequest;
 import com.hamradio.logbook.entity.Station;
 import com.hamradio.logbook.repository.StationRepository;
 import com.hamradio.logbook.service.RigControlClient;
+import com.hamradio.logbook.websocket.StationGatewayRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -28,9 +29,12 @@ public class RigControlController {
 
     private final RigControlClient rigControlClient;
     private final StationRepository stationRepository;
+    private final StationGatewayRegistry gatewayRegistry;
 
     /**
-     * Connect a station to the rig control service
+     * Connect a station to the rig control service.
+     * For remote stations (remoteStation=true), this reports whether the station
+     * has already self-connected via the gateway rather than initiating a connection.
      * POST /api/rig-control/connect
      */
     @PostMapping("/connect")
@@ -40,7 +44,20 @@ public class RigControlController {
             Station station = stationRepository.findById(request.getStationId())
                     .orElseThrow(() -> new IllegalArgumentException("Station not found"));
 
-            // Use station's configured rig control settings if not provided
+            if (Boolean.TRUE.equals(station.getRemoteStation())) {
+                // Remote station: check gateway registry instead of initiating a connection
+                boolean connected = gatewayRegistry.isConnected(station.getId());
+                return ResponseEntity.ok(Map.of(
+                        "success", connected,
+                        "message", connected ? "Remote station connected via gateway"
+                                             : "Remote station not yet connected to gateway",
+                        "stationId", station.getId(),
+                        "stationName", station.getStationName(),
+                        "remote", true
+                ));
+            }
+
+            // Local station: connect directly to the rig service
             String host = request.getHost() != null ? request.getHost() : station.getRigControlHost();
             Integer port = request.getPort() != null ? request.getPort() : station.getRigControlPort();
 
@@ -98,7 +115,8 @@ public class RigControlController {
     }
 
     /**
-     * Send a command to the rig
+     * Send a command to the rig.
+     * Routes through the station gateway for remote stations; direct for local ones.
      * POST /api/rig-control/command/{stationId}
      */
     @PostMapping("/command/{stationId}")
@@ -107,20 +125,42 @@ public class RigControlController {
             @PathVariable Long stationId,
             @RequestBody RigCommandRequest request) {
         try {
-            if (!rigControlClient.isConnected(stationId)) {
-                return ResponseEntity.badRequest().body(
-                        RigCommandResponse.builder()
-                                .success(false)
-                                .message("Station not connected to rig control service")
-                                .build()
+            Station station = stationRepository.findById(stationId)
+                    .orElseThrow(() -> new IllegalArgumentException("Station not found"));
+
+            CompletableFuture<Map<String, Object>> responseFuture;
+
+            if (Boolean.TRUE.equals(station.getRemoteStation())) {
+                // Remote station: route through gateway registry
+                if (!gatewayRegistry.isConnected(stationId)) {
+                    return ResponseEntity.badRequest().body(
+                            RigCommandResponse.builder()
+                                    .success(false)
+                                    .message("Remote station not connected to gateway")
+                                    .build()
+                    );
+                }
+                responseFuture = gatewayRegistry.sendCommand(
+                        stationId,
+                        request.getCommand(),
+                        request.getParams() != null ? request.getParams() : new HashMap<>()
+                );
+            } else {
+                // Local station: direct connection
+                if (!rigControlClient.isConnected(stationId)) {
+                    return ResponseEntity.badRequest().body(
+                            RigCommandResponse.builder()
+                                    .success(false)
+                                    .message("Station not connected to rig control service")
+                                    .build()
+                    );
+                }
+                responseFuture = rigControlClient.sendCommand(
+                        stationId,
+                        request.getCommand(),
+                        request.getParams() != null ? request.getParams() : new HashMap<>()
                 );
             }
-
-            CompletableFuture<Map<String, Object>> responseFuture = rigControlClient.sendCommand(
-                    stationId,
-                    request.getCommand(),
-                    request.getParams() != null ? request.getParams() : new HashMap<>()
-            );
 
             Map<String, Object> response = responseFuture.get();
 
@@ -209,7 +249,10 @@ public class RigControlController {
     @GetMapping("/connected/{stationId}")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_OPERATOR', 'ROLE_ADMIN')")
     public ResponseEntity<Map<String, Object>> isConnected(@PathVariable Long stationId) {
-        boolean connected = rigControlClient.isConnected(stationId);
-        return ResponseEntity.ok(Map.of("connected", connected, "stationId", stationId));
+        Station station = stationRepository.findById(stationId).orElse(null);
+        boolean remote = station != null && Boolean.TRUE.equals(station.getRemoteStation());
+        boolean connected = remote ? gatewayRegistry.isConnected(stationId)
+                                   : rigControlClient.isConnected(stationId);
+        return ResponseEntity.ok(Map.of("connected", connected, "stationId", stationId, "remote", remote));
     }
 }

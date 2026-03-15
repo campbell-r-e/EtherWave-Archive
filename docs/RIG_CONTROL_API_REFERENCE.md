@@ -2,11 +2,21 @@
 
 ## WebSocket Endpoints
 
+### Rig Control Service (runs locally, port 8081)
+
 ```
 ws://<host>:8081/ws/rig/command?clientName=<name>  (Bidirectional)
-ws://<host>:8081/ws/rig/status                     (Receive-only)
-ws://<host>:8081/ws/rig/events                     (Receive-only)
+ws://<host>:8081/ws/rig/status                     (Receive-only, 100ms broadcast)
+ws://<host>:8081/ws/rig/events                     (Receive-only, event broadcast)
 ```
+
+### Station Gateway (runs on cloud logbook backend, planned)
+
+```
+wss://<logbook-host>/ws/station-gateway            (Rig service → logbook, authenticated)
+```
+
+The station gateway is used when the rig control service is on a local network and the logbook is hosted remotely. The rig service connects outbound to this endpoint and registers itself. The logbook then proxies commands and status through this persistent connection.
 
 ## Quick Start
 
@@ -603,15 +613,110 @@ python3 rig-control-service/scripts/mock-rigctld.py
 
 Then connect normally. All commands will succeed with simulated responses.
 
-## Documentation
+## Station Gateway Protocol (Planned)
 
-- **User Guide:** `/docs/RIG_CONTROL_USER_GUIDE.md`
-- **Developer Guide:** `/docs/RIG_CONTROL_DEVELOPER_GUIDE.md`
-- **Quick Start:** `/RIG_CONTROL_QUICKSTART.md`
-- **Integration:** `/RIG_CONTROL_INTEGRATION.md`
+When cloud relay mode is enabled, the rig service connects to the logbook gateway using this protocol.
+
+### Registration (Rig Service → Gateway, on connect)
+
+```json
+{
+  "type": "register",
+  "stationId": "my-home-station",
+  "apiKey": "secret-key"
+}
+```
+
+### Registration Response (Gateway → Rig Service)
+
+```json
+{
+  "type": "registered",
+  "stationId": "my-home-station",
+  "message": "Station registered successfully"
+}
+```
+
+### Command Relay (Gateway → Rig Service)
+
+The logbook backend forwards user commands through the tunnel in the same format as `/ws/rig/command`:
+
+```json
+{
+  "type": "command",
+  "requesterId": "user-session-id",
+  "payload": {
+    "id": "req-001",
+    "command": "setFrequency",
+    "params": { "hz": 14250000 }
+  }
+}
+```
+
+### Command Response (Rig Service → Gateway)
+
+```json
+{
+  "type": "commandResponse",
+  "requesterId": "user-session-id",
+  "payload": {
+    "id": "req-001",
+    "success": true,
+    "result": { "frequency": 14250000 },
+    "message": "Frequency set to 14250000 Hz"
+  }
+}
+```
+
+### Status Update (Rig Service → Gateway, every 100ms)
+
+```json
+{
+  "type": "status",
+  "payload": {
+    "frequencyHz": 14250000,
+    "mode": "USB",
+    "pttActive": false,
+    "sMeter": -73,
+    "connected": true,
+    "timestamp": "2026-03-15T10:30:45"
+  }
+}
+```
+
+### Event Relay (Rig Service → Gateway)
+
+```json
+{
+  "type": "event",
+  "payload": {
+    "timestamp": "2026-03-15T10:30:45",
+    "eventType": "ptt_activated",
+    "clientId": "Logbook",
+    "message": "Client 'Logbook' activated PTT"
+  }
+}
+```
+
+### Heartbeat
+
+```json
+{ "type": "ping" }
+{ "type": "pong" }
+```
+
+The rig service sends a ping every 30 seconds. The gateway responds with pong. If no pong is received within 10 seconds, the rig service reconnects.
 
 ---
 
-**Last Updated:** 2025-12-12
-**API Version:** 1.0
+## Documentation
+
+- **User Guide:** `docs/RIG_CONTROL_USER_GUIDE.md`
+- **Developer Guide:** `docs/RIG_CONTROL_DEVELOPER_GUIDE.md`
+- **Service README:** `rig-control-service/README.md`
+
+---
+
+**Last Updated:** 2026-03-15
+**API Version:** 1.1
 **Service Version:** 1.0.0-SNAPSHOT

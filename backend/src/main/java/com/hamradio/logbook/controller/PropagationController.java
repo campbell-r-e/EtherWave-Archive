@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/propagation")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "*") // TODO: Configure properly in production
 public class PropagationController {
 
     private final PropagationService propagationService;

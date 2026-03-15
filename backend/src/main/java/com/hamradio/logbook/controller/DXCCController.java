@@ -19,7 +19,6 @@ import java.util.List;
 @RequestMapping("/api/dxcc")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "*")
 public class DXCCController {
 
     private final DXCCLoaderService dxccLoaderService;

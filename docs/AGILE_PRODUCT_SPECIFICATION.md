@@ -856,15 +856,57 @@ As an active operator, I need the logging system to communicate with my radio ha
 
 ---
 
-#### US-11.5: Per-User Rig Control Docker Containers
-**As a** system administrator running multi-operator events
-**I want** rig control isolated per user
-**So that** each operator's rig configuration does not interfere with others
+#### US-11.5: Standalone Rig Service Deployment
+**As a** system administrator
+**I want** to deploy the rig control service independently of the main logbook stack
+**So that** the rig service can run on a station PC while the logbook runs elsewhere
 
 **Acceptance Criteria:**
-- [x] Rig control containers provisioned per user in Docker Compose
-- [x] Each container runs `rigctld` for one station
-- [x] Configuration via environment variables
+- [x] `rig-control-service/docker-compose.yml` runs the rig service standalone
+- [x] `rig-control-service/.env.example` documents all configuration options
+- [x] Service connects to `rigctld` on configurable host/port
+
+---
+
+#### US-11.6: Cloud Relay for Remote Station Control
+**As a** radio operator using a cloud-hosted logbook
+**I want** my home rig (local) to connect to the cloud logbook (remote) via a secure relay
+**So that** frequency and mode are auto-populated even when the rig is not on the same network
+
+**Acceptance Criteria:**
+- [ ] Rig service opens an outbound WSS connection to the backend gateway (`/ws/station-gateway`)
+- [ ] Rig service authenticates with `stationId` and API key
+- [ ] Backend `StationGatewayHandler` validates key against BCrypt hash stored on `Station` entity
+- [ ] Commands from backend users are forwarded through the gateway to the rig service
+- [ ] Status updates from the rig service are forwarded back via STOMP to frontend clients
+- [ ] `Station` entity has `remoteStation` (boolean) and `apiKeyHash` (String) fields
+- [ ] `RigControlController` routes commands through `StationGatewayRegistry` for remote stations
+
+---
+
+#### US-11.7: PTT Safety Timeout
+**As a** radio operator
+**I want** PTT to automatically release if a client disconnects or becomes unresponsive
+**So that** the transmitter cannot be stuck keyed indefinitely
+
+**Acceptance Criteria:**
+- [ ] `ptt.safety.timeout.seconds` config property (default: 120)
+- [ ] `PTTLockManager` starts a countdown on PTT acquire
+- [ ] Any command from the PTT-holding client resets the countdown
+- [ ] On timeout: PTT force-released, `ptt_timeout` event broadcast to all clients
+
+---
+
+#### US-11.8: WebSocket API Key Authentication
+**As a** system administrator
+**I want** the rig service WebSocket endpoints to require an API key
+**So that** only authorized clients (logbook backend, approved dashboards) can connect
+
+**Acceptance Criteria:**
+- [ ] `rig.api.keys` config property (comma-separated list)
+- [ ] `RigApiKeyHandshakeInterceptor` validates `X-Api-Key` header or `?apiKey=` query param
+- [ ] Unauthenticated connections receive HTTP 401 before WebSocket upgrade completes
+- [ ] If `rig.api.keys` is empty, all connections are accepted (backward compatible)
 
 ---
 
@@ -1143,7 +1185,7 @@ PUT    /api/invitations/{id}/cancel
 
 #### New in v1.2.0
 - **Log Type Separation (Epic 12):** PERSONAL and SHARED log types enforced at backend. Personal logs always private; invitations rejected. Log selector split into labeled sections with separate create buttons.
-- **Rig Control Integration (Epic 11):** Hamlib/rigctld TCP socket integration with real-time frequency/mode polling, WebSocket broadcast, frontend `rig-status` component, and QSO form auto-population. Per-user rig control Docker containers.
+- **Rig Control Integration (Epic 11):** Standalone rig control microservice with Hamlib/rigctld integration, multi-client shared broker, three WebSocket endpoints, PTT locking, smart caching, and frontend rig-status component with QSO form auto-population. Cloud relay architecture (US-11.6) enables remote station connections via a backend gateway. PTT safety timeout (US-11.7) and WebSocket API key authentication (US-11.8) are planned for Sprint 2.
 - **Contest Validators — CQWW, ARRL Sweepstakes, State QSO Party (Epic 10 expansion):** Three additional validators added (CQWWValidator 30 tests, ARRLSweepstakesValidator 42 tests, StateQSOPartyValidator 27 tests). Total validator count: 7.
 - **Bonus Point Tracking:** `Log.bonusMetadata` JSON field and `ScoringService.calculateBonusPoints()` read bonus definitions from contest config JSON files.
 - **Frontend RBAC Fix:** `permissions.service.ts` now uses `log.userRole` from backend (CREATOR/STATION/VIEWER) rather than only `creatorId` comparison — invited STATION participants now have correct write permissions.

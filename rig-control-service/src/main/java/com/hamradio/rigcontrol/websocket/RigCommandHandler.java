@@ -1,6 +1,7 @@
 package com.hamradio.rigcontrol.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hamradio.rigcontrol.audit.CommandAuditLog;
 import com.hamradio.rigcontrol.dispatcher.RigCommandDispatcher;
 import com.hamradio.rigcontrol.ptt.PTTLockManager;
 import com.hamradio.rigcontrol.service.RigService;
@@ -46,6 +47,7 @@ public class RigCommandHandler extends TextWebSocketHandler {
     private final RigService rigService;
     private final PTTLockManager pttLockManager;
     private final RigEventsHandler eventsHandler;
+    private final CommandAuditLog auditLog;
     private final ObjectMapper objectMapper;
 
     private final Map<String, String> sessionToClientId = new ConcurrentHashMap<>();
@@ -99,24 +101,27 @@ public class RigCommandHandler extends TextWebSocketHandler {
             switch (command) {
                 case "setFrequency" -> {
                     long hz = ((Number) params.get("hz")).longValue();
-                    rigService.setFrequency(hz).thenAccept(success ->
+                    rigService.setFrequency(hz).thenAccept(success -> {
                         sendResponse(session, requestId, success, Map.of("frequency", hz),
-                                success ? "Frequency set" : "Failed to set frequency")
-                    );
+                                success ? "Frequency set" : "Failed to set frequency");
+                        auditLog.record(clientId, "setFrequency", "hz=" + hz, success);
+                    });
                 }
                 case "setMode" -> {
                     String mode = (String) params.get("mode");
                     int bandwidth = params.containsKey("bandwidth") ?
                             ((Number) params.get("bandwidth")).intValue() : 0;
-                    rigService.setMode(mode, bandwidth).thenAccept(success ->
+                    rigService.setMode(mode, bandwidth).thenAccept(success -> {
                         sendResponse(session, requestId, success, Map.of("mode", mode),
-                                success ? "Mode set" : "Failed to set mode")
-                    );
+                                success ? "Mode set" : "Failed to set mode");
+                        auditLog.record(clientId, "setMode", "mode=" + mode + " bw=" + bandwidth, success);
+                    });
                 }
                 case "setPTT" -> {
                     boolean enable = (Boolean) params.get("enable");
                     rigService.setPTT(enable, clientId).thenAccept(result -> {
                         sendResponse(session, requestId, result.success(), Map.of("ptt", enable), result.message());
+                        auditLog.record(clientId, "setPTT", "enable=" + enable, result.success());
 
                         // Broadcast PTT events
                         if (result.success()) {
@@ -136,6 +141,7 @@ public class RigCommandHandler extends TextWebSocketHandler {
                     // Force immediate status read (not from cache)
                     var status = rigService.getRigStatus();
                     sendResponse(session, requestId, true, Map.of("status", status), "Status retrieved");
+                    auditLog.record(clientId, "getStatus", null, true);
                 }
                 default -> sendErrorResponse(session, requestId, "Unknown command: " + command);
             }

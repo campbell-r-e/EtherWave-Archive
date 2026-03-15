@@ -27,13 +27,37 @@ The logbook connects to a central **Rig Control Service** that manages communica
 Your Browser → Logbook → Rig Control Service → rigctld → Your Radio
 ```
 
+## Deployment Options
+
+### Option A: Local Network (Everything on the Same Network)
+
+Logbook backend and rig control service run on the same machine or local network. The backend connects directly to the rig service on port 8081. Suitable for home stations, club shacks, or field day setups.
+
+### Option B: Remote (Local Rig + Cloud Logbook)
+
+Your logbook is hosted on the internet (e.g., a cloud server) but your radio is on your home network. The rig control service runs on your local machine and connects **outward** to the cloud logbook — no port forwarding or firewall configuration required.
+
+```
+Your Home Network                    Internet
+─────────────────────────────────────────────────
+Radio ──USB──► Rig Control Service
+                        │
+                        │  outbound secure connection
+                        ▼
+                   Cloud Logbook ◄──── Your Browser
+```
+
+See [Remote Setup (Cloud Relay)](#remote-setup-cloud-relay) below for setup instructions.
+
+---
+
 ## Getting Started
 
 ### Prerequisites
 
 1. **Logbook Account** - You must have a user account with appropriate permissions
 2. **Station Setup** - At least one station must be configured with rig control enabled
-3. **Radio Connection** - Your radio must be connected via `rigctld` or the rig control service must be running
+3. **Radio Connection** - Your radio must be connected via `rigctld` and the rig control service must be running
 
 ### First Time Setup
 
@@ -285,6 +309,81 @@ PTT (Push-To-Talk) locking prevents multiple users from transmitting at the same
 2. Try a different frequency/mode
 3. Disconnect and reconnect
 4. Check radio manual for supported modes
+
+## Remote Setup (Cloud Relay)
+
+If your logbook is hosted on the internet and your radio is at home, follow these steps.
+
+### What You Need
+
+- A machine at home with the radio connected (Windows, Mac, or Linux)
+- Docker installed on that home machine
+- Your logbook URL and a station API key (provided by your logbook administrator)
+
+### Setup Steps
+
+**1. Install Hamlib on your home machine:**
+
+- Linux: `sudo apt-get install libhamlib-utils`
+- macOS: `brew install hamlib`
+- Windows: Download from https://github.com/Hamlib/Hamlib/releases
+
+**2. Start rigctld** (connects to your radio):
+
+```bash
+# Find your rig model: rigctl --list
+rigctld -m 1035 -r /dev/ttyUSB0 -s 38400
+# Replace model number, port, and baud rate for your radio
+```
+
+**3. Download and configure the rig control service:**
+
+```bash
+# Download the rig-control-service folder from the logbook project
+cd rig-control-service
+cp .env.example .env
+```
+
+Edit `.env`:
+
+```
+RIGCTLD_HOST=localhost
+RIGCTLD_PORT=4532
+LOGBOOK_GATEWAY_URL=wss://your-logbook.example.com/ws/station-gateway
+STATION_ID=my-home-station
+STATION_API_KEY=the-key-your-admin-gave-you
+```
+
+**4. Start the rig control service:**
+
+```bash
+docker compose up -d
+```
+
+**5. Verify it connected:**
+
+```bash
+docker compose logs -f
+# You should see: "Connected to station gateway"
+```
+
+Once connected, your station will appear as online in the logbook and you can control it from any browser.
+
+### Troubleshooting Remote Connections
+
+**"Gateway connection failed"**
+- Check `LOGBOOK_GATEWAY_URL` — must start with `wss://` (not `ws://`) for cloud
+- Verify your logbook is running and accessible
+- Check that the URL path ends in `/ws/station-gateway`
+
+**"Authentication failed"**
+- Verify `STATION_ID` and `STATION_API_KEY` match what the administrator configured in the logbook
+
+**Station shows offline in logbook**
+- Check `docker compose logs` for errors
+- Ensure rigctld is running: `echo "f" | nc localhost 4532` should return a frequency
+
+---
 
 ## Advanced Features
 

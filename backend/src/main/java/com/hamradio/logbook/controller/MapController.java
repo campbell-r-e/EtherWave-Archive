@@ -27,7 +27,6 @@ import java.time.LocalDate;
 @RequestMapping("/api/maps")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "*") // TODO: Configure properly in production
 public class MapController {
 
     private final MapDataService mapDataService;

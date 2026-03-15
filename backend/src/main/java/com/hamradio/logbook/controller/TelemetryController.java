@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("/api/telemetry")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 @Slf4j
 public class TelemetryController {
 

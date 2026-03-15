@@ -20,7 +20,6 @@ import java.time.LocalDate;
 @RequestMapping("/api/lotw")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "*") // TODO: Configure properly in production
 public class LotwSyncController {
 
     private final LotwSyncService lotwSyncService;

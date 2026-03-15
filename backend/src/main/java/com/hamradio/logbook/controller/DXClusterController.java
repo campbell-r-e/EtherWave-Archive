@@ -17,7 +17,6 @@ import java.util.List;
 @RequestMapping("/api/dx-cluster")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "*") // TODO: Configure properly in production
 public class DXClusterController {
 
     private final DXClusterService dxClusterService;

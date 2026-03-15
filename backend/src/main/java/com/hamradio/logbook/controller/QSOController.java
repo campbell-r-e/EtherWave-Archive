@@ -23,7 +23,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/qsos")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
 public class QSOController {
 
     private final QSOService qsoService;

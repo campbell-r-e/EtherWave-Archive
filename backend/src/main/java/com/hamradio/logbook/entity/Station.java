@@ -82,6 +82,16 @@ public class Station {
     @Column(name = "station_color", length = 7)
     private String stationColor;
 
+    // Cloud relay: station connects to the backend via the station gateway
+    // rather than the backend connecting directly to the rig service.
+    @Column(name = "remote_station")
+    private Boolean remoteStation = false;
+
+    // BCrypt hash of the API key used by the remote rig service to authenticate
+    // with the station gateway. Only meaningful when remoteStation = true.
+    @Column(name = "api_key_hash", length = 100)
+    private String apiKeyHash;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

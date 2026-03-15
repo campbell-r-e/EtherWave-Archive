@@ -116,6 +116,11 @@ public class RigEventsHandler extends TextWebSocketHandler {
             return new RigEvent(LocalDateTime.now(), "client_disconnected", clientId, msg);
         }
 
+        public static RigEvent pttTimeout(String clientId) {
+            return new RigEvent(LocalDateTime.now(), "ptt_timeout", clientId,
+                    "PTT safety timeout expired for '" + clientId + "' — PTT force-released");
+        }
+
         public static RigEvent error(String clientId, String errorMessage) {
             return new RigEvent(LocalDateTime.now(), "error", clientId, errorMessage);
         }
