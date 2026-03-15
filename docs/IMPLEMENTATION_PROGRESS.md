@@ -2,7 +2,8 @@
 
 **Last Updated:** March 2026
 **Overall Status:** Production Ready (v1.2.0)
-**Backend Build:** SUCCESS — 230 tests passing (100%)
+**Backend Build:** SUCCESS — 238 tests passing (100%)
+**Rig Service Build:** SUCCESS — 51 tests passing (100%)
 
 ---
 
@@ -19,13 +20,15 @@
 | 7 | Performance | Complete | Server-side clustering, distance caching, DXCC cache |
 | 8 | Authentication & Security | Complete | JWT, BCrypt, username-only, route guards |
 | 9 | Multi-User Collaboration | Complete | RBAC, invitations, station assignment |
-| 10 | Contest Validation & Scoring | Complete | 7 validators, 230 total tests |
-| 11 | Rig Control | Complete | Standalone microservice, multi-client broker, PTT locking, smart caching |
+| 10 | Contest Validation & Scoring | Complete | 7 validators, 7 contest config JSONs |
+| 11 | Rig Control | Complete | Standalone microservice, multi-client broker, PTT locking + safety timeout, smart caching, cloud relay, WS auth, audit trail, Prometheus |
 | 12 | Log Type Separation | Complete | Personal/Shared, backend guard, two-section UI |
 
 ---
 
 ## Test Breakdown
+
+**Backend tests:**
 
 | Suite | Tests | Status |
 |-------|-------|--------|
@@ -37,7 +40,18 @@
 | POTA Validator | 14 | Passing |
 | SOTA Validator | 13 | Passing |
 | Integration Tests | 12 | Passing |
-| **Total** | **230** | **100% Passing** |
+| Station Gateway Handler | 8 | Passing |
+| **Total** | **238** | **100% Passing** |
+
+**Rig control service tests:**
+
+| Suite | Tests | Status |
+|-------|-------|--------|
+| RigCommandDispatcherTest | 15 | Passing |
+| PTTLockManagerTest | 15 | Passing |
+| RigServiceTest | 11 | Passing |
+| CloudRelayClientTest | 10 | Passing |
+| **Total** | **51** | **100% Passing** |
 
 Test database: H2 in-memory (`jdbc:h2:mem:testdb`). Switched from SQLite due to Hibernate 7.x `ObjectOptimisticLockingFailureException` issues with `jdbc:sqlite::memory:`. `spring.sql.init.mode=never` in test profile — Hibernate DDL handles schema creation.
 
@@ -135,9 +149,14 @@ Test database: H2 in-memory (`jdbc:h2:mem:testdb`). Switched from SQLite due to 
 - Multi-client shared broker: one `rigctld` TCP connection serves multiple simultaneous WebSocket clients
 - Three WebSocket endpoints: `/ws/rig/command` (bidirectional), `/ws/rig/status` (broadcast), `/ws/rig/events` (broadcast)
 - PTT locking: first-come-first-served exclusive PTT access with automatic release on client disconnect
+- PTT safety timeout: configurable countdown (`ptt.safety.timeout.seconds`, default 120s); force-releases PTT and broadcasts `ptt_timeout` event on expiry
 - Smart caching: read commands cached at 50ms TTL to reduce rigctld load under multiple clients; request coalescing for in-flight deduplication
 - Standalone `docker-compose.yml` and `.env.example` for deployment independent of the main stack
 - Frontend rig-status panel with real-time frequency/mode display and QSO form auto-population
+- Cloud Relay / Station Gateway: `CloudRelayClient` (rig service) opens outbound WSS to backend `/ws/station-gateway`; BCrypt API key auth; STOMP forwarding for status and events; `StationGatewayHandler` + `StationGatewayRegistry` on backend; `Station` entity has `remoteStation` and `apiKeyHash` fields
+- WebSocket API key authentication: `RigApiKeyHandshakeInterceptor` on all 3 WS endpoints; validates `X-Api-Key` header or `?apiKey=` query param; `rig.api.keys` config (empty = allow all, backward compatible)
+- Command audit trail: `CommandAuditLog` circular buffer (configurable `rig.audit.max-entries`, default 1000); REST endpoint `GET /api/rig/audit?limit=N`
+- Prometheus metrics: `micrometer-registry-prometheus` dependency; exposed at `/actuator/prometheus`
 
 ### 12. Log Type Separation (Personal / Shared)
 
@@ -166,23 +185,13 @@ Test database: H2 in-memory (`jdbc:h2:mem:testdb`). Switched from SQLite due to 
 
 | Feature | Priority | Notes |
 |---------|----------|-------|
-| Frontend unit tests | High | Not yet implemented |
-| E2E tests for critical user flows | High | Not yet implemented |
-| Rig control: Cloud Relay / Station Gateway | High | Architecture designed; `CloudRelayClient.java` + `StationGatewayHandler.java` + `StationGatewayRegistry.java` needed; `Station` entity needs `remoteStation` + `apiKeyHash` fields |
-| Rig control: PTT safety timeout | Medium | Countdown on PTT acquire, configurable seconds, `ptt_timeout` event broadcast |
-| Rig control: WebSocket API key authentication | Medium | `RigApiKeyHandshakeInterceptor` on all 3 WS endpoints; `rig.api.keys` config |
-| Rig control: Command history / audit trail | Medium | Circular buffer of who changed what and when; REST endpoint |
-| Rig control: Prometheus metrics | Low | Micrometer registry; command count, PTT hold duration |
-| QSL card photo attachments | Medium | File upload per QSO |
-| Filter preset backend persistence | Low | Currently localStorage-only |
-| Production CORS cleanup | Low | Move from per-controller `@CrossOrigin` to global `SecurityConfig` with `FRONTEND_ORIGIN` env var |
-| Offline mode with local-first sync | Low | |
-| Mobile native apps (iOS/Android) | Low | |
-| Voice logging via speech recognition | Low | |
-| AI-powered contact suggestions | Low | |
-| Social features (friends list, activity feed) | Low | |
-| Custom map styles and themes | Low | |
-| Satellite pass predictions | Low | |
+| Filter preset backend persistence | High | Per-log, per-user, private presets stored in backend DB. On first login after update, migrate existing localStorage presets (key `ewa_map_filter_presets`) to backend. No preset limit. Presets cascade-delete with their log. New entity: `UserFilterPreset` (id, user FK, log FK, name, filterJson TEXT, createdAt). Endpoints: `GET /api/logs/{logId}/filter-presets`, `POST /api/logs/{logId}/filter-presets`, `DELETE /api/logs/{logId}/filter-presets/{id}`. Frontend `map-filter-panel` migrates on init if backend presets are empty and localStorage has data. |
+| Mobile-optimised web UI | Medium | Full responsive pass across the entire app (QSO entry, map, dashboard). Refined breakpoints and touch targets within the existing Angular component structure — no separate mobile layout. Map requires full touch support: pinch-zoom, tap markers, swipe filter panel (Leaflet touch handlers + Angular CDK drag where needed). |
+| Satellite pass predictions | Medium | Backend fetches TLE data from Celestrak amateur satellite category (cached, auto-refreshed). Pass calculations via predict4java. REST endpoint serves next N passes per satellite given a lat/lon. Dashboard panel shows upcoming passes (time, max elevation, duration) alongside DX cluster and propagation panels. Location source is user-selectable in the panel: GPS (browser Geolocation API) or saved grid square — GPS takes precedence when chosen. Map overlay shows ground track and footprint coverage circle during active pass. Dedicated satellite log type tracks pass number, elevation at contact time, and Doppler-corrected frequency. |
+| Voice logging | Low | Full hands-free app control via speech recognition. QSO entry (callsign, frequency, mode, report), navigation between views, and common actions (export, filter, open log) all voice-driven. Engine is user-selectable: browser Web Speech API (Chrome/Edge, may need internet) or backend Whisper endpoint (offline-capable, user configures). Voice activation via push-to-talk button or configurable wake word. |
+| Custom map styles and themes | Low | User-configurable map appearance saved to backend per user. Features: (1) base tile style switcher — OpenStreetMap, satellite, topographic, dark, minimal; (2) overlay customisation — per-overlay visibility toggle, opacity slider, and colour picker for CQ zones, ITU zones, ARRL sections, DXCC boundaries; (3) QSO marker styling — colour by band/mode/DXCC/date or single custom colour, adjustable marker size; (4) print/screenshot mode — chrome-free full-screen map for printing or QRZ page screenshots. Preferences stored in a new `User.mapPreferences` TEXT column (JSON). |
+| Frontend unit tests | Low | Not yet implemented |
+| E2E tests for critical user flows | Low | Not yet implemented |
 
 ---
 
@@ -212,5 +221,5 @@ Test database: H2 in-memory (`jdbc:h2:mem:testdb`). Switched from SQLite due to 
 - `spring.sql.init.mode=never` in test profile prevents the SQLite-syntax `schema.sql` from running against H2.
 - `spring.jpa.open-in-view=false` in test profile.
 - PITest (mutation testing) does not support Java 25 — skip or ignore PITest failures.
-- Multiple controllers (`MapController`, `AwardController`, `DXClusterController`, `PropagationController`, `LotwSyncController`, `UserPreferencesController`, `TelemetryController`, `DXCCController`, and others) carry `@CrossOrigin(origins = "*")` annotations. These are superseded by the global CORS config in `SecurityConfig`, but the per-controller annotations should be removed for clarity. Backlog: migrate to `FRONTEND_ORIGIN` env var in `SecurityConfig`.
+- CORS is handled globally via `SecurityConfig.corsConfigurationSource()` using the `FRONTEND_ORIGIN` environment variable. Per-controller `@CrossOrigin` annotations have been removed from all controllers.
 - `console.log` debug statements present in `websocket.service.ts`, `qso-map` component, and auth components — benign, not user-facing.
